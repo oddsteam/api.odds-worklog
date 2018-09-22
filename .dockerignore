@@ -1,0 +1,6 @@
+vendor
+.env*
+Dockerfile
+.DS_Store
+.gitignore
+src/**/.env
