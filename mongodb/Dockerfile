@@ -10,7 +10,7 @@ RUN set -x && \
     rm -rf /var/cache/apk/* 
     
 VOLUME /data/db
-EXPOSE 27017 28017
+EXPOSE 27017
 
 ENTRYPOINT [ "/root/run.sh" ]
 CMD ["mongod"]

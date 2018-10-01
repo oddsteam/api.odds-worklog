@@ -1,3 +1,3 @@
 # API Odds Worklog
 
-Run `docker-compose up -d`
+Run `docker-compose up --build -d`

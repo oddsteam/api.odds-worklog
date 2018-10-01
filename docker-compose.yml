@@ -1,7 +1,7 @@
 version: '3'
 services:
   api:
-    container_name: 'api.odds-worklog'
+    container_name: 'odds-worklog-api'
     build: './app'
     ports:
       - '8080:8080'
@@ -10,7 +10,7 @@ services:
     depends_on:
       - 'mongo'
   mongo:
-    container_name: 'mongodb'
+    container_name: 'odds-worklog-mongo'
     build: './mongodb'
     ports:
-      - '27100:27017'
+      - 27017:27017
