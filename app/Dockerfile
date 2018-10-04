@@ -1,12 +1,14 @@
 FROM golang:1.11-alpine
 
-WORKDIR /go/src/app
+RUN apk update && apk upgrade && \
+    apk add --no-cache git
+WORKDIR /go/src/api.odds-worklog/app
 COPY . .
 
-#get dependancies
 RUN go get -d -v
 
+RUN pwd
 #build the binary
 RUN go build -o /go/bin/api
-
+RUN ls
 ENTRYPOINT ["/go/bin/api"]

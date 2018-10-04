@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"api.odds-worklog/app/service"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
@@ -17,7 +18,10 @@ func main() {
 
 	// Routes
 	e.GET("/", hello)
-
+	e.POST("/insertUser", service.InsertUser)
+	e.GET("/getUser", service.GetUser)
+	e.DELETE("/delete/:id", service.DeleteUser)
+	e.PUT("/update/:id", service.UpdateUser)
 	// Start server
 	e.Logger.Fatal(e.Start(":8080"))
 }
