@@ -15,8 +15,10 @@ import (
 func UpdateUser(c echo.Context) error {
 	var session *mgo.Session
 	var err error
-	session, err = mgo.Dial(Config.DB.Host)
+	session, err = mgo.Dial("mongodb:27017")
 	defer session.Close()
+	session.SetMode(mgo.Monotonic, true)
+
 	if err != nil {
 		return err
 	}

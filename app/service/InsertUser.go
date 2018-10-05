@@ -15,13 +15,17 @@ import (
 func InsertUser(c echo.Context) error {
 	var session *mgo.Session
 	var err error
-	session, err = mgo.Dial(Config.DB.Host)
+	session, err = mgo.Dial("mongodb:27017")
 	defer session.Close()
+	session.SetMode(mgo.Monotonic, true)
+
 	if err != nil {
 		return err
 	}
+
 	newId := bson.NewObjectId()
-	User := User{
+
+	user := User{
 		ID:                newId,
 		FullName:          c.FormValue("fullname"),
 		Email:             c.FormValue("email"),
@@ -31,9 +35,10 @@ func InsertUser(c echo.Context) error {
 		SubmitDate:        c.FormValue("submitDate"),
 		CardNumber:        c.FormValue("cardNumber"),
 	}
-	err = session.DB("worklog-odds").C("user").Insert(User)
+
+	err = session.DB("worklog-odds").C("user").Insert(user)
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, User)
+	return c.JSON(http.StatusOK, user)
 }

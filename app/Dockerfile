@@ -7,8 +7,7 @@ COPY . .
 
 RUN go get -d -v
 
-RUN pwd
 #build the binary
-RUN go build -o /go/bin/api
-RUN ls
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/bin/api
+
 ENTRYPOINT ["/go/bin/api"]

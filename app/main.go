@@ -18,12 +18,13 @@ func main() {
 
 	// Routes
 	e.GET("/", hello)
+	e.GET("/user", service.UserInfo)
 	e.POST("/insertUser", service.InsertUser)
 	e.GET("/getUser", service.GetUser)
 	e.DELETE("/delete/:id", service.DeleteUser)
 	e.PUT("/update/:id", service.UpdateUser)
 	// Start server
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start("0.0.0.0:8080"))
 }
 
 // Handler

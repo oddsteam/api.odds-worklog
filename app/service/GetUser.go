@@ -13,7 +13,7 @@ func GetUser(c echo.Context) error {
 	user := []User{}
 	var session *mgo.Session
 	var err error
-	session, err = mgo.Dial(Config.DB.Host)
+	session, err = mgo.Dial("mongodb:27017")
 	defer session.Close()
 	err = session.DB("worklog-odds").C("user").Find(bson.M{}).All(&user)
 	if err != nil {
