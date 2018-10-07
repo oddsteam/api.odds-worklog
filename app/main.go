@@ -18,11 +18,11 @@ func main() {
 
 	// Routes
 	e.GET("/", hello)
-	e.GET("/user", service.UserInfo)
-	e.POST("/insertUser", service.InsertUser)
-	e.GET("/getUser", service.GetUser)
-	e.DELETE("/delete/:id", service.DeleteUser)
-	e.PUT("/update/:id", service.UpdateUser)
+	e.GET("/userinfo", service.UserInfo)
+	e.POST("/user", service.InsertUser)
+	e.GET("/user", service.GetUser)
+	e.DELETE("/user/:id", service.DeleteUser)
+	e.PUT("/user/:id", service.UpdateUser)
 	// Start server
 	e.Logger.Fatal(e.Start("0.0.0.0:8080"))
 }
