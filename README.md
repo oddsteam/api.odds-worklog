@@ -9,11 +9,15 @@ Run `docker run --name api-odds-worklog -p 8080:8080 api-odds-worklog`
 
 link  `http://worklog.odds.team`
 
-GET `/api/userinfo`  mock ขึ้นมาเองครับ
+GET `/api/userinfo`  mock ขึ้นมาเองครั
+
 GET `/api/user` ดึงจากถังใน mongoครับ
+
 POST `/api/insertUser`
       body:  `x-www-form-urlencoded`
+     
 keyvalue : 
+
       fullname
       email
       bankAccountName
