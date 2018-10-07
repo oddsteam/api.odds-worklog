@@ -13,7 +13,7 @@ GET `/api/userinfo`  mock ขึ้นมาเองครั
 
 GET `/api/user` ดึงจากถังใน mongoครับ
 
-POST `/api/insertUser`
+POST `/api/user`
       body:  `x-www-form-urlencoded`
      
 keyvalue : 
@@ -28,4 +28,4 @@ keyvalue :
 DELETE `/api/user/:id`
       
       example: 
-          DELETE  `http://worklog.odds.team/api/delete/5bb9798e106b940001443df0`
+          DELETE  `http://worklog.odds.team/api/user/5bb9798e106b940001443df0`
