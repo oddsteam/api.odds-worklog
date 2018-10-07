@@ -26,5 +26,6 @@ keyvalue :
       submitDate
       cardNumber
 DELETE `/api/user/:id`
-       example: 
+      
+      example: 
           DELETE  `http://worklog.odds.team/api/delete/5bb9798e106b940001443df0`
