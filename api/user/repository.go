@@ -1,0 +1,38 @@
+package user
+
+import (
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
+	"gopkg.in/mgo.v2/bson"
+)
+
+const userColl = "user"
+
+type repository struct {
+	session *mongo.Session
+}
+
+func newRepository(session *mongo.Session) Repository {
+	return &repository{session}
+}
+
+func (r *repository) createUser(u *models.User) (*models.User, error) {
+	coll := r.session.GetCollection(userColl)
+	u.ID = bson.NewObjectId()
+	err := coll.Insert(u)
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
+}
+
+func (r *repository) getUser() ([]*models.User, error) {
+	users := make([]*models.User, 0)
+
+	coll := r.session.GetCollection(userColl)
+	err := coll.Find(bson.M{}).All(&users)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}

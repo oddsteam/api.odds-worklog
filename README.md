@@ -1,31 +1,30 @@
-# Docker 
+# API Odds-Worklog 
 
-Build `docker build -t api-odds-worklog .`
+## Setup
+* **Install dep**, dep is a dependency management tool for Go <br>
+Run `go get -u github.com/golang/dep/cmd/dep`
 
-Run `docker run --name api-odds-worklog -p 8080:8080 api-odds-worklog`
+* **Setup dependency**  <br>
+Run `dep ensure`
 
+* **Run Docker** <br>
+Run `docker-compose up --build -d`
 
-## API 
+* **Import user data** <br>
+```bash 
+    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection user --type json --file user.json --maintainInsertionOrder --jsonArray
+```
 
-link  `http://worklog.odds.team`
+## Host local
+[http://localhost:8080/](http://localhost:8080/)
 
-GET `/api/userinfo`  mock ขึ้นมาเองครั
+## API
+GET /user
 
-GET `/api/user` ดึงจากถังใน mongoครับ
+GET /user/:id
 
-POST `/api/user`
-      body:  `x-www-form-urlencoded`
-     
-keyvalue : 
+POST /user
 
-      fullname
-      email
-      bankAccountName
-      bankAccountNumber
-      totalIncome
-      submitDate
-      cardNumber
-DELETE `/api/user/:id`
-      
-      example: 
-          DELETE  `http://worklog.odds.team/api/user/5bb9798e106b940001443df0`
+PUT /user/:id
+
+DELETE /user/:id

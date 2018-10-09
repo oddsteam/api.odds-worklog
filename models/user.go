@@ -1,0 +1,14 @@
+package models
+
+import "gopkg.in/mgo.v2/bson"
+
+type User struct {
+	ID                bson.ObjectId `bson:"_id" json:"id"`
+	FullName          string        `bson:"fullname" json:"fullname"`
+	Email             string        `bson:"email" json:"email"`
+	BankAccountName   string        `bson:"bankAccountName" json:"bankAccountName"`
+	BankAccountNumber string        `bson:"bankAccountNumber" json:"bankAccountNumber"`
+	TotalIncome       string        `bson:"totalIncome" json:"totalIncome"`
+	SubmitDate        string        `bson:"submitDate" json:"submitDate"`
+	ThaiCitizenID     string        `bson:"thaiCitizenId" json:"thaiCitizenId"`
+}
