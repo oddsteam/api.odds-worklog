@@ -37,15 +37,23 @@ func (h *httpHandler) createUser(c echo.Context) error {
 	return c.JSON(http.StatusCreated, user)
 }
 
-// func (h *httpHandler) GetUserByID(c echo.Context) (*models.User, error) {
+func (h *httpHandler) getUser(c echo.Context) error {
+	users, err := h.usecase.getUser()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+	}
+	return c.JSON(http.StatusOK, users)
+}
+
+// func (h *httpHandler) getUserByID(c echo.Context) error {
 
 // }
 
-// func (h *httpHandler) Update(c echo.Context) (*models.User, error) {
+// func (h *httpHandler) update(c echo.Context) error {
 
 // }
 
-// func (h *httpHandler) Delete(c echo.Context) (bool, error) {
+// func (h *httpHandler) delete(c echo.Context) error {
 
 // }
 
@@ -54,8 +62,9 @@ func NewHttpHandler(e *echo.Echo, session *mongo.Session) {
 	uc := newUsecase(ur)
 
 	handler := &httpHandler{uc}
-	// e.GET("v1/user", handler.getUser)
-	e.POST("v1/user", handler.createUser)
-	// e.GET("v1/user/:id", handler.getUserByID)
-	// e.DELETE("v1/user/:id", handler.delete)
+	e.GET("/user", handler.getUser)
+	e.POST("/user", handler.createUser)
+	// e.GET("/user/:id", handler.getUserByID)
+	// e.UPDATE("/user/:id, handler.update")
+	// e.DELETE("/user/:id", handler.delete)
 }
