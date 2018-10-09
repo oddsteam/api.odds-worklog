@@ -21,3 +21,11 @@ func (u *usecase) createUser(m *models.User) (*models.User, error) {
 	m.ID = user.ID
 	return m, nil
 }
+
+func (u *usecase) getUser() ([]*models.User, error) {
+	users, err := u.repo.getUser()
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
