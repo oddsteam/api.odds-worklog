@@ -6,7 +6,7 @@ type Repository interface {
 	createUser(u *models.User) (*models.User, error)
 	getUser() ([]*models.User, error)
 	getUserByID(id string) (*models.User, error)
-	// update(u *models.User) (*models.User, error)
+	updateUser(u *models.User) (*models.User, error)
 	// delete(id int64) (bool, error)
 }
 
@@ -14,6 +14,6 @@ type Usecase interface {
 	createUser(u *models.User) (*models.User, error)
 	getUser() ([]*models.User, error)
 	getUserByID(id string) (*models.User, error)
-	// update(u *models.User) (*models.User, error)
+	updateUser(u *models.User) (*models.User, error)
 	// delete(id int64) (bool, error)
 }
