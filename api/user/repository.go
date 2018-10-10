@@ -55,3 +55,8 @@ func (r *repository) updateUser(user *models.User) (*models.User, error) {
 	}
 	return user, nil
 }
+
+func (r *repository) deleteUser(id string) error {
+	coll := r.session.GetCollection(userColl)
+	return coll.Remove(bson.M{"_id": bson.ObjectIdHex(id)})
+}
