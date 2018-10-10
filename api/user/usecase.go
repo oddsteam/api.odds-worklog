@@ -17,9 +17,7 @@ func (u *usecase) createUser(m *models.User) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	m.ID = user.ID
-	return m, nil
+	return user, nil
 }
 
 func (u *usecase) getUser() ([]*models.User, error) {
@@ -32,6 +30,14 @@ func (u *usecase) getUser() ([]*models.User, error) {
 
 func (u *usecase) getUserByID(id string) (*models.User, error) {
 	user, err := u.repo.getUserByID(id)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (u *usecase) updateUser(m *models.User) (*models.User, error) {
+	user, err := u.repo.updateUser(m)
 	if err != nil {
 		return nil, err
 	}
