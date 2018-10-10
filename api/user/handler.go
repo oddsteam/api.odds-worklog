@@ -45,9 +45,14 @@ func (h *httpHandler) getUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, users)
 }
 
-// func (h *httpHandler) getUserByID(c echo.Context) error {
-
-// }
+func (h *httpHandler) getUserByID(c echo.Context) error {
+	id := c.Param("id")
+	user, err := h.usecase.getUserByID(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+	}
+	return c.JSON(http.StatusCreated, user)
+}
 
 // func (h *httpHandler) update(c echo.Context) error {
 
@@ -64,7 +69,7 @@ func NewHttpHandler(e *echo.Echo, session *mongo.Session) {
 	handler := &httpHandler{uc}
 	e.GET("/user", handler.getUser)
 	e.POST("/user", handler.createUser)
-	// e.GET("/user/:id", handler.getUserByID)
+	e.GET("/user/:id", handler.getUserByID)
 	// e.UPDATE("/user/:id, handler.update")
 	// e.DELETE("/user/:id", handler.delete)
 }
