@@ -51,7 +51,7 @@ func (h *httpHandler) getUserByID(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
-	return c.JSON(http.StatusCreated, user)
+	return c.JSON(http.StatusOK, user)
 }
 
 func (h *httpHandler) updateUser(c echo.Context) error {
@@ -68,12 +68,17 @@ func (h *httpHandler) updateUser(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
-	return c.JSON(http.StatusCreated, user)
+	return c.JSON(http.StatusOK, user)
 }
 
-// func (h *httpHandler) delete(c echo.Context) error {
-
-// }
+func (h *httpHandler) deleteUser(c echo.Context) error {
+	id := c.Param("id")
+	err := h.usecase.deleteUser(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+	}
+	return c.NoContent(http.StatusNoContent)
+}
 
 func NewHttpHandler(e *echo.Echo, session *mongo.Session) {
 	ur := newRepository(session)
@@ -84,5 +89,5 @@ func NewHttpHandler(e *echo.Echo, session *mongo.Session) {
 	e.POST("/user", handler.createUser)
 	e.GET("/user/:id", handler.getUserByID)
 	e.PUT("/user", handler.updateUser)
-	// e.DELETE("/user/:id", handler.delete)
+	e.DELETE("/user/:id", handler.deleteUser)
 }
