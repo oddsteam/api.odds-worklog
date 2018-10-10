@@ -36,3 +36,13 @@ func (r *repository) getUser() ([]*models.User, error) {
 	}
 	return users, nil
 }
+
+func (r *repository) getUserByID(id string) (*models.User, error) {
+	user := new(models.User)
+	coll := r.session.GetCollection(userColl)
+	err := coll.FindId(bson.ObjectIdHex(id)).One(&user)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
