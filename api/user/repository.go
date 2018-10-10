@@ -46,3 +46,12 @@ func (r *repository) getUserByID(id string) (*models.User, error) {
 	}
 	return user, nil
 }
+
+func (r *repository) updateUser(user *models.User) (*models.User, error) {
+	coll := r.session.GetCollection(userColl)
+	err := coll.UpdateId(user.ID, &user)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
