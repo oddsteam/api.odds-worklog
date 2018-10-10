@@ -7,7 +7,7 @@ type Repository interface {
 	getUser() ([]*models.User, error)
 	getUserByID(id string) (*models.User, error)
 	updateUser(u *models.User) (*models.User, error)
-	// delete(id int64) (bool, error)
+	deleteUser(id string) error
 }
 
 type Usecase interface {
@@ -15,5 +15,5 @@ type Usecase interface {
 	getUser() ([]*models.User, error)
 	getUserByID(id string) (*models.User, error)
 	updateUser(u *models.User) (*models.User, error)
-	// delete(id int64) (bool, error)
+	deleteUser(id string) error
 }
