@@ -29,3 +29,11 @@ func (u *usecase) getUser() ([]*models.User, error) {
 	}
 	return users, nil
 }
+
+func (u *usecase) getUserByID(id string) (*models.User, error) {
+	user, err := u.repo.getUserByID(id)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
