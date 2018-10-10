@@ -43,3 +43,7 @@ func (u *usecase) updateUser(m *models.User) (*models.User, error) {
 	}
 	return user, nil
 }
+
+func (u *usecase) deleteUser(id string) error {
+	return u.repo.deleteUser(id)
+}
