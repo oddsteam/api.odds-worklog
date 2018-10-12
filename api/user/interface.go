@@ -8,6 +8,7 @@ type Repository interface {
 	getUserByID(id string) (*models.User, error)
 	updateUser(u *models.User) (*models.User, error)
 	deleteUser(id string) error
+	login(authen *models.Login) (*models.Token, error)
 }
 
 type Usecase interface {
@@ -16,4 +17,5 @@ type Usecase interface {
 	getUserByID(id string) (*models.User, error)
 	updateUser(u *models.User) (*models.User, error)
 	deleteUser(id string) error
+	login(authen *models.Login) (*models.Token, error)
 }

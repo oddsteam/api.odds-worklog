@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	validator "gopkg.in/go-playground/validator.v9"
@@ -80,14 +81,37 @@ func (h *httpHandler) deleteUser(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
+func (h *httpHandler) login(c echo.Context) error {
+	var u models.Login
+	if err := c.Bind(&u); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	user, err := h.usecase.login(&u)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+	}
+	return c.JSON(http.StatusCreated, user)
+}
+
 func NewHttpHandler(e *echo.Echo, session *mongo.Session) {
 	ur := newRepository(session)
 	uc := newUsecase(ur)
-
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 	handler := &httpHandler{uc}
-	e.GET("/user", handler.getUser)
-	e.POST("/user", handler.createUser)
-	e.GET("/user/:id", handler.getUserByID)
-	e.PUT("/user", handler.updateUser)
-	e.DELETE("/user/:id", handler.deleteUser)
+	config := middleware.JWTConfig{
+		Claims:     &models.JwtCustomClaims{},
+		SigningKey: []byte("secret"),
+	}
+	e.POST("/login", handler.login)
+
+	r := e.Group("/")
+	r.Use(middleware.JWTWithConfig(config))
+	r.GET("user", handler.getUser)
+	r.POST("user", handler.createUser)
+	r.GET("user/:id", handler.getUserByID)
+	r.PUT("user", handler.updateUser)
+	r.DELETE("user/:id", handler.deleteUser)
+
 }
