@@ -8,7 +8,8 @@ Run `go get -u github.com/golang/dep/cmd/dep`
 Run `dep ensure`
 
 * **Run Docker** <br>
-Run `docker-compose up --build -d`
+Run `docker-compose up --build -d` <br>
+*Note:* If you add new 3rd party package, you must run `dep ensure` for setup dependency.
 
 * **Import user data** <br>
 ```bash 
