@@ -10,8 +10,8 @@ import (
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
-type httpHandler struct {
-	usecase Usecase
+type HttpHandler struct {
+	Usecase Usecase
 }
 
 func isRequestValid(m *models.User) (bool, error) {
@@ -21,7 +21,7 @@ func isRequestValid(m *models.User) (bool, error) {
 	return true, nil
 }
 
-func (h *httpHandler) createUser(c echo.Context) error {
+func (h *HttpHandler) CreateUser(c echo.Context) error {
 	var u models.User
 	if err := c.Bind(&u); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
@@ -31,31 +31,31 @@ func (h *httpHandler) createUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	user, err := h.usecase.createUser(&u)
+	user, err := h.Usecase.CreateUser(&u)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
 	return c.JSON(http.StatusCreated, user)
 }
 
-func (h *httpHandler) getUser(c echo.Context) error {
-	users, err := h.usecase.getUser()
+func (h *HttpHandler) GetUser(c echo.Context) error {
+	users, err := h.Usecase.GetUser()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
 	return c.JSON(http.StatusOK, users)
 }
 
-func (h *httpHandler) getUserByID(c echo.Context) error {
+func (h *HttpHandler) GetUserByID(c echo.Context) error {
 	id := c.Param("id")
-	user, err := h.usecase.getUserByID(id)
+	user, err := h.Usecase.GetUserByID(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
 	return c.JSON(http.StatusOK, user)
 }
 
-func (h *httpHandler) updateUser(c echo.Context) error {
+func (h *HttpHandler) UpdateUser(c echo.Context) error {
 	var u models.User
 	if err := c.Bind(&u); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
@@ -65,29 +65,29 @@ func (h *httpHandler) updateUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	user, err := h.usecase.updateUser(&u)
+	user, err := h.Usecase.UpdateUser(&u)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
 	return c.JSON(http.StatusOK, user)
 }
 
-func (h *httpHandler) deleteUser(c echo.Context) error {
+func (h *HttpHandler) DeleteUser(c echo.Context) error {
 	id := c.Param("id")
-	err := h.usecase.deleteUser(id)
+	err := h.Usecase.DeleteUser(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
 	return c.NoContent(http.StatusNoContent)
 }
 
-func (h *httpHandler) login(c echo.Context) error {
+func (h *HttpHandler) Login(c echo.Context) error {
 	var u models.Login
 	if err := c.Bind(&u); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	user, err := h.usecase.login(&u)
+	user, err := h.Usecase.Login(&u)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
@@ -99,19 +99,19 @@ func NewHttpHandler(e *echo.Echo, session *mongo.Session) {
 	uc := newUsecase(ur)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	handler := &httpHandler{uc}
+	handler := &HttpHandler{uc}
 	config := middleware.JWTConfig{
 		Claims:     &models.JwtCustomClaims{},
 		SigningKey: []byte("secret"),
 	}
-	e.POST("/login", handler.login)
+	e.POST("/login", handler.Login)
 
 	r := e.Group("/")
 	r.Use(middleware.JWTWithConfig(config))
-	r.GET("user", handler.getUser)
-	r.POST("user", handler.createUser)
-	r.GET("user/:id", handler.getUserByID)
-	r.PUT("user", handler.updateUser)
-	r.DELETE("user/:id", handler.deleteUser)
+	r.GET("user", handler.GetUser)
+	r.POST("user", handler.CreateUser)
+	r.GET("user/:id", handler.GetUserByID)
+	r.PUT("user", handler.UpdateUser)
+	r.DELETE("user/:id", handler.DeleteUser)
 
 }

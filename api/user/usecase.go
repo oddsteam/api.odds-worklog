@@ -12,44 +12,44 @@ func newUsecase(r Repository) Usecase {
 	return &usecase{r}
 }
 
-func (u *usecase) createUser(m *models.User) (*models.User, error) {
-	user, err := u.repo.createUser(m)
+func (u *usecase) CreateUser(m *models.User) (*models.User, error) {
+	user, err := u.repo.CreateUser(m)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (u *usecase) getUser() ([]*models.User, error) {
-	users, err := u.repo.getUser()
+func (u *usecase) GetUser() ([]*models.User, error) {
+	users, err := u.repo.GetUser()
 	if err != nil {
 		return nil, err
 	}
 	return users, nil
 }
 
-func (u *usecase) getUserByID(id string) (*models.User, error) {
-	user, err := u.repo.getUserByID(id)
+func (u *usecase) GetUserByID(id string) (*models.User, error) {
+	user, err := u.repo.GetUserByID(id)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (u *usecase) updateUser(m *models.User) (*models.User, error) {
-	user, err := u.repo.updateUser(m)
+func (u *usecase) UpdateUser(m *models.User) (*models.User, error) {
+	user, err := u.repo.UpdateUser(m)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (u *usecase) deleteUser(id string) error {
-	return u.repo.deleteUser(id)
+func (u *usecase) DeleteUser(id string) error {
+	return u.repo.DeleteUser(id)
 }
 
-func (u *usecase) login(user *models.Login) (*models.Token, error) {
-	test, err := u.repo.login(user)
+func (u *usecase) Login(user *models.Login) (*models.Token, error) {
+	test, err := u.repo.Login(user)
 	if err != nil {
 		return nil, err
 	}

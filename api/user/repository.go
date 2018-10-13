@@ -20,7 +20,7 @@ func newRepository(session *mongo.Session) Repository {
 	return &repository{session}
 }
 
-func (r *repository) createUser(u *models.User) (*models.User, error) {
+func (r *repository) CreateUser(u *models.User) (*models.User, error) {
 	coll := r.session.GetCollection(userColl)
 	u.ID = bson.NewObjectId()
 	err := coll.Insert(u)
@@ -30,7 +30,7 @@ func (r *repository) createUser(u *models.User) (*models.User, error) {
 	return u, nil
 }
 
-func (r *repository) getUser() ([]*models.User, error) {
+func (r *repository) GetUser() ([]*models.User, error) {
 	users := make([]*models.User, 0)
 
 	coll := r.session.GetCollection(userColl)
@@ -41,7 +41,7 @@ func (r *repository) getUser() ([]*models.User, error) {
 	return users, nil
 }
 
-func (r *repository) getUserByID(id string) (*models.User, error) {
+func (r *repository) GetUserByID(id string) (*models.User, error) {
 	user := new(models.User)
 	coll := r.session.GetCollection(userColl)
 	err := coll.FindId(bson.ObjectIdHex(id)).One(&user)
@@ -51,7 +51,7 @@ func (r *repository) getUserByID(id string) (*models.User, error) {
 	return user, nil
 }
 
-func (r *repository) updateUser(user *models.User) (*models.User, error) {
+func (r *repository) UpdateUser(user *models.User) (*models.User, error) {
 	coll := r.session.GetCollection(userColl)
 	err := coll.UpdateId(user.ID, &user)
 	if err != nil {
@@ -60,12 +60,12 @@ func (r *repository) updateUser(user *models.User) (*models.User, error) {
 	return user, nil
 }
 
-func (r *repository) deleteUser(id string) error {
+func (r *repository) DeleteUser(id string) error {
 	coll := r.session.GetCollection(userColl)
 	return coll.Remove(bson.M{"_id": bson.ObjectIdHex(id)})
 }
 
-func (r *repository) login(authen *models.Login) (*models.Token, error) {
+func (r *repository) Login(authen *models.Login) (*models.Token, error) {
 	username := authen.Username
 	password := authen.Password
 	if username == "admin" && password == "admin" {
