@@ -25,6 +25,6 @@ GET /user/:id
 
 POST /user
 
-PUT /user/:id
+PUT /user
 
 DELETE /user/:id
