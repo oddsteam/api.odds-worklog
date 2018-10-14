@@ -81,13 +81,12 @@ func TestGetUser(t *testing.T) {
 }
 
 func TestGetUserByID(t *testing.T) {
-	mockUser.ID = "5bbcf2f90fd2df527bc39539"
 	mockUsecase := new(mocks.Usecase)
 
 	mockUsecase.On("GetUserByID", mock.AnythingOfType("string")).Return(&mockUser, nil)
 
 	e := echo.New()
-	req := httptest.NewRequest(echo.POST, "/user/"+string(mockUser.ID), strings.NewReader(string(mockUser.ID)))
+	req := httptest.NewRequest(echo.GET, "/user/"+string(mockUser.ID), strings.NewReader(string(mockUser.ID)))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	rec := httptest.NewRecorder()
