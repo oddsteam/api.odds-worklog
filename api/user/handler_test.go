@@ -55,3 +55,31 @@ func TestCreateUser(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, rec.Code)
 	mockUsecase.AssertExpectations(t)
 }
+
+func TestGetUser(t *testing.T) {
+	tempMockUser := mockUser
+	j, err := json.Marshal(tempMockUser)
+	assert.NoError(t, err)
+
+	mockUsecase := new(mocks.Usecase)
+	mockListUser := make([]*models.User, 0)
+	mockListUser = append(mockListUser, &mockUser)
+
+	mockUsecase.On("GetUser").Return(mockListUser, nil)
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.GET, "/user", strings.NewReader(string(j)))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/user")
+
+	handler := user.HttpHandler{
+		Usecase: mockUsecase,
+	}
+	handler.GetUser(c)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	mockUsecase.AssertExpectations(t)
+}
