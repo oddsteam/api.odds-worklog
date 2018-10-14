@@ -57,10 +57,6 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestGetUser(t *testing.T) {
-	tempMockUser := mockUser
-	j, err := json.Marshal(tempMockUser)
-	assert.NoError(t, err)
-
 	mockUsecase := new(mocks.Usecase)
 	mockListUser := make([]*models.User, 0)
 	mockListUser = append(mockListUser, &mockUser)
@@ -68,7 +64,7 @@ func TestGetUser(t *testing.T) {
 	mockUsecase.On("GetUser").Return(mockListUser, nil)
 
 	e := echo.New()
-	req := httptest.NewRequest(echo.GET, "/user", strings.NewReader(string(j)))
+	req := httptest.NewRequest(echo.GET, "/user", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	rec := httptest.NewRecorder()
