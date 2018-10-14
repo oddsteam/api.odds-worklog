@@ -101,3 +101,29 @@ func TestGetUserByID(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUsecase.AssertExpectations(t)
 }
+
+func TestUpdateUser(t *testing.T) {
+	tempMockUser := mockUser
+	mockUsecase := new(mocks.Usecase)
+
+	j, err := json.Marshal(tempMockUser)
+	assert.NoError(t, err)
+
+	mockUsecase.On("UpdateUser", mock.AnythingOfType("*models.User")).Return(&mockUser, nil)
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.PUT, "/user", strings.NewReader(string(j)))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/user")
+
+	handler := user.HttpHandler{
+		Usecase: mockUsecase,
+	}
+	handler.UpdateUser(c)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	mockUsecase.AssertExpectations(t)
+}
