@@ -92,6 +92,7 @@ func TestGetUserByID(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	c.SetPath("/user/:id")
+	c.SetParamNames("id")
 
 	handler := user.HttpHandler{
 		Usecase: mockUsecase,
@@ -125,5 +126,26 @@ func TestUpdateUser(t *testing.T) {
 	handler.UpdateUser(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
+	mockUsecase.AssertExpectations(t)
+}
+
+func TestDeleteUser(t *testing.T) {
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("DeleteUser", mock.AnythingOfType("string")).Return(nil)
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.DELETE, "/user/"+string(mockUser.ID), nil)
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/user/:id")
+	c.SetParamNames("id")
+
+	handler := user.HttpHandler{
+		Usecase: mockUsecase,
+	}
+	handler.DeleteUser(c)
+
+	assert.Equal(t, http.StatusNoContent, rec.Code)
 	mockUsecase.AssertExpectations(t)
 }
