@@ -29,8 +29,13 @@ var (
 		ThaiCitizenID:     "1234567890123",
 	}
 
+	mockToken = models.Token{
+		Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NjE5NTcxMzZ9.RB3arc4-OyzASAaUhC2W3ReWaXAt_z2Fd3BN4aWTgEY",
+	}
+
 	userByte, _ = json.Marshal(mockUser)
 	userJson    = string(userByte)
+	loginJson   = `{"username": "root", "password":"1234"}`
 )
 
 func TestCreateUser(t *testing.T) {
@@ -126,5 +131,24 @@ func TestDeleteUser(t *testing.T) {
 	handler.DeleteUser(c)
 
 	assert.Equal(t, http.StatusNoContent, rec.Code)
+	mockUsecase.AssertExpectations(t)
+}
+
+func TestLogin(t *testing.T) {
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("Login", mock.AnythingOfType("*models.Login")).Return(&mockToken, nil)
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(loginJson))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	handler := user.HttpHandler{
+		Usecase: mockUsecase,
+	}
+	handler.Login(c)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUsecase.AssertExpectations(t)
 }
