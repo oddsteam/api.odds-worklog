@@ -91,7 +91,7 @@ func (h *HttpHandler) Login(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
-	return c.JSON(http.StatusCreated, user)
+	return c.JSON(http.StatusOK, user)
 }
 
 func NewHttpHandler(e *echo.Echo, session *mongo.Session) {
