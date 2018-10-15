@@ -1,7 +1,6 @@
 package user_test
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -18,32 +17,12 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
-var (
-	mockUser = models.User{
-		FullName:          "นายทดสอบชอบลงทุน",
-		Email:             "test@abc.com",
-		BankAccountName:   "ทดสอบชอบลงทุน",
-		BankAccountNumber: "123123123123",
-		TotalIncome:       "123123123",
-		SubmitDate:        "12/12/2561",
-		ThaiCitizenID:     "1234567890123",
-	}
-
-	mockToken = models.Token{
-		Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NjE5NTcxMzZ9.RB3arc4-OyzASAaUhC2W3ReWaXAt_z2Fd3BN4aWTgEY",
-	}
-
-	userByte, _ = json.Marshal(mockUser)
-	userJson    = string(userByte)
-	loginJson   = `{"username": "root", "password":"1234"}`
-)
-
 func TestCreateUser(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("CreateUser", mock.AnythingOfType("*models.User")).Return(&mockUser, nil)
+	mockUsecase.On("CreateUser", mock.AnythingOfType("*models.User")).Return(&mocks.MockUser, nil)
 
 	e := echo.New()
-	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(userJson))
+	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mocks.UserJson))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	rec := httptest.NewRecorder()
@@ -61,7 +40,7 @@ func TestCreateUser(t *testing.T) {
 func TestGetUser(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
 	mockListUser := make([]*models.User, 0)
-	mockListUser = append(mockListUser, &mockUser)
+	mockListUser = append(mockListUser, &mocks.MockUser)
 
 	mockUsecase.On("GetUser").Return(mockListUser, nil)
 
@@ -81,7 +60,7 @@ func TestGetUser(t *testing.T) {
 
 func TestGetUserByID(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("GetUserByID", mock.AnythingOfType("string")).Return(&mockUser, nil)
+	mockUsecase.On("GetUserByID", mock.AnythingOfType("string")).Return(&mocks.MockUser, nil)
 
 	e := echo.New()
 	req := httptest.NewRequest(echo.GET, "/", nil)
@@ -99,10 +78,10 @@ func TestGetUserByID(t *testing.T) {
 
 func TestUpdateUser(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("UpdateUser", mock.AnythingOfType("*models.User")).Return(&mockUser, nil)
+	mockUsecase.On("UpdateUser", mock.AnythingOfType("*models.User")).Return(&mocks.MockUser, nil)
 
 	e := echo.New()
-	req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(userJson))
+	req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(mocks.UserJson))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -136,10 +115,10 @@ func TestDeleteUser(t *testing.T) {
 
 func TestLogin(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Login", mock.AnythingOfType("*models.Login")).Return(&mockToken, nil)
+	mockUsecase.On("Login", mock.AnythingOfType("*models.Login")).Return(&mocks.MockToken, nil)
 
 	e := echo.New()
-	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(loginJson))
+	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mocks.LoginJson))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
