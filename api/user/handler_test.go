@@ -28,24 +28,21 @@ var (
 		SubmitDate:        "12/12/2561",
 		ThaiCitizenID:     "1234567890123",
 	}
+
+	userByte, _ = json.Marshal(mockUser)
+	userJson    = string(userByte)
 )
 
 func TestCreateUser(t *testing.T) {
-	tempMockUser := mockUser
 	mockUsecase := new(mocks.Usecase)
-
-	j, err := json.Marshal(tempMockUser)
-	assert.NoError(t, err)
-
 	mockUsecase.On("CreateUser", mock.AnythingOfType("*models.User")).Return(&mockUser, nil)
 
 	e := echo.New()
-	req := httptest.NewRequest(echo.POST, "/user", strings.NewReader(string(j)))
+	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(userJson))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/user")
 
 	handler := user.HttpHandler{
 		Usecase: mockUsecase,
@@ -64,12 +61,9 @@ func TestGetUser(t *testing.T) {
 	mockUsecase.On("GetUser").Return(mockListUser, nil)
 
 	e := echo.New()
-	req := httptest.NewRequest(echo.GET, "/user", nil)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-
+	req := httptest.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/user")
 
 	handler := user.HttpHandler{
 		Usecase: mockUsecase,
@@ -82,17 +76,12 @@ func TestGetUser(t *testing.T) {
 
 func TestGetUserByID(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
-
 	mockUsecase.On("GetUserByID", mock.AnythingOfType("string")).Return(&mockUser, nil)
 
 	e := echo.New()
-	req := httptest.NewRequest(echo.GET, "/user/"+string(mockUser.ID), strings.NewReader(string(mockUser.ID)))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-
+	req := httptest.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/user/:id")
-	c.SetParamNames("id")
 
 	handler := user.HttpHandler{
 		Usecase: mockUsecase,
@@ -104,21 +93,14 @@ func TestGetUserByID(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
-	tempMockUser := mockUser
 	mockUsecase := new(mocks.Usecase)
-
-	j, err := json.Marshal(tempMockUser)
-	assert.NoError(t, err)
-
 	mockUsecase.On("UpdateUser", mock.AnythingOfType("*models.User")).Return(&mockUser, nil)
 
 	e := echo.New()
-	req := httptest.NewRequest(echo.PUT, "/user", strings.NewReader(string(j)))
+	req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(userJson))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/user")
 
 	handler := user.HttpHandler{
 		Usecase: mockUsecase,
@@ -134,12 +116,9 @@ func TestDeleteUser(t *testing.T) {
 	mockUsecase.On("DeleteUser", mock.AnythingOfType("string")).Return(nil)
 
 	e := echo.New()
-	req := httptest.NewRequest(echo.DELETE, "/user/"+string(mockUser.ID), nil)
-
+	req := httptest.NewRequest(echo.DELETE, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/user/:id")
-	c.SetParamNames("id")
 
 	handler := user.HttpHandler{
 		Usecase: mockUsecase,
