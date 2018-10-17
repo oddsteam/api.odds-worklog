@@ -45,6 +45,16 @@ func TestGetUserByID(t *testing.T) {
 	assert.Equal(t, mocks.MockUserById.FullName, u.FullName)
 	mockRepo.AssertExpectations(t)
 }
+func TestDeleteUser(t *testing.T) {
+	mockRepo := new(mocks.Repository)
+	mockRepo.On("DeleteUser", "1234567890").Return(nil)
+
+	uc := newUsecase(mockRepo)
+	u := uc.DeleteUser(string(mocks.MockUserById.ID))
+
+	assert.Equal(t, nil, u)
+	mockRepo.AssertExpectations(t)
+}
 
 func TestLogin(t *testing.T) {
 	mockRepo := new(mocks.Repository)
@@ -54,5 +64,16 @@ func TestLogin(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, u)
 	assert.Equal(t, mocks.MockToken.Token, u.Token)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestUpdateUser(t *testing.T) {
+	mockRepo := new(mocks.Repository)
+	mockRepo.On("UpdateUser", mock.AnythingOfType("*models.User")).Return(&mocks.MockUserById, nil)
+	uc := newUsecase(mockRepo)
+	u, err := uc.UpdateUser(&mocks.MockUserById)
+	assert.NoError(t, err)
+	assert.NotNil(t, u)
+	assert.Equal(t, mocks.MockUser.FullName, u.FullName)
 	mockRepo.AssertExpectations(t)
 }
