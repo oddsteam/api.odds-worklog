@@ -114,20 +114,20 @@ func TestDeleteUser(t *testing.T) {
 	mockUsecase.AssertExpectations(t)
 }
 
-// func TestLogin(t *testing.T) {
-// 	mockUsecase := new(mocks.Usecase)
-// 	mockUsecase.On("Login", mock.AnythingOfType("*models.Login")).Return(&mocks.MockToken, nil)
+func TestLogin(t *testing.T) {
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("Login", mock.AnythingOfType("*models.Login")).Return(&mocks.MockToken, nil)
 
-// 	e := echo.New()
-// 	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mocks.LoginJson))
-// 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-// 	rec := httptest.NewRecorder()
-// 	c := e.NewContext(req, rec)
+	e := echo.New()
+	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mocks.LoginJson))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
 
-// 	handler := user.HttpHandler{
-// 		Usecase: mockUsecase,
-// 	}
-// 	handler.Login(c)
+	handler := user.HttpHandler{
+		Usecase: mockUsecase,
+	}
+	handler.Login(c)
 
-// 	assert.Equal(t, http.StatusOK, rec.Code)
-// }
+	assert.Equal(t, http.StatusOK, rec.Code)
+}

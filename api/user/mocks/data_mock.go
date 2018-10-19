@@ -34,7 +34,7 @@ var (
 
 	userByte, _ = json.Marshal(MockUser)
 	UserJson    = string(userByte)
-	LoginJson   = `{"username": "root", "password":"1234"}`
+	LoginJson   = `{"username": "admin", "password":"admin"}`
 	Login       = models.Login{
 		Username: "root",
 		Password: "1234",
