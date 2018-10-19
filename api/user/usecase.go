@@ -47,11 +47,3 @@ func (u *usecase) UpdateUser(m *models.User) (*models.User, error) {
 func (u *usecase) DeleteUser(id string) error {
 	return u.repo.DeleteUser(id)
 }
-
-func (u *usecase) Login(user *models.Login) (*models.Token, error) {
-	test, err := u.repo.Login(user)
-	if err != nil {
-		return nil, err
-	}
-	return test, nil
-}

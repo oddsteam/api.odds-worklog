@@ -21,6 +21,12 @@ func (m *goMiddleware) CORS(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+func (m *goMiddleware) Authorizetion(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set("Autho", "*")
+		return next(c)
+	}
+}
 func InitMiddleware() *goMiddleware {
 	return &goMiddleware{}
 }

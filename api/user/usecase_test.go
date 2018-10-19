@@ -56,17 +56,6 @@ func TestDeleteUser(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
-func TestLogin(t *testing.T) {
-	mockRepo := new(mocks.Repository)
-	mockRepo.On("Login", mock.AnythingOfType("*models.Login")).Return(&mocks.MockToken, nil)
-	uc := newUsecase(mockRepo)
-	u, err := uc.Login(&mocks.Login)
-	assert.NoError(t, err)
-	assert.NotNil(t, u)
-	assert.Equal(t, mocks.MockToken.Token, u.Token)
-	mockRepo.AssertExpectations(t)
-}
-
 func TestUpdateUser(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("UpdateUser", mock.AnythingOfType("*models.User")).Return(&mocks.MockUserById, nil)
