@@ -136,7 +136,7 @@ func (h *HttpHandler) UpdatePartialUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
 	newUser, err := h.Usecase.UpdateUser(user)
-	return c.JSON(http.StatusOK, &newUser)
+	return c.JSON(http.StatusOK, newUser)
 }
 
 func NewHttpHandler(e *echo.Echo, session *mongo.Session) {

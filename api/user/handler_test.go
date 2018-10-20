@@ -138,6 +138,7 @@ func TestUpdatePartialUser(t *testing.T) {
 	mockUsecase.On("GetUserByID", mock.AnythingOfType("string")).Return(&mocks.MockUser, nil)
 	mockUsecase.On("UpdateUser", mock.AnythingOfType("*models.User")).Return(&mocks.MockUser, nil)
 	mockIoReader := `{"fullname" : "ODDS junk","email" : "xx@c.com"}`
+
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodPatch, "/", strings.NewReader(mockIoReader))
 	rec := httptest.NewRecorder()
@@ -145,14 +146,15 @@ func TestUpdatePartialUser(t *testing.T) {
 	c.SetPath("/users/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("5bc89e26f37e2f0df54e6fef")
+
 	handler := user.HttpHandler{
 		Usecase: mockUsecase,
 	}
 	handler.UpdatePartialUser(c)
-	// Assertions
-	assert.Equal(t, http.StatusOK, rec.Code)
+
 	userByte, _ := json.Marshal(mocks.MockUser)
 	UserJson := string(userByte)
+	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, UserJson, rec.Body.String())
 }
 
@@ -160,6 +162,7 @@ func TestUpdatePartialUserShouldReturnInternalErrorIfNoHaveRequestBody(t *testin
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("GetUserByID", mock.AnythingOfType("string")).Return(&mocks.MockUser, nil)
 	mockUsecase.On("UpdateUser", mock.AnythingOfType("*models.User")).Return(&mocks.MockUser, nil)
+
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodPatch, "/", nil)
 	rec := httptest.NewRecorder()
@@ -167,10 +170,11 @@ func TestUpdatePartialUserShouldReturnInternalErrorIfNoHaveRequestBody(t *testin
 	c.SetPath("/users/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("5bc89e26f37e2f0df54e6fef")
+
 	handler := user.HttpHandler{
 		Usecase: mockUsecase,
 	}
 	handler.UpdatePartialUser(c)
-	// Assertions
+
 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 }
