@@ -3,16 +3,31 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/middleware"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 )
 
 func main() {
-	session, err := mongo.NewSession()
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	cp, _ := strconv.Atoi(os.Getenv("MONGO_DB_CONECTION_POOL"))
+	config := models.Config{
+		os.Getenv("MONGO_DB_HOST"),
+		os.Getenv("MONGO_DB_NAME"),
+		cp,
+		os.Getenv("API_PORT"),
+	}
+
+	session, err := mongo.NewSession(&config)
 	if err != nil {
 		log.Fatal(err.Error())
 	}

@@ -1,41 +1,42 @@
 package mongo
 
 import (
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	mgo "gopkg.in/mgo.v2"
 )
 
 type Session struct {
-	session *mgo.Session
+	MgoSession *mgo.Session
+	DBName     string
 }
 
-func NewSession() (*Session, error) {
+func NewSession(config *models.Config) (*Session, error) {
 	session, err := mgo.Dial(config.MongoDBHost)
 	if err != nil {
 		return nil, err
 	}
 	session.SetMode(mgo.Monotonic, true)
 	session.SetPoolLimit(config.MongoDBConectionPool)
-	return &Session{session}, err
+	return &Session{session, config.MongoDBName}, err
 }
 
 func (s *Session) Copy() *Session {
-	return &Session{s.session.Copy()}
+	return &Session{s.MgoSession.Copy(), s.DBName}
 }
 
 func (s *Session) GetCollection(col string) *mgo.Collection {
-	return s.session.DB(config.MongoDBName).C(col)
+	return s.MgoSession.DB(s.DBName).C(col)
 }
 
 func (s *Session) Close() {
-	if s.session != nil {
-		s.session.Close()
+	if s.MgoSession != nil {
+		s.MgoSession.Close()
 	}
 }
 
 func (s *Session) DropDatabase(db string) error {
-	if s.session != nil {
-		return s.session.DB(db).DropDatabase()
+	if s.MgoSession != nil {
+		return s.MgoSession.DB(db).DropDatabase()
 	}
 	return nil
 }
