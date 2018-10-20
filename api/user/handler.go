@@ -124,13 +124,13 @@ func (h *HttpHandler) Login(c echo.Context) error {
 	return c.JSON(http.StatusUnauthorized, nil)
 }
 
-func (h *HttpHandler) UpdateUserById(c echo.Context) error {
+func (h *HttpHandler) UpdatePartialUser(c echo.Context) error {
 	id := c.Param("id")
 	user, err := h.Usecase.GetUserByID(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
-	b, err := ioutil.ReadAll(c.Request().Body)
+	b, _ := ioutil.ReadAll(c.Request().Body)
 	err = json.Unmarshal(b, &user)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
@@ -158,5 +158,5 @@ func NewHttpHandler(e *echo.Echo, session *mongo.Session) {
 	r.GET("user/:id", handler.GetUserByID)
 	r.PUT("user/:id", handler.UpdateUser)
 	r.DELETE("user/:id", handler.DeleteUser)
-	r.PATCH("user/:id", handler.UpdateUserById)
+	r.PATCH("user/:id", handler.UpdatePartialUser)
 }

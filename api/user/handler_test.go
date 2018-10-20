@@ -1,6 +1,7 @@
 package user_test
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -130,4 +131,46 @@ func TestLogin(t *testing.T) {
 	handler.Login(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
+}
+
+func TestUpdatePartialUser(t *testing.T) {
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("GetUserByID", mock.AnythingOfType("string")).Return(&mocks.MockUser, nil)
+	mockUsecase.On("UpdateUser", mock.AnythingOfType("*models.User")).Return(&mocks.MockUser, nil)
+	mockIoReader := `{"fullname" : "ODDS junk","email" : "xx@c.com"}`
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodPatch, "/", strings.NewReader(mockIoReader))
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/users/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("5bc89e26f37e2f0df54e6fef")
+	handler := user.HttpHandler{
+		Usecase: mockUsecase,
+	}
+	handler.UpdatePartialUser(c)
+	// Assertions
+	assert.Equal(t, http.StatusOK, rec.Code)
+	userByte, _ := json.Marshal(mocks.MockUser)
+	UserJson := string(userByte)
+	assert.Equal(t, UserJson, rec.Body.String())
+}
+
+func TestUpdatePartialUserShouldReturnInternalErrorIfNoHaveRequestBody(t *testing.T) {
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("GetUserByID", mock.AnythingOfType("string")).Return(&mocks.MockUser, nil)
+	mockUsecase.On("UpdateUser", mock.AnythingOfType("*models.User")).Return(&mocks.MockUser, nil)
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodPatch, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/users/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("5bc89e26f37e2f0df54e6fef")
+	handler := user.HttpHandler{
+		Usecase: mockUsecase,
+	}
+	handler.UpdatePartialUser(c)
+	// Assertions
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 }
