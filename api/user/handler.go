@@ -100,7 +100,7 @@ func (h *HttpHandler) Login(c echo.Context) error {
 	if username == "admin" && password == "admin" {
 		// Set custom claims
 		claims := &models.JwtCustomClaims{
-			"Admin!",
+			"tom@odds.team",
 			true,
 			jwt.StandardClaims{
 				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),

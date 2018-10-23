@@ -8,9 +8,10 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/middleware"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 )
 
@@ -36,14 +37,14 @@ func main() {
 	// Echo instance
 	e := echo.New()
 
-	m := middleware.InitMiddleware()
-	e.Use(m.CORS)
-
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
 	// Routes
 	e.GET("/", hello)
 
 	user.NewHttpHandler(e, session)
-
+	income.NewHttpHandler(e, session)
 	// Start server
 	e.Logger.Fatal(e.Start(config.APIPort))
 }
