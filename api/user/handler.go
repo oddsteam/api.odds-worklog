@@ -139,24 +139,19 @@ func (h *HttpHandler) UpdatePartialUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, newUser)
 }
 
-func NewHttpHandler(e *echo.Echo, session *mongo.Session) {
+func NewHttpHandler(e *echo.Echo, config middleware.JWTConfig, session *mongo.Session) {
 	ur := newRepository(session)
 	uc := newUsecase(ur)
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
 	handler := &HttpHandler{uc}
-	config := middleware.JWTConfig{
-		Claims:     &models.JwtCustomClaims{},
-		SigningKey: []byte("secret"),
-	}
+
 	e.POST("/login", handler.Login)
 
-	r := e.Group("/")
+	r := e.Group("/users")
 	r.Use(middleware.JWTWithConfig(config))
-	r.GET("user", handler.GetUser)
-	r.POST("user", handler.CreateUser)
-	r.GET("user/:id", handler.GetUserByID)
-	r.PUT("user/:id", handler.UpdateUser)
-	r.DELETE("user/:id", handler.DeleteUser)
-	r.PATCH("user/:id", handler.UpdatePartialUser)
+	r.GET("", handler.GetUser)
+	r.POST("", handler.CreateUser)
+	r.GET("/:id", handler.GetUserByID)
+	r.PUT("/:id", handler.UpdateUser)
+	r.DELETE("/:id", handler.DeleteUser)
+	r.PATCH("/:id", handler.UpdatePartialUser)
 }

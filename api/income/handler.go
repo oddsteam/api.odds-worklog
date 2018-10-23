@@ -33,7 +33,7 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 	}
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(*models.JwtCustomClaims)
-	addIncome.UserId = claims.Name
+	addIncome.UserID = claims.Name
 	income, err := h.Usecase.AddIncome(&addIncome)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
@@ -41,17 +41,13 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 	return c.JSON(http.StatusCreated, income)
 }
 
-func NewHttpHandler(e *echo.Echo, session *mongo.Session) {
+func NewHttpHandler(e *echo.Echo, config middleware.JWTConfig, session *mongo.Session) {
 	ur := newRepository(session)
 	uc := newUsecase(ur)
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
 	handler := &HttpHandler{uc}
-	config := middleware.JWTConfig{
-		Claims:     &models.JwtCustomClaims{},
-		SigningKey: []byte("secret"),
-	}
-	r := e.Group("/")
+
+	r := e.Group("/incomes")
 	r.Use(middleware.JWTWithConfig(config))
-	r.POST("income", handler.AddIncome)
+
+	r.POST("", handler.AddIncome)
 }

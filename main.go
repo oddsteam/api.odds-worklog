@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 
@@ -40,16 +39,18 @@ func main() {
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 	}))
-	// Routes
-	e.GET("/", hello)
 
-	user.NewHttpHandler(e, session)
-	income.NewHttpHandler(e, session)
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	m := middleware.JWTConfig{
+		Claims:     &models.JwtCustomClaims{},
+		SigningKey: []byte("secret"),
+	}
+
+	// Handler
+	user.NewHttpHandler(e, m, session)
+	income.NewHttpHandler(e, m, session)
+
 	// Start server
 	e.Logger.Fatal(e.Start(config.APIPort))
-}
-
-// Handler
-func hello(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
 }
