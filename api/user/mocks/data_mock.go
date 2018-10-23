@@ -12,9 +12,8 @@ var (
 		Email:             "test@abc.com",
 		BankAccountName:   "ทดสอบชอบลงทุน",
 		BankAccountNumber: "123123123123",
-		TotalIncome:       "123123123",
-		SubmitDate:        "12/12/2561",
 		ThaiCitizenID:     "1234567890123",
+		CoperateFlag:      "Y",
 	}
 
 	MockToken = models.Token{
@@ -27,9 +26,8 @@ var (
 		Email:             "test@abc.com",
 		BankAccountName:   "ทดสอบชอบลงทุน",
 		BankAccountNumber: "123123123123",
-		TotalIncome:       "123123123",
-		SubmitDate:        "12/12/2561",
 		ThaiCitizenID:     "1234567890123",
+		CoperateFlag:      "Y",
 	}
 
 	userByte, _ = json.Marshal(MockUser)
@@ -41,21 +39,23 @@ var (
 	}
 
 	MockUsers = []*models.User{
-		{ID: "1234567890",
+		{
+			ID:                "1234567890",
 			FullName:          "นายทดสอบชอบลงทุน",
 			Email:             "test@abc.com",
 			BankAccountName:   "ทดสอบชอบลงทุน",
 			BankAccountNumber: "123123123123",
-			TotalIncome:       "123123123",
-			SubmitDate:        "12/12/2561",
-			ThaiCitizenID:     "1234567890123"},
-		{ID: "1234567890",
+			ThaiCitizenID:     "1234567890123",
+			CoperateFlag:      "Y",
+		},
+		{
+			ID:                "1234567890",
 			FullName:          "นายไม่ชอบลงทุน",
 			Email:             "test@abc.com",
 			BankAccountName:   "ทดสอบชอบลงทุน",
 			BankAccountNumber: "123123123123",
-			TotalIncome:       "123123123",
-			SubmitDate:        "12/12/2561",
-			ThaiCitizenID:     "1234567890123"},
+			ThaiCitizenID:     "1234567890123",
+			CoperateFlag:      "Y",
+		},
 	}
 )
