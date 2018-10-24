@@ -3,6 +3,7 @@ package income
 import (
 	"testing"
 
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/stretchr/testify/mock"
@@ -103,6 +104,7 @@ func TestCalPersonIncomeSum(t *testing.T) {
 func TestUsecaseAddIncome(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("AddIncome", mock.AnythingOfType("*models.Income")).Return(nil)
+	mockRepo.On("GetIncomeUserNow", userMocks.MockUserById.ID.Hex(), "2018-10").Return(nil, errors.New(""))
 
 	mockUserRepo := new(userMocks.Repository)
 	mockUserRepo.On("GetUserByID", mocks.MockIncome.UserID).Return(&userMocks.MockUserById, nil)

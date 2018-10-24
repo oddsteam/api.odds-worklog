@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
@@ -96,12 +98,19 @@ func (u *usecase) AddIncome(req *models.IncomeReq, id string) (*models.IncomeRes
 		return nil, err
 	}
 
+	t := time.Now()
+	y, m, _ := t.Date()
+	cm := fmt.Sprintf("%d-%d", y, int(m))
+
+	_, err = u.repo.GetIncomeUserNow(us.ID.Hex(), cm)
+	if err == nil {
+		return nil, errors.New("Sorry, has income data of user " + us.FullName)
+	}
+
 	ins, err := calIncomeSum(req.TotalIncome, us.CorporateFlag)
 	if err != nil {
 		return nil, err
 	}
-
-	t := time.Now()
 
 	income := models.Income{
 		UserID:      id,
