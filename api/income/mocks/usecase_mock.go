@@ -9,22 +9,15 @@ type Usecase struct {
 	mock.Mock
 }
 
-func (m *Usecase) AddIncome(_u *models.Income) (*models.Income, error) {
-	ret := m.Called(_u)
-
-	var r0 *models.Income
-	if rf, ok := ret.Get(0).(func(*models.Income) *models.Income); ok {
-		r0 = rf(_u)
-	} else if ret.Get(0) != nil {
-		r0 = ret.Get(0).(*models.Income)
-	}
+func (m *Usecase) AddIncome(income *models.IncomeReq, id string) error {
+	ret := m.Called(income, id)
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.Income) error); ok {
-		r1 = rf(_u)
+	if rf, ok := ret.Get(0).(func(*models.IncomeReq, string) error); ok {
+		r1 = rf(income, id)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Error(0)
 	}
 
-	return r0, r1
+	return r1
 }
