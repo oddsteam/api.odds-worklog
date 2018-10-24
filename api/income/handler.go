@@ -35,11 +35,11 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 	}
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(*models.JwtCustomClaims)
-	err := h.Usecase.AddIncome(&income, claims.UserID)
+	res, err := h.Usecase.AddIncome(&income, claims.UserID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
-	return c.NoContent(http.StatusOK)
+	return c.JSON(http.StatusOK, res)
 }
 
 func NewHttpHandler(e *echo.Echo, config middleware.JWTConfig, session *mongo.Session) {

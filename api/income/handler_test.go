@@ -17,7 +17,7 @@ import (
 
 func TestAddIncome(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("AddIncome", mock.AnythingOfType("*models.IncomeReq"), mocks.MockIncome.UserID).Return(nil)
+	mockUsecase.On("AddIncome", mock.AnythingOfType("*models.IncomeReq"), mocks.MockIncome.UserID).Return(&mocks.MockIncomeRes, nil)
 
 	e := echo.New()
 	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mocks.MockIncomeReqJson))
