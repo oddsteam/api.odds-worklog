@@ -56,7 +56,7 @@ func calWHT(income string) (string, float64, error) {
 	return floatToString(wht), realFloat(wht), nil
 }
 
-func catIncomeSum(income string, corporateFlag string) (*incomeSum, error) {
+func calIncomeSum(income string, corporateFlag string) (*incomeSum, error) {
 	var vat, wht string
 	var vatf, whtf float64
 	var ins = new(incomeSum)
@@ -96,7 +96,7 @@ func (u *usecase) AddIncome(req *models.IncomeReq, id string) (*models.IncomeRes
 		return nil, err
 	}
 
-	ins, err := catIncomeSum(req.TotalIncome, us.CorporateFlag)
+	ins, err := calIncomeSum(req.TotalIncome, us.CorporateFlag)
 	if err != nil {
 		return nil, err
 	}

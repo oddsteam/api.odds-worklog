@@ -81,21 +81,21 @@ func TestCalWHT(t *testing.T) {
 }
 
 func TestCalCorporateIncomeSum(t *testing.T) {
-	sum, err := catIncomeSum("100000", "Y")
+	sum, err := calIncomeSum("100000", "Y")
 	assert.NoError(t, err)
 	assert.Equal(t, "104000.00", sum.Net)
 
-	sum, err = catIncomeSum("123456", "Y")
+	sum, err = calIncomeSum("123456", "Y")
 	assert.NoError(t, err)
 	assert.Equal(t, "128394.24", sum.Net)
 }
 
 func TestCalPersonIncomeSum(t *testing.T) {
-	sum, err := catIncomeSum("100000", "N")
+	sum, err := calIncomeSum("100000", "N")
 	assert.NoError(t, err)
 	assert.Equal(t, "93000.00", sum.Net)
 
-	sum, err = catIncomeSum("123456", "N")
+	sum, err = calIncomeSum("123456", "N")
 	assert.NoError(t, err)
 	assert.Equal(t, "114814.08", sum.Net)
 }
