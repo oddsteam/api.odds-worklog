@@ -9,5 +9,5 @@ type Repository interface {
 }
 
 type Usecase interface {
-	AddIncome(u *models.IncomeReq, id string) error
+	AddIncome(u *models.IncomeReq, id string) (*models.IncomeRes, error)
 }
