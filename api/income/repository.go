@@ -6,7 +6,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const income = "income"
+const incomeColl = "income"
 
 type repository struct {
 	session *mongo.Session
@@ -16,17 +16,13 @@ func newRepository(session *mongo.Session) Repository {
 	return &repository{session}
 }
 
-func (r *repository) AddIncome(u *models.Income) (*models.Income, error) {
-	// user := new(models.User)
-	// colluser := r.session.GetCollection("user")
+func (r *repository) AddIncome(income *models.Income) error {
+	coll := r.session.GetCollection(incomeColl)
+	income.ID = bson.NewObjectId()
 
-	// colluser.Find(bson.M{"email": u.CreateBy}).One(&user)
-	coll := r.session.GetCollection(income)
-	u.ID = bson.NewObjectId()
-
-	err := coll.Insert(u)
+	err := coll.Insert(income)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return u, nil
+	return nil
 }
