@@ -13,7 +13,7 @@ var (
 		BankAccountName:   "ทดสอบชอบลงทุน",
 		BankAccountNumber: "123123123123",
 		ThaiCitizenID:     "1234567890123",
-		CoperateFlag:      "Y",
+		CorporateFlag:     "Y",
 	}
 
 	MockToken = models.Token{
@@ -27,16 +27,13 @@ var (
 		BankAccountName:   "ทดสอบชอบลงทุน",
 		BankAccountNumber: "123123123123",
 		ThaiCitizenID:     "1234567890123",
-		CoperateFlag:      "Y",
+		CorporateFlag:     "Y",
 	}
 
 	userByte, _ = json.Marshal(MockUser)
 	UserJson    = string(userByte)
-	LoginJson   = `{"username": "admin", "password":"admin"}`
-	Login       = models.Login{
-		Username: "root",
-		Password: "1234",
-	}
+	LoginJson   = `{"id": "5bbcf2f90fd2df527bc39539"}`
+	Login       = models.Login{ID: "5bbcf2f90fd2df527bc39539"}
 
 	MockUsers = []*models.User{
 		{
@@ -46,7 +43,7 @@ var (
 			BankAccountName:   "ทดสอบชอบลงทุน",
 			BankAccountNumber: "123123123123",
 			ThaiCitizenID:     "1234567890123",
-			CoperateFlag:      "Y",
+			CorporateFlag:     "Y",
 		},
 		{
 			ID:                "1234567890",
@@ -55,7 +52,7 @@ var (
 			BankAccountName:   "ทดสอบชอบลงทุน",
 			BankAccountNumber: "123123123123",
 			ThaiCitizenID:     "1234567890123",
-			CoperateFlag:      "Y",
+			CorporateFlag:     "Y",
 		},
 	}
 )

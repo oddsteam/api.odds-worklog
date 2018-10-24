@@ -5,9 +5,8 @@
         "email": "test@abc.com",
         "bankAccountName": "ทดสอบชอบลงทุน",
         "bankAccountNumber": "123123123123",
-        "totalIncome": "123123123",
-        "submitDate": "12/12/2561",
-        "thaiCitizenId": "1234567890123"
+        "thaiCitizenId": "1234567890123",
+        "corporateFlag": "Y"
     },
     {
         "id": "5bbcf4ef0fd2df527bc3953a",
@@ -15,8 +14,7 @@
         "email": "test2@abc.com",
         "bankAccountName": "นายทดสอบชอบไม่ลงทุน",
         "bankAccountNumber": "111111111111",
-        "totalIncome": "100000",
-        "submitDate": "02/02/2561",
-        "thaiCitizenId": "1234567890102"
+        "thaiCitizenId": "1234567890102",
+        "corporateFlag": "N"
     }
 ]

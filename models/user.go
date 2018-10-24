@@ -9,5 +9,5 @@ type User struct {
 	BankAccountName   string        `bson:"bankAccountName" json:"bankAccountName"`
 	BankAccountNumber string        `bson:"bankAccountNumber" json:"bankAccountNumber"`
 	ThaiCitizenID     string        `bson:"thaiCitizenId" json:"thaiCitizenId"`
-	CoperateFlag      string        `bson:"coperateFlag" json:"coperateFlag"`
+	CorporateFlag     string        `bson:"corporateFlag" json:"corporateFlag"`
 }
