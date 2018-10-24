@@ -1,6 +1,5 @@
 [
     {
-        "id": "5bbcf2f90fd2df527bc39539",
         "fullname": "นายทดสอบชอบลงทุน",
         "email": "test@abc.com",
         "bankAccountName": "ทดสอบชอบลงทุน",
@@ -9,7 +8,6 @@
         "corporateFlag": "Y"
     },
     {
-        "id": "5bbcf4ef0fd2df527bc3953a",
         "fullname": "นายทดสอบชอบไม่ลงทุน",
         "email": "test2@abc.com",
         "bankAccountName": "นายทดสอบชอบไม่ลงทุน",
