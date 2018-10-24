@@ -35,16 +35,14 @@ func main() {
 
 	// Echo instance
 	e := echo.New()
-
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 	}))
-
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	m := middleware.JWTConfig{
 		Claims:     &models.JwtCustomClaims{},
-		SigningKey: []byte("secret"),
+		SigningKey: []byte("GmkZGF3CmpZNs88dLvbV"),
 	}
 
 	// Handler

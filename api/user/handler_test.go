@@ -117,7 +117,7 @@ func TestDeleteUser(t *testing.T) {
 
 func TestLogin(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Login", mock.AnythingOfType("*models.Login")).Return(&mocks.MockToken, nil)
+	mockUsecase.On("GetUserByID", mock.AnythingOfType("string")).Return(&mocks.MockUser, nil)
 
 	e := echo.New()
 	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mocks.LoginJson))

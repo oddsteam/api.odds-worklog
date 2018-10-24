@@ -93,35 +93,30 @@ func (h *HttpHandler) DeleteUser(c echo.Context) error {
 func (h *HttpHandler) Login(c echo.Context) error {
 	var u models.Login
 	if err := c.Bind(&u); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
-	}
-	username := u.Username
-	password := u.Password
-	if username == "admin" && password == "admin" {
-		// Set custom claims
-		claims := &models.JwtCustomClaims{
-			"tom@odds.team",
-			true,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-
-		// Create token with claims
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-		// Generate encoded token and send it as response.
-		t, err := token.SignedString([]byte("secret"))
-		if err != nil {
-			return c.JSON(http.StatusUnauthorized, err.Error())
-		}
-		TK := &models.Token{
-			Token: t,
-		}
-		return c.JSON(http.StatusOK, TK)
+		return c.JSON(http.StatusUnauthorized, err.Error())
 	}
 
-	return c.JSON(http.StatusUnauthorized, nil)
+	user, err := h.Usecase.GetUserByID(u.ID)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, err.Error())
+	}
+
+	claims := &models.JwtCustomClaims{
+		string(user.ID),
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	t, err := token.SignedString([]byte("GmkZGF3CmpZNs88dLvbV"))
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, err.Error())
+	}
+	tk := &models.Token{
+		Token: t,
+	}
+	return c.JSON(http.StatusOK, tk)
 }
 
 func (h *HttpHandler) UpdatePartialUser(c echo.Context) error {
@@ -140,7 +135,7 @@ func (h *HttpHandler) UpdatePartialUser(c echo.Context) error {
 }
 
 func NewHttpHandler(e *echo.Echo, config middleware.JWTConfig, session *mongo.Session) {
-	ur := newRepository(session)
+	ur := NewRepository(session)
 	uc := newUsecase(ur)
 	handler := &HttpHandler{uc}
 
