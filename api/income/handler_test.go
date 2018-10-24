@@ -1,37 +1,45 @@
-package income_test
+package income
 
 import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
-
-	"github.com/stretchr/testify/mock"
-
 	"github.com/stretchr/testify/assert"
-
-	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
+	"github.com/stretchr/testify/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income/mocks"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
 func TestAddIncome(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("AddIncome", mock.AnythingOfType("*models.Income")).Return(&mocks.MockIncome, nil)
+	mockUsecase.On("AddIncome", mock.AnythingOfType("*models.IncomeReq"), mocks.MockIncome.UserID).Return(nil)
 
 	e := echo.New()
-	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mocks.AddIncomeJson))
+	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mocks.MockIncomeReqJson))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidG9tQG9kZHMudGVhbSIsImFkbWluIjp0cnVlLCJleHAiOjE1NDAyODIxMDN9.a1B6D2RDjeFmBz8RHVgaDGHLMifb5Ml9Dzz1CGvsOKo")
 
+	claims := &models.JwtCustomClaims{
+		mocks.MockIncome.UserID,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	handler := income.HttpHandler{
+	c.Set("user", token)
+	handler := HttpHandler{
 		Usecase: mockUsecase,
 	}
 	handler.AddIncome(c)
 
-	assert.Equal(t, http.StatusCreated, rec.Code)
+	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUsecase.AssertExpectations(t)
 }

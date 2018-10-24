@@ -3,6 +3,8 @@ package income
 import (
 	"net/http"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
+
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -15,7 +17,7 @@ type HttpHandler struct {
 	Usecase Usecase
 }
 
-func isRequestValid(m *models.Income) (bool, error) {
+func isRequestValid(m *models.IncomeReq) (bool, error) {
 	if err := validator.New().Struct(m); err != nil {
 		return false, err
 	}
@@ -23,27 +25,27 @@ func isRequestValid(m *models.Income) (bool, error) {
 }
 
 func (h *HttpHandler) AddIncome(c echo.Context) error {
-	var addIncome models.Income
-	if err := c.Bind(&addIncome); err != nil {
+	var income models.IncomeReq
+	if err := c.Bind(&income); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	if ok, err := isRequestValid(&addIncome); !ok {
+	if ok, err := isRequestValid(&income); !ok {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(*models.JwtCustomClaims)
-	addIncome.UserID = claims.Name
-	income, err := h.Usecase.AddIncome(&addIncome)
+	err := h.Usecase.AddIncome(&income, claims.UserID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
-	return c.JSON(http.StatusCreated, income)
+	return c.NoContent(http.StatusOK)
 }
 
 func NewHttpHandler(e *echo.Echo, config middleware.JWTConfig, session *mongo.Session) {
-	ur := newRepository(session)
-	uc := newUsecase(ur)
+	incomeRepo := newRepository(session)
+	userRepo := user.NewRepository(session)
+	uc := newUsecase(incomeRepo, userRepo)
 	handler := &HttpHandler{uc}
 
 	r := e.Group("/incomes")
