@@ -20,12 +20,21 @@ Run `docker-compose up --build -d` <br>
 [http://localhost:8080/](http://localhost:8080/)
 
 ## API
-GET /user
+### User
+| Method    | Path          |
+| ---       | ---           |
+| GET       | /users        |
+| GET       | /users/:id    |
+| POST      | /users/:id    |
+| POST      | /login        |
+| PUT       | /users/:id    |
+| PATCH     | /users/:id    |
+| DELETE    | /users/:id    |
 
-GET /user/:id
-
-POST /user
-
-PUT /user
-
-DELETE /user/:id
+### Income
+| Method    | Path          |
+| ---       | ---           |
+| GET       | /incomes      |
+| GET       | /incomes/:id  |
+| POST      | /incomes/:id  |
+| PUT       | /incomes/:id  |
