@@ -6,6 +6,7 @@ import (
 
 type Repository interface {
 	AddIncome(u *models.Income) error
+	GetIncomeUserNow(id string, month string) (*models.Income, error)
 }
 
 type Usecase interface {
