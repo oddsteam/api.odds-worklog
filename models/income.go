@@ -9,5 +9,16 @@ type Income struct {
 	SubmitDate  string        `bson:"submitDate" json:"submitDate"`
 	Note        string        `bson:"note" json:"note"`
 	VAT         string        `bson:"vat" json:"vat"`
-	WHT         string        `bson:"whr" json:"wht"`
+	WHT         string        `bson:"wht" json:"wht"`
+}
+
+type IncomeRes struct {
+	User       User   `bson:"user" json:"user"`
+	SubmitDate string `bson:"submitDate" json:"submitDate"`
+	Status     string `bson:"status" json:"status"`
+}
+
+type IncomeReq struct {
+	TotalIncome string `bson:"totalIncome" json:"totalIncome"`
+	Note        string `bson:"note" json:"note"`
 }
