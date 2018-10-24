@@ -26,3 +26,14 @@ func (r *repository) AddIncome(income *models.Income) error {
 	}
 	return nil
 }
+
+func (r *repository) GetIncomeUserNow(id, month string) (*models.Income, error) {
+	income := new(models.Income)
+	coll := r.session.GetCollection(incomeColl)
+
+	err := coll.Find(bson.M{"userId": id, "submitDate": bson.RegEx{month, ""}}).One(&income)
+	if err != nil {
+		return nil, err
+	}
+	return income, nil
+}
