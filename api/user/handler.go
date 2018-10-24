@@ -102,7 +102,7 @@ func (h *HttpHandler) Login(c echo.Context) error {
 	}
 
 	claims := &models.JwtCustomClaims{
-		string(user.ID),
+		user.ID.Hex(),
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 		},
