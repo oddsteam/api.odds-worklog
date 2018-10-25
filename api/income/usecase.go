@@ -6,11 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/pkg/errors"
-
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
-
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
 type usecase struct {
@@ -92,43 +88,12 @@ func calIncomeSum(income string, corporateFlag string) (*incomeSum, error) {
 	return ins, nil
 }
 
-func (u *usecase) AddIncome(req *models.IncomeReq, id string) (*models.IncomeRes, error) {
-	us, err := u.userRepo.GetUserByID(id)
-	if err != nil {
-		return nil, err
-	}
+func getNow() string {
+	return time.Now().Format(time.RFC3339)
+}
 
-	t := time.Now()
-	y, m, _ := t.Date()
+func getCurrentMonth() string {
+	y, m, _ := time.Now().Date()
 	cm := fmt.Sprintf("%d-%d", y, int(m))
-
-	_, err = u.repo.GetIncomeUserNow(us.ID.Hex(), cm)
-	if err == nil {
-		return nil, errors.New("Sorry, has income data of user " + us.FullName)
-	}
-
-	ins, err := calIncomeSum(req.TotalIncome, us.CorporateFlag)
-	if err != nil {
-		return nil, err
-	}
-
-	income := models.Income{
-		UserID:      id,
-		TotalIncome: req.TotalIncome,
-		NetIncome:   ins.Net,
-		SubmitDate:  t.Format(time.RFC3339),
-		Note:        req.Note,
-		VAT:         ins.VAT,
-		WHT:         ins.WHT,
-	}
-	err = u.repo.AddIncome(&income)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &models.IncomeRes{
-		Income: &income,
-		Status: "Y",
-	}
-	return res, nil
+	return cm
 }
