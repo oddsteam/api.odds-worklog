@@ -47,3 +47,12 @@ func (r *repository) GetIncomeByID(incID, uID string) (*models.Income, error) {
 	}
 	return income, nil
 }
+
+func (r *repository) UpdateIncome(income *models.Income) error {
+	coll := r.session.GetCollection(incomeColl)
+	err := coll.UpdateId(income.ID, &income)
+	if err != nil {
+		return err
+	}
+	return nil
+}
