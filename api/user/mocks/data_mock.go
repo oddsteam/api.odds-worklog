@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var (
 	MockUser = models.User{
+		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39539"),
 		FullName:          "นายทดสอบชอบลงทุน",
 		Email:             "test@abc.com",
 		BankAccountName:   "ทดสอบชอบลงทุน",
