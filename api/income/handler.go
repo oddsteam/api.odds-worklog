@@ -1,6 +1,7 @@
 package income
 
 import (
+	"errors"
 	"net/http"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
@@ -35,7 +36,31 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 	}
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(*models.JwtCustomClaims)
-	res, err := h.Usecase.AddIncome(&income, claims.UserID)
+	res, err := h.Usecase.AddIncome(&income, claims.User)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+	}
+	return c.JSON(http.StatusOK, res)
+}
+
+func (h *HttpHandler) UpdateIncome(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return c.JSON(http.StatusBadRequest, errors.New("invalid path"))
+	}
+
+	var req models.IncomeReq
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	if ok, err := isRequestValid(&req); !ok {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(*models.JwtCustomClaims)
+
+	res, err := h.Usecase.UpdateIncome(id, &req, claims.User)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
@@ -52,4 +77,5 @@ func NewHttpHandler(e *echo.Echo, config middleware.JWTConfig, session *mongo.Se
 	r.Use(middleware.JWTWithConfig(config))
 
 	r.POST("", handler.AddIncome)
+	r.PUT("/:id", handler.UpdateIncome)
 }

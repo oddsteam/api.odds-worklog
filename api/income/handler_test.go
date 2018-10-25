@@ -10,22 +10,21 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income/mocks"
+	userMocks "gitlab.odds.team/worklog/api.odds-worklog/api/user/mocks"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
 func TestAddIncome(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("AddIncome", mock.AnythingOfType("*models.IncomeReq"), mocks.MockIncome.UserID).Return(&mocks.MockIncomeRes, nil)
+	mockUsecase.On("AddIncome", &mocks.MockIncomeReq, &userMocks.MockUser).Return(&mocks.MockIncome, nil)
 
 	e := echo.New()
 	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mocks.MockIncomeReqJson))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidG9tQG9kZHMudGVhbSIsImFkbWluIjp0cnVlLCJleHAiOjE1NDAyODIxMDN9.a1B6D2RDjeFmBz8RHVgaDGHLMifb5Ml9Dzz1CGvsOKo")
 
 	claims := &models.JwtCustomClaims{
-		mocks.MockIncome.UserID,
+		&userMocks.MockUser,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 		},
@@ -39,6 +38,37 @@ func TestAddIncome(t *testing.T) {
 		Usecase: mockUsecase,
 	}
 	handler.AddIncome(c)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	mockUsecase.AssertExpectations(t)
+}
+
+func TestUpdateIncome(t *testing.T) {
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("UpdateIncome", mocks.MockIncome.ID.Hex(), &mocks.MockIncomeReq, &userMocks.MockUser).Return(&mocks.MockIncome, nil)
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mocks.MockIncomeReqJson))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	claims := &models.JwtCustomClaims{
+		&userMocks.MockUser,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.Set("user", token)
+	c.SetParamNames("id")
+	c.SetParamValues(mocks.MockIncome.ID.Hex())
+
+	handler := HttpHandler{
+		Usecase: mockUsecase,
+	}
+	handler.UpdateIncome(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUsecase.AssertExpectations(t)
