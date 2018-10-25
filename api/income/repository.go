@@ -37,3 +37,13 @@ func (r *repository) GetIncomeUserNow(id, month string) (*models.Income, error) 
 	}
 	return income, nil
 }
+
+func (r *repository) GetIncomeByID(incID, uID string) (*models.Income, error) {
+	income := new(models.Income)
+	coll := r.session.GetCollection(incomeColl)
+	err := coll.Find(bson.M{"_id": bson.ObjectIdHex(incID), "userId": uID}).One(&income)
+	if err != nil {
+		return nil, err
+	}
+	return income, nil
+}
