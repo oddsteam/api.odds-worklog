@@ -101,8 +101,12 @@ func (h *HttpHandler) Login(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, err.Error())
 	}
 
+	user.BankAccountName = ""
+	user.BankAccountNumber = ""
+	user.ThaiCitizenID = ""
+
 	claims := &models.JwtCustomClaims{
-		user.ID.Hex(),
+		user,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 		},
