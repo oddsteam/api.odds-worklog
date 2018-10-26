@@ -10,7 +10,6 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	validator "gopkg.in/go-playground/validator.v9"
@@ -138,15 +137,12 @@ func (h *HttpHandler) UpdatePartialUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, newUser)
 }
 
-func NewHttpHandler(e *echo.Echo, config middleware.JWTConfig, session *mongo.Session) {
+func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	ur := NewRepository(session)
 	uc := newUsecase(ur)
 	handler := &HttpHandler{uc}
 
-	e.POST("/login", handler.Login)
-
-	r := e.Group("/users")
-	r.Use(middleware.JWTWithConfig(config))
+	r = r.Group("/users")
 	r.GET("", handler.GetUser)
 	r.POST("", handler.CreateUser)
 	r.GET("/:id", handler.GetUserByID)

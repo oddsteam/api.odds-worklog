@@ -8,7 +8,6 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	validator "gopkg.in/go-playground/validator.v9"
@@ -75,15 +74,13 @@ func (h *HttpHandler) GetIncomeStatusList(c echo.Context) error {
 	return c.JSON(http.StatusOK, users)
 }
 
-func NewHttpHandler(e *echo.Echo, config middleware.JWTConfig, session *mongo.Session) {
+func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	incomeRepo := newRepository(session)
 	userRepo := user.NewRepository(session)
 	uc := newUsecase(incomeRepo, userRepo)
 	handler := &HttpHandler{uc}
 
-	r := e.Group("/incomes")
-	r.Use(middleware.JWTWithConfig(config))
-
+	r = r.Group("/incomes")
 	r.POST("", handler.AddIncome)
 	r.PUT("/:id", handler.UpdateIncome)
 	r.GET("/status", handler.GetIncomeStatusList)

@@ -2,32 +2,21 @@ package main
 
 import (
 	"log"
-	"os"
-	"strconv"
 
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/login"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	cp, _ := strconv.Atoi(os.Getenv("MONGO_DB_CONECTION_POOL"))
-	config := models.Config{
-		os.Getenv("MONGO_DB_HOST"),
-		os.Getenv("MONGO_DB_NAME"),
-		cp,
-		os.Getenv("API_PORT"),
-	}
-
-	session, err := mongo.NewSession(&config)
+	c := config.Config()
+	// Setup Mongo
+	session, err := mongo.NewSession(c)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -40,15 +29,21 @@ func main() {
 	}))
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+
+	// Middleware
 	m := middleware.JWTConfig{
 		Claims:     &models.JwtCustomClaims{},
 		SigningKey: []byte("GmkZGF3CmpZNs88dLvbV"),
 	}
 
+	r := e.Group("/v1")
+	login.NewHttpHandler(r, session)
+	r.Use(middleware.JWTWithConfig(m))
+
 	// Handler
-	user.NewHttpHandler(e, m, session)
-	income.NewHttpHandler(e, m, session)
+	user.NewHttpHandler(r, session)
+	income.NewHttpHandler(r, session)
 
 	// Start server
-	e.Logger.Fatal(e.Start(config.APIPort))
+	e.Logger.Fatal(e.Start(c.APIPort))
 }
