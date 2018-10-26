@@ -26,15 +26,15 @@ var (
 	}
 
 	MockIncomeRes = models.IncomeRes{
-		User:   &userMocks.MockUser,
-		Income: &MockIncome,
-		Status: "Y",
+		User:       &userMocks.MockUser,
+		SubmitDate: "2018-10-24 20:30:40",
+		Status:     "Y",
 	}
 	MockIncomeResList = []*models.IncomeRes{
 		&models.IncomeRes{
-			User:   &userMocks.MockUser,
-			Income: &MockIncome,
-			Status: "Y",
+			User:       &userMocks.MockUser,
+			SubmitDate: "2018-10-24 20:30:40",
+			Status:     "Y",
 		},
 	}
 	IncomeByte, _  = json.Marshal(MockIncome)

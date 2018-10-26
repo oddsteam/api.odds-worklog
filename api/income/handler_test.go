@@ -73,12 +73,12 @@ func TestUpdateIncome(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUsecase.AssertExpectations(t)
 }
-func TestGetListIncome(t *testing.T) {
+func TestGetIncomeStatusList(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
 	mockListUser := make([]*models.IncomeRes, 0)
 	mockListUser = append(mockListUser, &mocks.MockIncomeRes)
 
-	mockUsecase.On("GetListIncome").Return(mockListUser, nil)
+	mockUsecase.On("GetIncomeStatusList").Return(mockListUser, nil)
 
 	e := echo.New()
 	req := httptest.NewRequest(echo.GET, "/", nil)
@@ -88,7 +88,7 @@ func TestGetListIncome(t *testing.T) {
 	handler := HttpHandler{
 		Usecase: mockUsecase,
 	}
-	handler.GetListIncome(c)
+	handler.GetIncomeStatusList(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUsecase.AssertExpectations(t)
