@@ -20,6 +20,9 @@ Run `docker-compose up --build -d` <br>
 [http://localhost:8080/](http://localhost:8080/)
 
 ## API
+local: http://localhost:8080/v1/
+dev clound: http://worklog-dev.odds.team/api/v1/
+
 ### User
 | Method    | Path          |
 | ---       | ---           |
@@ -32,9 +35,8 @@ Run `docker-compose up --build -d` <br>
 | DELETE    | /users/:id    |
 
 ### Income
-| Method    | Path          |
-| ---       | ---           |
-| GET       | /incomes      |
-| GET       | /incomes/:id  |
-| POST      | /incomes/:id  |
-| PUT       | /incomes/:id  |
+| Method    | Path              |
+| ---       | ---               |
+| GET       | /incomes/status   |
+| POST      | /incomes/         |
+| PUT       | /incomes/:id      |   
