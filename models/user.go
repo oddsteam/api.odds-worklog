@@ -8,6 +8,6 @@ type User struct {
 	Email             string        `bson:"email" json:"email"`
 	BankAccountName   string        `bson:"bankAccountName" json:"bankAccountName"`
 	BankAccountNumber string        `bson:"bankAccountNumber" json:"bankAccountNumber"`
-	ThaiCitizenID     string        `bson:"thaiCitizenId" json:"thaiCitizenId"`
+	ThaiCitizenID     string        `bson:"thaiCitizenId" json:"thaiCitizenId,omitempty"`
 	CorporateFlag     string        `bson:"corporateFlag" json:"corporateFlag"`
 }
