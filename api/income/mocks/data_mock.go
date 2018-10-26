@@ -20,7 +20,6 @@ var (
 		VAT:         "7000",
 		WHT:         "3000",
 	}
-
 	MockIncomeReq = models.IncomeReq{
 		TotalIncome: "100000",
 		Note:        "ข้อมูลที่อยากบอก",
@@ -31,7 +30,13 @@ var (
 		Income: &MockIncome,
 		Status: "Y",
 	}
-
+	MockIncomeResList = []*models.IncomeRes{
+		&models.IncomeRes{
+			User:   &userMocks.MockUser,
+			Income: &MockIncome,
+			Status: "Y",
+		},
+	}
 	IncomeByte, _  = json.Marshal(MockIncome)
 	MockIncomeJson = string(IncomeByte)
 

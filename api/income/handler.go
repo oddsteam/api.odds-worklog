@@ -67,6 +67,14 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+func (h *HttpHandler) GetListIncome(c echo.Context) error {
+	users, err := h.Usecase.GetListIncome()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+	}
+	return c.JSON(http.StatusOK, users)
+}
+
 func NewHttpHandler(e *echo.Echo, config middleware.JWTConfig, session *mongo.Session) {
 	incomeRepo := newRepository(session)
 	userRepo := user.NewRepository(session)
@@ -78,4 +86,5 @@ func NewHttpHandler(e *echo.Echo, config middleware.JWTConfig, session *mongo.Se
 
 	r.POST("", handler.AddIncome)
 	r.PUT("/:id", handler.UpdateIncome)
+	r.GET("", handler.GetListIncome)
 }

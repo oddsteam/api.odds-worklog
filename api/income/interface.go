@@ -14,4 +14,5 @@ type Repository interface {
 type Usecase interface {
 	AddIncome(req *models.IncomeReq, user *models.User) (*models.Income, error)
 	UpdateIncome(id string, req *models.IncomeReq, user *models.User) (*models.Income, error)
+	GetListIncome() ([]*models.IncomeRes, error)
 }

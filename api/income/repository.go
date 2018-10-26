@@ -27,7 +27,7 @@ func (r *repository) AddIncome(income *models.Income) error {
 	return nil
 }
 
-func (r *repository) GetIncomeUserNow(id, month string) (*models.Income, error) {
+func (r *repository) GetIncomeUserNow(id string, month string) (*models.Income, error) {
 	income := new(models.Income)
 	coll := r.session.GetCollection(incomeColl)
 

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
 type usecase struct {
@@ -96,4 +97,31 @@ func getCurrentMonth() string {
 	y, m, _ := time.Now().Date()
 	cm := fmt.Sprintf("%d-%d", y, int(m))
 	return cm
+}
+
+func (u *usecase) GetListIncome() ([]*models.IncomeRes, error) {
+	var incomeList []*models.IncomeRes
+	users, err := u.userRepo.GetUser()
+	if err != nil {
+		return nil, err
+	}
+	t := time.Now()
+
+	for index, element := range users {
+		element.ThaiCitizenID = ""
+		incomeUser, err := u.repo.GetIncomeUserNow(element.ID.Hex(), string(t.Month()))
+		income := models.IncomeRes{
+			User: element,
+		}
+		incomeList = append(incomeList, &income)
+		if err != nil {
+			incomeList[index].Status = "N"
+
+		} else {
+			incomeList[index].Income = incomeUser
+			incomeList[index].Status = "Y"
+		}
+
+	}
+	return incomeList, nil
 }

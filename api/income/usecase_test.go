@@ -130,3 +130,18 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 	assert.Equal(t, mocks.MockIncome.UserID, res.UserID)
 	mockRepo.AssertExpectations(t)
 }
+
+func TestUsecaseGetListIncome(t *testing.T) {
+	mockRepo := new(mocks.Repository)
+	mockRepo.On("GetIncomeUserNow", userMocks.MockUserById.ID.Hex(), "\n").Return(&mocks.MockIncome, nil)
+
+	mockUserRepo := new(userMocks.Repository)
+	mockUserRepo.On("GetUser").Return(userMocks.MockUsers, nil)
+
+	uc := newUsecase(mockRepo, mockUserRepo)
+	res, err := uc.GetListIncome()
+	assert.NoError(t, err)
+	assert.NotNil(t, res)
+	assert.Equal(t, mocks.MockIncomeResList[0].Status, res[0].Status)
+	mockRepo.AssertExpectations(t)
+}
