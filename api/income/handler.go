@@ -94,7 +94,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 
 	r = r.Group("/incomes")
 	r.POST("", handler.AddIncome)
-	r.PUT("/update/:id", handler.UpdateIncome)
+	r.PUT("/:id", handler.UpdateIncome)
 	r.GET("/status", handler.GetIncomeStatusList)
 	r.GET("/:userId", handler.GetIncomeByUserIdAndCurrentMonth)
 }
