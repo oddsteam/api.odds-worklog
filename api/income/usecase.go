@@ -124,3 +124,12 @@ func (u *usecase) GetIncomeStatusList() ([]*models.IncomeRes, error) {
 	}
 	return incomeList, nil
 }
+
+func (u *usecase) GetIncomeByUserIdAndCurrentMonth(userId string) (*models.Income, error) {
+	month := getCurrentMonth()
+	income, err := u.repo.GetIncomeUserNow(userId, month)
+	if err != nil {
+		return nil, err
+	}
+	return income, nil
+}

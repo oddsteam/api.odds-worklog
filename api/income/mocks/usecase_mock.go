@@ -68,3 +68,23 @@ func (m *Usecase) GetIncomeStatusList() ([]*models.IncomeRes, error) {
 
 	return r0, r1
 }
+
+func (m *Usecase) GetIncomeByUserIdAndCurrentMonth(userId string) (*models.Income, error) {
+	ret := m.Called(userId)
+
+	var r0 *models.Income
+	if rf, ok := ret.Get(0).(func() *models.Income); ok {
+		r0 = rf()
+	} else if ret.Get(0) != nil {
+		r0 = ret.Get(0).(*models.Income)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}

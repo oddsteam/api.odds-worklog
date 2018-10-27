@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income/mocks"
+	incomeMocks "gitlab.odds.team/worklog/api.odds-worklog/api/income/mocks"
 	userMocks "gitlab.odds.team/worklog/api.odds-worklog/api/user/mocks"
 )
 
@@ -144,4 +145,17 @@ func TestUsecaseGetListIncome(t *testing.T) {
 	assert.NotNil(t, res)
 	assert.Equal(t, mocks.MockIncomeResList[0].Status, res[0].Status)
 	mockRepo.AssertExpectations(t)
+}
+
+func TestUsecaseGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
+	mockRepo := new(mocks.Repository)
+	mockRepo.On("GetIncomeUserNow", incomeMocks.MockIncome.UserID, "2018-10").Return(&mocks.MockIncome, nil)
+
+	mockUserRepo := new(userMocks.Repository)
+
+	uc := newUsecase(mockRepo, mockUserRepo)
+	res, err := uc.GetIncomeByUserIdAndCurrentMonth(mocks.MockIncome.UserID)
+	assert.NoError(t, err)
+	assert.NotNil(t, res)
+	assert.Equal(t, mocks.MockIncomeRes.SubmitDate, res.SubmitDate)
 }

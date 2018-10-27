@@ -1,6 +1,7 @@
 package income
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -92,4 +93,25 @@ func TestGetIncomeStatusList(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUsecase.AssertExpectations(t)
+}
+
+func TestGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("GetIncomeByUserIdAndCurrentMonth", mocks.MockIncome.UserID).Return(&mocks.MockIncome, nil)
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("userId")
+	c.SetParamValues(mocks.MockIncome.UserID)
+	handler := HttpHandler{
+		Usecase: mockUsecase,
+	}
+	handler.GetIncomeByUserIdAndCurrentMonth(c)
+
+	incomeByte, _ := json.Marshal(mocks.MockIncome)
+	incomeJson := string(incomeByte)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, incomeJson, rec.Body.String())
 }

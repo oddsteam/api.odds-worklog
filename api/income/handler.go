@@ -74,6 +74,18 @@ func (h *HttpHandler) GetIncomeStatusList(c echo.Context) error {
 	return c.JSON(http.StatusOK, users)
 }
 
+func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
+	userId := c.Param("userId")
+	income, err := h.Usecase.GetIncomeByUserIdAndCurrentMonth(userId)
+	if income == nil {
+		return c.JSON(http.StatusOK, nil)
+	}
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+	}
+	return c.JSON(http.StatusOK, income)
+}
+
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	incomeRepo := newRepository(session)
 	userRepo := user.NewRepository(session)
@@ -82,6 +94,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 
 	r = r.Group("/incomes")
 	r.POST("", handler.AddIncome)
-	r.PUT("/:id", handler.UpdateIncome)
+	r.PUT("/update/:id", handler.UpdateIncome)
 	r.GET("/status", handler.GetIncomeStatusList)
+	r.GET("/:userId", handler.GetIncomeByUserIdAndCurrentMonth)
 }
