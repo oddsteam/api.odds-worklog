@@ -103,7 +103,7 @@ func TestGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("userId")
+	c.SetParamNames("id")
 	c.SetParamValues(mocks.MockIncome.UserID)
 	handler := HttpHandler{
 		Usecase: mockUsecase,
@@ -114,4 +114,5 @@ func TestGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 	incomeJson := string(incomeByte)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, incomeJson, rec.Body.String())
+	mockUsecase.AssertExpectations(t)
 }

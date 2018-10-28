@@ -75,7 +75,7 @@ func (h *HttpHandler) GetIncomeStatusList(c echo.Context) error {
 }
 
 func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
-	userId := c.Param("userId")
+	userId := c.Param("id")
 	income, err := h.Usecase.GetIncomeByUserIdAndCurrentMonth(userId)
 	if income == nil {
 		return c.JSON(http.StatusOK, nil)
@@ -96,5 +96,5 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.POST("", handler.AddIncome)
 	r.PUT("/:id", handler.UpdateIncome)
 	r.GET("/status", handler.GetIncomeStatusList)
-	r.GET("/:userId", handler.GetIncomeByUserIdAndCurrentMonth)
+	r.GET("/month/:id", handler.GetIncomeByUserIdAndCurrentMonth)
 }

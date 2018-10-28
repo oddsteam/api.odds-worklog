@@ -73,15 +73,15 @@ func (m *Usecase) GetIncomeByUserIdAndCurrentMonth(userId string) (*models.Incom
 	ret := m.Called(userId)
 
 	var r0 *models.Income
-	if rf, ok := ret.Get(0).(func() *models.Income); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(string) *models.Income); ok {
+		r0 = rf(userId)
 	} else if ret.Get(0) != nil {
 		r0 = ret.Get(0).(*models.Income)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(userId)
 	} else {
 		r1 = ret.Error(1)
 	}
