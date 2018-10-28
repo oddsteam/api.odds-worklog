@@ -157,5 +157,5 @@ func TestUsecaseGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 	res, err := uc.GetIncomeByUserIdAndCurrentMonth(mocks.MockIncome.UserID)
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
-	assert.Equal(t, mocks.MockIncomeRes.SubmitDate, res.SubmitDate)
+	assert.Equal(t, mocks.MockIncome.SubmitDate, res.SubmitDate)
 }
