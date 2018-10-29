@@ -61,12 +61,14 @@ func TestGetUser(t *testing.T) {
 
 func TestGetUserByID(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("GetUserByID", mock.AnythingOfType("string")).Return(&mocks.MockUser, nil)
+	mockUsecase.On("GetUserByID", mocks.MockUser.ID.Hex()).Return(&mocks.MockUser, nil)
 
 	e := echo.New()
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues("5bbcf2f90fd2df527bc39539")
 
 	handler := user.HttpHandler{
 		Usecase: mockUsecase,
@@ -105,6 +107,8 @@ func TestDeleteUser(t *testing.T) {
 	req := httptest.NewRequest(echo.DELETE, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues("5bbcf2f90fd2df527bc39539")
 
 	handler := user.HttpHandler{
 		Usecase: mockUsecase,
@@ -113,24 +117,6 @@ func TestDeleteUser(t *testing.T) {
 
 	assert.Equal(t, http.StatusNoContent, rec.Code)
 	mockUsecase.AssertExpectations(t)
-}
-
-func TestLogin(t *testing.T) {
-	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("GetUserByID", mock.AnythingOfType("string")).Return(&mocks.MockUser, nil)
-
-	e := echo.New()
-	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mocks.LoginJson))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	handler := user.HttpHandler{
-		Usecase: mockUsecase,
-	}
-	handler.Login(c)
-
-	assert.Equal(t, http.StatusOK, rec.Code)
 }
 
 func TestUpdatePartialUser(t *testing.T) {
@@ -143,7 +129,6 @@ func TestUpdatePartialUser(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPatch, "/", strings.NewReader(mockIoReader))
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/users/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("5bc89e26f37e2f0df54e6fef")
 

@@ -2,13 +2,14 @@ package user
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
-	"time"
+
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/httputil"
 
 	"gopkg.in/mgo.v2/bson"
 
-	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
@@ -26,112 +27,161 @@ func isRequestValid(m *models.User) (bool, error) {
 	return true, nil
 }
 
+// CreateUser godoc
+// @Summary Create User
+// @Description Create User
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.User
+// @Failure 400 {object} httputil.HTTPError
+// @Failure 422 {object} httputil.HTTPError
+// @Failure 500 {object} httputil.HTTPError
+// @Router /api/v1/users [post]
 func (h *HttpHandler) CreateUser(c echo.Context) error {
 	var u models.User
 	if err := c.Bind(&u); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return httputil.NewError(c, http.StatusUnprocessableEntity, err)
 	}
 
 	if ok, err := isRequestValid(&u); !ok {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return httputil.NewError(c, http.StatusBadRequest, err)
 	}
 
 	user, err := h.Usecase.CreateUser(&u)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+		return httputil.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusCreated, user)
 }
 
+// GetUser godoc
+// @Summary List user
+// @Description get user list
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.User
+// @Failure 500 {object} httputil.HTTPError
+// @Router /api/v1/users [get]
 func (h *HttpHandler) GetUser(c echo.Context) error {
 	users, err := h.Usecase.GetUser()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+		return httputil.NewError(c, http.StatusInternalServerError, err)
+		// return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
 	return c.JSON(http.StatusOK, users)
 }
 
+// GetUserById godoc
+// @Summary Get User By Id
+// @Description Get User By Id
+// @Tags users
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param  id path string true "User ID"
+// @Success 200 {object} models.User
+// @Failure 204 {object} httputil.HTTPError
+// @Failure 400 {object} httputil.HTTPError
+// @Router /api/v1/users/{id} [post]
 func (h *HttpHandler) GetUserByID(c echo.Context) error {
 	id := c.Param("id")
+	if id == "" {
+		return httputil.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+
 	user, err := h.Usecase.GetUserByID(id)
 	if err != nil {
-		return c.JSON(http.StatusNoContent, models.ResponseError{Message: err.Error()})
+		return httputil.NewError(c, http.StatusNoContent, err)
 	}
 	return c.JSON(http.StatusOK, user)
 }
 
+// UpdateUserById godoc
+// @Summary Update User By Id
+// @Description Update User By Id
+// @Tags users
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param  id path string true "User ID"
+// @Success 200 {object} models.User
+// @Failure 400 {object} httputil.HTTPError
+// @Failure 422 {object} httputil.HTTPError
+// @Failure 500 {object} httputil.HTTPError
+// @Router /api/v1/users/{id} [put]
 func (h *HttpHandler) UpdateUser(c echo.Context) error {
 	id := c.Param("id")
+	if id == "" {
+		return httputil.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+
 	u := models.User{
 		ID: bson.ObjectIdHex(id),
 	}
 	if err := c.Bind(&u); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return httputil.NewError(c, http.StatusUnprocessableEntity, err)
 	}
 
 	if ok, err := isRequestValid(&u); !ok {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return httputil.NewError(c, http.StatusBadRequest, err)
 	}
 
 	user, err := h.Usecase.UpdateUser(&u)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+		return httputil.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, user)
 }
 
+// DeleteUser godoc
+// @Summary Delete User
+// @Description Delete User By Id
+// @Tags users
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param  id path string true "User ID"
+// @Success 204 {object} models.User
+// @Failure 400 {object} httputil.HTTPError
+// @Failure 500 {object} httputil.HTTPError
+// @Router /api/v1/users/{id} [delete]
 func (h *HttpHandler) DeleteUser(c echo.Context) error {
 	id := c.Param("id")
+	if id == "" {
+		return httputil.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+
 	err := h.Usecase.DeleteUser(id)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+		return httputil.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.NoContent(http.StatusNoContent)
 }
 
-func (h *HttpHandler) Login(c echo.Context) error {
-	var u models.Login
-	if err := c.Bind(&u); err != nil {
-		return c.JSON(http.StatusUnauthorized, err.Error())
-	}
-
-	user, err := h.Usecase.GetUserByID(u.ID)
-	if err != nil {
-		return c.JSON(http.StatusUnauthorized, err.Error())
-	}
-
-	user.BankAccountName = ""
-	user.BankAccountNumber = ""
-	user.ThaiCitizenID = ""
-
-	claims := &models.JwtCustomClaims{
-		user,
-		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	t, err := token.SignedString([]byte("GmkZGF3CmpZNs88dLvbV"))
-	if err != nil {
-		return c.JSON(http.StatusUnauthorized, err.Error())
-	}
-	tk := &models.Token{
-		Token: t,
-	}
-	return c.JSON(http.StatusOK, tk)
-}
-
+// UpdatePartialUser godoc
+// @Summary Update Partial User
+// @Description Delete Update Partial User
+// @Tags users
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param  id path string true "User ID"
+// @Success 200 {object} models.User
+// @Failure 400 {object} httputil.HTTPError
+// @Failure 500 {object} httputil.HTTPError
+// @Router /api/v1/users/{id} [patch]
 func (h *HttpHandler) UpdatePartialUser(c echo.Context) error {
 	id := c.Param("id")
+	if id == "" {
+		return httputil.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+
 	user, err := h.Usecase.GetUserByID(id)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+		return httputil.NewError(c, http.StatusInternalServerError, err)
 	}
 	b, _ := ioutil.ReadAll(c.Request().Body)
 	err = json.Unmarshal(b, &user)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+		return httputil.NewError(c, http.StatusInternalServerError, err)
 	}
 	newUser, err := h.Usecase.UpdateUser(user)
 	return c.JSON(http.StatusOK, newUser)
