@@ -6,26 +6,37 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/httputil"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
-	"gopkg.in/mgo.v2/bson"
 )
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
+	userRepo := user.NewRepository(session)
 	r.POST("/login", func(c echo.Context) error {
-		return login(c, session)
+		return login(c, userRepo)
 	})
 }
 
-func login(c echo.Context, session *mongo.Session) error {
+// Login godoc
+// @Summary Login
+// @Description Login get token
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.Token
+// @Failure 401 {object} httputil.HTTPError
+// @Router /api/v1/login [post]
+func login(c echo.Context, userRepo user.Repository) error {
 	var u models.Login
 	if err := c.Bind(&u); err != nil {
-		return c.JSON(http.StatusUnauthorized, err.Error())
+		return httputil.NewError(c, http.StatusUnauthorized, err)
 	}
 
-	user, err := getUserByID(u.ID, session)
+	user, err := userRepo.GetUserByID(u.ID)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, err.Error())
+		return httputil.NewError(c, http.StatusUnauthorized, err)
 	}
 
 	user.BankAccountName = ""
@@ -42,20 +53,10 @@ func login(c echo.Context, session *mongo.Session) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString([]byte("GmkZGF3CmpZNs88dLvbV"))
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, err.Error())
+		return httputil.NewError(c, http.StatusUnauthorized, err)
 	}
 	tk := &models.Token{
 		Token: t,
 	}
 	return c.JSON(http.StatusOK, tk)
-}
-
-func getUserByID(id string, session *mongo.Session) (*models.User, error) {
-	user := new(models.User)
-	coll := session.GetCollection("user")
-	err := coll.FindId(bson.ObjectIdHex(id)).One(&user)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
 }
