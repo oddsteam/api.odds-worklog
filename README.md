@@ -16,12 +16,19 @@ Run `docker-compose up --build -d` <br>
     mongoimport --host localhost --port 27017 --db odds_worklog_db --collection user --type json --file user.json --maintainInsertionOrder --jsonArray
 ```
 
+## Set up Swagger
+After fill Comment to each handler, you must run `swag init` to generate docs swagger 
+
 ## Host local
 [http://localhost:8080/](http://localhost:8080/)
 
 ## API
 local: http://localhost:8080/v1/
 dev clound: http://worklog-dev.odds.team/api/v1/
+
+### Swagger
+local [http://localhost:8080/v1/swagger/index.html](http://localhost:8080/v1/swagger/index.html)
+online [http://worklog-dev.odds.team/api/v1/swagger/index.html](http://worklog-dev.odds.team/api/v1/swagger/index.html)
 
 ### User
 | Method    | Path          |
