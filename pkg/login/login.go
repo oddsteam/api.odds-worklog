@@ -22,7 +22,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 // Login godoc
 // @Summary Login
 // @Description Login get token
-// @Tags users
+// @Tags login
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} models.Token

@@ -22,7 +22,9 @@ definitions:
         type: string
       email:
         type: string
-      fullname:
+      fullnameEn:
+        type: string
+      fullnameTh:
         type: string
       id:
         type: string
@@ -57,7 +59,7 @@ paths:
             type: object
       summary: Login
       tags:
-      - users
+      - login
   /api/v1/users:
     get:
       consumes:

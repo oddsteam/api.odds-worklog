@@ -20,7 +20,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "login"
                 ],
                 "summary": "Login",
                 "responses": {
@@ -344,7 +344,10 @@
                 "email": {
                     "type": "string"
                 },
-                "fullname": {
+                "fullnameEn": {
+                    "type": "string"
+                },
+                "fullnameTh": {
                     "type": "string"
                 },
                 "id": {
