@@ -5,8 +5,10 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
+	_ "gitlab.odds.team/worklog/api.odds-worklog/docs"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/login"
@@ -38,6 +40,7 @@ func main() {
 	}
 
 	r := e.Group("/v1")
+	r.GET("/swagger/*", echoSwagger.WrapHandler)
 	login.NewHttpHandler(r, session)
 	r.Use(middleware.JWTWithConfig(m))
 
