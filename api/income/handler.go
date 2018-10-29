@@ -75,8 +75,12 @@ func (h *HttpHandler) GetIncomeStatusList(c echo.Context) error {
 }
 
 func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
-	userId := c.Param("id")
-	income, err := h.Usecase.GetIncomeByUserIdAndCurrentMonth(userId)
+	id := c.Param("id")
+	if id == "" {
+		return c.JSON(http.StatusBadRequest, errors.New("invalid path"))
+	}
+
+	income, err := h.Usecase.GetIncomeByUserIdAndCurrentMonth(id)
 	if income == nil {
 		return c.JSON(http.StatusOK, nil)
 	}
