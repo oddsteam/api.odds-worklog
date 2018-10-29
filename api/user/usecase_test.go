@@ -30,7 +30,7 @@ func TestGetUser(t *testing.T) {
 	u, err := uc.GetUser()
 	assert.NoError(t, err)
 	assert.NotNil(t, u)
-	assert.Equal(t, mocks.MockUsers[0].FullName, u[0].FullName)
+	assert.Equal(t, mocks.MockUsers[0].FullNameTh, u[0].FullNameTh)
 	mockRepo.AssertExpectations(t)
 }
 
@@ -42,7 +42,7 @@ func TestGetUserByID(t *testing.T) {
 	u, err := uc.GetUserByID(string(mocks.MockUserById.ID))
 	assert.NoError(t, err)
 	assert.NotNil(t, u)
-	assert.Equal(t, mocks.MockUserById.FullName, u.FullName)
+	assert.Equal(t, mocks.MockUserById.FullNameTh, u.FullNameTh)
 	mockRepo.AssertExpectations(t)
 }
 func TestDeleteUser(t *testing.T) {
@@ -63,6 +63,6 @@ func TestUpdateUser(t *testing.T) {
 	u, err := uc.UpdateUser(&mocks.MockUserById)
 	assert.NoError(t, err)
 	assert.NotNil(t, u)
-	assert.Equal(t, mocks.MockUser.FullName, u.FullName)
+	assert.Equal(t, mocks.MockUser.FullNameTh, u.FullNameTh)
 	mockRepo.AssertExpectations(t)
 }

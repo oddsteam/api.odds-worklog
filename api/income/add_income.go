@@ -11,7 +11,7 @@ func (u *usecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.I
 
 	_, err := u.repo.GetIncomeUserNow(userID, getCurrentMonth())
 	if err == nil {
-		return nil, errors.New("Sorry, has income data of user " + user.FullName)
+		return nil, errors.New("Sorry, has income data of user " + user.FullNameTh)
 	}
 
 	ins, err := calIncomeSum(req.TotalIncome, user.CorporateFlag)

@@ -137,7 +137,7 @@ func TestUpdatePartialUser(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("GetUserByID", mock.AnythingOfType("string")).Return(&mocks.MockUser, nil)
 	mockUsecase.On("UpdateUser", mock.AnythingOfType("*models.User")).Return(&mocks.MockUser, nil)
-	mockIoReader := `{"fullname" : "ODDS junk","email" : "xx@c.com"}`
+	mockIoReader := `{"fullnameTh" : "ODDS junk","email" : "xx@c.com"}`
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodPatch, "/", strings.NewReader(mockIoReader))

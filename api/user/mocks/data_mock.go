@@ -10,7 +10,7 @@ import (
 var (
 	MockUser = models.User{
 		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39539"),
-		FullName:          "นายทดสอบชอบลงทุน",
+		FullNameTh:        "นายทดสอบชอบลงทุน",
 		Email:             "test@abc.com",
 		BankAccountName:   "ทดสอบชอบลงทุน",
 		BankAccountNumber: "123123123123",
@@ -24,7 +24,7 @@ var (
 
 	MockUserById = models.User{
 		ID:                "1234567890",
-		FullName:          "นายทดสอบชอบลงทุน",
+		FullNameTh:        "นายทดสอบชอบลงทุน",
 		Email:             "test@abc.com",
 		BankAccountName:   "ทดสอบชอบลงทุน",
 		BankAccountNumber: "123123123123",
@@ -40,7 +40,7 @@ var (
 	MockUsers = []*models.User{
 		{
 			ID:                "1234567890",
-			FullName:          "นายทดสอบชอบลงทุน",
+			FullNameTh:        "นายทดสอบชอบลงทุน",
 			Email:             "test@abc.com",
 			BankAccountName:   "ทดสอบชอบลงทุน",
 			BankAccountNumber: "123123123123",
@@ -49,7 +49,7 @@ var (
 		},
 		{
 			ID:                "1234567890",
-			FullName:          "นายไม่ชอบลงทุน",
+			FullNameTh:        "นายไม่ชอบลงทุน",
 			Email:             "test@abc.com",
 			BankAccountName:   "ทดสอบชอบลงทุน",
 			BankAccountNumber: "123123123123",
