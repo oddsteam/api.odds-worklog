@@ -24,8 +24,9 @@ func main() {
 
 	// Echo instance
 	e := echo.New()
+
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
