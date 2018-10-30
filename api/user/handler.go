@@ -33,11 +33,12 @@ func isRequestValid(m *models.User) (bool, error) {
 // @Tags users
 // @Accept  json
 // @Produce  json
+// @Param user body models.User true  "id can empty"
 // @Success 200 {array} models.User
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 422 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
-// @Router /api/v1/users [post]
+// @Router /users [post]
 func (h *HttpHandler) CreateUser(c echo.Context) error {
 	var u models.User
 	if err := c.Bind(&u); err != nil {
@@ -63,12 +64,11 @@ func (h *HttpHandler) CreateUser(c echo.Context) error {
 // @Produce  json
 // @Success 200 {array} models.User
 // @Failure 500 {object} httputil.HTTPError
-// @Router /api/v1/users [get]
+// @Router /users [get]
 func (h *HttpHandler) GetUser(c echo.Context) error {
 	users, err := h.Usecase.GetUser()
 	if err != nil {
 		return httputil.NewError(c, http.StatusInternalServerError, err)
-		// return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
 	}
 	return c.JSON(http.StatusOK, users)
 }
@@ -83,7 +83,7 @@ func (h *HttpHandler) GetUser(c echo.Context) error {
 // @Success 200 {object} models.User
 // @Failure 204 {object} httputil.HTTPError
 // @Failure 400 {object} httputil.HTTPError
-// @Router /api/v1/users/{id} [post]
+// @Router /users/{id} [post]
 func (h *HttpHandler) GetUserByID(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
@@ -104,11 +104,12 @@ func (h *HttpHandler) GetUserByID(c echo.Context) error {
 // @Accept  multipart/form-data
 // @Produce  json
 // @Param  id path string true "User ID"
+// @Param user body models.User true  "id can empty"
 // @Success 200 {object} models.User
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 422 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
-// @Router /api/v1/users/{id} [put]
+// @Router /users/{id} [put]
 func (h *HttpHandler) UpdateUser(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
@@ -143,7 +144,7 @@ func (h *HttpHandler) UpdateUser(c echo.Context) error {
 // @Success 204 {object} models.User
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
-// @Router /api/v1/users/{id} [delete]
+// @Router /users/{id} [delete]
 func (h *HttpHandler) DeleteUser(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
@@ -164,10 +165,11 @@ func (h *HttpHandler) DeleteUser(c echo.Context) error {
 // @Accept  multipart/form-data
 // @Produce  json
 // @Param  id path string true "User ID"
+// @Param user body models.User true  "id can empty"
 // @Success 200 {object} models.User
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
-// @Router /api/v1/users/{id} [patch]
+// @Router /users/{id} [patch]
 func (h *HttpHandler) UpdatePartialUser(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {

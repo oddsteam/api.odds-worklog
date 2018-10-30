@@ -15,6 +15,11 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 )
 
+// @title Odds-Worklog Example API
+// @version 1.0
+// @description This is a sample server odds-worklog server.
+// @host http://worklog-dev.odds.team/api
+// @BasePath /v1
 func main() {
 	c := config.Config()
 	// Setup Mongo

@@ -1,16 +1,16 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "{{.Description}}",
-        "title": "{{.Title}}",
+        "description": "This is a sample server odds-worklog server.",
+        "title": "Odds-Worklog Example API",
         "contact": {},
         "license": {},
-        "version": "{{.Version}}"
+        "version": "1.0"
     },
-    "host": "{{.Host}}",
-    "basePath": "{{.BasePath}}",
+    "host": "http://worklog-dev.odds.team/api",
+    "basePath": "/v1",
     "paths": {
-        "/api/v1/login": {
+        "/login": {
             "post": {
                 "description": "Login get token",
                 "consumes": [
@@ -53,7 +53,7 @@
                 }
             }
         },
-        "/api/v1/users": {
+        "/users": {
             "get": {
                 "description": "get user list",
                 "consumes": [
@@ -97,6 +97,18 @@
                     "users"
                 ],
                 "summary": "Create User",
+                "parameters": [
+                    {
+                        "description": "id can empty",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -131,7 +143,7 @@
                 }
             }
         },
-        "/api/v1/users/{id}": {
+        "/users/{id}": {
             "put": {
                 "description": "Update User By Id",
                 "consumes": [
@@ -151,6 +163,16 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "id can empty",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.User"
+                        }
                     }
                 ],
                 "responses": {
@@ -293,6 +315,16 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "id can empty",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.User"
+                        }
                     }
                 ],
                 "responses": {

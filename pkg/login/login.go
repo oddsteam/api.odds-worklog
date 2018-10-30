@@ -28,7 +28,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 // @Param login body models.Login true  "id is userId"
 // @Success 200 {object} models.Token
 // @Failure 401 {object} httputil.HTTPError
-// @Router /api/v1/login [post]
+// @Router /login [post]
 func login(c echo.Context, userRepo user.Repository) error {
 	var u models.Login
 	if err := c.Bind(&u); err != nil {

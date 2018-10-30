@@ -1,4 +1,4 @@
-basePath: '{{.BasePath}}'
+basePath: /v1
 definitions:
   httputil.HTTPError:
     properties:
@@ -36,15 +36,15 @@ definitions:
       thaiCitizenId:
         type: string
     type: object
-host: '{{.Host}}'
+host: http://worklog-dev.odds.team/api
 info:
   contact: {}
-  description: '{{.Description}}'
+  description: This is a sample server odds-worklog server.
   license: {}
-  title: '{{.Title}}'
-  version: '{{.Version}}'
+  title: Odds-Worklog Example API
+  version: "1.0"
 paths:
-  /api/v1/login:
+  /login:
     post:
       consumes:
       - application/json
@@ -73,7 +73,7 @@ paths:
       summary: Login
       tags:
       - login
-  /api/v1/users:
+  /users:
     get:
       consumes:
       - application/json
@@ -99,6 +99,14 @@ paths:
       consumes:
       - application/json
       description: Create User
+      parameters:
+      - description: id can empty
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+          type: object
       produces:
       - application/json
       responses:
@@ -126,7 +134,7 @@ paths:
       summary: Create User
       tags:
       - users
-  /api/v1/users/{id}:
+  /users/{id}:
     delete:
       consumes:
       - multipart/form-data
@@ -168,6 +176,13 @@ paths:
         name: id
         required: true
         type: string
+      - description: id can empty
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+          type: object
       produces:
       - application/json
       responses:
@@ -230,6 +245,13 @@ paths:
         name: id
         required: true
         type: string
+      - description: id can empty
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+          type: object
       produces:
       - application/json
       responses:
