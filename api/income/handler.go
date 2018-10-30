@@ -35,7 +35,7 @@ func isRequestValid(m *models.IncomeReq) (bool, error) {
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 422 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
-// @Router /api/income [post]
+// @Router /incomes [post]
 func (h *HttpHandler) AddIncome(c echo.Context) error {
 	var income models.IncomeReq
 	if err := c.Bind(&income); err != nil {
@@ -66,7 +66,7 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 422 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
-// @Router /api/income/{id} [put]
+// @Router /incomes/{id} [put]
 func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
@@ -101,7 +101,7 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 422 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
-// @Router /api/income/status [get]
+// @Router /incomes/status [get]
 func (h *HttpHandler) GetIncomeStatusList(c echo.Context) error {
 	users, err := h.Usecase.GetIncomeStatusList()
 	if err != nil {
@@ -121,7 +121,7 @@ func (h *HttpHandler) GetIncomeStatusList(c echo.Context) error {
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 422 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
-// @Router /api/income/month/{id} [get]
+// @Router /incomes/month/{id} [get]
 func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {

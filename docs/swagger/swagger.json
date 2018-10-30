@@ -10,7 +10,7 @@
     "host": "http://worklog-dev.odds.team/api",
     "basePath": "/v1",
     "paths": {
-        "/api/income": {
+        "/incomes": {
             "post": {
                 "description": "Add Income",
                 "consumes": [
@@ -67,7 +67,7 @@
                 }
             }
         },
-        "/api/income/month/{id}": {
+        "/incomes/month/{id}": {
             "get": {
                 "description": "Get Income Of Current Month By User Id",
                 "consumes": [
@@ -121,7 +121,7 @@
                 }
             }
         },
-        "/api/income/status": {
+        "/incomes/status": {
             "get": {
                 "description": "Get Income Status",
                 "consumes": [
@@ -168,7 +168,7 @@
                 }
             }
         },
-        "/api/income/{id}": {
+        "/incomes/{id}": {
             "put": {
                 "description": "Update Income",
                 "consumes": [
