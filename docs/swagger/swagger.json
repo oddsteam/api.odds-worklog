@@ -10,7 +10,7 @@
     "host": "http://worklog-dev.odds.team/api",
     "basePath": "/v1",
     "paths": {
-        "/api/v1/income": {
+        "/api/income": {
             "post": {
                 "description": "Add Income",
                 "consumes": [
@@ -23,6 +23,18 @@
                     "incomes"
                 ],
                 "summary": "Add Income",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "income",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.IncomeReq"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -55,7 +67,7 @@
                 }
             }
         },
-        "/api/v1/income/month/{id}": {
+        "/api/income/month/{id}": {
             "get": {
                 "description": "Get Income Of Current Month By User Id",
                 "consumes": [
@@ -109,7 +121,7 @@
                 }
             }
         },
-        "/api/v1/income/status": {
+        "/api/income/status": {
             "get": {
                 "description": "Get Income Status",
                 "consumes": [
@@ -156,7 +168,7 @@
                 }
             }
         },
-        "/api/v1/income/{id}": {
+        "/api/income/{id}": {
             "put": {
                 "description": "Update Income",
                 "consumes": [
@@ -170,6 +182,16 @@
                 ],
                 "summary": "Update Income",
                 "parameters": [
+                    {
+                        "description": " ",
+                        "name": "income",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.IncomeReq"
+                        }
+                    },
                     {
                         "type": "string",
                         "description": "Income ID",
@@ -590,6 +612,17 @@
                     "type": "string"
                 },
                 "wht": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.IncomeReq": {
+            "type": "object",
+            "properties": {
+                "note": {
+                    "type": "string"
+                },
+                "totalIncome": {
                     "type": "string"
                 }
             }

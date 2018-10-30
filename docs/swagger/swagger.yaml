@@ -26,6 +26,13 @@ definitions:
       wht:
         type: string
     type: object
+  models.IncomeReq:
+    properties:
+      note:
+        type: string
+      totalIncome:
+        type: string
+    type: object
   models.IncomeRes:
     properties:
       status:
@@ -73,11 +80,19 @@ info:
   title: Odds-Worklog Example API
   version: "1.0"
 paths:
-  /api/v1/income:
+  /api/income:
     post:
       consumes:
       - application/json
       description: Add Income
+      parameters:
+      - description: ' '
+        in: body
+        name: income
+        required: true
+        schema:
+          $ref: '#/definitions/models.IncomeReq'
+          type: object
       produces:
       - application/json
       responses:
@@ -104,12 +119,19 @@ paths:
       summary: Add Income
       tags:
       - incomes
-  /api/v1/income/{id}:
+  /api/income/{id}:
     put:
       consumes:
       - application/json
       description: Update Income
       parameters:
+      - description: ' '
+        in: body
+        name: income
+        required: true
+        schema:
+          $ref: '#/definitions/models.IncomeReq'
+          type: object
       - description: Income ID
         in: path
         name: id
@@ -141,7 +163,7 @@ paths:
       summary: Update Income
       tags:
       - incomes
-  /api/v1/income/month/{id}:
+  /api/income/month/{id}:
     get:
       consumes:
       - application/json
@@ -178,7 +200,7 @@ paths:
       summary: Get Income Of Current Month By User Id
       tags:
       - incomes
-  /api/v1/income/status:
+  /api/income/status:
     get:
       consumes:
       - application/json
