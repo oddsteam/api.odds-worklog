@@ -24,6 +24,17 @@ func isRequestValid(m *models.IncomeReq) (bool, error) {
 	return true, nil
 }
 
+// AddIncome godoc
+// @Summary Add Income
+// @Description Add Income
+// @Tags incomes
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.Income
+// @Failure 400 {object} httputil.HTTPError
+// @Failure 422 {object} httputil.HTTPError
+// @Failure 500 {object} httputil.HTTPError
+// @Router /api/v1/income [post]
 func (h *HttpHandler) AddIncome(c echo.Context) error {
 	var income models.IncomeReq
 	if err := c.Bind(&income); err != nil {
@@ -42,6 +53,18 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// Update Income godoc
+// @Summary Update Income
+// @Description Update Income
+// @Tags incomes
+// @Accept  json
+// @Produce  json
+// @Param  id path string true "Income ID"
+// @Success 200 {object} models.Income
+// @Failure 400 {object} httputil.HTTPError
+// @Failure 422 {object} httputil.HTTPError
+// @Failure 500 {object} httputil.HTTPError
+// @Router /api/v1/income/{id} [put]
 func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
@@ -66,6 +89,17 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// Get Income Status godoc
+// @Summary Get Income Status
+// @Description Get Income Status
+// @Tags incomes
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.IncomeRes
+// @Failure 400 {object} httputil.HTTPError
+// @Failure 422 {object} httputil.HTTPError
+// @Failure 500 {object} httputil.HTTPError
+// @Router /api/v1/income/status [get]
 func (h *HttpHandler) GetIncomeStatusList(c echo.Context) error {
 	users, err := h.Usecase.GetIncomeStatusList()
 	if err != nil {
@@ -74,6 +108,18 @@ func (h *HttpHandler) GetIncomeStatusList(c echo.Context) error {
 	return c.JSON(http.StatusOK, users)
 }
 
+// Get Income Of Current Month By User Id
+// @Summary Get Income Of Current Month By User Id
+// @Description Get Income Of Current Month By User Id
+// @Tags incomes
+// @Accept  json
+// @Produce  json
+// @Param  id path string true "User ID"
+// @Success 200 {object} models.Income
+// @Failure 400 {object} httputil.HTTPError
+// @Failure 422 {object} httputil.HTTPError
+// @Failure 500 {object} httputil.HTTPError
+// @Router /api/v1/income/month/{id} [get]
 func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {

@@ -7,6 +7,35 @@ definitions:
       message:
         type: string
     type: object
+  models.Income:
+    properties:
+      id:
+        type: string
+      netIncome:
+        type: string
+      note:
+        type: string
+      submitDate:
+        type: string
+      totalIncome:
+        type: string
+      userId:
+        type: string
+      vat:
+        type: string
+      wht:
+        type: string
+    type: object
+  models.IncomeRes:
+    properties:
+      status:
+        type: string
+      submitDate:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+    type: object
   models.Login:
     properties:
       id:
@@ -44,6 +73,143 @@ info:
   title: Odds-Worklog Example API
   version: "1.0"
 paths:
+  /api/v1/income:
+    post:
+      consumes:
+      - application/json
+      description: Add Income
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Income'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+      summary: Add Income
+      tags:
+      - incomes
+  /api/v1/income/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update Income
+      parameters:
+      - description: Income ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Income'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+      summary: Update Income
+      tags:
+      - incomes
+  /api/v1/income/month/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get Income Of Current Month By User Id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Income'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+      summary: Get Income Of Current Month By User Id
+      tags:
+      - incomes
+  /api/v1/income/status:
+    get:
+      consumes:
+      - application/json
+      description: Get Income Status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.IncomeRes'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+      summary: Get Income Status
+      tags:
+      - incomes
   /login:
     post:
       consumes:
