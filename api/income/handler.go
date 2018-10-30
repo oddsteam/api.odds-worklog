@@ -9,6 +9,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/httputil"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	validator "gopkg.in/go-playground/validator.v9"
 )
@@ -39,17 +40,17 @@ func isRequestValid(m *models.IncomeReq) (bool, error) {
 func (h *HttpHandler) AddIncome(c echo.Context) error {
 	var income models.IncomeReq
 	if err := c.Bind(&income); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return httputil.NewError(c, http.StatusUnprocessableEntity, err)
 	}
 
 	if ok, err := isRequestValid(&income); !ok {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return httputil.NewError(c, http.StatusBadRequest, err)
 	}
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(*models.JwtCustomClaims)
 	res, err := h.Usecase.AddIncome(&income, claims.User)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+		return httputil.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, res)
 }
@@ -70,23 +71,23 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return c.JSON(http.StatusBadRequest, errors.New("invalid path"))
+		return httputil.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 
 	var req models.IncomeReq
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return httputil.NewError(c, http.StatusUnprocessableEntity, err)
 	}
 
 	if ok, err := isRequestValid(&req); !ok {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return httputil.NewError(c, http.StatusBadRequest, err)
 	}
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(*models.JwtCustomClaims)
 
 	res, err := h.Usecase.UpdateIncome(id, &req, claims.User)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+		return httputil.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, res)
 }
@@ -105,7 +106,7 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 func (h *HttpHandler) GetIncomeStatusList(c echo.Context) error {
 	users, err := h.Usecase.GetIncomeStatusList()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+		return httputil.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, users)
 }
@@ -125,7 +126,7 @@ func (h *HttpHandler) GetIncomeStatusList(c echo.Context) error {
 func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return c.JSON(http.StatusBadRequest, errors.New("invalid path"))
+		return httputil.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 
 	income, err := h.Usecase.GetIncomeByUserIdAndCurrentMonth(id)
@@ -133,7 +134,7 @@ func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
 		return c.JSON(http.StatusOK, nil)
 	}
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, models.ResponseError{Message: err.Error()})
+		return httputil.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, income)
 }
