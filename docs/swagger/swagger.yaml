@@ -7,6 +7,11 @@ definitions:
       message:
         type: string
     type: object
+  models.Login:
+    properties:
+      id:
+        type: string
+    type: object
   models.Token:
     properties:
       token:
@@ -44,6 +49,14 @@ paths:
       consumes:
       - application/json
       description: Login get token
+      parameters:
+      - description: id is userId
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/models.Login'
+          type: object
       produces:
       - application/json
       responses:

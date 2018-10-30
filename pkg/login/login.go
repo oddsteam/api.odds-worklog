@@ -25,6 +25,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 // @Tags login
 // @Accept  json
 // @Produce  json
+// @Param login body models.Login true  "id is userId"
 // @Success 200 {object} models.Token
 // @Failure 401 {object} httputil.HTTPError
 // @Router /api/v1/login [post]
