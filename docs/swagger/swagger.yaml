@@ -65,8 +65,6 @@ definitions:
         type: string
       fullnameEn:
         type: string
-      fullnameTh:
-        type: string
       id:
         type: string
       thaiCitizenId:

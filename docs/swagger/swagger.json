@@ -676,9 +676,6 @@
                 "fullnameEn": {
                     "type": "string"
                 },
-                "fullnameTh": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "string"
                 },
