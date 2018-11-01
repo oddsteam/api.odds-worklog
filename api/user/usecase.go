@@ -28,6 +28,10 @@ func (u *usecase) GetUser() ([]*models.User, error) {
 	return users, nil
 }
 
+func (u *usecase) GetUserByType(corporateFlag string) ([]*models.User, error) {
+	return u.repo.GetUserByType(corporateFlag)
+}
+
 func (u *usecase) GetUserByID(id string) (*models.User, error) {
 	user, err := u.repo.GetUserByID(id)
 	if err != nil {

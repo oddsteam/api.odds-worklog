@@ -34,6 +34,18 @@ func TestGetUser(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
+func TestGetUserByType(t *testing.T) {
+	mockRepo := new(mocks.Repository)
+	mockRepo.On("GetUserByType", "Y").Return(mocks.MockUsers, nil)
+
+	uc := newUsecase(mockRepo)
+	list, err := uc.GetUserByType("Y")
+	assert.NoError(t, err)
+	assert.NotNil(t, list)
+	assert.Equal(t, mocks.MockUsers, list)
+	mockRepo.AssertExpectations(t)
+}
+
 func TestGetUserByID(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("GetUserByID", "1234567890").Return(&mocks.MockUserById, nil)
