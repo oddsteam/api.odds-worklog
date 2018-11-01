@@ -37,6 +37,17 @@ func (r *repository) GetUser() ([]*models.User, error) {
 	return users, nil
 }
 
+func (r *repository) GetUserByType(corporateFlag string) ([]*models.User, error) {
+	users := make([]*models.User, 0)
+
+	coll := r.session.GetCollection(userColl)
+	err := coll.Find(bson.M{"corporateFlag": corporateFlag}).All(&users)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
 func (r *repository) GetUserByID(id string) (*models.User, error) {
 	user := new(models.User)
 	coll := r.session.GetCollection(userColl)
