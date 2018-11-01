@@ -99,9 +99,9 @@ func getCurrentMonth() string {
 	return cm
 }
 
-func (u *usecase) GetIncomeStatusList() ([]*models.IncomeStatus, error) {
+func (u *usecase) GetIncomeStatusList(corporateFlag string) ([]*models.IncomeStatus, error) {
 	var incomeList []*models.IncomeStatus
-	users, err := u.userRepo.GetUser()
+	users, err := u.userRepo.GetUserByType(corporateFlag)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,6 @@ func (u *usecase) GetIncomeStatusList() ([]*models.IncomeStatus, error) {
 		incomeList = append(incomeList, &income)
 		if err != nil {
 			incomeList[index].Status = "N"
-
 		} else {
 			incomeList[index].SubmitDate = incomeUser.SubmitDate
 			incomeList[index].Status = "Y"

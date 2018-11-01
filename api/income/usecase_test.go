@@ -138,10 +138,10 @@ func TestUsecaseGetListIncome(t *testing.T) {
 	mockRepo.On("GetIncomeUserNow", userMocks.MockUserById2.ID.Hex(), getCurrentMonth()).Return(&mocks.MockIncome, nil)
 
 	mockUserRepo := new(userMocks.Repository)
-	mockUserRepo.On("GetUser").Return(userMocks.MockUsers, nil)
+	mockUserRepo.On("GetUserByType", "Y").Return(userMocks.MockUsers, nil)
 
 	uc := newUsecase(mockRepo, mockUserRepo)
-	res, err := uc.GetIncomeStatusList()
+	res, err := uc.GetIncomeStatusList("Y")
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
 	assert.Equal(t, mocks.MockIncomeStatusList[0].Status, res[0].Status)

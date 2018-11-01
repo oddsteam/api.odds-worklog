@@ -49,19 +49,19 @@ func (m *Usecase) UpdateIncome(id string, req *models.IncomeReq, user *models.Us
 	return r0, r1
 }
 
-func (m *Usecase) GetIncomeStatusList() ([]*models.IncomeStatus, error) {
-	ret := m.Called()
+func (m *Usecase) GetIncomeStatusList(corporateFlag string) ([]*models.IncomeStatus, error) {
+	ret := m.Called(corporateFlag)
 
 	var r0 []*models.IncomeStatus
-	if rf, ok := ret.Get(0).(func() []*models.IncomeStatus); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(string) []*models.IncomeStatus); ok {
+		r0 = rf(corporateFlag)
 	} else if ret.Get(0) != nil {
 		r0 = ret.Get(0).([]*models.IncomeStatus)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(corporateFlag)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -227,7 +227,7 @@ paths:
           schema:
             $ref: '#/definitions/httputil.HTTPError'
             type: object
-      summary: Get Income Status
+      summary: Get Corporate Income Status
       tags:
       - incomes
   /login:

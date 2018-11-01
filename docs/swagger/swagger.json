@@ -133,7 +133,7 @@
                 "tags": [
                     "incomes"
                 ],
-                "summary": "Get Income Status",
+                "summary": "Get Corporate Income Status",
                 "responses": {
                     "200": {
                         "description": "OK",

@@ -92,8 +92,8 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-// GetIncomeStatusList godoc
-// @Summary Get Income Status
+// GetCorporateIncomeStatus godoc
+// @Summary Get Corporate Income Status
 // @Description Get Income Status
 // @Tags incomes
 // @Accept  json
@@ -103,8 +103,8 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 // @Failure 422 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
 // @Router /incomes/status [get]
-func (h *HttpHandler) GetIncomeStatusList(c echo.Context) error {
-	users, err := h.Usecase.GetIncomeStatusList()
+func (h *HttpHandler) GetCorporateIncomeStatus(c echo.Context) error {
+	users, err := h.Usecase.GetIncomeStatusList("Y")
 	if err != nil {
 		return httputil.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -148,6 +148,6 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r = r.Group("/incomes")
 	r.POST("", handler.AddIncome)
 	r.PUT("/:id", handler.UpdateIncome)
-	r.GET("/status", handler.GetIncomeStatusList)
+	r.GET("/status/corporate", handler.GetCorporateIncomeStatus)
 	r.GET("/month/:id", handler.GetIncomeByUserIdAndCurrentMonth)
 }
