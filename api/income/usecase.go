@@ -124,9 +124,5 @@ func (u *usecase) GetIncomeStatusList(corporateFlag string) ([]*models.IncomeSta
 
 func (u *usecase) GetIncomeByUserIdAndCurrentMonth(userId string) (*models.Income, error) {
 	month := getCurrentMonth()
-	income, err := u.repo.GetIncomeUserNow(userId, month)
-	if err != nil {
-		return nil, err
-	}
-	return income, nil
+	return u.repo.GetIncomeUserNow(userId, month)
 }
