@@ -76,8 +76,8 @@ func TestUpdateIncome(t *testing.T) {
 }
 func TestGetIncomeStatusList(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
-	mockListUser := make([]*models.IncomeRes, 0)
-	mockListUser = append(mockListUser, &mocks.MockIncomeRes)
+	mockListUser := make([]*models.IncomeStatus, 0)
+	mockListUser = append(mockListUser, &mocks.MockIncomeStatus)
 
 	mockUsecase.On("GetIncomeStatusList").Return(mockListUser, nil)
 

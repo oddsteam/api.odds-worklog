@@ -13,7 +13,7 @@ type Income struct {
 	WHT         string        `bson:"wht" json:"wht"`
 }
 
-type IncomeRes struct {
+type IncomeStatus struct {
 	User       *User  `bson:"user" json:"user,omitempty"`
 	SubmitDate string `bson:"submitDate" json:"submitDate"`
 	Status     string `bson:"status" json:"status"`

@@ -144,7 +144,7 @@ func TestUsecaseGetListIncome(t *testing.T) {
 	res, err := uc.GetIncomeStatusList()
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
-	assert.Equal(t, mocks.MockIncomeResList[0].Status, res[0].Status)
+	assert.Equal(t, mocks.MockIncomeStatusList[0].Status, res[0].Status)
 	mockRepo.AssertExpectations(t)
 }
 

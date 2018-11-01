@@ -99,8 +99,8 @@ func getCurrentMonth() string {
 	return cm
 }
 
-func (u *usecase) GetIncomeStatusList() ([]*models.IncomeRes, error) {
-	var incomeList []*models.IncomeRes
+func (u *usecase) GetIncomeStatusList() ([]*models.IncomeStatus, error) {
+	var incomeList []*models.IncomeStatus
 	users, err := u.userRepo.GetUser()
 	if err != nil {
 		return nil, err
@@ -109,9 +109,7 @@ func (u *usecase) GetIncomeStatusList() ([]*models.IncomeRes, error) {
 	for index, element := range users {
 		element.ThaiCitizenID = ""
 		incomeUser, err := u.repo.GetIncomeUserNow(element.ID.Hex(), getCurrentMonth())
-		income := models.IncomeRes{
-			User: element,
-		}
+		income := models.IncomeStatus{User: element}
 		incomeList = append(incomeList, &income)
 		if err != nil {
 			incomeList[index].Status = "N"

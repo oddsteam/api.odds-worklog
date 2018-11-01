@@ -25,24 +25,18 @@ var (
 		Note:        "ข้อมูลที่อยากบอก",
 	}
 
-	MockIncomeRes = models.IncomeRes{
+	MockIncomeStatus = models.IncomeStatus{
 		User:       &userMocks.MockUser,
 		SubmitDate: "2018-10-24 20:30:40",
 		Status:     "Y",
 	}
-	MockIncomeResList = []*models.IncomeRes{
-		&models.IncomeRes{
-			User:       &userMocks.MockUser,
-			SubmitDate: "2018-10-24 20:30:40",
-			Status:     "Y",
-		},
-	}
-	IncomeByte, _  = json.Marshal(MockIncome)
-	MockIncomeJson = string(IncomeByte)
+	MockIncomeStatusList = []*models.IncomeStatus{&MockIncomeStatus}
+	IncomeByte, _        = json.Marshal(MockIncome)
+	MockIncomeJson       = string(IncomeByte)
 
 	IncomeReqByte, _  = json.Marshal(MockIncomeReq)
 	MockIncomeReqJson = string(IncomeReqByte)
 
-	IncomeResByte, _  = json.Marshal(MockIncomeRes)
+	IncomeResByte, _  = json.Marshal(MockIncomeStatus)
 	MockIncomeResJson = string(IncomeResByte)
 )
