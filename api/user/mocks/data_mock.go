@@ -32,29 +32,22 @@ var (
 		CorporateFlag:     "Y",
 	}
 
+	MockUserById2 = models.User{
+		ID:                "1234567891",
+		FullNameEn:        "นายทดสอบชอบลงทุน",
+		Email:             "test@abc.com",
+		BankAccountName:   "ทดสอบชอบลงทุน",
+		BankAccountNumber: "123123123123",
+		ThaiCitizenID:     "1234567890123",
+		CorporateFlag:     "Y",
+	}
+
 	userByte, _ = json.Marshal(MockUser)
 	UserJson    = string(userByte)
 	LoginJson   = `{"id": "5bbcf2f90fd2df527bc39539"}`
 	Login       = models.Login{ID: "5bbcf2f90fd2df527bc39539"}
 
-	MockUsers = []*models.User{
-		{
-			ID:                "1234567890",
-			FullNameEn:        "นายทดสอบชอบลงทุน",
-			Email:             "test@abc.com",
-			BankAccountName:   "ทดสอบชอบลงทุน",
-			BankAccountNumber: "123123123123",
-			ThaiCitizenID:     "1234567890123",
-			CorporateFlag:     "Y",
-		},
-		{
-			ID:                "1234567890",
-			FullNameEn:        "นายไม่ชอบลงทุน",
-			Email:             "test@abc.com",
-			BankAccountName:   "ทดสอบชอบลงทุน",
-			BankAccountNumber: "123123123123",
-			ThaiCitizenID:     "1234567890123",
-			CorporateFlag:     "Y",
-		},
-	}
+	MockUsers       = []*models.User{&MockUserById, &MockUserById2}
+	UserListByte, _ = json.Marshal(MockUsers)
+	UserListJson    = string(UserListByte)
 )
