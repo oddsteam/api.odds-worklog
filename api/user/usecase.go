@@ -13,19 +13,11 @@ func newUsecase(r Repository) Usecase {
 }
 
 func (u *usecase) CreateUser(m *models.User) (*models.User, error) {
-	user, err := u.repo.CreateUser(m)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
+	return u.repo.CreateUser(m)
 }
 
 func (u *usecase) GetUser() ([]*models.User, error) {
-	users, err := u.repo.GetUser()
-	if err != nil {
-		return nil, err
-	}
-	return users, nil
+	return u.repo.GetUser()
 }
 
 func (u *usecase) GetUserByType(corporateFlag string) ([]*models.User, error) {
@@ -33,19 +25,11 @@ func (u *usecase) GetUserByType(corporateFlag string) ([]*models.User, error) {
 }
 
 func (u *usecase) GetUserByID(id string) (*models.User, error) {
-	user, err := u.repo.GetUserByID(id)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
+	return u.repo.GetUserByID(id)
 }
 
 func (u *usecase) UpdateUser(m *models.User) (*models.User, error) {
-	user, err := u.repo.UpdateUser(m)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
+	return u.repo.UpdateUser(m)
 }
 
 func (u *usecase) DeleteUser(id string) error {
