@@ -140,7 +140,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.IncomeRes"
+                                "$ref": "#/definitions/models.IncomeStatus"
                             }
                         }
                     },
@@ -627,7 +627,7 @@
                 }
             }
         },
-        "models.IncomeRes": {
+        "models.IncomeStatus": {
             "type": "object",
             "properties": {
                 "status": {

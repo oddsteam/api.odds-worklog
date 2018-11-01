@@ -33,7 +33,7 @@ definitions:
       totalIncome:
         type: string
     type: object
-  models.IncomeRes:
+  models.IncomeStatus:
     properties:
       status:
         type: string
@@ -210,7 +210,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.IncomeRes'
+              $ref: '#/definitions/models.IncomeStatus'
             type: array
         "400":
           description: Bad Request

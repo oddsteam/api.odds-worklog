@@ -55,7 +55,7 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-// Update Income godoc
+// UpdateIncome godoc
 // @Summary Update Income
 // @Description Update Income
 // @Tags incomes
@@ -92,13 +92,13 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-// Get Income Status godoc
+// GetIncomeStatusList godoc
 // @Summary Get Income Status
 // @Description Get Income Status
 // @Tags incomes
 // @Accept  json
 // @Produce  json
-// @Success 200 {array} models.IncomeRes
+// @Success 200 {array} models.IncomeStatus
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 422 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
@@ -111,7 +111,7 @@ func (h *HttpHandler) GetIncomeStatusList(c echo.Context) error {
 	return c.JSON(http.StatusOK, users)
 }
 
-// Get Income Of Current Month By User Id
+// GetIncomeByUserIdAndCurrentMonth godoc
 // @Summary Get Income Of Current Month By User Id
 // @Description Get Income Of Current Month By User Id
 // @Tags incomes
