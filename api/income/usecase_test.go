@@ -106,7 +106,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 	mockUserRepo := new(userMocks.Repository)
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("AddIncome", mock.AnythingOfType("*models.Income")).Return(nil)
-	mockRepo.On("GetIncomeUserNow", mocks.MockIncome.UserID, "2018-10").Return(&mocks.MockIncome, errors.New(""))
+	mockRepo.On("GetIncomeUserNow", mocks.MockIncome.UserID, getCurrentMonth()).Return(&mocks.MockIncome, errors.New(""))
 
 	uc := newUsecase(mockRepo, mockUserRepo)
 	res, err := uc.AddIncome(&mocks.MockIncomeReq, &userMocks.MockUser)
@@ -134,7 +134,8 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 
 func TestUsecaseGetListIncome(t *testing.T) {
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("GetIncomeUserNow", userMocks.MockUserById.ID.Hex(), "2018-10").Return(&mocks.MockIncome, nil)
+	mockRepo.On("GetIncomeUserNow", userMocks.MockUserById.ID.Hex(), getCurrentMonth()).Return(&mocks.MockIncome, nil)
+	mockRepo.On("GetIncomeUserNow", userMocks.MockUserById2.ID.Hex(), getCurrentMonth()).Return(&mocks.MockIncome, nil)
 
 	mockUserRepo := new(userMocks.Repository)
 	mockUserRepo.On("GetUser").Return(userMocks.MockUsers, nil)
@@ -149,7 +150,7 @@ func TestUsecaseGetListIncome(t *testing.T) {
 
 func TestUsecaseGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("GetIncomeUserNow", incomeMocks.MockIncome.UserID, "2018-10").Return(&mocks.MockIncome, nil)
+	mockRepo.On("GetIncomeUserNow", incomeMocks.MockIncome.UserID, getCurrentMonth()).Return(&mocks.MockIncome, nil)
 
 	mockUserRepo := new(userMocks.Repository)
 
