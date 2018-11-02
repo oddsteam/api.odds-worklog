@@ -96,6 +96,29 @@ func TestGetCorporateIncomeStatus(t *testing.T) {
 	mockUsecase.AssertExpectations(t)
 }
 
+func TestGetIndividualIncomeStatus(t *testing.T) {
+	mockUsecase := new(mocks.Usecase)
+	mockListUser := make([]*models.IncomeStatus, 0)
+	mockListUser = append(mockListUser, &mocks.MockIncomeStatus)
+
+	mockUsecase.On("GetIncomeStatusList", "N").Return(mockListUser, nil)
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	handler := HttpHandler{
+		Usecase: mockUsecase,
+	}
+	handler.GetIndividualIncomeStatus(c)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	b, _ := json.Marshal(mockListUser)
+	assert.Equal(t, string(b), rec.Body.String())
+	mockUsecase.AssertExpectations(t)
+}
+
 func TestGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("GetIncomeByUserIdAndCurrentMonth", mocks.MockIncome.UserID).Return(&mocks.MockIncome, nil)
