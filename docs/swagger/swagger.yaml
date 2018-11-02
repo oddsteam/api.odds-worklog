@@ -202,7 +202,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get Income Status
+      description: Get Income Status List
       produces:
       - application/json
       responses:
@@ -227,7 +227,39 @@ paths:
           schema:
             $ref: '#/definitions/httputil.HTTPError'
             type: object
-      summary: Get Corporate Income Status
+      summary: Get Corporate Income Status List
+      tags:
+      - incomes
+  /incomes/status/individual:
+    get:
+      consumes:
+      - application/json
+      description: Get Individual Income Status List
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.IncomeStatus'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+      summary: Get Individual Income Status List
       tags:
       - incomes
   /login:
