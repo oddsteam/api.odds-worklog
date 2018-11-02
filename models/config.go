@@ -5,4 +5,6 @@ type Config struct {
 	MongoDBName          string
 	MongoDBConectionPool int
 	APIPort              string
+	Username             string
+	Password             string
 }

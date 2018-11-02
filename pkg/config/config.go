@@ -20,6 +20,8 @@ func Config() *models.Config {
 		os.Getenv("MONGO_DB_NAME"),
 		cp,
 		os.Getenv("API_PORT"),
+		os.Getenv("MONGO_DB_USERNAME"),
+		os.Getenv("MONGO_DB_PASSWORD"),
 	}
 	return &config
 }
