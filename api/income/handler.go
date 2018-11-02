@@ -102,7 +102,7 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 // @Failure 400 {object} httputil.HTTPError
 // @Failure 422 {object} httputil.HTTPError
 // @Failure 500 {object} httputil.HTTPError
-// @Router /incomes/status [get]
+// @Router /incomes/status/corporate [get]
 func (h *HttpHandler) GetCorporateIncomeStatus(c echo.Context) error {
 	users, err := h.Usecase.GetIncomeStatusList("Y")
 	if err != nil {

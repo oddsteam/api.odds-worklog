@@ -198,7 +198,7 @@ paths:
       summary: Get Income Of Current Month By User Id
       tags:
       - incomes
-  /incomes/status:
+  /incomes/status/corporate:
     get:
       consumes:
       - application/json

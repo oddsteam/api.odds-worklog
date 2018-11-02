@@ -121,7 +121,7 @@
                 }
             }
         },
-        "/incomes/status": {
+        "/incomes/status/corporate": {
             "get": {
                 "description": "Get Income Status",
                 "consumes": [
