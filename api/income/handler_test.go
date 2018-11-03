@@ -140,3 +140,21 @@ func TestGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 	assert.Equal(t, incomeJson, rec.Body.String())
 	mockUsecase.AssertExpectations(t)
 }
+
+func TestGetExportCorporateIncomeStatus(t *testing.T) {
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("ExportIncome", "Y").Return("test.csv", nil)
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	handler := HttpHandler{
+		Usecase: mockUsecase,
+	}
+	handler.GetExportCorporate(c)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	mockUsecase.AssertExpectations(t)
+}

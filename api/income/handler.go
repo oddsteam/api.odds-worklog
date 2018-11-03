@@ -158,6 +158,23 @@ func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
 	return c.JSON(http.StatusOK, income)
 }
 
+// GetExportCorporate godoc
+// @Summary Get Corporate Export Income
+// @Description Get Corporate Export Income to csv file.
+// @Tags incomes
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} string
+// @Failure 500 {object} utils.HTTPError
+// @Router /incomes/export/corporate [get]
+func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
+	filename, err := h.Usecase.ExportIncome("Y")
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.File(filename)
+}
+
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	incomeRepo := newRepository(session)
 	userRepo := user.NewRepository(session)
@@ -170,4 +187,5 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/status/corporate", handler.GetCorporateIncomeStatus)
 	r.GET("/status/individual", handler.GetIndividualIncomeStatus)
 	r.GET("/month/:id", handler.GetIncomeByUserIdAndCurrentMonth)
+	r.GET("/export/corporate", handler.GetExportCorporate)
 }
