@@ -7,11 +7,11 @@ import (
 	"github.com/labstack/echo/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/login"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	_ "gitlab.odds.team/worklog/api.odds-worklog/docs"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/login"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 )
 
