@@ -1,18 +1,34 @@
 [
     {
-        "fullname": "นายทดสอบชอบลงทุน",
-        "email": "test@abc.com",
-        "bankAccountName": "ทดสอบชอบลงทุน",
-        "bankAccountNumber": "123123123123",
-        "thaiCitizenId": "1234567890123",
+        "fullnameEn": "tester number 1",
+        "email": "tester1@abc.com",
+        "bankAccountName": "นักทดสอบ 1",
+        "bankAccountNumber": "12345678901",
+        "thaiCitizenId": "1234567890001",
         "corporateFlag": "Y"
     },
     {
-        "fullname": "นายทดสอบชอบไม่ลงทุน",
-        "email": "test2@abc.com",
-        "bankAccountName": "นายทดสอบชอบไม่ลงทุน",
-        "bankAccountNumber": "111111111111",
-        "thaiCitizenId": "1234567890102",
+        "fullnameEn": "tester number 2",
+        "email": "tester2@abc.com",
+        "bankAccountName": "นักทดสอบ 2",
+        "bankAccountNumber": "12345678902",
+        "thaiCitizenId": "1234567890002",
+        "corporateFlag": "Y"
+    },
+    {
+        "fullnameEn": "tester number 3",
+        "email": "tester3@abc.com",
+        "bankAccountName": "นักทดสอบ 3",
+        "bankAccountNumber": "12345678903",
+        "thaiCitizenId": "1234567890003",
+        "corporateFlag": "N"
+    },
+    {
+        "fullnameEn": "tester number 4",
+        "email": "tester4@abc.com",
+        "bankAccountName": "นักทดสอบ 4",
+        "bankAccountNumber": "12345678904",
+        "thaiCitizenId": "1234567890004",
         "corporateFlag": "N"
     }
 ]
