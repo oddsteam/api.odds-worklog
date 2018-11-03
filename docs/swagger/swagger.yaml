@@ -1,12 +1,5 @@
 basePath: /v1
 definitions:
-  httputil.HTTPError:
-    properties:
-      code:
-        type: integer
-      message:
-        type: string
-    type: object
   models.Income:
     properties:
       id:
@@ -70,6 +63,13 @@ definitions:
       thaiCitizenId:
         type: string
     type: object
+  utils.HTTPError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
 host: http://worklog-dev.odds.team/api
 info:
   contact: {}
@@ -102,17 +102,17 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Add Income
       tags:
@@ -146,17 +146,17 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Update Income
       tags:
@@ -183,17 +183,17 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Get Income Of Current Month By User Id
       tags:
@@ -215,17 +215,17 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Get Corporate Income Status List
       tags:
@@ -247,17 +247,17 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Get Individual Income Status List
       tags:
@@ -286,7 +286,7 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Login
       tags:
@@ -308,7 +308,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: List user
       tags:
@@ -337,17 +337,17 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Create User
       tags:
@@ -374,12 +374,12 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Delete User
       tags:
@@ -412,12 +412,12 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Update Partial User
       tags:
@@ -443,12 +443,12 @@ paths:
         "204":
           description: No Content
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Get User By Id
       tags:
@@ -481,17 +481,17 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Update User By Id
       tags:

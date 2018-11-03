@@ -1,4 +1,4 @@
-package httputil
+package utils
 
 import "github.com/labstack/echo"
 

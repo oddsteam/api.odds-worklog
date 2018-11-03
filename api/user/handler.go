@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/httputil"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
 	"gopkg.in/mgo.v2/bson"
 
@@ -35,23 +35,23 @@ func isRequestValid(m *models.User) (bool, error) {
 // @Produce  json
 // @Param user body models.User true  "id can empty"
 // @Success 200 {array} models.User
-// @Failure 400 {object} httputil.HTTPError
-// @Failure 422 {object} httputil.HTTPError
-// @Failure 500 {object} httputil.HTTPError
+// @Failure 400 {object} utils.HTTPError
+// @Failure 422 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
 // @Router /users [post]
 func (h *HttpHandler) CreateUser(c echo.Context) error {
 	var u models.User
 	if err := c.Bind(&u); err != nil {
-		return httputil.NewError(c, http.StatusUnprocessableEntity, err)
+		return utils.NewError(c, http.StatusUnprocessableEntity, err)
 	}
 
 	if ok, err := isRequestValid(&u); !ok {
-		return httputil.NewError(c, http.StatusBadRequest, err)
+		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 
 	user, err := h.Usecase.CreateUser(&u)
 	if err != nil {
-		return httputil.NewError(c, http.StatusInternalServerError, err)
+		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusCreated, user)
 }
@@ -63,12 +63,12 @@ func (h *HttpHandler) CreateUser(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Success 200 {array} models.User
-// @Failure 500 {object} httputil.HTTPError
+// @Failure 500 {object} utils.HTTPError
 // @Router /users [get]
 func (h *HttpHandler) GetUser(c echo.Context) error {
 	users, err := h.Usecase.GetUser()
 	if err != nil {
-		return httputil.NewError(c, http.StatusInternalServerError, err)
+		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, users)
 }
@@ -81,18 +81,18 @@ func (h *HttpHandler) GetUser(c echo.Context) error {
 // @Produce  json
 // @Param  id path string true "User ID"
 // @Success 200 {object} models.User
-// @Failure 204 {object} httputil.HTTPError
-// @Failure 400 {object} httputil.HTTPError
+// @Failure 204 {object} utils.HTTPError
+// @Failure 400 {object} utils.HTTPError
 // @Router /users/{id} [post]
 func (h *HttpHandler) GetUserByID(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return httputil.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 
 	user, err := h.Usecase.GetUserByID(id)
 	if err != nil {
-		return httputil.NewError(c, http.StatusNoContent, err)
+		return utils.NewError(c, http.StatusNoContent, err)
 	}
 	return c.JSON(http.StatusOK, user)
 }
@@ -106,30 +106,30 @@ func (h *HttpHandler) GetUserByID(c echo.Context) error {
 // @Param  id path string true "User ID"
 // @Param user body models.User true  "id can empty"
 // @Success 200 {object} models.User
-// @Failure 400 {object} httputil.HTTPError
-// @Failure 422 {object} httputil.HTTPError
-// @Failure 500 {object} httputil.HTTPError
+// @Failure 400 {object} utils.HTTPError
+// @Failure 422 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
 // @Router /users/{id} [put]
 func (h *HttpHandler) UpdateUser(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return httputil.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 
 	u := models.User{
 		ID: bson.ObjectIdHex(id),
 	}
 	if err := c.Bind(&u); err != nil {
-		return httputil.NewError(c, http.StatusUnprocessableEntity, err)
+		return utils.NewError(c, http.StatusUnprocessableEntity, err)
 	}
 
 	if ok, err := isRequestValid(&u); !ok {
-		return httputil.NewError(c, http.StatusBadRequest, err)
+		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 
 	user, err := h.Usecase.UpdateUser(&u)
 	if err != nil {
-		return httputil.NewError(c, http.StatusInternalServerError, err)
+		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, user)
 }
@@ -142,18 +142,18 @@ func (h *HttpHandler) UpdateUser(c echo.Context) error {
 // @Produce  json
 // @Param  id path string true "User ID"
 // @Success 204 {object} models.User
-// @Failure 400 {object} httputil.HTTPError
-// @Failure 500 {object} httputil.HTTPError
+// @Failure 400 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
 // @Router /users/{id} [delete]
 func (h *HttpHandler) DeleteUser(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return httputil.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 
 	err := h.Usecase.DeleteUser(id)
 	if err != nil {
-		return httputil.NewError(c, http.StatusInternalServerError, err)
+		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.NoContent(http.StatusNoContent)
 }
@@ -167,23 +167,23 @@ func (h *HttpHandler) DeleteUser(c echo.Context) error {
 // @Param  id path string true "User ID"
 // @Param user body models.User true  "id can empty"
 // @Success 200 {object} models.User
-// @Failure 400 {object} httputil.HTTPError
-// @Failure 500 {object} httputil.HTTPError
+// @Failure 400 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
 // @Router /users/{id} [patch]
 func (h *HttpHandler) UpdatePartialUser(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return httputil.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 
 	user, err := h.Usecase.GetUserByID(id)
 	if err != nil {
-		return httputil.NewError(c, http.StatusInternalServerError, err)
+		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	b, _ := ioutil.ReadAll(c.Request().Body)
 	err = json.Unmarshal(b, &user)
 	if err != nil {
-		return httputil.NewError(c, http.StatusInternalServerError, err)
+		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	newUser, err := h.Usecase.UpdateUser(user)
 	return c.JSON(http.StatusOK, newUser)

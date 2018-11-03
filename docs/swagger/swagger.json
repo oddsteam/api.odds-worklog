@@ -47,21 +47,21 @@
                         "description": "Bad Request",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     }
                 }
@@ -101,21 +101,21 @@
                         "description": "Bad Request",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     }
                 }
@@ -148,21 +148,21 @@
                         "description": "Bad Request",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     }
                 }
@@ -195,21 +195,21 @@
                         "description": "Bad Request",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     }
                 }
@@ -259,21 +259,21 @@
                         "description": "Bad Request",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     }
                 }
@@ -316,7 +316,7 @@
                         "description": "Unauthorized",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     }
                 }
@@ -349,7 +349,7 @@
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     }
                 }
@@ -392,21 +392,21 @@
                         "description": "Bad Request",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     }
                 }
@@ -456,21 +456,21 @@
                         "description": "Bad Request",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     }
                 }
@@ -508,14 +508,14 @@
                         "description": "No Content",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     }
                 }
@@ -553,14 +553,14 @@
                         "description": "Bad Request",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     }
                 }
@@ -608,14 +608,14 @@
                         "description": "Bad Request",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     }
                 }
@@ -623,17 +623,6 @@
         }
     },
     "definitions": {
-        "httputil.HTTPError": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "models.Income": {
             "type": "object",
             "properties": {
@@ -727,6 +716,17 @@
                     "type": "string"
                 },
                 "thaiCitizenId": {
+                    "type": "string"
+                }
+            }
+        },
+        "utils.HTTPError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
                     "type": "string"
                 }
             }

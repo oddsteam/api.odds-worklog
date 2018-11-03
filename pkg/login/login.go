@@ -8,8 +8,8 @@ import (
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/httputil"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
@@ -27,17 +27,17 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 // @Produce  json
 // @Param login body models.Login true  "id is userId"
 // @Success 200 {object} models.Token
-// @Failure 401 {object} httputil.HTTPError
+// @Failure 401 {object} utils.HTTPError
 // @Router /login [post]
 func login(c echo.Context, userRepo user.Repository) error {
 	var u models.Login
 	if err := c.Bind(&u); err != nil {
-		return httputil.NewError(c, http.StatusUnauthorized, err)
+		return utils.NewError(c, http.StatusUnauthorized, err)
 	}
 
 	user, err := userRepo.GetUserByID(u.ID)
 	if err != nil {
-		return httputil.NewError(c, http.StatusUnauthorized, err)
+		return utils.NewError(c, http.StatusUnauthorized, err)
 	}
 
 	user.BankAccountName = ""
@@ -54,7 +54,7 @@ func login(c echo.Context, userRepo user.Repository) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString([]byte("GmkZGF3CmpZNs88dLvbV"))
 	if err != nil {
-		return httputil.NewError(c, http.StatusUnauthorized, err)
+		return utils.NewError(c, http.StatusUnauthorized, err)
 	}
 	tk := &models.Token{
 		Token: t,
