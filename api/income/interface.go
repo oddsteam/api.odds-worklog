@@ -9,6 +9,7 @@ type Repository interface {
 	GetIncomeUserNow(id, month string) (*models.Income, error)
 	GetIncomeByID(incID, uID string) (*models.Income, error)
 	UpdateIncome(income *models.Income) error
+	AddExport(ep *models.Export) error
 }
 
 type Usecase interface {

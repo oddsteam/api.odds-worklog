@@ -74,3 +74,16 @@ func (m *Repository) UpdateIncome(income *models.Income) error {
 
 	return r1
 }
+
+func (m *Repository) AddExport(ep *models.Export) error {
+	ret := m.Called(ep)
+
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*models.Export) error); ok {
+		r1 = rf(ep)
+	} else {
+		r1 = ret.Error(0)
+	}
+
+	return r1
+}

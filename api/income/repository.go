@@ -6,7 +6,10 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const incomeColl = "income"
+const (
+	incomeColl = "income"
+	exportColl = "export"
+)
 
 type repository struct {
 	session *mongo.Session
@@ -55,4 +58,10 @@ func (r *repository) UpdateIncome(income *models.Income) error {
 		return err
 	}
 	return nil
+}
+
+func (r *repository) AddExport(ep *models.Export) error {
+	coll := r.session.GetCollection(exportColl)
+	ep.ID = bson.NewObjectId()
+	return coll.Insert(ep)
 }
