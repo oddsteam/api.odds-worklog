@@ -30,6 +30,10 @@ var (
 		SubmitDate: "2018-10-24 20:30:40",
 		Status:     "Y",
 	}
+	MockIndividualIncomeStatus = models.IncomeStatus{
+		User:   &userMocks.MockUser,
+		Status: "N",
+	}
 	MockIncomeStatusList = []*models.IncomeStatus{&MockIncomeStatus}
 	IncomeByte, _        = json.Marshal(MockIncome)
 	MockIncomeJson       = string(IncomeByte)
