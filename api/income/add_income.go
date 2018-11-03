@@ -4,12 +4,13 @@ import (
 	"errors"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 func (u *usecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.Income, error) {
 	userID := user.ID.Hex()
 
-	_, err := u.repo.GetIncomeUserNow(userID, getCurrentMonth())
+	_, err := u.repo.GetIncomeUserNow(userID, utils.GetCurrentMonth())
 	if err == nil {
 		return nil, errors.New("Sorry, has income data of user " + user.FullNameEn)
 	}
@@ -23,7 +24,7 @@ func (u *usecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.I
 		UserID:      userID,
 		TotalIncome: req.TotalIncome,
 		NetIncome:   ins.Net,
-		SubmitDate:  getNow(),
+		SubmitDate:  utils.GetNow(),
 		Note:        req.Note,
 		VAT:         ins.VAT,
 		WHT:         ins.WHT,
