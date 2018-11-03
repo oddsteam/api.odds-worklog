@@ -1,6 +1,12 @@
 package income
 
 import (
+	"encoding/csv"
+	"errors"
+	"fmt"
+	"os"
+	"time"
+
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -91,7 +97,6 @@ func (u *usecase) GetIncomeStatusList(corporateFlag string) ([]*models.IncomeSta
 			incomeList[index].SubmitDate = incomeUser.SubmitDate
 			incomeList[index].Status = "Y"
 		}
-
 	}
 	return incomeList, nil
 }
@@ -99,4 +104,54 @@ func (u *usecase) GetIncomeStatusList(corporateFlag string) ([]*models.IncomeSta
 func (u *usecase) GetIncomeByUserIdAndCurrentMonth(userId string) (*models.Income, error) {
 	month := utils.GetCurrentMonth()
 	return u.repo.GetIncomeUserNow(userId, month)
+}
+
+func (u *usecase) ExportIncome(corporateFlag string) (string, error) {
+	prefix := "corporate"
+	if corporateFlag == "N" {
+		prefix = "individual"
+	}
+
+	filename := fmt.Sprintf("../../pkg/files/%s_%s.csv", prefix, utils.GetCurrentMonth())
+	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	defer file.Close()
+
+	if err != nil {
+		return "", err
+	}
+
+	users, err := u.userRepo.GetUserByType(corporateFlag)
+	if err != nil {
+		return "", err
+	}
+
+	strWrite := make([][]string, 0)
+	for _, user := range users {
+		income, err := u.repo.GetIncomeUserNow(user.ID.Hex(), utils.GetCurrentMonth())
+		if err == nil {
+			// ชื่อ, ชื่อบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
+			d := []string{user.FullNameEn, user.BankAccountName, income.NetIncome, income.SubmitDate}
+			strWrite = append(strWrite, d)
+		}
+	}
+
+	if len(strWrite) == 0 {
+		return "", errors.New("No data for export to CSV file.")
+	}
+
+	csvWriter := csv.NewWriter(file)
+	csvWriter.WriteAll(strWrite)
+	csvWriter.Flush()
+
+	ep := models.Export{
+		Filename:      filename,
+		CorporateFlag: corporateFlag,
+		Date:          time.Now(),
+	}
+	err = u.repo.AddExport(&ep)
+	if err != nil {
+		return "", err
+	}
+
+	return filename, nil
 }

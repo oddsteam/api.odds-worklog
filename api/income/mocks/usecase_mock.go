@@ -88,3 +88,23 @@ func (m *Usecase) GetIncomeByUserIdAndCurrentMonth(userId string) (*models.Incom
 
 	return r0, r1
 }
+
+func (m *Usecase) ExportIncome(corporateFlag string) (string, error) {
+	ret := m.Called(corporateFlag)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string) string); ok {
+		r0 = rf(corporateFlag)
+	} else if ret.Get(0) != nil {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(corporateFlag)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}

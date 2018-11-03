@@ -125,3 +125,20 @@ func TestUsecaseGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 	assert.NotNil(t, res)
 	assert.Equal(t, mocks.MockIncome.SubmitDate, res.SubmitDate)
 }
+
+func TestUsecaseExportIncome(t *testing.T) {
+	mockRepo := new(mocks.Repository)
+	mockRepo.On("GetIncomeUserNow", userMocks.MockUserById.ID.Hex(), utils.GetCurrentMonth()).Return(&mocks.MockIncome, nil)
+	mockRepo.On("GetIncomeUserNow", userMocks.MockUserById2.ID.Hex(), utils.GetCurrentMonth()).Return(&mocks.MockIncome, nil)
+	mockRepo.On("AddExport", mock.AnythingOfType("*models.Export")).Return(nil)
+
+	mockUserRepo := new(userMocks.Repository)
+	mockUserRepo.On("GetUserByType", "Y").Return(userMocks.MockUsers, nil)
+
+	uc := newUsecase(mockRepo, mockUserRepo)
+	res, err := uc.ExportIncome("Y")
+	assert.NoError(t, err)
+	assert.NotNil(t, res)
+	mockRepo.AssertExpectations(t)
+	mockUserRepo.AssertExpectations(t)
+}
