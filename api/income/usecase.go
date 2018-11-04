@@ -128,13 +128,13 @@ func (u *usecase) ExportIncome(corporateFlag string) (string, error) {
 	}
 
 	strWrite := make([][]string, 0)
-	d := []string{"ชื่อ", "ชื่อบัญชี", "จำนวนเงินที่ต้องโอน", "วันที่กรอก"}
+	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินที่ต้องโอน", "วันที่กรอก"}
 	strWrite = append(strWrite, d)
 	for _, user := range users {
 		income, err := u.repo.GetIncomeUserNow(user.ID.Hex(), utils.GetCurrentMonth())
 		if err == nil {
-			// ชื่อ, ชื่อบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
-			d := []string{user.FullNameEn, user.BankAccountName, income.NetIncome, income.SubmitDate}
+			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
+			d := []string{user.FullNameEn, user.BankAccountName, user.BankAccountNumber, income.NetIncome, income.SubmitDate}
 			strWrite = append(strWrite, d)
 		}
 	}
