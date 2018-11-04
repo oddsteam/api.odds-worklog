@@ -172,7 +172,7 @@ func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	return c.File(filename)
+	return c.Attachment(filename, filename)
 }
 
 // GetExportIndividual godoc
@@ -189,7 +189,7 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	return c.File(filename)
+	return c.Attachment(filename, filename)
 }
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
@@ -206,5 +206,4 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/month/:id", handler.GetIncomeByUserIdAndCurrentMonth)
 	r.GET("/export/corporate", handler.GetExportCorporate)
 	r.GET("/export/individual", handler.GetExportIndividual)
-
 }
