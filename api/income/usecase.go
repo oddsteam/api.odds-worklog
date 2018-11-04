@@ -128,6 +128,8 @@ func (u *usecase) ExportIncome(corporateFlag string) (string, error) {
 	}
 
 	strWrite := make([][]string, 0)
+	d := []string{"ชื่อ", "ชื่อบัญชี", "จำนวนเงินที่ต้องโอน", "วันที่กรอก"}
+	strWrite = append(strWrite, d)
 	for _, user := range users {
 		income, err := u.repo.GetIncomeUserNow(user.ID.Hex(), utils.GetCurrentMonth())
 		if err == nil {
@@ -137,7 +139,7 @@ func (u *usecase) ExportIncome(corporateFlag string) (string, error) {
 		}
 	}
 
-	if len(strWrite) == 0 {
+	if len(strWrite) == 1 {
 		return "", errors.New("No data for export to CSV file.")
 	}
 
