@@ -1,5 +1,6 @@
+# Build State
 # Base Image
-FROM golang:1.11-alpine
+FROM golang:1.11-alpine AS build-state
 
 # Install Git
 RUN apk update && apk upgrade && \
@@ -18,6 +19,7 @@ RUN dep ensure --vendor-only
 
 # Copy code from host to docker
 COPY . ./
+RUN ls
 
 # Run Test
 RUN CGO_ENABLED=0 GOOS=linux go test ./...
@@ -25,5 +27,14 @@ RUN CGO_ENABLED=0 GOOS=linux go test ./...
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o /go/bin/api
 
+
+# Deploy State
+FROM alpine
+
+WORKDIR /app
+COPY --from=build-state /go/bin/api /app
+ADD .env  /app
+RUN mkdir files
+
 # Start API
-ENTRYPOINT ["/go/bin/api"]
+ENTRYPOINT ["/app/api"]
