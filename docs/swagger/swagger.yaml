@@ -183,6 +183,28 @@ paths:
       summary: Get Corporate Export Income
       tags:
       - incomes
+  /incomes/export/individual:
+    get:
+      consumes:
+      - application/json
+      description: Get Individual Export Income to csv file.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Individual Export Income
+      tags:
+      - incomes
   /incomes/month/{id}:
     get:
       consumes:
@@ -406,6 +428,37 @@ paths:
       summary: Delete User
       tags:
       - users
+    get:
+      consumes:
+      - multipart/form-data
+      description: Get User By Id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+            type: object
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get User By Id
+      tags:
+      - users
     patch:
       consumes:
       - multipart/form-data
@@ -442,37 +495,6 @@ paths:
             $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Update Partial User
-      tags:
-      - users
-    post:
-      consumes:
-      - multipart/form-data
-      description: Get User By Id
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.User'
-            type: object
-        "204":
-          description: No Content
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-            type: object
-      summary: Get User By Id
       tags:
       - users
     put:

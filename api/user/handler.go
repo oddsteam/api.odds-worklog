@@ -83,7 +83,7 @@ func (h *HttpHandler) GetUser(c echo.Context) error {
 // @Success 200 {object} models.User
 // @Failure 204 {object} utils.HTTPError
 // @Failure 400 {object} utils.HTTPError
-// @Router /users/{id} [post]
+// @Router /users/{id} [get]
 func (h *HttpHandler) GetUserByID(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
