@@ -112,7 +112,9 @@ func (u *usecase) ExportIncome(corporateFlag string) (string, error) {
 		prefix = "individual"
 	}
 
-	filename := fmt.Sprintf("../../pkg/files/%s_%s.csv", prefix, utils.GetCurrentMonth())
+	t := time.Now()
+	tf := fmt.Sprintf("%d_%02d_%02d_%02d_%02d_%02d", t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
+	filename := fmt.Sprintf("files/%s_%s.csv", prefix, tf)
 	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 	defer file.Close()
 
