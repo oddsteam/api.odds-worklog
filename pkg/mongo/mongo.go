@@ -1,6 +1,8 @@
 package mongo
 
 import (
+	"time"
+
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	mgo "gopkg.in/mgo.v2"
 )
@@ -11,14 +13,14 @@ type Session struct {
 }
 
 func NewSession(config *models.Config) (*Session, error) {
-	// dialInfo := &mgo.DialInfo{
-	// 	Addrs:    []string{config.MongoDBHost},
-	// 	Timeout:  60 * time.Second,
-	// 	Database: "admin",
-	// 	Username: config.Username,
-	// 	Password: config.Password,
-	// }
-	session, err := mgo.Dial(config.MongoDBHost)
+	dialInfo := &mgo.DialInfo{
+		Addrs:    []string{config.MongoDBHost},
+		Timeout:  60 * time.Second,
+		Database: "admin",
+		Username: config.Username,
+		Password: config.Password,
+	}
+	session, err := mgo.DialWithInfo(dialInfo)
 	if err != nil {
 		return nil, err
 	}
