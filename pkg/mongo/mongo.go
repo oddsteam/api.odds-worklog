@@ -16,7 +16,7 @@ func NewSession(config *models.Config) (*Session, error) {
 	dialInfo := &mgo.DialInfo{
 		Addrs:    []string{config.MongoDBHost},
 		Timeout:  60 * time.Second,
-		Database: "admin",
+		Database: config.MongoDBName,
 		Username: config.Username,
 		Password: config.Password,
 	}
