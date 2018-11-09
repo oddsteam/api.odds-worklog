@@ -149,9 +149,6 @@ func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
 	}
 
 	income, err := h.Usecase.GetIncomeByUserIdAndCurrentMonth(id)
-	if income == nil {
-		return c.JSON(http.StatusOK, nil)
-	}
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
