@@ -86,15 +86,16 @@ func (u *usecase) GetIncomeStatusList(corporateFlag string) ([]*models.IncomeSta
 		return nil, err
 	}
 
+	year, month := utils.GetYearMonthNow()
 	for index, element := range users {
 		element.ThaiCitizenID = ""
-		incomeUser, err := u.repo.GetIncomeUserNow(element.ID.Hex(), utils.GetCurrentMonth())
+		incomeUser, err := u.repo.GetIncomeUserByYearMonth(element.ID.Hex(), year, month)
 		income := models.IncomeStatus{User: element}
 		incomeList = append(incomeList, &income)
 		if err != nil {
 			incomeList[index].Status = "N"
 		} else {
-			incomeList[index].SubmitDate = incomeUser.SubmitDate
+			incomeList[index].SubmitDate = incomeUser.SubmitDate.Format(time.RFC3339)
 			incomeList[index].Status = "Y"
 		}
 	}
@@ -102,8 +103,8 @@ func (u *usecase) GetIncomeStatusList(corporateFlag string) ([]*models.IncomeSta
 }
 
 func (u *usecase) GetIncomeByUserIdAndCurrentMonth(userId string) (*models.Income, error) {
-	month := utils.GetCurrentMonth()
-	return u.repo.GetIncomeUserNow(userId, month)
+	year, month := utils.GetYearMonthNow()
+	return u.repo.GetIncomeUserByYearMonth(userId, year, month)
 }
 
 func (u *usecase) ExportIncome(corporateFlag string) (string, error) {
@@ -127,14 +128,18 @@ func (u *usecase) ExportIncome(corporateFlag string) (string, error) {
 		return "", err
 	}
 
+	year, month := utils.GetYearMonthNow()
+
 	strWrite := make([][]string, 0)
 	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินที่ต้องโอน", "วันที่กรอก"}
 	strWrite = append(strWrite, d)
 	for _, user := range users {
-		income, err := u.repo.GetIncomeUserNow(user.ID.Hex(), utils.GetCurrentMonth())
+		income, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month)
 		if err == nil {
+			t := income.SubmitDate
+			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), t.Hour(), t.Minute(), t.Second())
 			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
-			d := []string{user.FullNameEn, user.BankAccountName, user.BankAccountNumber, income.NetIncome, income.SubmitDate}
+			d := []string{user.FullNameEn, user.BankAccountName, user.BankAccountNumber, income.NetIncome, tf}
 			strWrite = append(strWrite, d)
 		}
 	}

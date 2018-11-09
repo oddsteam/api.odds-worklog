@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"encoding/json"
+	"time"
 
 	"gopkg.in/mgo.v2/bson"
 
@@ -15,7 +16,7 @@ var (
 		UserID:      "5bbcf2f90fd2df527bc39539",
 		TotalIncome: "100000",
 		NetIncome:   "100000",
-		SubmitDate:  "2018-10-24 20:30:40",
+		SubmitDate:  time.Now(),
 		Note:        "ข้อมูลที่อยากบอก",
 		VAT:         "7000",
 		WHT:         "3000",

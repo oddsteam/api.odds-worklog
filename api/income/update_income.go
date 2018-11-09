@@ -1,8 +1,9 @@
 package income
 
 import (
+	"time"
+
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, user *models.User) (*models.Income, error) {
@@ -16,7 +17,7 @@ func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, user *models.Us
 		return nil, err
 	}
 
-	income.SubmitDate = utils.GetNow()
+	income.SubmitDate = time.Now()
 	income.TotalIncome = req.TotalIncome
 	income.NetIncome = ins.Net
 	income.VAT = ins.VAT

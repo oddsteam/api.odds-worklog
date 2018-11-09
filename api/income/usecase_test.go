@@ -71,7 +71,8 @@ func TestUsecaseAddIncome(t *testing.T) {
 	mockUserRepo := new(userMocks.Repository)
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("AddIncome", mock.AnythingOfType("*models.Income")).Return(nil)
-	mockRepo.On("GetIncomeUserNow", mocks.MockIncome.UserID, utils.GetCurrentMonth()).Return(&mocks.MockIncome, errors.New(""))
+	year, month := utils.GetYearMonthNow()
+	mockRepo.On("GetIncomeUserByYearMonth", mocks.MockIncome.UserID, year, month).Return(&mocks.MockIncome, errors.New(""))
 
 	uc := newUsecase(mockRepo, mockUserRepo)
 	res, err := uc.AddIncome(&mocks.MockIncomeReq, &userMocks.MockUser)
@@ -99,8 +100,9 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 
 func TestUsecaseGetListIncome(t *testing.T) {
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("GetIncomeUserNow", userMocks.MockUserById.ID.Hex(), utils.GetCurrentMonth()).Return(&mocks.MockIncome, nil)
-	mockRepo.On("GetIncomeUserNow", userMocks.MockUserById2.ID.Hex(), utils.GetCurrentMonth()).Return(&mocks.MockIncome, nil)
+	year, month := utils.GetYearMonthNow()
+	mockRepo.On("GetIncomeUserByYearMonth", userMocks.MockUserById.ID.Hex(), year, month).Return(&mocks.MockIncome, nil)
+	mockRepo.On("GetIncomeUserByYearMonth", userMocks.MockUserById2.ID.Hex(), year, month).Return(&mocks.MockIncome, nil)
 
 	mockUserRepo := new(userMocks.Repository)
 	mockUserRepo.On("GetUserByType", "Y").Return(userMocks.MockUsers, nil)
@@ -115,7 +117,8 @@ func TestUsecaseGetListIncome(t *testing.T) {
 
 func TestUsecaseGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("GetIncomeUserNow", incomeMocks.MockIncome.UserID, utils.GetCurrentMonth()).Return(&mocks.MockIncome, nil)
+	year, month := utils.GetYearMonthNow()
+	mockRepo.On("GetIncomeUserByYearMonth", incomeMocks.MockIncome.UserID, year, month).Return(&mocks.MockIncome, nil)
 
 	mockUserRepo := new(userMocks.Repository)
 
@@ -128,8 +131,9 @@ func TestUsecaseGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 
 func TestUsecaseExportIncome(t *testing.T) {
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("GetIncomeUserNow", userMocks.MockUserById.ID.Hex(), utils.GetCurrentMonth()).Return(&mocks.MockIncome, nil)
-	mockRepo.On("GetIncomeUserNow", userMocks.MockUserById2.ID.Hex(), utils.GetCurrentMonth()).Return(&mocks.MockIncome, nil)
+	year, month := utils.GetYearMonthNow()
+	mockRepo.On("GetIncomeUserByYearMonth", userMocks.MockUserById.ID.Hex(), year, month).Return(&mocks.MockIncome, nil)
+	mockRepo.On("GetIncomeUserByYearMonth", userMocks.MockUserById2.ID.Hex(), year, month).Return(&mocks.MockIncome, nil)
 	mockRepo.On("AddExport", mock.AnythingOfType("*models.Export")).Return(nil)
 
 	mockUserRepo := new(userMocks.Repository)

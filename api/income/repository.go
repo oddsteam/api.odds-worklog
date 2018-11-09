@@ -1,6 +1,8 @@
 package income
 
 import (
+	"time"
+
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gopkg.in/mgo.v2/bson"
@@ -30,11 +32,21 @@ func (r *repository) AddIncome(income *models.Income) error {
 	return nil
 }
 
-func (r *repository) GetIncomeUserNow(id, month string) (*models.Income, error) {
+func (r *repository) GetIncomeUserByYearMonth(id string, fromYear int, fromMonth time.Month) (*models.Income, error) {
 	income := new(models.Income)
 	coll := r.session.GetCollection(incomeColl)
 
-	err := coll.Find(bson.M{"userId": id, "submitDate": bson.RegEx{month, ""}}).One(&income)
+	fromDate := time.Date(fromYear, fromMonth, 1, 0, 0, 0, 0, time.UTC)
+	toDate := fromDate.AddDate(0, 1, 0)
+
+	err := coll.Find(
+		bson.M{
+			"userId": id,
+			"submitDate": bson.M{
+				"$gt": fromDate,
+				"$lt": toDate,
+			},
+		}).One(&income)
 	if err != nil {
 		return nil, err
 	}

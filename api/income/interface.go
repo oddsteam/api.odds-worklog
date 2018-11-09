@@ -1,12 +1,14 @@
 package income
 
 import (
+	"time"
+
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
 type Repository interface {
 	AddIncome(u *models.Income) error
-	GetIncomeUserNow(id, month string) (*models.Income, error)
+	GetIncomeUserByYearMonth(id string, fromYear int, fromMonth time.Month) (*models.Income, error)
 	GetIncomeByID(incID, uID string) (*models.Income, error)
 	UpdateIncome(income *models.Income) error
 	AddExport(ep *models.Export) error
