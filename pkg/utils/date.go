@@ -14,3 +14,8 @@ func GetCurrentMonth() string {
 	cm := fmt.Sprintf("%d-%d", y, int(m))
 	return cm
 }
+
+func GetYearMonthNow() (int, time.Month) {
+	t := time.Now()
+	return t.Year(), t.Month()
+}
