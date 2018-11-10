@@ -108,3 +108,16 @@ func (m *Usecase) ExportIncome(corporateFlag string) (string, error) {
 
 	return r0, r1
 }
+
+func (m *Usecase) DropIncome() error {
+	ret := m.Called()
+
+	var r1 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(0)
+	}
+
+	return r1
+}

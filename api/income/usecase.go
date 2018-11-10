@@ -164,3 +164,7 @@ func (u *usecase) ExportIncome(corporateFlag string) (string, error) {
 
 	return filename, nil
 }
+
+func (u *usecase) DropIncome() error {
+	return u.repo.DropIncome()
+}

@@ -77,3 +77,7 @@ func (r *repository) AddExport(ep *models.Export) error {
 	ep.ID = bson.NewObjectId()
 	return coll.Insert(ep)
 }
+
+func (r *repository) DropIncome() error {
+	return r.session.GetCollection(exportColl).DropCollection()
+}

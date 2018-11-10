@@ -176,3 +176,22 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUsecase.AssertExpectations(t)
 }
+
+func TestDropIncome(t *testing.T) {
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("DropIncome").Return(nil)
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	handler := HttpHandler{
+		Usecase: mockUsecase,
+	}
+	handler.DropIncome(c)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "{\"message\":\"DropIncome Success!\"}", rec.Body.String())
+	mockUsecase.AssertExpectations(t)
+}

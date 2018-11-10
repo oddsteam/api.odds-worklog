@@ -146,3 +146,16 @@ func TestUsecaseExportIncome(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 	mockUserRepo.AssertExpectations(t)
 }
+
+func TestUsecaseDropIncome(t *testing.T) {
+	mockRepo := new(mocks.Repository)
+	mockUserRepo := new(userMocks.Repository)
+	mockRepo.On("DropIncome").Return(nil)
+
+	uc := newUsecase(mockRepo, mockUserRepo)
+	err := uc.DropIncome()
+
+	assert.NoError(t, err)
+	mockRepo.AssertExpectations(t)
+	mockUserRepo.AssertExpectations(t)
+}

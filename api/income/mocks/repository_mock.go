@@ -89,3 +89,16 @@ func (m *Repository) AddExport(ep *models.Export) error {
 
 	return r1
 }
+
+func (m *Repository) DropIncome() error {
+	ret := m.Called()
+
+	var r1 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(0)
+	}
+
+	return r1
+}

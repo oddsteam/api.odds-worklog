@@ -187,6 +187,13 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	return c.Attachment(filename, filename)
 }
 
+func (h *HttpHandler) DropIncome(c echo.Context) error {
+	if err := h.Usecase.DropIncome(); err != nil {
+		return utils.NewError(c, http.StatusOK, errors.New("DropIncome Failed!"))
+	}
+	return c.JSON(http.StatusOK, models.CommonResponse{Message: "DropIncome Success!"})
+}
+
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	incomeRepo := newRepository(session)
 	userRepo := user.NewRepository(session)
@@ -201,4 +208,5 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/month/:id", handler.GetIncomeByUserIdAndCurrentMonth)
 	r.GET("/export/corporate", handler.GetExportCorporate)
 	r.GET("/export/individual", handler.GetExportIndividual)
+	r.DELETE("/:id", handler.DropIncome)
 }

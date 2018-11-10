@@ -12,6 +12,7 @@ type Repository interface {
 	GetIncomeByID(incID, uID string) (*models.Income, error)
 	UpdateIncome(income *models.Income) error
 	AddExport(ep *models.Export) error
+	DropIncome() error
 }
 
 type Usecase interface {
@@ -20,4 +21,5 @@ type Usecase interface {
 	GetIncomeStatusList(corporateFlag string) ([]*models.IncomeStatus, error)
 	GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error)
 	ExportIncome(corporateFlag string) (string, error)
+	DropIncome() error
 }
