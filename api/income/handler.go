@@ -139,8 +139,6 @@ func (h *HttpHandler) GetIndividualIncomeStatus(c echo.Context) error {
 // @Param  id path string true "User ID"
 // @Success 200 {object} models.Income
 // @Failure 400 {object} utils.HTTPError
-// @Failure 422 {object} utils.HTTPError
-// @Failure 500 {object} utils.HTTPError
 // @Router /incomes/month/{id} [get]
 func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
 	id := c.Param("id")
@@ -148,9 +146,9 @@ func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 
-	income, err := h.Usecase.GetIncomeByUserIdAndCurrentMonth(id)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
+	income, _ := h.Usecase.GetIncomeByUserIdAndCurrentMonth(id)
+	if income == nil {
+		return c.JSON(http.StatusOK, nil)
 	}
 	return c.JSON(http.StatusOK, income)
 }

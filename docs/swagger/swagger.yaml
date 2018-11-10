@@ -229,16 +229,6 @@ paths:
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-            type: object
       summary: Get Income Of Current Month By User Id
       tags:
       - incomes

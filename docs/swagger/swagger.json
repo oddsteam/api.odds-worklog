@@ -169,20 +169,6 @@
                             "type": "object",
                             "$ref": "#/definitions/utils.HTTPError"
                         }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/utils.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/utils.HTTPError"
-                        }
                     }
                 }
             }
