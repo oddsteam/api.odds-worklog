@@ -139,7 +139,7 @@ func (u *usecase) ExportIncome(corporateFlag string) (string, error) {
 			t := income.SubmitDate
 			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), t.Hour(), t.Minute(), t.Second())
 			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
-			d := []string{user.FullNameEn, user.BankAccountName, user.BankAccountNumber, income.NetIncome, tf}
+			d := []string{user.FullNameEn, user.BankAccountName, user.BankAccountNumber, utils.FormatCommas(income.NetIncome), tf}
 			strWrite = append(strWrite, d)
 		}
 	}
