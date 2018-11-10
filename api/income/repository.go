@@ -79,5 +79,5 @@ func (r *repository) AddExport(ep *models.Export) error {
 }
 
 func (r *repository) DropIncome() error {
-	return r.session.GetCollection(exportColl).DropCollection()
+	return r.session.GetCollection(incomeColl).DropCollection()
 }

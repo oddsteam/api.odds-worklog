@@ -208,5 +208,5 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/month/:id", handler.GetIncomeByUserIdAndCurrentMonth)
 	r.GET("/export/corporate", handler.GetExportCorporate)
 	r.GET("/export/individual", handler.GetExportIndividual)
-	r.DELETE("/:id", handler.DropIncome)
+	r.DELETE("", handler.DropIncome)
 }
