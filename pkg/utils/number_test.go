@@ -41,3 +41,33 @@ func TestRealFloat(t *testing.T) {
 	f = RealFloat(1234.564)
 	assert.Equal(t, 1234.56, f)
 }
+
+func TestNumberFormat(t *testing.T) {
+	assert.Equal(t, "", FormatCommas(""))
+	assert.Equal(t, "-1", FormatCommas("-1"))
+	assert.Equal(t, "-12", FormatCommas("-12"))
+	assert.Equal(t, "-123", FormatCommas("-123"))
+	assert.Equal(t, "-1,234", FormatCommas("-1234"))
+	assert.Equal(t, "-12,345", FormatCommas("-12345"))
+	assert.Equal(t, "-123,456", FormatCommas("-123456"))
+	assert.Equal(t, "-1,234,567", FormatCommas("-1234567"))
+	assert.Equal(t, "-12,345,678", FormatCommas("-12345678"))
+	assert.Equal(t, "-123,456,789", FormatCommas("-123456789"))
+	assert.Equal(t, "-1,234,567,890", FormatCommas("-1234567890"))
+	assert.Equal(t, "1,234,567,890", FormatCommas("1234567890"))
+	assert.Equal(t, "123,456,789", FormatCommas("123456789"))
+	assert.Equal(t, "12,345,678", FormatCommas("12345678"))
+	assert.Equal(t, "1,234,567", FormatCommas("1234567"))
+	assert.Equal(t, "123,456", FormatCommas("123456"))
+	assert.Equal(t, "12,345", FormatCommas("12345"))
+	assert.Equal(t, "1,234", FormatCommas("1234"))
+	assert.Equal(t, "123", FormatCommas("123"))
+	assert.Equal(t, "12", FormatCommas("12"))
+	assert.Equal(t, "1", FormatCommas("1"))
+
+	assert.Equal(t, "-1,234,567,890.00", FormatCommas("-1234567890.00"))
+	assert.Equal(t, "1,234,567,890.99", FormatCommas("1234567890.99"))
+
+	assert.Equal(t, "-1,234,567,890", FormatCommas("-1234567890."))
+	assert.Equal(t, "1,234,567,890", FormatCommas("1234567890."))
+}
