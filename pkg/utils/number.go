@@ -40,5 +40,5 @@ func FormatCommas(num string) string {
 	if len(sp) == 2 && ad != "" {
 		return bd + "." + ad
 	}
-	return bd
+	return bd + ".00"
 }
