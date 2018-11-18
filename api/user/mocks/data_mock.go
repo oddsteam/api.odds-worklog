@@ -44,8 +44,6 @@ var (
 
 	userByte, _ = json.Marshal(MockUser)
 	UserJson    = string(userByte)
-	LoginJson   = `{"id": "5bbcf2f90fd2df527bc39539"}`
-	Login       = models.Login{ID: "5bbcf2f90fd2df527bc39539"}
 
 	MockUsers       = []*models.User{&MockUserById, &MockUserById2}
 	UserListByte, _ = json.Marshal(MockUsers)
