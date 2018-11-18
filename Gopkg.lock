@@ -96,6 +96,14 @@
   version = "v0.16.0"
 
 [[projects]]
+  digest = "1:bc38c7c481812e178d85160472e231c5e1c9a7f5845d67e23ee4e706933c10d8"
+  name = "github.com/golang/mock"
+  packages = ["gomock"]
+  pruneopts = "UT"
+  revision = "c34cdb4725f4c3844d095133c6e40e448b86589b"
+  version = "v1.1.1"
+
+[[projects]]
   digest = "1:ecd9aa82687cf31d1585d4ac61d0ba180e42e8a6182b85bd785fcca8dfeefc1b"
   name = "github.com/joho/godotenv"
   packages = ["."]
@@ -287,6 +295,19 @@
   version = "v0.3.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:d43bd4a51e690fe34c0ca2232996889b4ed61e59e3c3faff825372c6881553c8"
+  name = "google.golang.org/api"
+  packages = [
+    "gensupport",
+    "googleapi",
+    "googleapi/internal/uritemplates",
+    "oauth2/v2",
+  ]
+  pruneopts = "UT"
+  revision = "83a9d304b1e613fc253e1e2710778642fe81af53"
+
+[[projects]]
   digest = "1:e2f64cca6e235f32cd4c2f9be9ae0cda1f8608fc6fdb68936e8d10e4e0bb074d"
   name = "gopkg.in/go-playground/validator.v9"
   packages = ["."]
@@ -322,6 +343,7 @@
   input-imports = [
     "github.com/alecthomas/template",
     "github.com/dgrijalva/jwt-go",
+    "github.com/golang/mock/gomock",
     "github.com/joho/godotenv",
     "github.com/labstack/echo",
     "github.com/labstack/echo/middleware",
@@ -330,6 +352,7 @@
     "github.com/stretchr/testify/mock",
     "github.com/swaggo/echo-swagger",
     "github.com/swaggo/swag",
+    "google.golang.org/api/oauth2/v2",
     "gopkg.in/go-playground/validator.v9",
     "gopkg.in/mgo.v2",
     "gopkg.in/mgo.v2/bson",
