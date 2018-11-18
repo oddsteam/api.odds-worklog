@@ -38,11 +38,13 @@ definitions:
     type: object
   models.Login:
     properties:
-      id:
+      token:
         type: string
     type: object
   models.Token:
     properties:
+      firstLogin:
+        type: string
       token:
         type: string
     type: object
@@ -323,6 +325,35 @@ paths:
             $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Login
+      tags:
+      - login
+  /login-google:
+    post:
+      consumes:
+      - application/json
+      description: Login with google account only odds.team
+      parameters:
+      - description: id is token from google login in font-end
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/models.Login'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Token'
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Login with google account
       tags:
       - login
   /users:

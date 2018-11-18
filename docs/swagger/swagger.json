@@ -374,6 +374,49 @@
                 }
             }
         },
+        "/login-google": {
+            "post": {
+                "description": "Login with google account only odds.team",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "login"
+                ],
+                "summary": "Login with google account",
+                "parameters": [
+                    {
+                        "description": "id is token from google login in font-end",
+                        "name": "login",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.Login"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.Token"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "description": "get user list",
@@ -733,7 +776,7 @@
         "models.Login": {
             "type": "object",
             "properties": {
-                "id": {
+                "token": {
                     "type": "string"
                 }
             }
@@ -741,6 +784,9 @@
         "models.Token": {
             "type": "object",
             "properties": {
+                "firstLogin": {
+                    "type": "string"
+                },
                 "token": {
                     "type": "string"
                 }
