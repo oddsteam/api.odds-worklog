@@ -1,0 +1,74 @@
+package login
+
+import (
+	"fmt"
+	"net/http"
+	"time"
+
+	jwt "github.com/dgrijalva/jwt-go"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	oauth2 "google.golang.org/api/oauth2/v2"
+)
+
+const clientID = "956316396976-mhb092ad69gn2olis0mtmc1fpe8blgn8.apps.googleusercontent.com"
+
+type usecase struct {
+	Usecase Usecase
+}
+
+func newUsecase() Usecase {
+	return &usecase{}
+}
+
+func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
+	oauth2Service, err := oauth2.New(&http.Client{})
+	if err != nil {
+		return nil, err
+	}
+
+	tokenInfoCall := oauth2Service.Tokeninfo()
+	return tokenInfoCall.IdToken(idToken).Do()
+}
+
+func verifyAudience(aud string) bool {
+	return aud == clientID
+}
+
+func handleToken(user *models.User) (*models.Token, error) {
+	user.BankAccountName = ""
+	user.BankAccountNumber = ""
+	user.ThaiCitizenID = ""
+
+	tok, err := genToken(user)
+	if err != nil {
+		return nil, err
+	}
+
+	firstLogin := "Y"
+	if user.FullNameEn != "" {
+		firstLogin = "N"
+	}
+
+	token := &models.Token{
+		Token:      tok,
+		FirstLogin: firstLogin,
+	}
+
+	return token, nil
+}
+
+func genToken(user *models.User) (string, error) {
+	claims := &models.JwtCustomClaims{
+		user,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tok, err := token.SignedString([]byte("GmkZGF3CmpZNs88dLvbV"))
+	if err != nil {
+		return "", fmt.Errorf("Generate token error: %s", err.Error())
+	}
+	return tok, nil
+}
