@@ -191,7 +191,7 @@ func (h *HttpHandler) UpdatePartialUser(c echo.Context) error {
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	ur := NewRepository(session)
-	uc := newUsecase(ur)
+	uc := NewUsecase(ur)
 	handler := &HttpHandler{uc}
 
 	r = r.Group("/users")

@@ -2,17 +2,27 @@ package user
 
 import (
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 type usecase struct {
 	repo Repository
 }
 
-func newUsecase(r Repository) Usecase {
+func NewUsecase(r Repository) Usecase {
 	return &usecase{r}
 }
 
 func (u *usecase) CreateUser(m *models.User) (*models.User, error) {
+	err := utils.ValidateEmail(m.Email)
+	if err != nil {
+		return nil, err
+	}
+	_, err = u.repo.GetUserByEmail(m.Email)
+	if err != nil {
+		return nil, err
+	}
+
 	return u.repo.CreateUser(m)
 }
 
