@@ -1,11 +1,13 @@
 package login
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	oauth2 "google.golang.org/api/oauth2/v2"
 )
@@ -13,11 +15,30 @@ import (
 const clientID = "956316396976-mhb092ad69gn2olis0mtmc1fpe8blgn8.apps.googleusercontent.com"
 
 type usecase struct {
-	Usecase Usecase
+	UserUsecase user.Usecase
 }
 
-func newUsecase() Usecase {
-	return &usecase{}
+func NewUsecase(uu user.Usecase) Usecase {
+	return &usecase{uu}
+}
+
+func (u *usecase) ManageLogin(idToken string) (*models.Token, error) {
+	tokenInfo, err := u.GetTokenInfo(idToken)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := u.CreateUser(tokenInfo.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	token, err := handleToken(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return token, nil
 }
 
 func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
@@ -27,7 +48,23 @@ func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
 	}
 
 	tokenInfoCall := oauth2Service.Tokeninfo()
-	return tokenInfoCall.IdToken(idToken).Do()
+	tokenInfo, err := tokenInfoCall.IdToken(idToken).Do()
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !verifyAudience(tokenInfo.Audience) {
+		return nil, errors.New("Token is not account @odds.team")
+	}
+	return tokenInfo, nil
+}
+
+func (u *usecase) CreateUser(email string) (*models.User, error) {
+	user := &models.User{}
+	user.Email = email
+	user.CorporateFlag = "F"
+	return u.UserUsecase.CreateUser(user)
 }
 
 func verifyAudience(aud string) bool {

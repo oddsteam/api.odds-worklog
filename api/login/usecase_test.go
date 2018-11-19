@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/user/mocks"
+	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
@@ -28,7 +28,7 @@ func TestHandleToken(t *testing.T) {
 	})
 
 	t.Run("when user is't first login got FirstLogin = 'N'", func(t *testing.T) {
-		token, err := handleToken(&mocks.MockUser)
+		token, err := handleToken(&userMock.MockUser)
 
 		assert.NoError(t, err)
 		assert.Equal(t, "N", token.FirstLogin)
@@ -37,7 +37,7 @@ func TestHandleToken(t *testing.T) {
 
 func TestGenToken(t *testing.T) {
 	t.Run("generate token success", func(t *testing.T) {
-		token, err := genToken(&mocks.MockUser)
+		token, err := genToken(&userMock.MockUser)
 
 		assert.NoError(t, err)
 		assert.NotEmpty(t, token)
