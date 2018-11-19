@@ -6,6 +6,7 @@ package mock_login
 
 import (
 	gomock "github.com/golang/mock/gomock"
+	models "gitlab.odds.team/worklog/api.odds-worklog/models"
 	v2 "google.golang.org/api/oauth2/v2"
 	reflect "reflect"
 )
@@ -33,6 +34,19 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
+// ManageLogin mocks base method
+func (m *MockUsecase) ManageLogin(idToken string) (*models.Token, error) {
+	ret := m.ctrl.Call(m, "ManageLogin", idToken)
+	ret0, _ := ret[0].(*models.Token)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ManageLogin indicates an expected call of ManageLogin
+func (mr *MockUsecaseMockRecorder) ManageLogin(idToken interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ManageLogin", reflect.TypeOf((*MockUsecase)(nil).ManageLogin), idToken)
+}
+
 // GetTokenInfo mocks base method
 func (m *MockUsecase) GetTokenInfo(idToken string) (*v2.Tokeninfo, error) {
 	ret := m.ctrl.Call(m, "GetTokenInfo", idToken)
@@ -44,4 +58,17 @@ func (m *MockUsecase) GetTokenInfo(idToken string) (*v2.Tokeninfo, error) {
 // GetTokenInfo indicates an expected call of GetTokenInfo
 func (mr *MockUsecaseMockRecorder) GetTokenInfo(idToken interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTokenInfo", reflect.TypeOf((*MockUsecase)(nil).GetTokenInfo), idToken)
+}
+
+// CreateUser mocks base method
+func (m *MockUsecase) CreateUser(email string) (*models.User, error) {
+	ret := m.ctrl.Call(m, "CreateUser", email)
+	ret0, _ := ret[0].(*models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateUser indicates an expected call of CreateUser
+func (mr *MockUsecaseMockRecorder) CreateUser(email interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockUsecase)(nil).CreateUser), email)
 }
