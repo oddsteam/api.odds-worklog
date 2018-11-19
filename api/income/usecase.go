@@ -23,7 +23,7 @@ type incomeSum struct {
 	WHT string
 }
 
-func newUsecase(r Repository, ur user.Repository) Usecase {
+func NewUsecase(r Repository, ur user.Repository) Usecase {
 	return &usecase{r, ur}
 }
 
