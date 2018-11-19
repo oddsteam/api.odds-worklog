@@ -22,6 +22,19 @@ After fill Comment to each handler, you must run `swag init` to generate docs sw
 ## Host local
 [http://localhost:8080/](http://localhost:8080/)
 
+## Command go mockgen
+GoMock is a mocking framework for the Go programming language.
+
+[https://github.com/golang/mock](https://github.com/golang/mock)
+
+[https://godoc.org/github.com/golang/mock/gomock](https://godoc.org/github.com/golang/mock/gomock)
+
+user `mockgen -source="api/user/interface.go" -destination="api/user/mock/income_mock.go"`
+
+income `mockgen -source="api/income/interface.go" -destination="api/income/mock/income_mock.go"`
+
+login `mockgen -source="api/login/interface.go" -destination="api/login/mock/income_mock.go"`
+
 ## API
 local: http://localhost:8080/v1/
 dev clound: http://worklog-dev.odds.team/api/v1/
