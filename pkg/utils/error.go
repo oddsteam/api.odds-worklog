@@ -1,6 +1,18 @@
 package utils
 
-import "github.com/labstack/echo"
+import (
+	"errors"
+
+	"github.com/labstack/echo"
+)
+
+var (
+	ErrNotFound        = errors.New("Item not found")
+	ErrCannotBeDeleted = errors.New("Cannot be Deleted")
+	ErrConflict        = errors.New("Item already exist")
+	ErrInvalidPath     = errors.New("Invalid path")
+	ErrInvalidFormat   = errors.New("Invalid format")
+)
 
 func NewError(ctx echo.Context, status int, err error) error {
 	er := HTTPError{
