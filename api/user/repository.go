@@ -58,6 +58,16 @@ func (r *repository) GetUserByID(id string) (*models.User, error) {
 	return user, nil
 }
 
+func (r *repository) GetUserByEmail(email string) (*models.User, error) {
+	user := new(models.User)
+	coll := r.session.GetCollection(userColl)
+	err := coll.Find(bson.M{"email": email}).One(&user)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 func (r *repository) UpdateUser(user *models.User) (*models.User, error) {
 	coll := r.session.GetCollection(userColl)
 	err := coll.UpdateId(user.ID, &user)
