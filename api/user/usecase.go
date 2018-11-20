@@ -18,9 +18,9 @@ func (u *usecase) CreateUser(m *models.User) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	_, err = u.repo.GetUserByEmail(m.Email)
-	if err != nil {
-		return nil, err
+	user, err := u.repo.GetUserByEmail(m.Email)
+	if err == nil {
+		return user, utils.ErrConflict
 	}
 
 	return u.repo.CreateUser(m)

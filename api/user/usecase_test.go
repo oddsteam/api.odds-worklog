@@ -3,6 +3,8 @@ package user
 import (
 	"testing"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+
 	mock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 
 	"github.com/golang/mock/gomock"
@@ -10,21 +12,55 @@ import (
 )
 
 func TestCreateUser(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
 
-	user := &mock.MockUser
+	t.Run("create user success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-	mockRepo := mock.NewMockRepository(ctrl)
-	mockRepo.EXPECT().CreateUser(user).Return(user, nil)
-	mockRepo.EXPECT().GetUserByEmail(user.Email).Return(user, nil)
+		user := mock.MockUser
 
-	uc := NewUsecase(mockRepo)
-	userRes, err := uc.CreateUser(user)
+		mockRepo := mock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().CreateUser(&user).Return(&user, nil)
+		mockRepo.EXPECT().GetUserByEmail(user.Email).Return(nil, utils.ErrNotFound)
 
-	assert.NoError(t, err)
-	assert.NotNil(t, userRes)
-	assert.Equal(t, user.ID, userRes.ID)
+		uc := NewUsecase(mockRepo)
+		userRes, err := uc.CreateUser(&user)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, userRes)
+		assert.Equal(t, user.ID, userRes.ID)
+	})
+
+	t.Run("when email is invalid then create user failed, ErrInvalidFormat", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		user := mock.MockUser
+		user.Email = "abc"
+
+		mockRepo := mock.NewMockRepository(ctrl)
+		uc := NewUsecase(mockRepo)
+		userRes, err := uc.CreateUser(&user)
+
+		assert.EqualError(t, err, utils.ErrInvalidFormat.Error())
+		assert.Nil(t, userRes)
+	})
+
+	t.Run("when user is an exist then create user failed, ErrConflict", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		user := mock.MockUser
+		mockRepo := mock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetUserByEmail(user.Email).Return(&user, nil)
+
+		uc := NewUsecase(mockRepo)
+		userRes, err := uc.CreateUser(&user)
+
+		assert.EqualError(t, err, utils.ErrConflict.Error())
+		assert.NotNil(t, userRes)
+	})
+
 }
 
 // func TestGetUser(t *testing.T) {
