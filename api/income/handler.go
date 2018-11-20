@@ -42,7 +42,6 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 	if err := c.Bind(&income); err != nil {
 		return utils.NewError(c, http.StatusUnprocessableEntity, err)
 	}
-
 	if ok, err := isRequestValid(&income); !ok {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}

@@ -31,6 +31,11 @@ var (
 		SubmitDate: "2018-10-24 20:30:40",
 		Status:     "Y",
 	}
+
+	MockCorporateIncomeStatus = models.IncomeStatus{
+		User:   &userMock.MockUser,
+		Status: "Y",
+	}
 	MockIndividualIncomeStatus = models.IncomeStatus{
 		User:   &userMock.MockUser,
 		Status: "N",
