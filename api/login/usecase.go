@@ -9,6 +9,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 	oauth2 "google.golang.org/api/oauth2/v2"
 )
 
@@ -29,7 +30,7 @@ func (u *usecase) ManageLogin(idToken string) (*models.Token, error) {
 	}
 
 	user, err := u.CreateUser(tokenInfo.Email)
-	if err != nil {
+	if err != nil && err != utils.ErrConflict {
 		return nil, err
 	}
 
