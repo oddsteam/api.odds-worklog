@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/jung-kurt/gofpdf"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -105,6 +106,46 @@ func (u *usecase) GetIncomeStatusList(corporateFlag string) ([]*models.IncomeSta
 func (u *usecase) GetIncomeByUserIdAndCurrentMonth(userId string) (*models.Income, error) {
 	year, month := utils.GetYearMonthNow()
 	return u.repo.GetIncomeUserByYearMonth(userId, year, month)
+}
+
+func strDelimit(str string, sepstr string, sepcount int) string {
+	pos := len(str) - sepcount
+	for pos > 0 {
+		str = str[:pos] + sepstr + str[pos:]
+		pos = pos - sepcount
+	}
+	return str
+}
+
+func (u *usecase) ExportPdf() (string, error) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.SetTopMargin(30)
+	// pdf.SetHeaderFuncMode(func() {
+	// 	pdf.SetY(5)
+	// 	pdf.SetFont("Arial", "B", 15)
+	// 	pdf.Cell(80, 0, "")
+	// 	pdf.CellFormat(30, 10, "Title", "1", 0, "C", false, 0, "")
+	// 	pdf.Ln(20)
+	// }, true)
+	// pdf.SetFooterFunc(func() {
+	// 	pdf.SetY(-15)
+	// 	pdf.SetFont("Arial", "I", 8)
+	// 	pdf.CellFormat(0, 10, fmt.Sprintf("Page %d/{nb}", pdf.PageNo()),
+	// 		"", 0, "C", false, 0, "")
+	// })
+	pdf.AliasNbPages("")
+	pdf.AddPage()
+	pdf.SetFont("Times", "", 12)
+	for j := 1; j <= 20; j++ {
+		pdf.CellFormat(0, 10, fmt.Sprintf("Printing line number %d", j),
+			"", 1, "", false, 0, "")
+	}
+
+	fileStr := "alloha.pdf"
+	err := pdf.OutputFileAndClose(fileStr)
+	fmt.Printf("%s", err)
+
+	return fileStr, nil
 }
 
 func (u *usecase) ExportIncome(corporateFlag string) (string, error) {

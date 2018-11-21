@@ -480,6 +480,25 @@ func TestGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 	})
 }
 
+// func TestGetExportPdf(t *testing.T) {
+// 	t.Run("when export pdf success it should be return status OK", func(t *testing.T) {
+// 		ctrl := gomock.NewController(t)
+// 		defer ctrl.Finish()
+
+// 		mockUsecase := mockIncome.NewMockUsecase(ctrl)
+// 		mockUsecase.EXPECT().ExportPdf().Return("test.pdf", nil)
+// 		e := echo.New()
+// 		req := httptest.NewRequest(echo.GET, "/", nil)
+// 		rec := httptest.NewRecorder()
+// 		c := e.NewContext(req, rec)
+
+// 		handler := &HttpHandler{mockUsecase}
+// 		handler.GetExportCorporate(c)
+
+// 		assert.Equal(t, http.StatusOK, rec.Code)
+// 	})
+// }
+
 func TestGetExportCorporateIncomeStatus(t *testing.T) {
 	t.Run("when export corporate income success it should be return status OK", func(t *testing.T) {
 		ctrl := gomock.NewController(t)

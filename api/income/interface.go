@@ -21,5 +21,6 @@ type Usecase interface {
 	GetIncomeStatusList(corporateFlag string) ([]*models.IncomeStatus, error)
 	GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error)
 	ExportIncome(corporateFlag string) (string, error)
+	ExportPdf() (string, error)
 	DropIncome() error
 }

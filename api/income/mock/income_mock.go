@@ -5,10 +5,11 @@
 package mock_income
 
 import (
-	gomock "github.com/golang/mock/gomock"
-	models "gitlab.odds.team/worklog/api.odds-worklog/models"
 	reflect "reflect"
 	time "time"
+
+	gomock "github.com/golang/mock/gomock"
+	models "gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
 // MockRepository is a mock of Repository interface
@@ -194,6 +195,19 @@ func (m *MockUsecase) ExportIncome(corporateFlag string) (string, error) {
 // ExportIncome indicates an expected call of ExportIncome
 func (mr *MockUsecaseMockRecorder) ExportIncome(corporateFlag interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncome", reflect.TypeOf((*MockUsecase)(nil).ExportIncome), corporateFlag)
+}
+
+// Export Pdf mocks base method
+func (m *MockUsecase) ExportPdf() (string, error) {
+	ret := m.ctrl.Call(m, "ExportPdf")
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Export Pdf an expected call of Export Pdf
+func (mr *MockUsecaseMockRecorder) ExportPdf() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportPdf", reflect.TypeOf((*MockUsecase)(nil).ExportPdf))
 }
 
 // DropIncome mocks base method

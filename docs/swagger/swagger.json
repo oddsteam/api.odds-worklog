@@ -67,6 +67,39 @@
                 }
             }
         },
+        "/incomes/export/pdf": {
+            "get": {
+                "description": "Get Export to PDF file.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "incomes"
+                ],
+                "summary": "Get Export Pdf",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/incomes/export/corporate": {
             "get": {
                 "description": "Get Corporate Export Income to csv file.",

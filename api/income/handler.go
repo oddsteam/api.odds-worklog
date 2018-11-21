@@ -186,6 +186,23 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	return c.Attachment(filename, filename)
 }
 
+// GetExportPdf godoc
+// @Summary Get Export Pdf
+// @Description Get Export to Pdf file.
+// @Tages incomes
+// @Accept json
+// @Produce json
+// @Success 200 {array} string
+// @Failure 500 {object} utils.HTTPError
+// @Router /incomes/export/pdf [get]
+func (h *HttpHandler) GetExportPdf(c echo.Context) error {
+	filename, err := h.Usecase.ExportPdf()
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.Attachment(filename, filename)
+}
+
 func (h *HttpHandler) DropIncome(c echo.Context) error {
 	if err := h.Usecase.DropIncome(); err != nil {
 		return utils.NewError(c, http.StatusOK, errors.New("DropIncome Failed!"))
@@ -207,5 +224,6 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/month/:id", handler.GetIncomeByUserIdAndCurrentMonth)
 	r.GET("/export/corporate", handler.GetExportCorporate)
 	r.GET("/export/individual", handler.GetExportIndividual)
+	r.GET("/export/pdf", handler.GetExportPdf)
 	r.DELETE("", handler.DropIncome)
 }

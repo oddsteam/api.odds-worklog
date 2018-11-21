@@ -163,6 +163,28 @@ paths:
       summary: Update Income
       tags:
       - incomes
+  /incomes/export/pdf:
+    get:
+      consumes:
+      - application/json
+      description: Get Export to PDF file.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Export Pdf
+      tags:
+      - incomes
   /incomes/export/corporate:
     get:
       consumes:
