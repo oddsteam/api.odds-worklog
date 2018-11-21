@@ -1,5 +1,15 @@
 package income
 
+import (
+	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
+	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+)
+
 // import (
 // 	"testing"
 
@@ -159,3 +169,25 @@ package income
 // 	mockRepo.AssertExpectations(t)
 // 	mockUserRepo.AssertExpectations(t)
 // }
+
+func TestUsecaseExportIncome(t *testing.T) {
+	t.Run("export corporate income success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		year, month := utils.GetYearMonthNow()
+		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.MockUserById.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.MockUserById2.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+
+		mockRepoUser := userMock.NewMockRepository(ctrl)
+		mockRepoUser.EXPECT().GetUserByType("Y").Return(userMock.MockUsers, nil)
+
+		usecase := NewUsecase(mockRepoIncome, mockRepoUser)
+		res, err := usecase.ExportIncome("Y")
+
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+	})
+}
