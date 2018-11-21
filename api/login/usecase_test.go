@@ -53,6 +53,7 @@ func TestCreateUser(t *testing.T) {
 		email := "abc@mail.com"
 		user := new(models.User)
 		user.Email = email
+		user.CorporateFlag = "F"
 
 		mockUsecase := userMock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().CreateUser(gomock.Any()).Return(user, nil)
@@ -62,5 +63,6 @@ func TestCreateUser(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, email, userRes.Email)
+		assert.Equal(t, "F", userRes.CorporateFlag)
 	})
 }

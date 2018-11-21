@@ -42,10 +42,21 @@ func (h *HttpHandler) loginGoogle(c echo.Context) error {
 		return utils.NewError(c, http.StatusUnauthorized, err)
 	}
 
-	token, err := h.Usecase.ManageLogin(login.Token)
+	tokenInfo, err := h.Usecase.GetTokenInfo(login.Token)
 	if err != nil {
 		return utils.NewError(c, http.StatusUnauthorized, err)
 	}
+
+	user, err := h.Usecase.CreateUser(tokenInfo.Email)
+	if err != nil && err != utils.ErrConflict {
+		return utils.NewError(c, http.StatusUnauthorized, err)
+	}
+
+	token, err := handleToken(user)
+	if err != nil {
+		return utils.NewError(c, http.StatusUnauthorized, err)
+	}
+
 	return c.JSON(http.StatusOK, token)
 }
 

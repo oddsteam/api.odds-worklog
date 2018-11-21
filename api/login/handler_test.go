@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	mock "gitlab.odds.team/worklog/api.odds-worklog/api/login/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
@@ -18,8 +19,13 @@ func TestLoginGoogle(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
+		email := "abc@mail.com"
+		user := new(models.User)
+		user.Email = email
+
 		mockUsecase := mock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().ManageLogin(mock.Login.Token).Return(&mock.MockToken, nil)
+		mockUsecase.EXPECT().GetTokenInfo(mock.Login.Token).Return(&mock.MockTokenInfo, nil)
+		mockUsecase.EXPECT().CreateUser(mock.MockTokenInfo.Email).Return(user, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mock.LoginJson))

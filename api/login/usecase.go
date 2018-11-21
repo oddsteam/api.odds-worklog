@@ -9,7 +9,6 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 	oauth2 "google.golang.org/api/oauth2/v2"
 )
 
@@ -21,25 +20,6 @@ type usecase struct {
 
 func NewUsecase(uu user.Usecase) Usecase {
 	return &usecase{uu}
-}
-
-func (u *usecase) ManageLogin(idToken string) (*models.Token, error) {
-	tokenInfo, err := u.GetTokenInfo(idToken)
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := u.CreateUser(tokenInfo.Email)
-	if err != nil && err != utils.ErrConflict {
-		return nil, err
-	}
-
-	token, err := handleToken(user)
-	if err != nil {
-		return nil, err
-	}
-
-	return token, nil
 }
 
 func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {

@@ -34,19 +34,6 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
-// ManageLogin mocks base method
-func (m *MockUsecase) ManageLogin(idToken string) (*models.Token, error) {
-	ret := m.ctrl.Call(m, "ManageLogin", idToken)
-	ret0, _ := ret[0].(*models.Token)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ManageLogin indicates an expected call of ManageLogin
-func (mr *MockUsecaseMockRecorder) ManageLogin(idToken interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ManageLogin", reflect.TypeOf((*MockUsecase)(nil).ManageLogin), idToken)
-}
-
 // GetTokenInfo mocks base method
 func (m *MockUsecase) GetTokenInfo(idToken string) (*v2.Tokeninfo, error) {
 	ret := m.ctrl.Call(m, "GetTokenInfo", idToken)
