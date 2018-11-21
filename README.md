@@ -7,14 +7,31 @@ Run `go get -u github.com/golang/dep/cmd/dep`
 * **Setup dependency**  <br>
 Run `dep ensure`
 
+* **Edit .env**<br>
+For run on local => Change `MONGO_DB_HOST = "mongodb:27017"` `mongodb` to `localhost` <br>
+*Note:* Don't `commit` this file (.env)
+
+
 * **Run Docker** <br>
-Run `docker-compose up --build -d` <br>
+Run `docker-compose up --build -d`<br>
 *Note:* If you add new 3rd party package, you must run `dep ensure` for setup dependency.
 
 * **Import user data** <br>
 ```bash 
     mongoimport --host localhost --port 27017 --db odds_worklog_db --collection user --type json --file user.json --maintainInsertionOrder --jsonArray
 ```
+
+* **Setup Authen mongodb**<br>
+If run by `go run main.go`, must config below
+
+1. `docker exec -it CONTAINER_MONGODB_NAME bash`
+<br>get `CONTAINER_MONGODB_NAME` from `docker ps` NAMES
+
+2. `mongo`
+
+3. `use odds_worklog_db`
+
+4. `db.createUser({user:"admin",pwd:"admin",roles:[{role:"readWrite",db:"odds_worklog_db"}]})`
 
 ## Set up Swagger
 [https://github.com/swaggo/echo-swagger](https://github.com/swaggo/echo-swagger)
@@ -39,10 +56,12 @@ login `mockgen -source="api/login/interface.go" -destination="api/login/mock/inc
 
 ## API
 local: http://localhost:8080/v1/
+
 dev clound: http://worklog-dev.odds.team/api/v1/
 
 ### Swagger
 local [http://localhost:8080/v1/swagger/index.html](http://localhost:8080/v1/swagger/index.html)
+
 online [http://worklog-dev.odds.team/api/v1/swagger/index.html](http://worklog-dev.odds.team/api/v1/swagger/index.html)
 
 ### User
