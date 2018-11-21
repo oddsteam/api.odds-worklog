@@ -12,5 +12,9 @@ services:
   mongodb:
     container_name: 'odds-worklog-mongo'
     image: 'mongo'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGO_INITDB_DATABASE: odds_worklog_db 
     ports:
-      - 27017:27017
+      - 27017:27017 
