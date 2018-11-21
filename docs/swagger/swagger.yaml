@@ -298,6 +298,35 @@ paths:
       summary: Get Individual Income Status List
       tags:
       - incomes
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login get token
+      parameters:
+      - description: id is userId
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/models.Login'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Token'
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Login
+      tags:
+      - login
   /login-google:
     post:
       consumes:
