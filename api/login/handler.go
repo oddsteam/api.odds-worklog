@@ -20,6 +20,9 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	loginUsecase := NewUsecase(userUsecase)
 	handler := &HttpHandler{loginUsecase}
 
+	r.POST("/login", func(c echo.Context) error {
+		return login(c, userRepo)
+	})
 	r.POST("/login-google", handler.loginGoogle)
 }
 
@@ -40,6 +43,34 @@ func (h *HttpHandler) loginGoogle(c echo.Context) error {
 	}
 
 	token, err := h.Usecase.ManageLogin(login.Token)
+	if err != nil {
+		return utils.NewError(c, http.StatusUnauthorized, err)
+	}
+	return c.JSON(http.StatusOK, token)
+}
+
+// Login godoc
+// @Summary Login
+// @Description Login get token
+// @Tags login
+// @Accept  json
+// @Produce  json
+// @Param login body models.Login true  "id is userId"
+// @Success 200 {object} models.Token
+// @Failure 401 {object} utils.HTTPError
+// @Router /login [post]
+func login(c echo.Context, userRepo user.Repository) error {
+	var login models.Login
+	if err := c.Bind(&login); err != nil {
+		return utils.NewError(c, http.StatusUnauthorized, err)
+	}
+
+	user, err := userRepo.GetUserByID(login.Token)
+	if err != nil {
+		return utils.NewError(c, http.StatusUnauthorized, err)
+	}
+
+	token, err := handleToken(user)
 	if err != nil {
 		return utils.NewError(c, http.StatusUnauthorized, err)
 	}
