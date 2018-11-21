@@ -12,6 +12,8 @@ var (
 	ErrConflict        = errors.New("Item already exist")
 	ErrInvalidPath     = errors.New("Invalid path")
 	ErrInvalidFormat   = errors.New("Invalid format")
+	ErrInvalidToken    = errors.New("Invalid token")
+	ErrBadRequest      = errors.New("Bad request")
 )
 
 func NewError(ctx echo.Context, status int, err error) error {

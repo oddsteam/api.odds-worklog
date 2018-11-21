@@ -39,7 +39,11 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 func (h *HttpHandler) loginGoogle(c echo.Context) error {
 	var login models.Login
 	if err := c.Bind(&login); err != nil {
-		return utils.NewError(c, http.StatusUnauthorized, err)
+		return utils.NewError(c, http.StatusUnauthorized, utils.ErrBadRequest)
+	}
+
+	if login.Token == "" {
+		return utils.NewError(c, http.StatusUnauthorized, utils.ErrBadRequest)
 	}
 
 	tokenInfo, err := h.Usecase.GetTokenInfo(login.Token)
