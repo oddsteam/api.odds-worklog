@@ -3,6 +3,7 @@ package login
 import (
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
@@ -41,5 +42,25 @@ func TestGenToken(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.NotEmpty(t, token)
+	})
+}
+
+func TestCreateUser(t *testing.T) {
+	t.Run("create user success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		email := "abc@mail.com"
+		user := new(models.User)
+		user.Email = email
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().CreateUser(gomock.Any()).Return(user, nil)
+
+		usecase := NewUsecase(mockUsecase)
+		userRes, err := usecase.CreateUser(email)
+
+		assert.NoError(t, err)
+		assert.Equal(t, email, userRes.Email)
 	})
 }
