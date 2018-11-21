@@ -48,11 +48,11 @@ GoMock is a mocking framework for the Go programming language.
 
 [https://godoc.org/github.com/golang/mock/gomock](https://godoc.org/github.com/golang/mock/gomock)
 
-user `mockgen -source="api/user/interface.go" -destination="api/user/mock/income_mock.go"`
+user `mockgen -source="api/user/interface.go" -destination="api/user/mock/user_mock.go"`
 
 income `mockgen -source="api/income/interface.go" -destination="api/income/mock/income_mock.go"`
 
-login `mockgen -source="api/login/interface.go" -destination="api/login/mock/income_mock.go"`
+login `mockgen -source="api/login/interface.go" -destination="api/login/mock/login_mock.go"`
 
 ## API
 local: http://localhost:8080/v1/
