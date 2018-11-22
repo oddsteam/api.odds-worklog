@@ -34,7 +34,8 @@ FROM alpine
 WORKDIR /app
 COPY --from=build-state /go/bin/api /app
 ADD .env  /app
-RUN mkdir files
+RUN mkdir files && mkdir image
+COPY /image /image
 
 # Start API
 ENTRYPOINT ["/app/api"]
