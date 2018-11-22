@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/jung-kurt/gofpdf"
-	"github.com/pallat/tis620"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -127,16 +126,16 @@ func ImageFile(fileStr string) string {
 
 func (u *usecase) ExportPdf() (string, error) {
 	pdf := gofpdf.New("P", "mm", "A4", "")
-	utf8, erro := tis620.ToUTF8("สวัสดีครับ")
+	// utf8, erro := tis620.ToUTF8("สวัสดีครับ")
 	pdf.AddPage()
 	pdf.SetFont("Arial", "", 12)
 	pdf.Image(ImageFile("tavi50.png"), 0, 0, 210, 295, false, "", 0, "")
 	pdf.Cell(20, 55, "")
-	pdf.CellFormat(0, 55, utf8, "0", 0, "", false, 0, "")
+	pdf.CellFormat(0, 55, "Hello World!", "0", 0, "", false, 0, "")
 
-	if erro != nil {
-		return "", erro
-	}
+	// if erro != nil {
+	// 	return "", erro
+	// }
 
 	t := time.Now()
 	tf := fmt.Sprintf("%d_%02d_%02d_%02d_%02d_%02d", t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
@@ -147,20 +146,6 @@ func (u *usecase) ExportPdf() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	// var png []byte
-	// var pdf *gofpdf.Fpdf
-	// var err error
-	// var rdr *bytes.Reader
-
-	// png, err = ioutil.ReadFile(ImageFile("sweden.png"))
-	// if err == nil {
-	// 	rdr = bytes.NewReader(png)
-	// 	pdf = gofpdf.New("P", "mm", "A4", "")
-	// 	pdf.AddPage()
-	// 	_ = pdf.RegisterImageOptionsReader("sweden", gofpdf.ImageOptions{ImageType: "png", ReadDpi: true}, rdr)
-	// 	err = pdf.Error()
-	// }
 
 	return filename, nil
 }
