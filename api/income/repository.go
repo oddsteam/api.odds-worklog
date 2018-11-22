@@ -17,7 +17,7 @@ type repository struct {
 	session *mongo.Session
 }
 
-func newRepository(session *mongo.Session) Repository {
+func NewRepository(session *mongo.Session) Repository {
 	return &repository{session}
 }
 

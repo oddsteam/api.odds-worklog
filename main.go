@@ -8,6 +8,7 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/login"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/reminder"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	_ "gitlab.odds.team/worklog/api.odds-worklog/docs"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
@@ -46,6 +47,7 @@ func main() {
 
 	r := e.Group("/v1")
 	r.GET("/swagger/*", echoSwagger.WrapHandler)
+	reminder.NewHttpHandler(r, session)
 	login.NewHttpHandler(r, session)
 	r.Use(middleware.JWTWithConfig(m))
 

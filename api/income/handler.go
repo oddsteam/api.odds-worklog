@@ -211,7 +211,7 @@ func (h *HttpHandler) DropIncome(c echo.Context) error {
 }
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
-	incomeRepo := newRepository(session)
+	incomeRepo := NewRepository(session)
 	userRepo := user.NewRepository(session)
 	uc := NewUsecase(incomeRepo, userRepo)
 	handler := &HttpHandler{uc}

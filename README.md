@@ -27,7 +27,7 @@ If run by `go run main.go`, must config below
 1. `docker exec -it CONTAINER_MONGODB_NAME bash`
 <br>get `CONTAINER_MONGODB_NAME` from `docker ps` NAMES
 
-2. `mongo`
+2. `mongo` or `mongo -u admin -p admin --authenticationDatabase admin`
 
 3. `use odds_worklog_db`
 
