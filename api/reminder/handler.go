@@ -2,8 +2,10 @@ package reminder
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
@@ -24,8 +26,6 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 }
 
 func send(c echo.Context, incomeUsecase income.Usecase) error {
-
-	// Step 1 query user
 	incomeIndividualStatusList, err := incomeUsecase.GetIncomeStatusList("N")
 	if err != nil {
 		return utils.NewError(c, 500, err)
@@ -41,21 +41,19 @@ func send(c echo.Context, incomeUsecase income.Usecase) error {
 			emails = append(emails, incomeStatus.User.Email)
 		}
 	}
-
-	// Step 2 get user slack
 	slackUser, _ := getAllUserSlack()
-	slackUserID := []string{}
+	slackUserIDs := []SlackPostMessageResponse{}
 	for _, email := range emails {
 		for _, member := range slackUser.Members {
 			if member.Profile.Email == email {
-				slackUserID = append(slackUserID, member.ID)
+				resChannelIDSlack, _ := getChannelIDSlack(member.ID)
+				channelID := resChannelIDSlack.Channel.ID
+				a, _ := postMessageSlack(channelID, "ทดสอบระบบครับ คุณ"+member.Name)
+				slackUserIDs = append(slackUserIDs, a)
 			}
 		}
 	}
-
-	// Step 3 get channel id
-	// Step 4 call post message
-	return c.JSON(http.StatusOK, slackUserID)
+	return c.JSON(http.StatusOK, slackUserIDs)
 }
 
 type SlackUsersResponse struct {
@@ -106,13 +104,62 @@ type SlackUsersResponse struct {
 }
 
 func getAllUserSlack() (SlackUsersResponse, error) {
-	token := ""
+	token := "xoxp-484294901968-484294902880-485242280261-26179df1fd29f42f67ae523efe784d5d"
 	url := "https://slack.com/api/users.list?token=" + token
 	req, _ := http.NewRequest("GET", url, nil)
 	res, _ := http.DefaultClient.Do(req)
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 	var data SlackUsersResponse
+	_ = json.Unmarshal(body, &data)
+	return data, nil
+}
+
+type SlackChannelIDResponse struct {
+	Ok          bool `json:"ok"`
+	NoOp        bool `json:"no_op"`
+	AlreadyOpen bool `json:"already_open"`
+	Channel     struct {
+		ID string `json:"id"`
+	} `json:"channel"`
+}
+
+func getChannelIDSlack(userID string) (SlackChannelIDResponse, error) {
+	token := "xoxp-484294901968-484294902880-485242280261-26179df1fd29f42f67ae523efe784d5d"
+	url := "https://slack.com/api/im.open?token=" + token + "&user=" + userID
+	req, _ := http.NewRequest("GET", url, nil)
+	res, _ := http.DefaultClient.Do(req)
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
+	var data SlackChannelIDResponse
+	_ = json.Unmarshal(body, &data)
+	return data, nil
+}
+
+type SlackPostMessageResponse struct {
+	Ok      bool   `json:"ok"`
+	Channel string `json:"channel"`
+	Ts      string `json:"ts"`
+	Message struct {
+		Text     string `json:"text"`
+		Username string `json:"username"`
+		BotID    string `json:"bot_id"`
+		Type     string `json:"type"`
+		Subtype  string `json:"subtype"`
+		Ts       string `json:"ts"`
+	} `json:"message"`
+}
+
+func postMessageSlack(channelID string, text string) (SlackPostMessageResponse, error) {
+	token := "xoxp-484294901968-484294902880-485242280261-26179df1fd29f42f67ae523efe784d5d"
+	textEncode := &url.URL{Path: text}
+	url := "https://slack.com/api/chat.postMessage?token=" + token + "&channel=" + channelID + "&text=" + textEncode.String()
+	fmt.Println(url)
+	req, _ := http.NewRequest("GET", url, nil)
+	res, _ := http.DefaultClient.Do(req)
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
+	var data SlackPostMessageResponse
 	_ = json.Unmarshal(body, &data)
 	return data, nil
 }
