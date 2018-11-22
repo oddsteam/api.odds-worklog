@@ -17,3 +17,6 @@ report/
 
 # CSV file
 *.csv
+
+# PDF file
+*.pdf
