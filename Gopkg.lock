@@ -172,6 +172,14 @@
   version = "v0.0.4"
 
 [[projects]]
+  branch = "master"
+  digest = "1:b77def5062807ac5c82318e686ae92d3f385f30f49b60df8c54544bb913172f8"
+  name = "github.com/pallat/tis620"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f2651e7f57aeaac748f0fc83148d8db4f58818a0"
+
+[[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
@@ -240,10 +248,13 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:80b14d5e8dc8ecc95154e3747028cfa3be6d590a85a60d0a633203419bbc9a19"
+  digest = "1:9cdda4348b2dcebe6176db79768b0c80fe3c08eef5d635567139eb1dd9a089bf"
   name = "golang.org/x/net"
   packages = [
     "context",
+    "html",
+    "html/atom",
+    "html/charset",
     "idna",
     "webdav",
     "webdav/internal/xml",
@@ -260,17 +271,29 @@
   revision = "4497e2df6f9e69048a54498c7affbbec3294ad47"
 
 [[projects]]
-  digest = "1:0c56024909189aee3364b7f21a95a27459f718aa7c199a5c111c36cfffd9eaef"
+  digest = "1:bb8277a2ca2bcad6ff7f413b939375924099be908cedd1314baa21ecd08df477"
   name = "golang.org/x/text"
   packages = [
     "collate",
     "collate/build",
+    "encoding",
+    "encoding/charmap",
+    "encoding/htmlindex",
+    "encoding/internal",
+    "encoding/internal/identifier",
+    "encoding/japanese",
+    "encoding/korean",
+    "encoding/simplifiedchinese",
+    "encoding/traditionalchinese",
+    "encoding/unicode",
     "internal/colltab",
     "internal/gen",
     "internal/tag",
     "internal/triegen",
     "internal/ucd",
+    "internal/utf8internal",
     "language",
+    "runes",
     "secure/bidirule",
     "transform",
     "unicode/bidi",
@@ -337,6 +360,7 @@
     "github.com/jung-kurt/gofpdf",
     "github.com/labstack/echo",
     "github.com/labstack/echo/middleware",
+    "github.com/pallat/tis620",
     "github.com/stretchr/testify/assert",
     "github.com/swaggo/echo-swagger",
     "github.com/swaggo/swag",

@@ -201,6 +201,8 @@ func (h *HttpHandler) GetExportPdf(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.Attachment(filename, filename)
+	// return c.File()
+	// return c.String(200, filename)
 }
 
 func (h *HttpHandler) DropIncome(c echo.Context) error {

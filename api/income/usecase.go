@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/jung-kurt/gofpdf"
+	"github.com/pallat/tis620"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -117,35 +119,50 @@ func strDelimit(str string, sepstr string, sepcount int) string {
 	return str
 }
 
+var gofpdfDir string
+
+func ImageFile(fileStr string) string {
+	return filepath.Join(gofpdfDir, "image", fileStr)
+}
+
 func (u *usecase) ExportPdf() (string, error) {
 	pdf := gofpdf.New("P", "mm", "A4", "")
-	pdf.SetTopMargin(30)
-	// pdf.SetHeaderFuncMode(func() {
-	// 	pdf.SetY(5)
-	// 	pdf.SetFont("Arial", "B", 15)
-	// 	pdf.Cell(80, 0, "")
-	// 	pdf.CellFormat(30, 10, "Title", "1", 0, "C", false, 0, "")
-	// 	pdf.Ln(20)
-	// }, true)
-	// pdf.SetFooterFunc(func() {
-	// 	pdf.SetY(-15)
-	// 	pdf.SetFont("Arial", "I", 8)
-	// 	pdf.CellFormat(0, 10, fmt.Sprintf("Page %d/{nb}", pdf.PageNo()),
-	// 		"", 0, "C", false, 0, "")
-	// })
-	pdf.AliasNbPages("")
+	utf8, erro := tis620.ToUTF8("สวัสดีครับ")
 	pdf.AddPage()
-	pdf.SetFont("Times", "", 12)
-	for j := 1; j <= 20; j++ {
-		pdf.CellFormat(0, 10, fmt.Sprintf("Printing line number %d", j),
-			"", 1, "", false, 0, "")
+	pdf.SetFont("Arial", "", 12)
+	pdf.Image(ImageFile("tavi50.png"), 0, 0, 210, 295, false, "", 0, "")
+	pdf.Cell(20, 55, "")
+	pdf.CellFormat(0, 55, utf8, "0", 0, "", false, 0, "")
+
+	if erro != nil {
+		return "", erro
 	}
 
-	fileStr := "alloha.pdf"
-	err := pdf.OutputFileAndClose(fileStr)
-	fmt.Printf("%s", err)
+	t := time.Now()
+	tf := fmt.Sprintf("%d_%02d_%02d_%02d_%02d_%02d", t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
+	filename := fmt.Sprintf("files/tavi50/%s_%s.pdf", "tavi50", tf)
 
-	return fileStr, nil
+	err := pdf.OutputFileAndClose(filename)
+
+	if err != nil {
+		return "", err
+	}
+
+	// var png []byte
+	// var pdf *gofpdf.Fpdf
+	// var err error
+	// var rdr *bytes.Reader
+
+	// png, err = ioutil.ReadFile(ImageFile("sweden.png"))
+	// if err == nil {
+	// 	rdr = bytes.NewReader(png)
+	// 	pdf = gofpdf.New("P", "mm", "A4", "")
+	// 	pdf.AddPage()
+	// 	_ = pdf.RegisterImageOptionsReader("sweden", gofpdf.ImageOptions{ImageType: "png", ReadDpi: true}, rdr)
+	// 	err = pdf.Error()
+	// }
+
+	return filename, nil
 }
 
 func (u *usecase) ExportIncome(corporateFlag string) (string, error) {
