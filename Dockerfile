@@ -34,7 +34,7 @@ FROM alpine
 WORKDIR /app
 COPY --from=build-state /go/bin/api /app
 ADD .env  /app
-RUN mkdir files && mkdir image
+RUN mkdir -p files/tavi50 && mkdir image
 ADD image /app/image
 
 # Start API
