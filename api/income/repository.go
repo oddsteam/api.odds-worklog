@@ -11,6 +11,7 @@ import (
 const (
 	incomeColl = "income"
 	exportColl = "export"
+	userColl   = "user"
 )
 
 type repository struct {

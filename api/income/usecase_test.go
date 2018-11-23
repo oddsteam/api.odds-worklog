@@ -32,6 +32,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 		assert.NotNil(t, res)
 	})
 }
+
 func TestCalVAT(t *testing.T) {
 	vat, vatf, err := calVAT("100000")
 	assert.NoError(t, err)
@@ -83,6 +84,7 @@ func TestCalPersonIncomeSum(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "114814.08", sum.Net)
 }
+
 func TestUsecaseAddIncome(t *testing.T) {
 	t.Run("when add income success it should be return income model", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -102,6 +104,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 		assert.Equal(t, incomeMock.MockIncome.UserID, res.UserID)
 	})
 }
+
 func TestUsecaseUpdateIncome(t *testing.T) {
 	t.Run("when update income success it should return income model", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -159,6 +162,7 @@ func TestUsecaseGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 		assert.Equal(t, incomeMock.MockIncome.SubmitDate, res.SubmitDate)
 	})
 }
+
 func TestUsecaseDropIncome(t *testing.T) {
 	t.Run("when get income by user id current month success it should be return income model", func(t *testing.T) {
 		ctrl := gomock.NewController(t)

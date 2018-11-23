@@ -126,16 +126,34 @@ func ImageFile(fileStr string) string {
 
 func (u *usecase) ExportPdf() (string, error) {
 	pdf := gofpdf.New("P", "mm", "A4", "")
+
+	userId := "5bf7b5baba53ded6288266d5"
+	year, month := utils.GetYearMonthNow()
+
+	sd, err_ := u.userRepo.GetUserByID(userId)
+
+	if err_ != nil {
+		return "", err_
+	}
+
+	dw := sd.ThaiCitizenID
+
+	rs, _err := u.repo.GetIncomeUserByYearMonth(userId, year, month)
 	// utf8, erro := tis620.ToUTF8("สวัสดีครับ")
+
+	if _err != nil {
+		return "", _err
+	}
+
+	t1 := rs.UserID
+
+	fmt.Sprintf("%s", t1)
+
 	pdf.AddPage()
 	pdf.SetFont("Arial", "", 12)
 	pdf.Image(ImageFile("tavi50.png"), 0, 0, 210, 295, false, "", 0, "")
 	pdf.Cell(20, 55, "")
-	pdf.CellFormat(0, 55, "", "0", 0, "", false, 0, "")
-
-	// if erro != nil {
-	// 	return "", erro
-	// }
+	pdf.CellFormat(0, 55, dw, "0", 0, "", false, 0, "")
 
 	t := time.Now()
 	tf := fmt.Sprintf("%d_%02d_%02d_%02d_%02d_%02d", t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
