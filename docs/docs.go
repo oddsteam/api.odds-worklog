@@ -155,6 +155,9 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "incomes"
+                ],
                 "summary": "Get Export Pdf",
                 "responses": {
                     "200": {

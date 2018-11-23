@@ -250,6 +250,8 @@ paths:
             $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Get Export Pdf
+      tags:
+      - incomes
   /incomes/month/{id}:
     get:
       consumes:
