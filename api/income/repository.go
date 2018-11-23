@@ -11,6 +11,7 @@ import (
 const (
 	incomeColl = "income"
 	exportColl = "export"
+	userColl   = "user"
 )
 
 type repository struct {
@@ -80,4 +81,14 @@ func (r *repository) AddExport(ep *models.Export) error {
 
 func (r *repository) DropIncome() error {
 	return r.session.GetCollection(incomeColl).DropCollection()
+}
+
+func (r *repository) GetUserByID(id string) (*models.User, error) {
+	user := new(models.User)
+	coll := r.session.GetCollection(userColl)
+	err := coll.FindId(bson.ObjectIdHex(id)).One(&user)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
