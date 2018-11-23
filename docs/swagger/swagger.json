@@ -67,39 +67,6 @@
                 }
             }
         },
-        "/incomes/export/pdf": {
-            "get": {
-                "description": "Get Export to PDF file.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "incomes"
-                ],
-                "summary": "Get Export Pdf.",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/utils.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
         "/incomes/export/corporate": {
             "get": {
                 "description": "Get Corporate Export Income to csv file.",
@@ -146,6 +113,36 @@
                     "incomes"
                 ],
                 "summary": "Get Individual Export Income",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/incomes/export/pdf": {
+            "get": {
+                "description": "Get Export to Pdf file.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get Export Pdf",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -442,6 +439,75 @@
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/setting/reminder": {
+            "get": {
+                "description": "Get Reminder Setting",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reminder"
+                ],
+                "summary": "Get Reminder Setting",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.Reminder"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Save Reminder Setting",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reminder"
+                ],
+                "summary": "Save Reminder Setting",
+                "parameters": [
+                    {
+                        "description": "line, slack, facebook can empty",
+                        "name": "reminder",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.Reminder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.Reminder"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "type": "object",
                             "$ref": "#/definitions/utils.HTTPError"
@@ -810,6 +876,41 @@
             "type": "object",
             "properties": {
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Reminder": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "setting": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.ReminderSetting"
+                }
+            }
+        },
+        "models.ReminderSetting": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "facebook": {
+                    "type": "boolean"
+                },
+                "line": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "slack": {
+                    "type": "boolean"
+                },
+                "time": {
                     "type": "string"
                 }
             }

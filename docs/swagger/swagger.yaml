@@ -41,6 +41,29 @@ definitions:
       token:
         type: string
     type: object
+  models.Reminder:
+    properties:
+      name:
+        type: string
+      setting:
+        $ref: '#/definitions/models.ReminderSetting'
+        type: object
+    type: object
+  models.ReminderSetting:
+    properties:
+      date:
+        type: string
+      facebook:
+        type: boolean
+      line:
+        type: boolean
+      message:
+        type: string
+      slack:
+        type: boolean
+      time:
+        type: string
+    type: object
   models.Token:
     properties:
       firstLogin:
@@ -163,28 +186,6 @@ paths:
       summary: Update Income
       tags:
       - incomes
-  /incomes/export/pdf:
-    get:
-      consumes:
-      - application/json
-      description: Get Export to PDF file.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              type: string
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-            type: object
-      summary: Get Export Pdf
-      tags:
-      - incomes
   /incomes/export/corporate:
     get:
       consumes:
@@ -229,6 +230,26 @@ paths:
       summary: Get Individual Export Income
       tags:
       - incomes
+  /incomes/export/pdf:
+    get:
+      consumes:
+      - application/json
+      description: Get Export to Pdf file.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Export Pdf
   /incomes/month/{id}:
     get:
       consumes:
@@ -378,6 +399,53 @@ paths:
       summary: Login with google account
       tags:
       - login
+  /setting/reminder:
+    get:
+      description: Get Reminder Setting
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Reminder'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Reminder Setting
+      tags:
+      - reminder
+    post:
+      consumes:
+      - application/json
+      description: Save Reminder Setting
+      parameters:
+      - description: line, slack, facebook can empty
+        in: body
+        name: reminder
+        required: true
+        schema:
+          $ref: '#/definitions/models.Reminder'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Reminder'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Save Reminder Setting
+      tags:
+      - reminder
   /users:
     get:
       consumes:
