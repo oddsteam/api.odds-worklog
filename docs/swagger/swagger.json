@@ -447,6 +447,36 @@
                 }
             }
         },
+        "/reminder/send": {
+            "get": {
+                "description": "Send Notification Reminder",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reminder"
+                ],
+                "summary": "Send Reminder",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/setting/reminder": {
             "get": {
                 "description": "Get Reminder Setting",

@@ -399,6 +399,26 @@ paths:
       summary: Login with google account
       tags:
       - login
+  /reminder/send:
+    get:
+      description: Send Notification Reminder
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Send Reminder
+      tags:
+      - reminder
   /setting/reminder:
     get:
       description: Get Reminder Setting
