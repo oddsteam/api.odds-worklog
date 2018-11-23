@@ -130,13 +130,13 @@ func (u *usecase) ExportPdf() (string, error) {
 	userId := "5bf7b5baba53ded6288266d5"
 	year, month := utils.GetYearMonthNow()
 
-	lk, err_ := u.repo.GetUserByID(userId)
+	sd, err_ := u.userRepo.GetUserByID(userId)
 
 	if err_ != nil {
 		return "", err_
 	}
 
-	dw := lk.ThaiCitizenID
+	dw := sd.ThaiCitizenID
 
 	rs, _err := u.repo.GetIncomeUserByYearMonth(userId, year, month)
 	// utf8, erro := tis620.ToUTF8("สวัสดีครับ")
