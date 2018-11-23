@@ -1,6 +1,7 @@
 package slack
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -77,7 +78,10 @@ func (s *Client) GetUsersList() (*GetUsersList, error) {
 }
 
 func (s *Client) doRequest(req *http.Request) ([]byte, error) {
-	client := &http.Client{}
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
