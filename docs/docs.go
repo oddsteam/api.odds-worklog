@@ -80,9 +80,9 @@ var doc = `{
                 }
             }
         },
-        "/incomes/export/pdf/{id}": {
+        "/incomes/export/pdf": {
             "get": {
-                "description": "Get Export to PDF file By User Id.",
+                "description": "Get Export to PDF file.",
                 "consumes": [
                     "application/json"
                 ],
@@ -92,16 +92,7 @@ var doc = `{
                 "tags": [
                     "incomes"
                 ],
-                "summary": "Get Export Pdf By User Id",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "summary": "Get Export Pdf",
                 "responses": {
                     "200": {
                         "description": "OK",

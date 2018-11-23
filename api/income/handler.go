@@ -162,19 +162,12 @@ func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/pdf [get]
 func (h *HttpHandler) GetExportPdf(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
-	}
-
-	filename, err := h.Usecase.ExportPdf(id)
+	filename, err := h.Usecase.ExportPdf()
 
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.Attachment(filename, filename)
-	// return c.File()
-	// return c.String(200, filename)
 }
 
 // GetExportCorporate godoc
