@@ -9,6 +9,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/login"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/reminder"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/setting"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	_ "gitlab.odds.team/worklog/api.odds-worklog/docs"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
@@ -54,6 +55,7 @@ func main() {
 	// Handler
 	user.NewHttpHandler(r, session)
 	income.NewHttpHandler(r, session)
+	setting.NewHTTPHandler(r, session)
 
 	// Start server
 	e.Logger.Fatal(e.Start(c.APIPort))
