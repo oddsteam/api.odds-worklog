@@ -44,12 +44,6 @@ If run by `go run main.go`, must config below
 
 3. `use odds_worklog_db`
 
-
-## Set up Swagger
-[https://github.com/swaggo/echo-swagger](https://github.com/swaggo/echo-swagger)
-
-After fill Comment to each handler, you must run `swag init` to generate docs swagger 
-
 ## Host local
 [http://localhost:8080/](http://localhost:8080/)
 
@@ -66,15 +60,22 @@ income `mockgen -source="api/income/interface.go" -destination="api/income/mock/
 
 login `mockgen -source="api/login/interface.go" -destination="api/login/mock/login_mock.go"`
 
+### Swagger
+
+After fill Comment to each handler, you must run `swag init` to generate docs swagger 
+
+[https://github.com/swaggo/swag](https://github.com/swaggo/swag)
+
+[https://github.com/swaggo/echo-swagger](https://github.com/swaggo/echo-swagger)
+
+local [http://localhost:8080/v1/swagger/index.html](http://localhost:8080/v1/swagger/index.html)
+
+online [http://worklog-dev.odds.team/api/v1/swagger/index.html](http://worklog-dev.odds.team/api/v1/swagger/index.html)
+
 ## API
 local: http://localhost:8080/v1/
 
 dev clound: http://worklog-dev.odds.team/api/v1/
-
-### Swagger
-local [http://localhost:8080/v1/swagger/index.html](http://localhost:8080/v1/swagger/index.html)
-
-online [http://worklog-dev.odds.team/api/v1/swagger/index.html](http://worklog-dev.odds.team/api/v1/swagger/index.html)
 
 ### User
 | Method    | Path          |
