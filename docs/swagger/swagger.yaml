@@ -167,13 +167,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get Export to PDF file By User Id.
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
+      description: Get Export to PDF file.
       produces:
       - application/json
       responses:
@@ -188,7 +182,7 @@ paths:
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
-      summary: Get Export Pdf By User Id
+      summary: Get Export Pdf
       tags:
       - incomes
   /incomes/export/corporate:

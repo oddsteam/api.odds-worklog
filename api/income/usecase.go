@@ -124,14 +124,14 @@ func ImageFile(fileStr string) string {
 	return filepath.Join(gofpdfDir, "image", fileStr)
 }
 
-func (u *usecase) ExportPdf(userId string) (string, error) {
+func (u *usecase) ExportPdf() (string, error) {
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	// utf8, erro := tis620.ToUTF8("สวัสดีครับ")
 	pdf.AddPage()
 	pdf.SetFont("Arial", "", 12)
 	pdf.Image(ImageFile("tavi50.png"), 0, 0, 210, 295, false, "", 0, "")
 	pdf.Cell(20, 55, "")
-	pdf.CellFormat(0, 55, "Hello World!", "0", 0, "", false, 0, "")
+	pdf.CellFormat(0, 55, "", "0", 0, "", false, 0, "")
 
 	// if erro != nil {
 	// 	return "", erro
