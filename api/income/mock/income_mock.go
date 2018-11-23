@@ -198,7 +198,7 @@ func (mr *MockUsecaseMockRecorder) ExportIncome(corporateFlag interface{}) *gomo
 }
 
 // Export Pdf mocks base method
-func (m *MockUsecase) ExportPdf() (string, error) {
+func (m *MockUsecase) ExportPdf(userID string) (string, error) {
 	ret := m.ctrl.Call(m, "ExportPdf")
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
@@ -206,8 +206,8 @@ func (m *MockUsecase) ExportPdf() (string, error) {
 }
 
 // Export Pdf an expected call of Export Pdf
-func (mr *MockUsecaseMockRecorder) ExportPdf() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportPdf", reflect.TypeOf((*MockUsecase)(nil).ExportPdf))
+func (mr *MockUsecaseMockRecorder) ExportPdf(userID interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportPdf", reflect.TypeOf((*MockUsecase)(nil).ExportPdf), userID)
 }
 
 // DropIncome mocks base method

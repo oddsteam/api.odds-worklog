@@ -152,6 +152,31 @@ func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
 	return c.JSON(http.StatusOK, income)
 }
 
+// GetExportPdf godoc
+// @Summary Get Export Pdf
+// @Description Get Export to Pdf file.
+// @Tages incomes
+// @Accept json
+// @Produce json
+// @Success 200 {array} string
+// @Failure 500 {object} utils.HTTPError
+// @Router /incomes/export/pdf [get]
+func (h *HttpHandler) GetExportPdf(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+
+	filename, err := h.Usecase.ExportPdf(id)
+
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.Attachment(filename, filename)
+	// return c.File()
+	// return c.String(200, filename)
+}
+
 // GetExportCorporate godoc
 // @Summary Get Corporate Export Income
 // @Description Get Corporate Export Income to csv file.
@@ -184,25 +209,6 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.Attachment(filename, filename)
-}
-
-// GetExportPdf godoc
-// @Summary Get Export Pdf
-// @Description Get Export to Pdf file.
-// @Tages incomes
-// @Accept json
-// @Produce json
-// @Success 200 {array} string
-// @Failure 500 {object} utils.HTTPError
-// @Router /incomes/export/pdf [get]
-func (h *HttpHandler) GetExportPdf(c echo.Context) error {
-	filename, err := h.Usecase.ExportPdf()
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.Attachment(filename, filename)
-	// return c.File()
-	// return c.String(200, filename)
 }
 
 func (h *HttpHandler) DropIncome(c echo.Context) error {

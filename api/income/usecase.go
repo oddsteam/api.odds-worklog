@@ -124,7 +124,7 @@ func ImageFile(fileStr string) string {
 	return filepath.Join(gofpdfDir, "image", fileStr)
 }
 
-func (u *usecase) ExportPdf() (string, error) {
+func (u *usecase) ExportPdf(userId string) (string, error) {
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	// utf8, erro := tis620.ToUTF8("สวัสดีครับ")
 	pdf.AddPage()
