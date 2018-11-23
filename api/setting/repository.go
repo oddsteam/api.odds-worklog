@@ -26,3 +26,13 @@ func (r *repository) SaveReminder(reminder *models.Reminder) (*models.Reminder, 
 	}
 	return reminder, nil
 }
+
+func (r *repository) GetReminder() (*models.Reminder, error) {
+	reminder := new(models.Reminder)
+	coll := r.session.GetCollection(settingColl)
+	err := coll.Find(bson.M{"name": "reminder"}).One(&reminder)
+	if err != nil {
+		return nil, err
+	}
+	return reminder, nil
+}
