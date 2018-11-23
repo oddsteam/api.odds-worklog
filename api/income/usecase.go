@@ -4,11 +4,13 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
 
-	"github.com/jung-kurt/gofpdf"
+	"github.com/signintech/gopdf"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -125,7 +127,7 @@ func ImageFile(fileStr string) string {
 }
 
 func (u *usecase) ExportPdf() (string, error) {
-	pdf := gofpdf.New("P", "mm", "A4", "")
+	// pdf := gofpdf.New("P", "mm", "A4", "")
 
 	userId := "5bf7b5baba53ded6288266d5"
 	year, month := utils.GetYearMonthNow()
@@ -138,6 +140,8 @@ func (u *usecase) ExportPdf() (string, error) {
 
 	dw := sd.ThaiCitizenID
 
+	fmt.Sprintf("%s", dw)
+
 	rs, _err := u.repo.GetIncomeUserByYearMonth(userId, year, month)
 	// utf8, erro := tis620.ToUTF8("สวัสดีครับ")
 
@@ -149,23 +153,47 @@ func (u *usecase) ExportPdf() (string, error) {
 
 	fmt.Sprintf("%s", t1)
 
+	pdf := gopdf.GoPdf{}
+	pdf.Start(gopdf.Config{PageSize: gopdf.Rect{W: 595.28, H: 841.89}}) //595.28, 841.89 = A4
 	pdf.AddPage()
-	pdf.SetFont("Arial", "", 12)
-	pdf.Image(ImageFile("tavi50.png"), 0, 0, 210, 295, false, "", 0, "")
-	pdf.Cell(20, 55, "")
-	pdf.CellFormat(0, 55, dw, "0", 0, "", false, 0, "")
+	var err error
+	err = pdf.AddTTFFont("boon", "font/Boon-Regular.ttf")
+	if err != nil {
+		log.Print(err.Error())
+		return "", err
+	}
+
+	err = pdf.SetFont("boon", "", 14)
+	if err != nil {
+		log.Print(err.Error())
+		return "", err
+	}
+
+	pdf.Image("image/tavi50.png", 0, 0, nil) //print image
+
+	pdf.SetX(80)
+	pdf.SetY(100)
+	pdf.Cell(nil, "ชวินธร โพธิ์ศรี")
 
 	t := time.Now()
 	tf := fmt.Sprintf("%d_%02d_%02d_%02d_%02d_%02d", t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
 	filename := fmt.Sprintf("files/tavi50/%s_%s.pdf", "tavi50", tf)
 
-	err := pdf.OutputFileAndClose(filename)
+	error := pdf.WritePdf(filename)
 
-	if err != nil {
-		return "", err
+	if error != nil {
+		return "", error
 	}
 
 	return filename, nil
+}
+
+func getImageBytes() []byte {
+	b, err := ioutil.ReadFile("image/tavi50.png")
+	if err != nil {
+		panic(err)
+	}
+	return b
 }
 
 func (u *usecase) ExportIncome(corporateFlag string) (string, error) {
