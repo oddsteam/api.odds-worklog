@@ -112,14 +112,6 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:db23aee6f0ff15fbcd0559d660f91d6b738baeeca46d953396b2fdcec93e1260"
-  name = "github.com/jung-kurt/gofpdf"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "14c1db30737a138f8d9797cffea58783892b2fae"
-  version = "v1.0.0"
-
-[[projects]]
   digest = "1:9acadb9c8c15b8a9f635a7fa960c9a522b001a3919bc03df92ac26c372476aff"
   name = "github.com/labstack/echo"
   packages = [
@@ -178,6 +170,17 @@
   pruneopts = "UT"
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
+
+[[projects]]
+  digest = "1:63e87641c4f4df00070623279a290fa1cf293e8e8854cced8aaa4c47703532e9"
+  name = "github.com/signintech/gopdf"
+  packages = [
+    ".",
+    "fontmaker/core",
+  ]
+  pruneopts = "UT"
+  revision = "4d0bf4301b565a242a52b1db53306d34d42098f9"
+  version = "v0.8.2"
 
 [[projects]]
   digest = "1:18752d0b95816a1b777505a97f71c7467a8445b8ffb55631a7bf779f6ba4fa83"
@@ -334,9 +337,9 @@
     "github.com/dgrijalva/jwt-go",
     "github.com/golang/mock/gomock",
     "github.com/joho/godotenv",
-    "github.com/jung-kurt/gofpdf",
     "github.com/labstack/echo",
     "github.com/labstack/echo/middleware",
+    "github.com/signintech/gopdf",
     "github.com/stretchr/testify/assert",
     "github.com/swaggo/echo-swagger",
     "github.com/swaggo/swag",

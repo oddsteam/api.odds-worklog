@@ -163,7 +163,7 @@ func (u *usecase) ExportPdf() (string, error) {
 		return "", err
 	}
 
-	err = pdf.SetFont("boon", "", 14)
+	err = pdf.SetFont("boon", "", 12)
 	if err != nil {
 		log.Print(err.Error())
 		return "", err
