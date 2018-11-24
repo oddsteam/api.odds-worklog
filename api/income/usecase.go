@@ -142,9 +142,7 @@ func (u *usecase) ExportPdf() (string, error) {
 	str := "1451003242123"
 	strPosition := "0105556110718"
 	strArray := splitCitizen(str)
-	fmt.Println(strArray)
 	strArrayPosition := splitCitizen(strPosition)
-	fmt.Println(strArrayPosition)
 
 	d := time.Now()
 	dm := int(d.Month())
