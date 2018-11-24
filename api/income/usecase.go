@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/signintech/gopdf"
@@ -138,9 +139,28 @@ func (u *usecase) ExportPdf() (string, error) {
 		return "", err_
 	}
 
-	dw := sd.ThaiCitizenID
+	d := time.Now()
+	dy := strconv.Itoa(int(d.Year()) + 543)
+	// dm := strconv.Itoa(int(d.Month()))
+	dm := int(d.Month())
+	dd := "27"
+	dmn := ""
 
-	fmt.Sprintf("%s", dw)
+	dmt := [12]string{"มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"}
+
+	for i, v := range dmt {
+		if i+1 == dm-1 {
+			dmn = v
+		}
+	}
+
+	companyName := "บริษัท ออด-อี (ประเทศไทย) จํากัด"
+	companyAddress := "2549/41-43 พหลโยธิน ลาดยาว จตุจักร กรุงเทพ 10900"
+	employeeName := sd.FullNameEn
+	employeeAddress := "อะไรซักอย่าง"
+	salaryString := "ห้าร้อยบาทถ้วน"
+
+	fmt.Sprintf("%s", companyName)
 
 	rs, _err := u.repo.GetIncomeUserByYearMonth(userId, year, month)
 	// utf8, erro := tis620.ToUTF8("สวัสดีครับ")
@@ -150,20 +170,25 @@ func (u *usecase) ExportPdf() (string, error) {
 	}
 
 	t1 := rs.UserID
-
 	fmt.Sprintf("%s", t1)
 
 	pdf := gopdf.GoPdf{}
-	pdf.Start(gopdf.Config{PageSize: gopdf.Rect{W: 595.28, H: 841.89}}) //595.28, 841.89 = A4
+	pdf.Start(gopdf.Config{PageSize: gopdf.Rect{W: 930, H: 1350}}) //595.28, 841.89 = A4
 	pdf.AddPage()
 	var err error
-	err = pdf.AddTTFFont("boon", "font/Boon-Regular.ttf")
+	err = pdf.AddTTFFont("THSarabun", "font/THSarabun.ttf")
 	if err != nil {
 		log.Print(err.Error())
 		return "", err
 	}
 
-	err = pdf.SetFont("boon", "", 12)
+	err = pdf.AddTTFFont("THSarabunBold", "font/THSarabun-Bold.ttf")
+	if err != nil {
+		log.Print(err.Error())
+		return "", err
+	}
+
+	err = pdf.SetFont("THSarabunBold", "", 18)
 	if err != nil {
 		log.Print(err.Error())
 		return "", err
@@ -171,9 +196,69 @@ func (u *usecase) ExportPdf() (string, error) {
 
 	pdf.Image("image/tavi50.png", 0, 0, nil) //print image
 
-	pdf.SetX(80)
-	pdf.SetY(100)
-	pdf.Cell(nil, "ชวินธร โพธิ์ศรี")
+	pdf.SetX(97.5)
+	pdf.SetY(173.25)
+	pdf.Text(companyName)
+
+	pdf.SetX(97.5)
+	pdf.SetY(207.25)
+	pdf.Text(companyAddress)
+
+	pdf.SetX(97.5)
+	pdf.SetY(287.5)
+	pdf.Text(employeeName)
+
+	pdf.SetX(97.5)
+	pdf.SetY(327.5)
+	pdf.Text(employeeAddress)
+
+	pdf.SetX(315)
+	pdf.SetY(1060)
+	pdf.Text(salaryString)
+
+	pdf.SetX(547.25)
+	pdf.SetY(1195)
+	pdf.Text(dd)
+
+	pdf.SetX(590)
+	pdf.SetY(1195)
+	pdf.Text(dmn)
+
+	pdf.SetX(685)
+	pdf.SetY(1195)
+	pdf.Text(dy)
+
+	pdf.SetX(590.75)
+	pdf.SetY(147.75)
+	pdf.Text("1")
+
+	pdf.SetX(618.75)
+	pdf.SetY(147.75)
+	pdf.Text("2")
+
+	pdf.SetX(636.75)
+	pdf.SetY(147.75)
+	pdf.Text("3")
+
+	pdf.SetX(654.75)
+	pdf.SetY(147.75)
+	pdf.Text("4")
+
+	// pdf.SetX(672.75)
+	// pdf.SetY(147.75)
+	// pdf.Text("5")
+
+	// pdf.SetX(702.75)
+	// pdf.SetY(147.75)
+	// pdf.Text("5")
+
+	// pdf.SetX(655.75)
+	// pdf.SetY(147.75)
+	// pdf.Text("4")
+
+	// pdf.SetX(674.75)
+	// pdf.SetY(147.75)
+	// pdf.Text("5")
 
 	t := time.Now()
 	tf := fmt.Sprintf("%d_%02d_%02d_%02d_%02d_%02d", t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
