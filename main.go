@@ -50,12 +50,12 @@ func main() {
 	r.GET("/swagger/*", echoSwagger.WrapHandler)
 	reminder.NewHttpHandler(r, session)
 	login.NewHttpHandler(r, session)
+	setting.NewHTTPHandler(r, session, m)
 	r.Use(middleware.JWTWithConfig(m))
 
 	// Handler
 	user.NewHttpHandler(r, session)
 	income.NewHttpHandler(r, session)
-	setting.NewHTTPHandler(r, session)
 
 	// Start server
 	e.Logger.Fatal(e.Start(c.APIPort))

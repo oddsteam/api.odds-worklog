@@ -5,21 +5,23 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 //NewHTTPHandler for setting
-func NewHTTPHandler(r *echo.Group, session *mongo.Session) {
+func NewHTTPHandler(r *echo.Group, session *mongo.Session, m middleware.JWTConfig) {
 	reminderRepo := NewRepository(session)
 
 	r = r.Group("/setting")
-	r.POST("/reminder", func(c echo.Context) error {
-		return Save(c, reminderRepo)
-	})
 	r.GET("/reminder", func(c echo.Context) error {
 		return Get(c, reminderRepo)
+	})
+	r.Use(middleware.JWTWithConfig(m))
+	r.POST("/reminder", func(c echo.Context) error {
+		return Save(c, reminderRepo)
 	})
 }
 
