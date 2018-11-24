@@ -130,7 +130,7 @@ func ImageFile(fileStr string) string {
 func (u *usecase) ExportPdf() (string, error) {
 	// pdf := gofpdf.New("P", "mm", "A4", "")
 
-	userId := "5bde4e2e1a044b8c9ce44fe4"
+	userId := "5bf7b5baba53ded6288266d5"
 	year, month := utils.GetYearMonthNow()
 
 	sd, err_ := u.userRepo.GetUserByID(userId)
@@ -158,12 +158,17 @@ func (u *usecase) ExportPdf() (string, error) {
 	dy := strconv.Itoa(int(d.Year()) + 543)
 	// dm := strconv.Itoa(int(d.Month()))
 	dm := int(d.Month())
+	// dm := 1
 	dd := "27"
 	dmn := ""
 
 	dmt := [12]string{"มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"}
 
 	for i, v := range dmt {
+		if dm == 1 {
+			dmn = dmt[len(dmt)-1]
+			dy = strconv.Itoa(int(d.Year()) + 543 - 1)
+		}
 		if i+1 == dm-1 {
 			dmn = v
 		}
