@@ -5,6 +5,7 @@ import (
 
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/setting"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/slack"
@@ -16,11 +17,12 @@ const TOKEN = "xoxb-484294901968-485201164352-IC904vZ6Bxwx2xkI2qzWgy5J"
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	userRepo := user.NewRepository(session)
 	incomeRepo := income.NewRepository(session)
+	settingRepo := setting.NewRepository(session)
 	incomeUsecase := income.NewUsecase(incomeRepo, userRepo)
 
 	r = r.Group("/reminder")
 	r.GET("/send", func(c echo.Context) error {
-		return send(c, incomeUsecase)
+		return send(c, incomeUsecase, settingRepo)
 	})
 }
 
@@ -32,7 +34,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 // @Success 200 {object} string
 // @Failure 500 {object} utils.HTTPError
 // @Router /reminder/send [get]
-func send(c echo.Context, incomeUsecase income.Usecase) error {
+func send(c echo.Context, incomeUsecase income.Usecase, setting setting.Repository) error {
 	// emails, err := listEmailUserIncomeStatusIsNo(incomeUsecase)
 	// if err != nil {
 	// 	return utils.NewError(c, 500, err)
@@ -46,8 +48,12 @@ func send(c echo.Context, incomeUsecase income.Usecase) error {
 		"p.watchara@gmail.com",
 		"santi@odds.team",
 	}
+	s, err := setting.GetReminder()
+	if err != nil {
+		return utils.NewError(c, 500, err)
+	}
 
-	err := sendNotification(emails, "กรุณาเข้าไปกรอกเงินเดือนด้วยครับ")
+	err = sendNotification(emails, s.Setting.Message)
 	if err != nil {
 		return utils.NewError(c, 500, err)
 	}
