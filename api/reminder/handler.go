@@ -29,27 +29,16 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 // @Description Send Notification Reminder
 // @Tags reminder
 // @Produce  json
-// @Success 200 {array} string
+// @Success 200 {object} string
 // @Failure 500 {object} utils.HTTPError
 // @Router /reminder/send [get]
 func send(c echo.Context, incomeUsecase income.Usecase) error {
-	client := slack.NewClient(TOKEN)
-	// incomeIndividualStatusList, err := incomeUsecase.GetIncomeStatusList("N")
+	// emails, err := listEmailUserIncomeStatusIsNo(incomeUsecase)
 	// if err != nil {
 	// 	return utils.NewError(c, 500, err)
 	// }
-	// incomeCorpStatusList, err := incomeUsecase.GetIncomeStatusList("Y")
-	// if err != nil {
-	// 	return utils.NewError(c, 500, err)
-	// }
-	// incomeStatusList := append(incomeIndividualStatusList, incomeCorpStatusList...)
-	emails := []string{}
-	// for _, incomeStatus := range incomeStatusList {
-	// 	if incomeStatus.Status == "N" {
-	// 		emails = append(emails, incomeStatus.User.Email)
-	// 	}
-	// }
-	emails = []string{
+
+	emails := []string{
 		"tong@odds.team",
 		"work.alongkorn@gmail.com",
 		"saharat@odds.team",
@@ -57,23 +46,52 @@ func send(c echo.Context, incomeUsecase income.Usecase) error {
 		"p.watchara@gmail.com",
 		"santi@odds.team",
 	}
-	sendEmails := []string{}
-	slackUsers, err := client.GetUsersList()
+
+	err := sendNotification(emails, "กรุณาเข้าไปกรอกเงินเดือนด้วยครับ")
 	if err != nil {
 		return utils.NewError(c, 500, err)
+	}
+
+	return c.JSON(http.StatusOK, true)
+}
+
+func listEmailUserIncomeStatusIsNo(incomeUsecase income.Usecase) ([]string, error) {
+	emails := []string{}
+	incomeIndividualStatusList, err := incomeUsecase.GetIncomeStatusList("N")
+	if err != nil {
+		return nil, err
+	}
+	incomeCorpStatusList, err := incomeUsecase.GetIncomeStatusList("Y")
+	if err != nil {
+		return nil, err
+	}
+	incomeStatusList := append(incomeIndividualStatusList, incomeCorpStatusList...)
+	for _, incomeStatus := range incomeStatusList {
+		if incomeStatus.Status == "N" {
+			emails = append(emails, incomeStatus.User.Email)
+		}
+	}
+	return emails, nil
+}
+
+func sendNotification(emails []string, message string) error {
+	client, err := slack.NewClient(TOKEN)
+	slackUsers, err := client.GetUsersList()
+	if err != nil {
+		return err
 	}
 	for _, email := range emails {
 		for _, member := range slackUsers.Members {
 			if member.Profile.Email == email {
 				im, err := client.OpenIMChannel(member.ID)
 				if err != nil {
-					return utils.NewError(c, 500, err)
+					return err
 				}
 				channelID := im.Channel.ID
-				client.PostMessage(channelID, "กรุณาเข้าไปกรอกเงินเดือนด้วยครับ")
-				sendEmails = append(sendEmails, email)
+				// fmt.Println(channelID)
+				client.PostMessage(channelID, message)
 			}
 		}
 	}
-	return c.JSON(http.StatusOK, sendEmails)
+	return nil
 }
