@@ -130,7 +130,7 @@ func ImageFile(fileStr string) string {
 func (u *usecase) ExportPdf() (string, error) {
 	// pdf := gofpdf.New("P", "mm", "A4", "")
 
-	userId := "5bde4e2e1a044b8c9ce44fe4"
+	userId := "5bf7b5baba53ded6288266d5"
 	year, month := utils.GetYearMonthNow()
 
 	sd, err_ := u.userRepo.GetUserByID(userId)
@@ -140,39 +140,17 @@ func (u *usecase) ExportPdf() (string, error) {
 	}
 
 	str := "1451003242123"
-	strPosition := "1339029384"
-	strArray := []string{}
-	strArrayPosition := []string{}
-
-	for _, r := range str {
-		c := string(r)
-		strArray = append(strArray, c)
-	}
-
-	for _, r := range strPosition {
-		c := string(r)
-		strArrayPosition = append(strArrayPosition, c)
-	}
+	strPosition := "0105556110718"
+	strArray := splitCitizen(str)
+	fmt.Println(strArray)
+	strArrayPosition := splitCitizen(strPosition)
+	fmt.Println(strArrayPosition)
 
 	d := time.Now()
-	dy := strconv.Itoa(int(d.Year()) + 543)
-	// dm := strconv.Itoa(int(d.Month()))
 	dm := int(d.Month())
-	// dm := 1
 	dd := "27"
-	dmn := ""
-
-	dmt := [12]string{"มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"}
-
-	for i, v := range dmt {
-		if dm == 1 {
-			dmn = dmt[len(dmt)-1]
-			dy = strconv.Itoa(int(d.Year()) + 543 - 1)
-		}
-		if i+1 == dm-1 {
-			dmn = v
-		}
-	}
+	dmn := converseMonthtoThaiName(dm)
+	dy := setDy((int(d.Year()) + 543), dm)
 
 	companyName := "บริษัท ออด-อี (ประเทศไทย) จํากัด"
 	companyAddress := "2549/41-43 พหลโยธิน ลาดยาว จตุจักร กรุงเทพ 10900"
@@ -196,11 +174,6 @@ func (u *usecase) ExportPdf() (string, error) {
 	pdf.Start(gopdf.Config{PageSize: gopdf.Rect{W: 930, H: 1350}}) //595.28, 841.89 = A4
 	pdf.AddPage()
 	var err error
-	err = pdf.AddTTFFont("THSarabun", "font/THSarabun.ttf")
-	if err != nil {
-		log.Print(err.Error())
-		return "", err
-	}
 
 	err = pdf.AddTTFFont("THSarabunBold", "font/THSarabun-Bold.ttf")
 	if err != nil {
@@ -269,15 +242,15 @@ func (u *usecase) ExportPdf() (string, error) {
 		}
 	}
 
-	positionX := 657.25
-	positionY := 172.25
+	positionX := 590.75
+	positionY := 147.25
 
 	for j, r := range strArrayPosition {
 		if j == 0 {
 			pdf.SetX(positionX)
 			pdf.SetY(positionY)
 			pdf.Text(r)
-		} else if j == 1 || j == 5 || j == 9 {
+		} else if j == 1 || j == 5 || j == 10 || j == 12 {
 			positionX += 29
 			pdf.SetX(positionX)
 			pdf.SetY(positionY)
@@ -290,60 +263,6 @@ func (u *usecase) ExportPdf() (string, error) {
 		}
 	}
 
-	// for i := 0; i < 13; i++ {
-	// 	if i == 0 {
-	// 		pdf.SetX(positionUser)
-	// 		pdf.SetY(1195)
-	// 		pdf.Text("1")
-	// 	} else if i == 1 || i == 5 || i == 10 || i == 12 {
-	// 		positionUser += 6
-	// 		pdf.Text(positionUser, 57, "2")
-	// 	} else {
-	// 		positionUser += 4.5
-	// 		pdf.Text(positionUser, 57, "3")
-	// 	}
-	// }
-
-	// for i := 0; i < len(strArray); i++ {
-	// 	if i == 0 {
-	// 		pdf.SetX(590.75)
-	// 		pdf.SetY(147.75)
-	// 		pdf.Text(strArray[i])
-	// 	} else if i == 11
-	// }
-
-	// pdf.SetX(590.75)
-	// pdf.SetY(147.75)
-	// pdf.Text("1")
-
-	// pdf.SetX(618.75)
-	// pdf.SetY(147.75)
-	// pdf.Text("2")
-
-	// pdf.SetX(636.75)
-	// pdf.SetY(147.75)
-	// pdf.Text("3")
-
-	// pdf.SetX(654.75)
-	// pdf.SetY(147.75)
-	// pdf.Text("4")
-
-	// pdf.SetX(672.75)
-	// pdf.SetY(147.75)
-	// pdf.Text("5")
-
-	// pdf.SetX(702.75)
-	// pdf.SetY(147.75)
-	// pdf.Text("5")
-
-	// pdf.SetX(655.75)
-	// pdf.SetY(147.75)
-	// pdf.Text("4")
-
-	// pdf.SetX(674.75)
-	// pdf.SetY(147.75)
-	// pdf.Text("5")
-
 	t := time.Now()
 	tf := fmt.Sprintf("%d_%02d_%02d_%02d_%02d_%02d", t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
 	filename := fmt.Sprintf("files/tavi50/%s_%s.pdf", "tavi50", tf)
@@ -355,6 +274,39 @@ func (u *usecase) ExportPdf() (string, error) {
 	}
 
 	return filename, nil
+}
+
+func converseMonthtoThaiName(dm int) string {
+	dmt := [12]string{"มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"}
+	monthThaiName := ""
+	for i, v := range dmt {
+		if dm == 1 {
+			monthThaiName = dmt[len(dmt)-1]
+		}
+		if i+1 == dm-1 {
+			monthThaiName = v
+		}
+	}
+	return monthThaiName
+}
+
+func setDy(dy int, dm int) string {
+	year := strconv.Itoa(dy)
+
+	if dm == 1 {
+		year = strconv.Itoa(dy - 1)
+	}
+
+	return year
+}
+
+func splitCitizen(citizen string) []string {
+	citizenArrey := []string{}
+	for _, r := range citizen {
+		c := string(r)
+		citizenArrey = append(citizenArrey, c)
+	}
+	return citizenArrey
 }
 
 func getImageBytes() []byte {
