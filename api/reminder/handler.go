@@ -12,7 +12,8 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
-const TOKEN = "xoxb-484294901968-485201164352-IC904vZ6Bxwx2xkI2qzWgy5J"
+// const TOKEN = "xoxb-484294901968-485201164352-IC904vZ6Bxwx2xkI2qzWgy5J" // Reminder workspace
+const TOKEN = "xoxb-293071900534-486896062132-2RMbUSdX6DqoOKsVMCSXQoiM" // Odds workspace
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	userRepo := user.NewRepository(session)
@@ -41,11 +42,11 @@ func send(c echo.Context, incomeUsecase income.Usecase, setting setting.Reposito
 	// }
 
 	emails := []string{
-		"tong@odds.team",
-		"work.alongkorn@gmail.com",
+		// "tong@odds.team",
+		// "work.alongkorn@gmail.com",
 		"saharat@odds.team",
 		"thanundorn@odds.team",
-		"p.watchara@gmail.com",
+		// "p.watchara@gmail.com",
 		"santi@odds.team",
 	}
 	s, err := setting.GetReminder()
