@@ -36,19 +36,22 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 // @Failure 500 {object} utils.HTTPError
 // @Router /reminder/send [get]
 func send(c echo.Context, incomeUsecase income.Usecase, setting setting.Repository) error {
-	// emails, err := listEmailUserIncomeStatusIsNo(incomeUsecase)
-	// if err != nil {
-	// 	return utils.NewError(c, 500, err)
-	// }
-
-	emails := []string{
-		// "tong@odds.team",
-		// "work.alongkorn@gmail.com",
-		"saharat@odds.team",
-		"thanundorn@odds.team",
-		// "p.watchara@gmail.com",
-		"santi@odds.team",
+	isDev := true
+	var emails []string{}
+	if isDev {
+		emails = []string{
+			"tong@odds.team",
+			"saharat@odds.team",
+			"thanundorn@odds.team",
+			"santi@odds.team",
+		}
+	} else {
+		emails, err := listEmailUserIncomeStatusIsNo(incomeUsecase)
+		if err != nil {
+			return utils.NewError(c, 500, err)
+		}
 	}
+
 	s, err := setting.GetReminder()
 	if err != nil {
 		return utils.NewError(c, 500, err)
