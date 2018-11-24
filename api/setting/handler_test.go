@@ -1,10 +1,11 @@
 package setting_test
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/setting"
@@ -79,12 +80,17 @@ func TestGetReminderSettingFail(t *testing.T) {
 }
 
 func TestSaveReminderSuccess(t *testing.T) {
-	reader := strings.NewReader("{}")
+	request := new(models.Reminder)
+	request.Name = "reminder"
+	request.Setting.Date = "25"
+	request.Setting.Message = "TEST"
+	requestByte, _ := json.Marshal(request)
+	requestReader := bytes.NewReader(requestByte)
 
 	mockRepository := NewMockRepositorySuccess()
 
 	e := echo.New()
-	req := httptest.NewRequest(echo.POST, "/", reader)
+	req := httptest.NewRequest(echo.POST, "/", requestReader)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	rec := httptest.NewRecorder()
@@ -98,13 +104,17 @@ func TestSaveReminderSuccess(t *testing.T) {
 	}
 }
 
-func TestSaveReminderFail(t *testing.T) {
-	reader := strings.NewReader("{}")
-
+func TestSaveReminderShouldInternalServerErr_WhenCanNotSaveIntoDB(t *testing.T) {
+	request := new(models.Reminder)
+	request.Name = "reminder"
+	request.Setting.Date = "25"
+	request.Setting.Message = "TEST"
+	requestByte, _ := json.Marshal(request)
+	requestReader := bytes.NewReader(requestByte)
 	mockRepository := NewMockRepositoryFail()
 
 	e := echo.New()
-	req := httptest.NewRequest(echo.POST, "/", reader)
+	req := httptest.NewRequest(echo.POST, "/", requestReader)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	rec := httptest.NewRecorder()
@@ -115,5 +125,143 @@ func TestSaveReminderFail(t *testing.T) {
 	if status := rec.Code; status != http.StatusInternalServerError {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusInternalServerError)
+	}
+}
+
+func TestSaveReminderShouldBadRequest_WhenRequestNameIsEmpty(t *testing.T) {
+	request := new(models.Reminder)
+	requestByte, _ := json.Marshal(request)
+	requestReader := bytes.NewReader(requestByte)
+	mockRepository := NewMockRepositoryFail()
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.POST, "/", requestReader)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	setting.Save(c, mockRepository)
+	// Check the status code is what we expect.
+	if status := rec.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusBadRequest)
+	}
+}
+
+func TestSaveReminderShouldBadRequest_WhenRequestSettingDateIsEmpty(t *testing.T) {
+	request := new(models.Reminder)
+	request.Name = "reminder"
+	requestByte, _ := json.Marshal(request)
+	requestReader := bytes.NewReader(requestByte)
+	mockRepository := NewMockRepositoryFail()
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.POST, "/", requestReader)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	setting.Save(c, mockRepository)
+	// Check the status code is what we expect.
+	if status := rec.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusBadRequest)
+	}
+}
+
+func TestSaveReminderShouldBadRequest_WhenRequestSettingMessageIsEmpty(t *testing.T) {
+	request := new(models.Reminder)
+	request.Name = "reminder"
+	request.Setting.Date = "25"
+	requestByte, _ := json.Marshal(request)
+	requestReader := bytes.NewReader(requestByte)
+	mockRepository := NewMockRepositoryFail()
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.POST, "/", requestReader)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	setting.Save(c, mockRepository)
+	// Check the status code is what we expect.
+	if status := rec.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusBadRequest)
+	}
+}
+
+func TestSaveReminderShouldSuccess_WhenRequestSettingDateIs26(t *testing.T) {
+	request := new(models.Reminder)
+	request.Name = "reminder"
+	request.Setting.Date = "26"
+	request.Setting.Message = "TEST"
+	requestByte, _ := json.Marshal(request)
+	requestReader := bytes.NewReader(requestByte)
+	mockRepository := NewMockRepositorySuccess()
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.POST, "/", requestReader)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	setting.Save(c, mockRepository)
+	// Check the status code is what we expect.
+	if status := rec.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+}
+
+func TestSaveReminderShouldSuccess_WhenRequestSettingDateIs27(t *testing.T) {
+	request := new(models.Reminder)
+	request.Name = "reminder"
+	request.Setting.Date = "27"
+	request.Setting.Message = "TEST"
+	requestByte, _ := json.Marshal(request)
+	requestReader := bytes.NewReader(requestByte)
+	mockRepository := NewMockRepositorySuccess()
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.POST, "/", requestReader)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	setting.Save(c, mockRepository)
+	// Check the status code is what we expect.
+	if status := rec.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+}
+
+func TestSaveReminderShouldBadRequest_WhenRequestSettingDateIs1(t *testing.T) {
+	request := new(models.Reminder)
+	request.Name = "reminder"
+	request.Setting.Date = "1"
+	request.Setting.Message = "TEST"
+	requestByte, _ := json.Marshal(request)
+	requestReader := bytes.NewReader(requestByte)
+	mockRepository := NewMockRepositorySuccess()
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.POST, "/", requestReader)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	setting.Save(c, mockRepository)
+	// Check the status code is what we expect.
+	if status := rec.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusBadRequest)
 	}
 }

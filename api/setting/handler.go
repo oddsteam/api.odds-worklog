@@ -23,6 +23,19 @@ func NewHTTPHandler(r *echo.Group, session *mongo.Session) {
 	})
 }
 
+func validateReminderRequest(reminder *models.Reminder) error {
+	if reminder.Name != "reminder" {
+		return errors.New("Request Name is not reminder")
+	}
+	if reminder.Setting.Date != "25" && reminder.Setting.Date != "26" && reminder.Setting.Date != "27" {
+		return errors.New("Request Setting Date is not between 25-27")
+	}
+	if reminder.Setting.Message == "" {
+		return errors.New("Request Setting Message is empty")
+	}
+	return nil
+}
+
 // Save Reminder Setting godoc
 // @Summary Save Reminder Setting
 // @Description Save Reminder Setting
@@ -38,6 +51,11 @@ func Save(c echo.Context, reminderRepo Repository) error {
 	if err := c.Bind(&reminder); err != nil {
 		return utils.NewError(c, 400, utils.ErrBadRequest)
 	}
+
+	if err := validateReminderRequest(reminder); err != nil {
+		return utils.NewError(c, 400, err)
+	}
+
 	r, err := reminderRepo.SaveReminder(reminder)
 	if err != nil {
 		return utils.NewError(c, 500, errors.New("Can not insert data into DB"))
