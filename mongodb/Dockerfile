@@ -1,6 +1,7 @@
 FROM alpine
 
 COPY run.sh /root
+RUN apt-get update -y && apt-get install -y curl cron
 RUN set -x && \
     chmod +x /root/run.sh && \
     apk update && \
