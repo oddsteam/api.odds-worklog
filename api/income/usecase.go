@@ -139,6 +139,21 @@ func (u *usecase) ExportPdf() (string, error) {
 		return "", err_
 	}
 
+	str := "1451003242123"
+	strPosition := "1339029384"
+	strArray := []string{}
+	strArrayPosition := []string{}
+
+	for _, r := range str {
+		c := string(r)
+		strArray = append(strArray, c)
+	}
+
+	for _, r := range strPosition {
+		c := string(r)
+		strArrayPosition = append(strArrayPosition, c)
+	}
+
 	d := time.Now()
 	dy := strconv.Itoa(int(d.Year()) + 543)
 	// dm := strconv.Itoa(int(d.Month()))
@@ -157,7 +172,7 @@ func (u *usecase) ExportPdf() (string, error) {
 	companyName := "บริษัท ออด-อี (ประเทศไทย) จํากัด"
 	companyAddress := "2549/41-43 พหลโยธิน ลาดยาว จตุจักร กรุงเทพ 10900"
 	employeeName := sd.FullNameEn
-	employeeAddress := "อะไรซักอย่าง"
+	employeeAddress := "265/28 อ.เมือง ต.ในเมือง จ.ชัยภูมิ 36000"
 	salaryString := "ห้าร้อยบาทถ้วน"
 
 	fmt.Sprintf("%s", companyName)
@@ -228,21 +243,85 @@ func (u *usecase) ExportPdf() (string, error) {
 	pdf.SetY(1195)
 	pdf.Text(dy)
 
-	pdf.SetX(590.75)
-	pdf.SetY(147.75)
-	pdf.Text("1")
+	positionUserX := 590.75
+	positionUserY := 253.75
 
-	pdf.SetX(618.75)
-	pdf.SetY(147.75)
-	pdf.Text("2")
+	for i, r := range strArray {
+		if i == 0 {
+			pdf.SetX(positionUserX)
+			pdf.SetY(positionUserY)
+			pdf.Text(r)
+		} else if i == 1 || i == 5 || i == 10 || i == 12 {
+			positionUserX += 29
+			pdf.SetX(positionUserX)
+			pdf.SetY(positionUserY)
+			pdf.Text(r)
+		} else {
+			positionUserX += 19
+			pdf.SetX(positionUserX)
+			pdf.SetY(positionUserY)
+			pdf.Text(r)
+		}
+	}
 
-	pdf.SetX(636.75)
-	pdf.SetY(147.75)
-	pdf.Text("3")
+	positionX := 657.25
+	positionY := 172.25
 
-	pdf.SetX(654.75)
-	pdf.SetY(147.75)
-	pdf.Text("4")
+	for j, r := range strArrayPosition {
+		if j == 0 {
+			pdf.SetX(positionX)
+			pdf.SetY(positionY)
+			pdf.Text(r)
+		} else if j == 1 || j == 5 || j == 9 {
+			positionX += 29
+			pdf.SetX(positionX)
+			pdf.SetY(positionY)
+			pdf.Text(r)
+		} else {
+			positionX += 19
+			pdf.SetX(positionX)
+			pdf.SetY(positionY)
+			pdf.Text(r)
+		}
+	}
+
+	// for i := 0; i < 13; i++ {
+	// 	if i == 0 {
+	// 		pdf.SetX(positionUser)
+	// 		pdf.SetY(1195)
+	// 		pdf.Text("1")
+	// 	} else if i == 1 || i == 5 || i == 10 || i == 12 {
+	// 		positionUser += 6
+	// 		pdf.Text(positionUser, 57, "2")
+	// 	} else {
+	// 		positionUser += 4.5
+	// 		pdf.Text(positionUser, 57, "3")
+	// 	}
+	// }
+
+	// for i := 0; i < len(strArray); i++ {
+	// 	if i == 0 {
+	// 		pdf.SetX(590.75)
+	// 		pdf.SetY(147.75)
+	// 		pdf.Text(strArray[i])
+	// 	} else if i == 11
+	// }
+
+	// pdf.SetX(590.75)
+	// pdf.SetY(147.75)
+	// pdf.Text("1")
+
+	// pdf.SetX(618.75)
+	// pdf.SetY(147.75)
+	// pdf.Text("2")
+
+	// pdf.SetX(636.75)
+	// pdf.SetY(147.75)
+	// pdf.Text("3")
+
+	// pdf.SetX(654.75)
+	// pdf.SetY(147.75)
+	// pdf.Text("4")
 
 	// pdf.SetX(672.75)
 	// pdf.SetY(147.75)
