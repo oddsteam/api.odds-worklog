@@ -37,7 +37,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 // @Router /reminder/send [get]
 func send(c echo.Context, incomeUsecase income.Usecase, setting setting.Repository) error {
 	isDev := true
-	var emails []string{}
+	var emails []string
 	if isDev {
 		emails = []string{
 			"tong@odds.team",
@@ -46,10 +46,11 @@ func send(c echo.Context, incomeUsecase income.Usecase, setting setting.Reposito
 			"santi@odds.team",
 		}
 	} else {
-		emails, err := listEmailUserIncomeStatusIsNo(incomeUsecase)
+		user, err := listEmailUserIncomeStatusIsNo(incomeUsecase)
 		if err != nil {
 			return utils.NewError(c, 500, err)
 		}
+		emails = user
 	}
 
 	s, err := setting.GetReminder()
