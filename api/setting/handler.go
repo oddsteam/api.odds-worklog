@@ -1,6 +1,7 @@
 package setting
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -15,10 +16,10 @@ func NewHTTPHandler(r *echo.Group, session *mongo.Session) {
 
 	r = r.Group("/setting")
 	r.POST("/reminder", func(c echo.Context) error {
-		return save(c, reminderRepo)
+		return Save(c, reminderRepo)
 	})
 	r.GET("/reminder", func(c echo.Context) error {
-		return get(c, reminderRepo)
+		return Get(c, reminderRepo)
 	})
 }
 
@@ -32,14 +33,14 @@ func NewHTTPHandler(r *echo.Group, session *mongo.Session) {
 // @Success 200 {object} models.Reminder
 // @Failure 400 {object} utils.HTTPError
 // @Router /setting/reminder [post]
-func save(c echo.Context, reminderRepo Repository) error {
+func Save(c echo.Context, reminderRepo Repository) error {
 	reminder := new(models.Reminder)
 	if err := c.Bind(&reminder); err != nil {
 		return utils.NewError(c, 400, utils.ErrBadRequest)
 	}
 	r, err := reminderRepo.SaveReminder(reminder)
 	if err != nil {
-		return utils.NewError(c, 400, utils.ErrBadRequest)
+		return utils.NewError(c, 500, errors.New("Can not insert data into DB"))
 	}
 	return c.JSON(http.StatusOK, r)
 }
@@ -52,10 +53,10 @@ func save(c echo.Context, reminderRepo Repository) error {
 // @Success 200 {object} models.Reminder
 // @Failure 500 {object} utils.HTTPError
 // @Router /setting/reminder [get]
-func get(c echo.Context, reminderRepo Repository) error {
+func Get(c echo.Context, reminderRepo Repository) error {
 	r, err := reminderRepo.GetReminder()
 	if err != nil {
-		return utils.NewError(c, 500, utils.ErrNotFound)
+		return utils.NewError(c, 500, errors.New("Data not found in DB"))
 	}
 	return c.JSON(http.StatusOK, r)
 }
