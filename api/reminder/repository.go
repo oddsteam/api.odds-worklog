@@ -1,4 +1,4 @@
-package setting
+package reminder
 
 import (
 	"gitlab.odds.team/worklog/api.odds-worklog/models"

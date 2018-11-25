@@ -1,4 +1,4 @@
-package setting_test
+package reminder_test
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/api/setting"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/reminder"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 
 	"github.com/labstack/echo"
@@ -16,7 +16,7 @@ import (
 
 type MockRepositorySuccess struct{}
 
-func NewMockRepositorySuccess() setting.Repository {
+func NewMockRepositorySuccess() reminder.Repository {
 	return MockRepositorySuccess{}
 }
 
@@ -32,7 +32,7 @@ func (fs MockRepositorySuccess) SaveReminder(reminder *models.Reminder) (*models
 
 type MockRepositoryFail struct{}
 
-func NewMockRepositoryFail() setting.Repository {
+func NewMockRepositoryFail() reminder.Repository {
 	return MockRepositoryFail{}
 }
 
@@ -53,7 +53,7 @@ func TestGetReminderSettingSuccess(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	setting.Get(c, mockRepository)
+	reminder.GetReminder(c, mockRepository)
 	// Check the status code is what we expect.
 	if status := rec.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -71,7 +71,7 @@ func TestGetReminderSettingFail(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	setting.Get(c, mockRepository)
+	reminder.GetReminder(c, mockRepository)
 	// Check the status code is what we expect.
 	if status := rec.Code; status != http.StatusInternalServerError {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -96,7 +96,7 @@ func TestSaveReminderSuccess(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	setting.Save(c, mockRepository)
+	reminder.SaveReminder(c, mockRepository)
 	// Check the status code is what we expect.
 	if status := rec.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -120,7 +120,7 @@ func TestSaveReminderShouldInternalServerErr_WhenCanNotSaveIntoDB(t *testing.T) 
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	setting.Save(c, mockRepository)
+	reminder.SaveReminder(c, mockRepository)
 	// Check the status code is what we expect.
 	if status := rec.Code; status != http.StatusInternalServerError {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -141,7 +141,7 @@ func TestSaveReminderShouldBadRequest_WhenRequestNameIsEmpty(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	setting.Save(c, mockRepository)
+	reminder.SaveReminder(c, mockRepository)
 	// Check the status code is what we expect.
 	if status := rec.Code; status != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -163,7 +163,7 @@ func TestSaveReminderShouldBadRequest_WhenRequestSettingDateIsEmpty(t *testing.T
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	setting.Save(c, mockRepository)
+	reminder.SaveReminder(c, mockRepository)
 	// Check the status code is what we expect.
 	if status := rec.Code; status != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -186,7 +186,7 @@ func TestSaveReminderShouldBadRequest_WhenRequestSettingMessageIsEmpty(t *testin
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	setting.Save(c, mockRepository)
+	reminder.SaveReminder(c, mockRepository)
 	// Check the status code is what we expect.
 	if status := rec.Code; status != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -210,7 +210,7 @@ func TestSaveReminderShouldSuccess_WhenRequestSettingDateIs26(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	setting.Save(c, mockRepository)
+	reminder.SaveReminder(c, mockRepository)
 	// Check the status code is what we expect.
 	if status := rec.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -234,7 +234,7 @@ func TestSaveReminderShouldSuccess_WhenRequestSettingDateIs27(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	setting.Save(c, mockRepository)
+	reminder.SaveReminder(c, mockRepository)
 	// Check the status code is what we expect.
 	if status := rec.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -258,7 +258,7 @@ func TestSaveReminderShouldBadRequest_WhenRequestSettingDateIs1(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	setting.Save(c, mockRepository)
+	reminder.SaveReminder(c, mockRepository)
 	// Check the status code is what we expect.
 	if status := rec.Code; status != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v",
