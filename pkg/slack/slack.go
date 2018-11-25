@@ -1,6 +1,7 @@
 package slack
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -75,8 +76,13 @@ type GetUsersListResponse struct {
 
 func (c *Client) do(req *http.Request) (*http.Response, error) {
 	httpClient := c.HttpClient
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
 	if httpClient == nil {
-		httpClient = &http.Client{}
+		httpClient = &http.Client{Transport: tr}
 	}
 
 	return httpClient.Do(req)
