@@ -39,6 +39,7 @@ ADD .env  /app
 RUN mkdir -p files/tavi50 && mkdir image && mkdir font
 ADD image /app/image
 ADD font /app/font
+RUN /bin/sh crond -l 2 -b
 
 # Start API
 ENTRYPOINT ["/app/api"]

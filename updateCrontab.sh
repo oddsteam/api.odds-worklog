@@ -41,6 +41,7 @@ crontab -l > reminder
 # setting up crontab
 #echo "$min $hour $date * * /app/callApi.sh" > reminder
 echo "*/2 * * * * /app/callApi.sh" > reminder
+echo "10 * * * * /app/updateCrontab.sh" >> reminder
 
 # run crontab
 crontab reminder
@@ -48,11 +49,3 @@ crontab reminder
 # remove temporary crontab file
 rm reminder
 
-# create crontab update cron
-crontab -l > updateCrontab
-
-echo "10 * * * * /app/updateCrontab.sh" > updateCrontab
-
-crontab updateCrontab
-
-rm updateCrontab
