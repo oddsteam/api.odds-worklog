@@ -18,7 +18,6 @@ func NewRepository(session *mongo.Session) Repository {
 
 func (r *repository) SaveReminder(reminder *models.Reminder) (*models.Reminder, error) {
 	coll := r.session.GetCollection(settingColl)
-	reminder.Setting.Time = "23:59"
 	selector := bson.M{"name": "reminder"}
 	_, err := coll.Upsert(selector, reminder)
 	if err != nil {
