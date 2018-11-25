@@ -39,10 +39,23 @@ ADD .env  /app
 RUN mkdir -p files/tavi50 && mkdir image && mkdir font
 ADD image /app/image
 ADD font /app/font
-ADD updateCrontab.sh /app
-ADD callApi.sh /app
-RUN /bin/sh updateCrontab.sh
-CMD crond -l 2 -f && /app/api
 
 # Start API
-# ENTRYPOINT ["/app/api"]
+ENTRYPOINT ["/app/api"]
+
+# crontab container
+FROM alpine:latest
+
+RUN apk add curl && \
+    apk add python
+
+RUN mkdir /app
+
+WORKDIR /app
+
+ADD ./callApi.sh /app
+ADD ./updateCrontab.sh /app
+
+RUN /bin/sh updateCrontab.sh
+
+CMD crond -l 2 -f && /bin/sh
