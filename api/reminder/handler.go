@@ -153,9 +153,9 @@ func ListEmailUserIncomeStatusIsNo(incomeUsecase income.Usecase) ([]string, erro
 	}
 	incomeStatusList := append(incomeIndividualStatusList, incomeCorpStatusList...)
 	for _, incomeStatus := range incomeStatusList {
-		if incomeStatus.Status == "N" {
-			emails = append(emails, incomeStatus.User.Email)
-		}
+		// if incomeStatus.Status == "N" {
+		emails = append(emails, incomeStatus.User.Email)
+		// }
 	}
 	return emails, nil
 }
