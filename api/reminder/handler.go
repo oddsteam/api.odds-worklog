@@ -123,6 +123,8 @@ func send(c echo.Context, incomeUsecase income.Usecase, reminder Repository) err
 			"saharat@odds.team",
 			"thanundorn@odds.team",
 			"santi@odds.team",
+			"work.alongkorn@gmail.com",
+			"p.watchara@gmail.com",
 		}
 	}
 
