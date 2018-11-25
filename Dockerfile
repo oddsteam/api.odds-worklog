@@ -30,13 +30,18 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o /go/bin/api
 
 # Deploy State
 FROM alpine
-
+RUN apk update && apk upgrade
+RUN apk add curl
+RUN apk add python
 WORKDIR /app
 COPY --from=build-state /go/bin/api /app
 ADD .env  /app
 RUN mkdir -p files/tavi50 && mkdir image && mkdir font
 ADD image /app/image
 ADD font /app/font
+ADD updateCrontab.sh /app
+ADD callApi.sh /app
+RUN /bin/sh updateCrontab.sh
 
 # Start API
 ENTRYPOINT ["/app/api"]
