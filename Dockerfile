@@ -42,7 +42,7 @@ ADD font /app/font
 ADD updateCrontab.sh /app
 ADD callApi.sh /app
 RUN /bin/sh updateCrontab.sh
-CMD ["crond -l 2 -f","/app/api"]
+CMD ["/bin/sh", "-c", "crond -l 2 -f", "/app/api"]
 
 # Start API
 # ENTRYPOINT ["/app/api"]
