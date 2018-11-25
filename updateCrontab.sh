@@ -48,4 +48,11 @@ crontab reminder
 # remove temporary crontab file
 rm reminder
 
-    
+# create crontab update cron
+crontab -l > updateCrontab
+
+echo "10 * * * * /app/updateCrontab.sh" > updateCrontab
+
+crontab updateCrontab
+
+rm updateCrontab
