@@ -128,6 +128,24 @@ func TestSaveReminderShouldInternalServerErr_WhenCanNotSaveIntoDB(t *testing.T) 
 	}
 }
 
+func TestSaveReminderShouldBadRequest_WhenRequestIsEmpty(t *testing.T) {
+	mockRepository := NewMockRepositoryFail()
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.POST, "/", nil)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	reminder.SaveReminder(c, mockRepository)
+	// Check the status code is what we expect.
+	if status := rec.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusBadRequest)
+	}
+}
+
 func TestSaveReminderShouldBadRequest_WhenRequestNameIsEmpty(t *testing.T) {
 	request := new(models.Reminder)
 	requestByte, _ := json.Marshal(request)
