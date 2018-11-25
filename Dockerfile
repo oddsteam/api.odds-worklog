@@ -42,20 +42,3 @@ ADD font /app/font
 
 # Start API
 ENTRYPOINT ["/app/api"]
-
-# crontab container
-FROM alpine:latest
-
-RUN apk add curl && \
-    apk add python
-
-RUN mkdir /app
-
-WORKDIR /app
-
-ADD ./callApi.sh /app
-ADD ./updateCrontab.sh /app
-
-RUN /bin/sh updateCrontab.sh
-
-CMD crond -l 2 -f && /bin/sh
