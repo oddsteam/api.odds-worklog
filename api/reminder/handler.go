@@ -111,7 +111,7 @@ func send(c echo.Context, incomeUsecase income.Usecase, reminder Repository) err
 	var emails []string
 	if isDev == "false" {
 		token = "xoxb-293071900534-486896062132-2RMbUSdX6DqoOKsVMCSXQoiM" // Odds workspace
-		user, err := listEmailUserIncomeStatusIsNo(incomeUsecase)
+		user, err := ListEmailUserIncomeStatusIsNo(incomeUsecase)
 		if err != nil {
 			return utils.NewError(c, 500, err)
 		}
@@ -139,7 +139,7 @@ func send(c echo.Context, incomeUsecase income.Usecase, reminder Repository) err
 	return c.JSON(http.StatusOK, true)
 }
 
-func listEmailUserIncomeStatusIsNo(incomeUsecase income.Usecase) ([]string, error) {
+func ListEmailUserIncomeStatusIsNo(incomeUsecase income.Usecase) ([]string, error) {
 	emails := []string{}
 	incomeIndividualStatusList, err := incomeUsecase.GetIncomeStatusList("N")
 	if err != nil {

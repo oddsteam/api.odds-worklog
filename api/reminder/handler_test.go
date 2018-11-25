@@ -6,8 +6,10 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/reminder"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 
@@ -281,5 +283,57 @@ func TestSaveReminderShouldBadRequest_WhenRequestSettingDateIs1(t *testing.T) {
 	if status := rec.Code; status != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusBadRequest)
+	}
+}
+
+type MockInComeUsecase struct{}
+
+func NewMockInComeUsecase() income.Usecase {
+	return MockInComeUsecase{}
+}
+
+func (fs MockInComeUsecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.Income, error) {
+	return nil, nil
+}
+
+func (fs MockInComeUsecase) UpdateIncome(id string, req *models.IncomeReq, user *models.User) (*models.Income, error) {
+	return nil, nil
+}
+
+func (fs MockInComeUsecase) GetIncomeStatusList(corporateFlag string) ([]*models.IncomeStatus, error) {
+	mockIncomeStatus := new(models.IncomeStatus)
+
+	if corporateFlag == "N" {
+		mockUser := new(models.User)
+		mockUser.Email = "test1@test.com"
+		mockUser.CorporateFlag = "N"
+		mockIncomeStatus.User = mockUser
+		mockIncomeStatus.Status = "N"
+	}
+	return []*models.IncomeStatus{mockIncomeStatus}, nil
+}
+
+func (fs MockInComeUsecase) GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error) {
+	return nil, nil
+}
+
+func (fs MockInComeUsecase) ExportIncome(corporateFlag string) (string, error) {
+	return "", nil
+}
+
+func (fs MockInComeUsecase) ExportPdf() (string, error) {
+	return "", nil
+}
+
+func (fs MockInComeUsecase) DropIncome() error {
+	return nil
+}
+func TestListEmailUserIncomeStatusIsNoShouldFail_WhenGetIncomeStatusListWithCorpFlagNIsEmpty(t *testing.T) {
+	mockIncomeUsecase := NewMockInComeUsecase()
+	expected := []string{"test1@test.com"}
+	r, _ := reminder.ListEmailUserIncomeStatusIsNo(mockIncomeUsecase)
+	if ok := reflect.DeepEqual(r, expected); !ok {
+		t.Errorf("emails returned wrong result: got %v want %v",
+			r, expected)
 	}
 }
