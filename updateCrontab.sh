@@ -39,8 +39,8 @@ fi
 crontab -l > reminder
 
 # setting up crontab
-echo "$min $hour $date * * ./callApi.sh" > reminder
-#echo "*/1 * * * * ./callApi.sh" > reminder
+#echo "$min $hour $date * * /app/callApi.sh" > reminder
+echo "*/2 * * * * /app/callApi.sh" > reminder
 
 # run crontab
 crontab reminder
