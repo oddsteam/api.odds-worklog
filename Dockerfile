@@ -32,6 +32,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o /go/bin/api
 FROM alpine
 RUN apk update && apk upgrade
 RUN apk add curl
+RUN apk add python
 WORKDIR /app
 COPY --from=build-state /go/bin/api /app
 ADD .env  /app
