@@ -1,21 +1,22 @@
 package slack
 
 import (
-	"crypto/tls"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 )
 
-const baseURL string = "https://slack.com/api"
+var DefaultBaseURL = "https://slack.com/api"
 
-// Client type
+type ClientInterface interface {
+	Do(*http.Request) (*http.Response, error)
+}
+
 type Client struct {
 	Token      string
-	httpClient *http.Client // default http.DefaultClient
+	BaseURL    string
+	HttpClient ClientInterface
 }
 
 // Profile type for Member
@@ -72,6 +73,49 @@ type GetUsersListResponse struct {
 	CacheTs int      `json:"cache_ts"`
 }
 
+func (c *Client) do(req *http.Request) (*http.Response, error) {
+	httpClient := c.HttpClient
+	if httpClient == nil {
+		httpClient = &http.Client{}
+	}
+
+	return httpClient.Do(req)
+}
+
+func (c *Client) url(path string) string {
+	if c.BaseURL == "" {
+		c.BaseURL = DefaultBaseURL
+	}
+	return fmt.Sprintf("%s%s", c.BaseURL, path)
+}
+
+// GetUserList API `users.list`: Lists all users in a Slack team.
+func (c *Client) GetUserList() (*GetUsersListResponse, error) {
+	endpoint := c.url("/users.list")
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	q := req.URL.Query()
+	q.Add("token", c.Token)
+	req.URL.RawQuery = q.Encode()
+	res, err := c.do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	var usersListResponse GetUsersListResponse
+	err = json.Unmarshal(body, &usersListResponse)
+	if err != nil {
+		return nil, err
+	}
+	return &usersListResponse, nil
+}
+
 // Channel type for OpenIMChannelResponse
 type Channel struct {
 	ID string `json:"id"`
@@ -83,6 +127,34 @@ type OpenIMChannelResponse struct {
 	NoOp        bool    `json:"no_op"`
 	AlreadyOpen bool    `json:"already_open"`
 	Channel     Channel `json:"channel"`
+}
+
+// OpenIMChannel API `im.open`: Opens a direct message channel.
+func (c *Client) OpenIMChannel(userID string) (*OpenIMChannelResponse, error) {
+	endpoint := c.url("/im.open")
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	q := req.URL.Query()
+	q.Add("token", c.Token)
+	q.Add("user", userID)
+	req.URL.RawQuery = q.Encode()
+	res, err := c.do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	var openIMChannelResponse OpenIMChannelResponse
+	err = json.Unmarshal(body, &openIMChannelResponse)
+	if err != nil {
+		return nil, err
+	}
+	return &openIMChannelResponse, nil
 }
 
 // Message type for PostMessageResponse
@@ -103,95 +175,31 @@ type PostMessageResponse struct {
 	Message Message `json:"message"`
 }
 
-// NewClient returns a new slack client instance.
-func NewClient(token string) (*Client, error) {
-	if token == "" {
-		return nil, errors.New("missing token")
-	}
-
-	return &Client{
-		Token:      token,
-		httpClient: http.DefaultClient,
-	}, nil
-}
-
-// doRequest makes a request to the API
-func (c *Client) doRequest(req *http.Request) ([]byte, error) {
-	c.httpClient.Transport = &http.Transport{
-		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: true,
-		},
-	}
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	if 200 != resp.StatusCode {
-		return nil, fmt.Errorf("%s", body)
-	}
-	return body, nil
-}
-
 // PostMessage API `chat.postMessage`: Sends a message to a channel.
 func (c *Client) PostMessage(channelID string, text string) (*PostMessageResponse, error) {
-	textEncode := &url.URL{Path: text}
-	url := baseURL + "/chat.postMessage?token=" + c.Token + "&channel=" + channelID + "&text=" + textEncode.String()
-	req, err := http.NewRequest("GET", url, nil)
+	endpoint := c.url("/chat.postMessage")
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	bytes, err := c.doRequest(req)
+	q := req.URL.Query()
+	q.Add("token", c.Token)
+	q.Add("channel", channelID)
+	q.Add("text", text)
+	req.URL.RawQuery = q.Encode()
+	res, err := c.do(req)
 	if err != nil {
 		return nil, err
 	}
-	var data PostMessageResponse
-	err = json.Unmarshal(bytes, &data)
+	defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
-	return &data, nil
-}
-
-// OpenIMChannel API `im.open`: Opens a direct message channel.
-func (c *Client) OpenIMChannel(userID string) (*OpenIMChannelResponse, error) {
-	url := baseURL + "/im.open?token=" + c.Token + "&user=" + userID
-	req, err := http.NewRequest("GET", url, nil)
+	var postMessageResponse PostMessageResponse
+	err = json.Unmarshal(body, &postMessageResponse)
 	if err != nil {
 		return nil, err
 	}
-	bytes, err := c.doRequest(req)
-	if err != nil {
-		return nil, err
-	}
-	var data OpenIMChannelResponse
-	err = json.Unmarshal(bytes, &data)
-	if err != nil {
-		return nil, err
-	}
-	return &data, nil
-}
-
-// GetUsersList API `users.list`: Lists all users in a Slack team.
-func (c *Client) GetUsersList() (*GetUsersListResponse, error) {
-	url := baseURL + "/users.list?token=" + c.Token
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-	bytes, err := c.doRequest(req)
-	if err != nil {
-		return nil, err
-	}
-	var data GetUsersListResponse
-	err = json.Unmarshal(bytes, &data)
-	if err != nil {
-		return nil, err
-	}
-	return &data, nil
+	return &postMessageResponse, nil
 }
