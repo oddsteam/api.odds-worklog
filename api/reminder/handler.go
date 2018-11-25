@@ -3,6 +3,7 @@ package reminder
 import (
 	"errors"
 	"net/http"
+	"os/exec"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -14,6 +15,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
+// NewHTTPHandler for reminder resource godoc
 func NewHTTPHandler(r *echo.Group, session *mongo.Session, m middleware.JWTConfig) {
 	userRepo := user.NewRepository(session)
 	incomeRepo := income.NewRepository(session)
@@ -47,7 +49,7 @@ func validateReminderRequest(reminder *models.Reminder) error {
 	return nil
 }
 
-// Save Reminder Setting godoc
+// SaveReminder Setting godoc
 // @Summary Save Reminder Setting
 // @Description Save Reminder Setting
 // @Tags reminder
@@ -71,10 +73,15 @@ func SaveReminder(c echo.Context, reminderRepo Repository) error {
 	if err != nil {
 		return utils.NewError(c, 500, errors.New("Can not insert data into DB"))
 	}
+	go setCronJobReminder()
 	return c.JSON(http.StatusOK, r)
 }
 
-// Get Reminder Setting godoc
+func setCronJobReminder() {
+	exec.Command("/bin/sh", "/app/updateCrontab.sh")
+}
+
+// GetReminder Setting godoc
 // @Summary Get Reminder Setting
 // @Description Get Reminder Setting
 // @Tags reminder
