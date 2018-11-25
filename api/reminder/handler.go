@@ -99,7 +99,8 @@ func GetReminder(c echo.Context, reminderRepo Repository) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /reminder/send [get]
 func send(c echo.Context, incomeUsecase income.Usecase, reminder Repository) error {
-	isDev := true
+	var token string
+	isDev := c.QueryParam("isDev")
 	var emails []string
 	if isDev == "false" {
 		token = "xoxb-293071900534-486896062132-2RMbUSdX6DqoOKsVMCSXQoiM" // Odds workspace
