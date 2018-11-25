@@ -24,13 +24,13 @@ func NewHTTPHandler(r *echo.Group, session *mongo.Session, m middleware.JWTConfi
 	r.GET("/setting", func(c echo.Context) error {
 		return GetReminder(c, reminderRepo)
 	})
+	r.GET("/send", func(c echo.Context) error {
+		return send(c, incomeUsecase, reminderRepo)
+	})
 
 	r.Use(middleware.JWTWithConfig(m))
 	r.POST("/setting", func(c echo.Context) error {
 		return SaveReminder(c, reminderRepo)
-	})
-	r.GET("/send", func(c echo.Context) error {
-		return send(c, incomeUsecase, reminderRepo)
 	})
 }
 
