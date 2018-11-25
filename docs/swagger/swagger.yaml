@@ -250,8 +250,6 @@ paths:
             $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Get Export Pdf
-      tags:
-      - incomes
   /incomes/month/{id}:
     get:
       consumes:
@@ -410,9 +408,8 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              type: string
-            type: array
+            $ref: '#/definitions/string'
+            type: object
         "500":
           description: Internal Server Error
           schema:

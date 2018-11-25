@@ -23,17 +23,15 @@ func NewHTTPHandler(r *echo.Group, session *mongo.Session, m middleware.JWTConfi
 	reminderRepo := NewRepository(session)
 	incomeUsecase := income.NewUsecase(incomeRepo, userRepo)
 
-	settingRoute := r.Group("/setting")
-	settingRoute.GET("/reminder", func(c echo.Context) error {
+	r = r.Group("/reminder")
+	r.GET("/setting", func(c echo.Context) error {
 		return GetReminder(c, reminderRepo)
 	})
 
-	settingRoute.Use(middleware.JWTWithConfig(m))
-	settingRoute.POST("/reminder", func(c echo.Context) error {
+	r.Use(middleware.JWTWithConfig(m))
+	r.POST("/setting", func(c echo.Context) error {
 		return SaveReminder(c, reminderRepo)
 	})
-
-	r = r.Group("/reminder")
 	r.GET("/send", func(c echo.Context) error {
 		return send(c, incomeUsecase, reminderRepo)
 	})

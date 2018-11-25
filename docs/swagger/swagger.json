@@ -142,9 +142,6 @@
                 "produces": [
                     "application/json"
                 ],
-                "tags": [
-                    "incomes"
-                ],
                 "summary": "Get Export Pdf",
                 "responses": {
                     "200": {
@@ -464,10 +461,8 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
+                            "type": "object",
+                            "$ref": "#/definitions/string"
                         }
                     },
                     "500": {
