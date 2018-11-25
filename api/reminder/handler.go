@@ -14,9 +14,6 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
-// const TOKEN = "xoxb-484294901968-485201164352-IC904vZ6Bxwx2xkI2qzWgy5J" // Reminder workspace
-const TOKEN = "xoxb-293071900534-486896062132-2RMbUSdX6DqoOKsVMCSXQoiM" // Odds workspace
-
 func NewHTTPHandler(r *echo.Group, session *mongo.Session, m middleware.JWTConfig) {
 	userRepo := user.NewRepository(session)
 	incomeRepo := income.NewRepository(session)
@@ -104,19 +101,21 @@ func GetReminder(c echo.Context, reminderRepo Repository) error {
 func send(c echo.Context, incomeUsecase income.Usecase, reminder Repository) error {
 	isDev := true
 	var emails []string
-	if isDev {
+	if isDev == "false" {
+		token = "xoxb-293071900534-486896062132-2RMbUSdX6DqoOKsVMCSXQoiM" // Odds workspace
+		user, err := listEmailUserIncomeStatusIsNo(incomeUsecase)
+		if err != nil {
+			return utils.NewError(c, 500, err)
+		}
+		emails = user
+	} else {
+		token = "xoxb-484294901968-485201164352-IC904vZ6Bxwx2xkI2qzWgy5J" // Reminder workspace
 		emails = []string{
 			"tong@odds.team",
 			"saharat@odds.team",
 			"thanundorn@odds.team",
 			"santi@odds.team",
 		}
-	} else {
-		user, err := listEmailUserIncomeStatusIsNo(incomeUsecase)
-		if err != nil {
-			return utils.NewError(c, 500, err)
-		}
-		emails = user
 	}
 
 	s, err := reminder.GetReminder()
@@ -124,7 +123,7 @@ func send(c echo.Context, incomeUsecase income.Usecase, reminder Repository) err
 		return utils.NewError(c, 500, err)
 	}
 
-	err = sendNotification(emails, s.Setting.Message)
+	err = sendNotification(token, emails, s.Setting.Message)
 	if err != nil {
 		return utils.NewError(c, 500, err)
 	}
@@ -151,9 +150,11 @@ func listEmailUserIncomeStatusIsNo(incomeUsecase income.Usecase) ([]string, erro
 	return emails, nil
 }
 
-func sendNotification(emails []string, message string) error {
-	client, err := slack.NewClient(TOKEN)
-	slackUsers, err := client.GetUsersList()
+func sendNotification(token string, emails []string, message string) error {
+	client := slack.Client{
+		Token: token,
+	}
+	slackUsers, err := client.GetUserList()
 	if err != nil {
 		return err
 	}
@@ -165,7 +166,6 @@ func sendNotification(emails []string, message string) error {
 					return err
 				}
 				channelID := im.Channel.ID
-				// fmt.Println(channelID)
 				client.PostMessage(channelID, message)
 			}
 		}
