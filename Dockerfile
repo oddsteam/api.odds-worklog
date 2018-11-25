@@ -41,7 +41,7 @@ ADD image /app/image
 ADD font /app/font
 ADD updateCrontab.sh /app
 ADD callApi.sh /app
-CMD /bin/sh /app/updateCrontab.sh
+RUN /bin/sh updateCrontab.sh
 
 # Start API
 ENTRYPOINT ["/app/api"]
