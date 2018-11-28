@@ -70,6 +70,7 @@ func handleToken(user *models.User) (*models.Token, error) {
 	token := &models.Token{
 		Token:      tok,
 		FirstLogin: firstLogin,
+		IdUser:     user.ID.Hex(),
 	}
 
 	return token, nil
