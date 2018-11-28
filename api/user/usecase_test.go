@@ -11,8 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateUser(t *testing.T) {
-
+func TestCreateUserInUseCase(t *testing.T) {
 	t.Run("create user success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()

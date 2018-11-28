@@ -18,6 +18,16 @@ var (
 		CorporateFlag:     "Y",
 	}
 
+	MockAdmin = models.User{
+		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39535"),
+		FullNameEn:        "นายทดสอบชอบลงทุน",
+		Email:             "jin@odds.team",
+		BankAccountName:   "ทดสอบชอบลงทุน",
+		BankAccountNumber: "123123123123",
+		ThaiCitizenID:     "1234567890123",
+		CorporateFlag:     "Y",
+	}
+
 	MockToken = models.Token{
 		Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NjE5NTcxMzZ9.RB3arc4-OyzASAaUhC2W3ReWaXAt_z2Fd3BN4aWTgEY",
 	}

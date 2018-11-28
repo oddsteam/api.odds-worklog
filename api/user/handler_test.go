@@ -1,165 +1,286 @@
 package user
 
-// import (
-// 	"encoding/json"
-// 	"net/http"
-// 	"net/http/httptest"
-// 	"strings"
-// 	"testing"
+import (
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+	"time"
 
-// 	"github.com/labstack/echo"
+	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/golang/mock/gomock"
+	"github.com/labstack/echo"
+	"github.com/stretchr/testify/assert"
+	"gopkg.in/mgo.v2/bson"
 
-// 	"github.com/stretchr/testify/mock"
+	mock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	// "gitlab.odds.team/worklog/api.odds-worklog/user"
+)
 
-// 	"github.com/stretchr/testify/assert"
+func TestCreateUser(t *testing.T) {
+	t.Run("when create user success it should return status OK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-// 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
-// 	"gitlab.odds.team/worklog/api.odds-worklog/api/user/mocks"
-// 	"gitlab.odds.team/worklog/api.odds-worklog/models"
-// )
+		mockUser := new(models.User)
+		mockUser.ID = bson.ObjectIdHex("5bbcf2f90fd2df527bc39539")
+		mockUser.FullNameEn = "นายทดสอบชอบลงทุน"
+		mockUser.Email = "test@abc.com"
+		mockUser.BankAccountName = "ทดสอบชอบลงทุน"
+		mockUser.BankAccountNumber = "123123123123"
+		mockUser.ThaiCitizenID = "1234567890123"
+		mockUser.CorporateFlag = "Y"
 
-// func TestCreateUser(t *testing.T) {
-// 	mockUsecase := new(mocks.Usecase)
-// 	mockUsecase.On("CreateUser", mock.AnythingOfType("*models.User")).Return(&mocks.MockUser, nil)
+		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().CreateUser(mockUser).Return(&mock.MockUser, nil)
 
-// 	e := echo.New()
-// 	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mocks.UserJson))
-// 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mock.UserJson))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
 
-// 	rec := httptest.NewRecorder()
-// 	c := e.NewContext(req, rec)
+		handler := &HttpHandler{mockUsecase}
+		handler.CreateUser(c)
 
-// 	handler := user.HttpHandler{
-// 		Usecase: mockUsecase,
-// 	}
-// 	handler.CreateUser(c)
+		assert.Equal(t, http.StatusCreated, rec.Code)
+	})
+}
 
-// 	assert.Equal(t, http.StatusCreated, rec.Code)
-// 	mockUsecase.AssertExpectations(t)
-// }
+func TestGetUser(t *testing.T) {
+	t.Run("when get user success it should return status OK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-// func TestGetUser(t *testing.T) {
-// 	mockUsecase := new(mocks.Usecase)
-// 	mockListUser := make([]*models.User, 0)
-// 	mockListUser = append(mockListUser, &mocks.MockUser)
+		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockListUser := make([]*models.User, 0)
+		mockListUser = append(mockListUser, &mock.MockUser)
+		mockUsecase.EXPECT().GetUser().Return(mockListUser, nil)
 
-// 	mockUsecase.On("GetUser").Return(mockListUser, nil)
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
 
-// 	e := echo.New()
-// 	req := httptest.NewRequest(echo.GET, "/", nil)
-// 	rec := httptest.NewRecorder()
-// 	c := e.NewContext(req, rec)
+		claims := &models.JwtCustomClaims{
+			&mock.MockAdmin,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		c.Set("user", token)
+		handler := &HttpHandler{mockUsecase}
+		handler.GetUser(c)
 
-// 	handler := user.HttpHandler{
-// 		Usecase: mockUsecase,
-// 	}
-// 	handler.GetUser(c)
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
 
-// 	assert.Equal(t, http.StatusOK, rec.Code)
-// 	mockUsecase.AssertExpectations(t)
-// }
+}
 
-// func TestGetUserByID(t *testing.T) {
-// 	mockUsecase := new(mocks.Usecase)
-// 	mockUsecase.On("GetUserByID", mocks.MockUser.ID.Hex()).Return(&mocks.MockUser, nil)
+func TestGetUserByID(t *testing.T) {
+	t.Run("when get user by success it should return status OK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-// 	e := echo.New()
-// 	req := httptest.NewRequest(echo.GET, "/", nil)
-// 	rec := httptest.NewRecorder()
-// 	c := e.NewContext(req, rec)
-// 	c.SetParamNames("id")
-// 	c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockListUser := make([]*models.User, 0)
+		mockListUser = append(mockListUser, &mock.MockUser)
+		mockUsecase.EXPECT().GetUserByID(mock.MockUser.ID.Hex()).Return(&mock.MockUser, nil)
 
-// 	handler := user.HttpHandler{
-// 		Usecase: mockUsecase,
-// 	}
-// 	handler.GetUserByID(c)
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		handler := &HttpHandler{mockUsecase}
+		handler.GetUserByID(c)
 
-// 	assert.Equal(t, http.StatusOK, rec.Code)
-// 	mockUsecase.AssertExpectations(t)
-// }
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+}
 
-// func TestUpdateUser(t *testing.T) {
-// 	mockUsecase := new(mocks.Usecase)
-// 	mockUsecase.On("UpdateUser", mock.AnythingOfType("*models.User")).Return(&mocks.MockUser, nil)
+func TestUpdateUser(t *testing.T) {
+	t.Run("when update user success it should return status OK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-// 	e := echo.New()
-// 	req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(mocks.UserJson))
-// 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-// 	rec := httptest.NewRecorder()
-// 	c := e.NewContext(req, rec)
-// 	c.SetParamNames("id")
-// 	c.SetParamValues("5bc89e26f37e2f0df54e6fef")
-// 	handler := user.HttpHandler{
-// 		Usecase: mockUsecase,
-// 	}
-// 	handler.UpdateUser(c)
+		mockUser := new(models.User)
+		mockUser.ID = bson.ObjectIdHex("5bbcf2f90fd2df527bc39539")
+		mockUser.FullNameEn = "นายทดสอบชอบลงทุน"
+		mockUser.Email = "test@abc.com"
+		mockUser.BankAccountName = "ทดสอบชอบลงทุน"
+		mockUser.BankAccountNumber = "123123123123"
+		mockUser.ThaiCitizenID = "1234567890123"
+		mockUser.CorporateFlag = "Y"
 
-// 	assert.Equal(t, http.StatusOK, rec.Code)
-// 	mockUsecase.AssertExpectations(t)
-// }
+		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockListUser := make([]*models.User, 0)
+		mockListUser = append(mockListUser, &mock.MockUser)
+		mockUsecase.EXPECT().UpdateUser(mockUser).Return(&mock.MockUser, nil)
 
-// func TestDeleteUser(t *testing.T) {
-// 	mockUsecase := new(mocks.Usecase)
-// 	mockUsecase.On("DeleteUser", mock.AnythingOfType("string")).Return(nil)
+		e := echo.New()
+		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(mock.UserJson))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("5bc89e26f37e2f0df54e6fef")
+		handler := &HttpHandler{mockUsecase}
+		handler.UpdateUser(c)
 
-// 	e := echo.New()
-// 	req := httptest.NewRequest(echo.DELETE, "/", nil)
-// 	rec := httptest.NewRecorder()
-// 	c := e.NewContext(req, rec)
-// 	c.SetParamNames("id")
-// 	c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+}
 
-// 	handler := user.HttpHandler{
-// 		Usecase: mockUsecase,
-// 	}
-// 	handler.DeleteUser(c)
+func TestDeleteUser(t *testing.T) {
+	t.Run("when delete user by success it should return status OK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-// 	assert.Equal(t, http.StatusNoContent, rec.Code)
-// 	mockUsecase.AssertExpectations(t)
-// }
+		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockListUser := make([]*models.User, 0)
+		mockListUser = append(mockListUser, &mock.MockUser)
+		mockUsecase.EXPECT().DeleteUser(mock.MockUser.ID.Hex()).Return(nil)
 
-// func TestUpdatePartialUser(t *testing.T) {
-// 	mockUsecase := new(mocks.Usecase)
-// 	mockUsecase.On("GetUserByID", mock.AnythingOfType("string")).Return(&mocks.MockUser, nil)
-// 	mockUsecase.On("UpdateUser", mock.AnythingOfType("*models.User")).Return(&mocks.MockUser, nil)
-// 	mockIoReader := `{"fullnameEh" : "ODDS junk","email" : "xx@c.com"}`
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		claims := &models.JwtCustomClaims{
+			&mock.MockAdmin,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		c.Set("user", token)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		handler := &HttpHandler{mockUsecase}
+		handler.DeleteUser(c)
 
-// 	e := echo.New()
-// 	req := httptest.NewRequest(http.MethodPatch, "/", strings.NewReader(mockIoReader))
-// 	rec := httptest.NewRecorder()
-// 	c := e.NewContext(req, rec)
-// 	c.SetParamNames("id")
-// 	c.SetParamValues("5bc89e26f37e2f0df54e6fef")
+		assert.Equal(t, http.StatusNoContent, rec.Code)
+	})
+}
 
-// 	handler := user.HttpHandler{
-// 		Usecase: mockUsecase,
-// 	}
-// 	handler.UpdatePartialUser(c)
+func TestUpdatePartialUser(t *testing.T) {
+	t.Run("when update user by method patch success it should return status OK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-// 	userByte, _ := json.Marshal(mocks.MockUser)
-// 	UserJson := string(userByte)
-// 	assert.Equal(t, http.StatusOK, rec.Code)
-// 	assert.Equal(t, UserJson, rec.Body.String())
-// }
+		mockUser := new(models.User)
+		mockUser.ID = bson.ObjectIdHex("5bbcf2f90fd2df527bc39539")
+		mockUser.FullNameEn = "ODDS junk"
+		mockUser.Email = "xx@c.com"
+		mockUser.BankAccountName = "ทดสอบชอบลงทุน"
+		mockUser.BankAccountNumber = "123123123123"
+		mockUser.ThaiCitizenID = "1234567890123"
+		mockUser.CorporateFlag = "Y"
 
-// func TestUpdatePartialUserShouldReturnInternalErrorIfNoHaveRequestBody(t *testing.T) {
-// 	mockUsecase := new(mocks.Usecase)
-// 	mockUsecase.On("GetUserByID", mock.AnythingOfType("string")).Return(&mocks.MockUser, nil)
-// 	mockUsecase.On("UpdateUser", mock.AnythingOfType("*models.User")).Return(&mocks.MockUser, nil)
+		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockListUser := make([]*models.User, 0)
+		mockListUser = append(mockListUser, &mock.MockUser)
+		mockUsecase.EXPECT().GetUserByID(mock.MockUser.ID.Hex()).Return(mockUser, nil)
+		mockUsecase.EXPECT().UpdateUser(mockUser).Return(mockUser, nil)
+		mockIoReader := `{"fullnameEh" : "ODDS junk","email" : "xx@c.com"}`
 
-// 	e := echo.New()
-// 	req := httptest.NewRequest(http.MethodPatch, "/", nil)
-// 	rec := httptest.NewRecorder()
-// 	c := e.NewContext(req, rec)
-// 	c.SetPath("/users/:id")
-// 	c.SetParamNames("id")
-// 	c.SetParamValues("5bc89e26f37e2f0df54e6fef")
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodPatch, "/", strings.NewReader(mockIoReader))
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
 
-// 	handler := user.HttpHandler{
-// 		Usecase: mockUsecase,
-// 	}
-// 	handler.UpdatePartialUser(c)
+		handler := &HttpHandler{mockUsecase}
+		handler.UpdatePartialUser(c)
 
-// 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
-// }
+		userByte, _ := json.Marshal(mockUser)
+		UserJson := string(userByte)
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, UserJson, rec.Body.String())
+	})
+
+	t.Run("should return InternalError if no have requestBody", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUser := new(models.User)
+		mockUser.ID = bson.ObjectIdHex("5bbcf2f90fd2df527bc39539")
+		mockUser.FullNameEn = "นายทดสอบชอบลงทุน"
+		mockUser.Email = "test@abc.com"
+		mockUser.BankAccountName = "ทดสอบชอบลงทุน"
+		mockUser.BankAccountNumber = "123123123123"
+		mockUser.ThaiCitizenID = "1234567890123"
+		mockUser.CorporateFlag = "Y"
+
+		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockListUser := make([]*models.User, 0)
+		mockListUser = append(mockListUser, &mock.MockUser)
+		mockUsecase.EXPECT().GetUserByID(mock.MockUser.ID.Hex()).Return(&mock.MockUser, nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodPatch, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.UpdatePartialUser(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+}
+
+func TestIsUserAdmin(t *testing.T) {
+	t.Run("it should return true if user is admin", func(t *testing.T) {
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodPatch, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		claims := &models.JwtCustomClaims{
+			&mock.MockAdmin,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		c.Set("user", token)
+		isAdmin, _ := IsUserAdmin(c)
+
+		assert.Equal(t, true, isAdmin)
+	})
+
+	t.Run("it should return false with message if user is not admin", func(t *testing.T) {
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodPatch, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		claims := &models.JwtCustomClaims{
+			&mock.MockUser,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		c.Set("user", token)
+		isAdmin, mess := IsUserAdmin(c)
+
+		assert.Equal(t, false, isAdmin)
+		assert.Equal(t, "ไม่มีสิทธิในการใช้งาน", mess)
+	})
+}
