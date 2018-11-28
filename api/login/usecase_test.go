@@ -15,7 +15,7 @@ func TestVerifyAudience(t *testing.T) {
 	})
 
 	t.Run("956316396976-cnrmemp4r4coc62oqmn9uin7iq3o3eev.apps.googleusercontent.com2 is wrong Audience", func(t *testing.T) {
-		assert.NotEqual(t, clientID, "956316396976-cnrmemp4r4coc62oqmn9uin7iq3o3eev.apps.googleusercontent.com2")
+		assert.NotEqual(t, clientID, "956316396976-cnrmemp4r4coc62oqmn9uin7iq3o3eev.apps.googleusercontent.com")
 	})
 }
 

@@ -162,6 +162,10 @@ func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/pdf [get]
 func (h *HttpHandler) GetExportPdf(c echo.Context) error {
+	checkUser, message := IsUserAdmin(c)
+	if !checkUser {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
 	filename, err := h.Usecase.ExportPdf()
 
 	if err != nil {
@@ -180,6 +184,10 @@ func (h *HttpHandler) GetExportPdf(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/corporate [get]
 func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
+	checkUser, message := IsUserAdmin(c)
+	if !checkUser {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
 	filename, err := h.Usecase.ExportIncome("Y")
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
@@ -197,6 +205,10 @@ func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/individual [get]
 func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
+	checkUser, message := IsUserAdmin(c)
+	if !checkUser {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
 	filename, err := h.Usecase.ExportIncome("N")
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
@@ -211,6 +223,14 @@ func (h *HttpHandler) DropIncome(c echo.Context) error {
 	return c.JSON(http.StatusOK, models.CommonResponse{Message: "DropIncome Success!"})
 }
 
+func IsUserAdmin(c echo.Context) (bool, string) {
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(*models.JwtCustomClaims)
+	if claims.User.Email == "jin@odds.team" {
+		return true, ""
+	}
+	return false, "ไม่มีสิทธิในการใช้งาน"
+}
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	incomeRepo := NewRepository(session)
 	userRepo := user.NewRepository(session)

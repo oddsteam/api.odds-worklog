@@ -35,6 +35,7 @@ func TestAddIncome(t *testing.T) {
 				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 			},
 		}
+		claims.User.Email = "jin@odds.team"
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 		rec := httptest.NewRecorder()
@@ -64,6 +65,8 @@ func TestAddIncome(t *testing.T) {
 				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 			},
 		}
+		claims.User.Email = "jin@odds.team"
+
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 		c.Set("user", token)
@@ -311,10 +314,18 @@ func TestGetExportCorporateIncomeStatus(t *testing.T) {
 		mockUsecase := mockIncome.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().ExportIncome("Y").Return("test.csv", nil)
 		e := echo.New()
+		claims := &models.JwtCustomClaims{
+			&userMocks.MockUser,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-
+		c.Set("user", token)
 		handler := &HttpHandler{mockUsecase}
 		handler.GetExportCorporate(c)
 
@@ -330,9 +341,18 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 		mockUsecase := mockIncome.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().ExportIncome("N").Return("test.csv", nil)
 		e := echo.New()
+		claims := &models.JwtCustomClaims{
+			&userMocks.MockUser,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", token)
 
 		handler := &HttpHandler{mockUsecase}
 		handler.GetExportIndividual(c)

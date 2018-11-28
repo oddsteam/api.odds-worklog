@@ -78,11 +78,11 @@ func TestCalCorporateIncomeSum(t *testing.T) {
 func TestCalPersonIncomeSum(t *testing.T) {
 	sum, err := calIncomeSum("100000", "N")
 	assert.NoError(t, err)
-	assert.Equal(t, "93000.00", sum.Net)
+	assert.Equal(t, "97000.00", sum.Net)
 
 	sum, err = calIncomeSum("123456", "N")
 	assert.NoError(t, err)
-	assert.Equal(t, "114814.08", sum.Net)
+	assert.Equal(t, "119752.32", sum.Net)
 }
 
 func TestUsecaseAddIncome(t *testing.T) {

@@ -10,6 +10,7 @@ import (
 
 	"gopkg.in/mgo.v2/bson"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
@@ -66,6 +67,11 @@ func (h *HttpHandler) CreateUser(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /users [get]
 func (h *HttpHandler) GetUser(c echo.Context) error {
+
+	checkUser, message := IsUserAdmin(c)
+	if !checkUser {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
 	users, err := h.Usecase.GetUser()
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
@@ -85,6 +91,7 @@ func (h *HttpHandler) GetUser(c echo.Context) error {
 // @Failure 400 {object} utils.HTTPError
 // @Router /users/{id} [get]
 func (h *HttpHandler) GetUserByID(c echo.Context) error {
+
 	id := c.Param("id")
 	if id == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
@@ -146,6 +153,10 @@ func (h *HttpHandler) UpdateUser(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /users/{id} [delete]
 func (h *HttpHandler) DeleteUser(c echo.Context) error {
+	checkUser, message := IsUserAdmin(c)
+	if !checkUser {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
 	id := c.Param("id")
 	if id == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
@@ -189,11 +200,19 @@ func (h *HttpHandler) UpdatePartialUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, newUser)
 }
 
+func IsUserAdmin(c echo.Context) (bool, string) {
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(*models.JwtCustomClaims)
+	if claims.User.Email == "jin@odds.team" {
+		return true, ""
+	}
+	return false, "ไม่มีสิทธิในการใช้งาน"
+}
+
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	ur := NewRepository(session)
 	uc := NewUsecase(ur)
 	handler := &HttpHandler{uc}
-
 	r = r.Group("/users")
 	r.GET("", handler.GetUser)
 	r.POST("", handler.CreateUser)

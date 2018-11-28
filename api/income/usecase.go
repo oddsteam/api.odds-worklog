@@ -59,15 +59,15 @@ func calIncomeSum(income string, corporateFlag string) (*incomeSum, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	vat, vatf, err = calVAT(income)
+	wht, whtf, err = calWHT(income)
 	if err != nil {
 		return nil, err
 	}
-	ins.VAT = vat
+
+	ins.WHT = wht
 
 	if corporateFlag == "Y" {
-		wht, whtf, err = calWHT(income)
+		vat, vatf, err = calVAT(income)
 		if err != nil {
 			return nil, err
 		}
@@ -75,11 +75,11 @@ func calIncomeSum(income string, corporateFlag string) (*incomeSum, error) {
 		net := total + vatf - whtf
 
 		ins.Net = utils.FloatToString(net)
-		ins.WHT = wht
+		ins.VAT = vat
 		return ins, nil
 	}
 
-	net := total - vatf
+	net := total - whtf
 	ins.Net = utils.FloatToString(net)
 	return ins, nil
 }
