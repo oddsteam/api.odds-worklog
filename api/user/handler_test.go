@@ -33,7 +33,7 @@ func TestCreateUser(t *testing.T) {
 		mockUser.BankAccountNumber = "123123123123"
 		mockUser.ThaiCitizenID = "1234567890123"
 		mockUser.CorporateFlag = "Y"
-
+		mockUser.Vat = "Y"
 		mockUsecase := mock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().CreateUser(mockUser).Return(&mock.MockUser, nil)
 
@@ -79,7 +79,7 @@ func TestCreateUser(t *testing.T) {
 		mockUser.BankAccountNumber = "123123123123"
 		mockUser.ThaiCitizenID = "1234567890123"
 		mockUser.CorporateFlag = "Y"
-
+		mockUser.Vat = "Y"
 		mockUsecase := mock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().CreateUser(mockUser).Return(&mock.MockUser, errors.New(""))
 
@@ -257,7 +257,7 @@ func TestUpdateUser(t *testing.T) {
 		mockUser.BankAccountNumber = "123123123123"
 		mockUser.ThaiCitizenID = "1234567890123"
 		mockUser.CorporateFlag = "Y"
-
+		mockUser.Vat = "Y"
 		mockUsecase := mock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.User, 0)
 		mockListUser = append(mockListUser, &mock.MockUser)
@@ -324,6 +324,7 @@ func TestUpdateUser(t *testing.T) {
 		mockUser.BankAccountNumber = "123123123123"
 		mockUser.ThaiCitizenID = "1234567890123"
 		mockUser.CorporateFlag = "Y"
+		mockUser.Vat = "Y"
 
 		mockUsecase := mock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.User, 0)

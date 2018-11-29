@@ -50,7 +50,7 @@ func calWHT(income string) (string, float64, error) {
 	return utils.FloatToString(wht), utils.RealFloat(wht), nil
 }
 
-func calIncomeSum(income string, corporateFlag string) (*incomeSum, error) {
+func calIncomeSum(income string, vattype string) (*incomeSum, error) {
 	var vat, wht string
 	var vatf, whtf float64
 	var ins = new(incomeSum)
@@ -66,7 +66,7 @@ func calIncomeSum(income string, corporateFlag string) (*incomeSum, error) {
 
 	ins.WHT = wht
 
-	if corporateFlag == "Y" {
+	if vattype == "Y" {
 		vat, vatf, err = calVAT(income)
 		if err != nil {
 			return nil, err

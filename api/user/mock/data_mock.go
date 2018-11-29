@@ -16,6 +16,7 @@ var (
 		BankAccountNumber: "123123123123",
 		ThaiCitizenID:     "1234567890123",
 		CorporateFlag:     "Y",
+		Vat:               "Y",
 	}
 
 	MockAdmin = models.User{
@@ -26,6 +27,7 @@ var (
 		BankAccountNumber: "123123123123",
 		ThaiCitizenID:     "1234567890123",
 		CorporateFlag:     "Y",
+		Vat:               "Y",
 	}
 
 	MockToken = models.Token{
@@ -40,6 +42,7 @@ var (
 		BankAccountNumber: "123123123123",
 		ThaiCitizenID:     "1234567890123",
 		CorporateFlag:     "Y",
+		Vat:               "Y",
 	}
 
 	MockUserById2 = models.User{
@@ -50,6 +53,7 @@ var (
 		BankAccountNumber: "123123123123",
 		ThaiCitizenID:     "1234567890123",
 		CorporateFlag:     "Y",
+		Vat:               "Y",
 	}
 
 	userByte, _ = json.Marshal(MockUser)

@@ -12,7 +12,7 @@ func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, user *models.Us
 		return nil, err
 	}
 
-	ins, err := calIncomeSum(req.TotalIncome, user.CorporateFlag)
+	ins, err := calIncomeSum(req.TotalIncome, user.Vat)
 	if err != nil {
 		return nil, err
 	}

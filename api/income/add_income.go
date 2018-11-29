@@ -16,7 +16,7 @@ func (u *usecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.I
 		return nil, errors.New("Sorry, has income data of user " + user.FullNameEn)
 	}
 
-	ins, err := calIncomeSum(req.TotalIncome, user.CorporateFlag)
+	ins, err := calIncomeSum(req.TotalIncome, user.Vat)
 	if err != nil {
 		return nil, err
 	}
