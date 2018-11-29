@@ -162,10 +162,6 @@ func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/pdf [get]
 func (h *HttpHandler) GetExportPdf(c echo.Context) error {
-	checkUser, message := IsUserAdmin(c)
-	if !checkUser {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
 	filename, err := h.Usecase.ExportPdf()
 
 	if err != nil {
