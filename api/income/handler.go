@@ -47,6 +47,7 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 	}
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(*models.JwtCustomClaims)
+
 	res, err := h.Usecase.AddIncome(&income, claims.User)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)

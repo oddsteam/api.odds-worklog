@@ -7,12 +7,13 @@ import (
 )
 
 func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, user *models.User) (*models.Income, error) {
+	userDetail, _ := u.userRepo.GetUserByID(user.ID.Hex())
 	income, err := u.repo.GetIncomeByID(id, user.ID.Hex())
 	if err != nil {
 		return nil, err
 	}
 
-	ins, err := calIncomeSum(req.TotalIncome, user.Vat)
+	ins, err := calIncomeSum(req.TotalIncome, userDetail.Vat)
 	if err != nil {
 		return nil, err
 	}

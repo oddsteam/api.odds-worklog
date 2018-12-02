@@ -89,9 +89,10 @@ func TestUsecaseAddIncome(t *testing.T) {
 	t.Run("when add income success it should be return income model", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-
+		user := userMock.MockUser
 		mockUserRepo := userMock.NewMockRepository(ctrl)
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockUserRepo.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
 		mockRepoIncome.EXPECT().AddIncome(gomock.Any()).Return(nil)
 		year, month := utils.GetYearMonthNow()
 		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(incomeMock.MockIncome.UserID, year, month).Return(&incomeMock.MockIncome, errors.New(""))
@@ -109,9 +110,11 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 	t.Run("when update income success it should return income model", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
+		user := userMock.MockUser
 
 		mockRepoUser := userMock.NewMockRepository(ctrl)
 		mockIncomeRepo := incomeMock.NewMockRepository(ctrl)
+		mockRepoUser.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
 		mockIncomeRepo.EXPECT().UpdateIncome(&incomeMock.MockIncome).Return(nil)
 		mockIncomeRepo.EXPECT().GetIncomeByID(incomeMock.MockIncome.ID.Hex(), userMock.MockUser.ID.Hex()).Return(&incomeMock.MockIncome, nil)
 
