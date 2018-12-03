@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"path/filepath"
 	"strconv"
 	"time"
@@ -316,15 +315,7 @@ func getImageBytes() []byte {
 }
 
 func (u *usecase) ExportIncome(corporateFlag string) (string, error) {
-	prefix := "corporate"
-	if corporateFlag == "N" {
-		prefix = "individual"
-	}
-
-	t := time.Now()
-	tf := fmt.Sprintf("%d_%02d_%02d_%02d_%02d_%02d", t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
-	filename := fmt.Sprintf("files/%s_%s.csv", prefix, tf)
-	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	file, filename, err := utils.CreateCVSFile(corporateFlag)
 	defer file.Close()
 
 	if err != nil {
