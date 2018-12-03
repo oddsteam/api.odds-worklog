@@ -2,6 +2,7 @@ package income
 
 import (
 	"errors"
+	"os"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -26,10 +27,13 @@ func TestUsecaseExportIncome(t *testing.T) {
 		mockRepoUser.EXPECT().GetUserByType("Y").Return(userMock.MockUsers, nil)
 
 		usecase := NewUsecase(mockRepoIncome, mockRepoUser)
-		res, err := usecase.ExportIncome("Y")
+		filename, err := usecase.ExportIncome("Y")
 
 		assert.NoError(t, err)
-		assert.NotNil(t, res)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
 	})
 }
 
@@ -180,4 +184,9 @@ func TestUsecaseDropIncome(t *testing.T) {
 
 		assert.NoError(t, err)
 	})
+}
+
+func TestSetValueCSV(t *testing.T) {
+	assert.Equal(t, `="1"`, setValueCSV("1"))
+	assert.Equal(t, `="01"`, setValueCSV("01"))
 }
