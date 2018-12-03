@@ -10,7 +10,7 @@ import (
 
 func TestGetNow(t *testing.T) {
 	n := GetNow()
-	r := regexp.MustCompile("\\d{4}-\\d{0,2}-\\d{0,2}T\\d{2}:\\d{2}:\\d{2}[+]\\d{2}:\\d{2}")
+	r := regexp.MustCompile("\\d{4}-\\d{0,2}-\\d{0,2}T\\d{2}:\\d{2}:\\d{2}")
 	assert.True(t, r.MatchString(n))
 }
 
