@@ -45,6 +45,14 @@
   version = "v3.2.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:2639b4e59e53bf27505a3a9c4d21e1027362af952ddb2cfe048f41dabded2831"
+  name = "github.com/elgs/cron"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9eb6958bd525c084882a58056a3240e52c07cf13"
+
+[[projects]]
   digest = "1:953a2628e4c5c72856b53f5470ed5e071c55eccf943d798d42908102af2a610f"
   name = "github.com/go-openapi/jsonpointer"
   packages = ["."]
@@ -335,6 +343,7 @@
   input-imports = [
     "github.com/alecthomas/template",
     "github.com/dgrijalva/jwt-go",
+    "github.com/elgs/cron",
     "github.com/golang/mock/gomock",
     "github.com/joho/godotenv",
     "github.com/labstack/echo",
