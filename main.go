@@ -14,6 +14,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
+	"gitlab.odds.team/worklog/api.odds-worklog/worker"
 )
 
 // @title Odds-Worklog Example API
@@ -47,14 +48,20 @@ func main() {
 
 	r := e.Group("/v1")
 	r.GET("/swagger/*", echoSwagger.WrapHandler)
-	reminder.NewHTTPHandler(r, session, m)
 	login.NewHttpHandler(r, session)
 	r.Use(middleware.JWTWithConfig(m))
 
 	// Handler
 	user.NewHttpHandler(r, session)
 	income.NewHttpHandler(r, session)
-
+	reminder.NewHTTPHandler(r, session)
+	reminderRepo := reminder.NewRepository(session)
+	s, err := reminderRepo.GetReminder()
+	if err != nil {
+		log.Println(err)
+	} else {
+		worker.StartWorker(s)
+	}
 	// Start server
 	e.Logger.Fatal(e.Start(c.APIPort))
 }

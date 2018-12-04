@@ -3,34 +3,24 @@ package reminder
 import (
 	"errors"
 	"net/http"
-	"os/exec"
 
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/slack"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+	"gitlab.odds.team/worklog/api.odds-worklog/worker"
 )
 
 // NewHTTPHandler for reminder resource godoc
-func NewHTTPHandler(r *echo.Group, session *mongo.Session, m middleware.JWTConfig) {
-	userRepo := user.NewRepository(session)
-	incomeRepo := income.NewRepository(session)
+func NewHTTPHandler(r *echo.Group, session *mongo.Session) {
 	reminderRepo := NewRepository(session)
-	incomeUsecase := income.NewUsecase(incomeRepo, userRepo)
 
 	r = r.Group("/reminder")
 	r.GET("/setting", func(c echo.Context) error {
 		return GetReminder(c, reminderRepo)
 	})
-	r.GET("/send", func(c echo.Context) error {
-		return send(c, incomeUsecase, reminderRepo)
-	})
 
-	r.Use(middleware.JWTWithConfig(m))
 	r.POST("/setting", func(c echo.Context) error {
 		return SaveReminder(c, reminderRepo)
 	})
@@ -73,12 +63,8 @@ func SaveReminder(c echo.Context, reminderRepo Repository) error {
 	if err != nil {
 		return utils.NewError(c, 500, errors.New("Can not insert data into DB"))
 	}
-	go setCronJobReminder()
+	worker.StartWorker(reminder)
 	return c.JSON(http.StatusOK, r)
-}
-
-func setCronJobReminder() {
-	exec.Command("/bin/sh", "/app/updateCrontab.sh")
 }
 
 // GetReminder Setting godoc
@@ -95,50 +81,6 @@ func GetReminder(c echo.Context, reminderRepo Repository) error {
 		return utils.NewError(c, 500, errors.New("Data not found in DB"))
 	}
 	return c.JSON(http.StatusOK, r)
-}
-
-// Send Reminder godoc
-// @Summary Send Reminder
-// @Description Send Notification Reminder
-// @Tags reminder
-// @Produce  json
-// @Success 200 {object} string
-// @Failure 500 {object} utils.HTTPError
-// @Router /reminder/send [get]
-func send(c echo.Context, incomeUsecase income.Usecase, reminder Repository) error {
-	var token string
-	isDev := c.QueryParam("isDev")
-	var emails []string
-	if isDev == "false" {
-		token = "xoxb-293071900534-486896062132-2RMbUSdX6DqoOKsVMCSXQoiM" // Odds workspace
-		user, err := ListEmailUserIncomeStatusIsNo(incomeUsecase)
-		if err != nil {
-			return utils.NewError(c, 500, err)
-		}
-		emails = user
-	} else {
-		token = "xoxb-484294901968-485201164352-IC904vZ6Bxwx2xkI2qzWgy5J" // Reminder workspace
-		emails = []string{
-			"tong@odds.team",
-			"saharat@odds.team",
-			"thanundorn@odds.team",
-			"santi@odds.team",
-			"work.alongkorn@gmail.com",
-			"p.watchara@gmail.com",
-		}
-	}
-
-	s, err := reminder.GetReminder()
-	if err != nil {
-		return utils.NewError(c, 500, err)
-	}
-
-	err = sendNotification(token, emails, s.Setting.Message)
-	if err != nil {
-		return utils.NewError(c, 500, err)
-	}
-
-	return c.JSON(http.StatusOK, true)
 }
 
 func ListEmailUserIncomeStatusIsNo(incomeUsecase income.Usecase) ([]string, error) {
@@ -158,27 +100,4 @@ func ListEmailUserIncomeStatusIsNo(incomeUsecase income.Usecase) ([]string, erro
 		// }
 	}
 	return emails, nil
-}
-
-func sendNotification(token string, emails []string, message string) error {
-	client := slack.Client{
-		Token: token,
-	}
-	slackUsers, err := client.GetUserList()
-	if err != nil {
-		return err
-	}
-	for _, email := range emails {
-		for _, member := range slackUsers.Members {
-			if member.Profile.Email == email {
-				im, err := client.OpenIMChannel(member.ID)
-				if err != nil {
-					return err
-				}
-				channelID := im.Channel.ID
-				client.PostMessage(channelID, message)
-			}
-		}
-	}
-	return nil
 }
