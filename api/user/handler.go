@@ -205,7 +205,8 @@ func (h *HttpHandler) UpdatePartialUser(c echo.Context) error {
 func IsUserAdmin(c echo.Context) (bool, string) {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(*models.JwtCustomClaims)
-	if claims.User.Email == "jin@odds.team" {
+	u := claims.User
+	if u.IsAdmin() {
 		return true, ""
 	}
 	return false, "ไม่มีสิทธิในการใช้งาน"
