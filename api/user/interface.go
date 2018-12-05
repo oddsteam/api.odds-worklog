@@ -1,6 +1,10 @@
 package user
 
-import "gitlab.odds.team/worklog/api.odds-worklog/models"
+import (
+	"mime/multipart"
+
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
+)
 
 type Repository interface {
 	CreateUser(u *models.User) (*models.User, error)
@@ -17,6 +21,6 @@ type Usecase interface {
 	GetUser() ([]*models.User, error)
 	GetUserByType(corporateFlag string) ([]*models.User, error)
 	GetUserByID(id string) (*models.User, error)
-	UpdateUser(u *models.User) (*models.User, error)
+	UpdateUser(u *models.User, file *multipart.FileHeader) (*models.User, error)
 	DeleteUser(id string) error
 }

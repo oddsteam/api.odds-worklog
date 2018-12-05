@@ -1,6 +1,8 @@
 package user
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -11,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateUserInUseCase(t *testing.T) {
+func TestUsecase_CreateUser(t *testing.T) {
 	t.Run("create user success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -62,59 +64,111 @@ func TestCreateUserInUseCase(t *testing.T) {
 
 }
 
-// func TestGetUser(t *testing.T) {
-// 	mockRepo := new(mocks.Repository)
-// 	mockRepo.On("GetUser").Return(mocks.MockUsers, nil)
+func TestUsecase_GetUser(t *testing.T) {
+	t.Run("when call GetUser, then user not nil", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-// 	uc := NewUsecase(mockRepo)
-// 	u, err := uc.GetUser()
-// 	assert.NoError(t, err)
-// 	assert.NotNil(t, u)
-// 	assert.Equal(t, mocks.MockUsers[0].FullNameEn, u[0].FullNameEn)
-// 	mockRepo.AssertExpectations(t)
-// }
+		mockRepo := mock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetUser().Return(mock.MockUsers, nil)
 
-// func TestGetUserByType(t *testing.T) {
-// 	mockRepo := new(mocks.Repository)
-// 	mockRepo.On("GetUserByType", "Y").Return(mocks.MockUsers, nil)
+		uc := NewUsecase(mockRepo)
+		u, err := uc.GetUser()
+		assert.NoError(t, err)
+		assert.NotNil(t, u)
+		assert.Equal(t, mock.MockUsers[0].GetFullname(), u[0].GetFullname())
+	})
+}
 
-// 	uc := NewUsecase(mockRepo)
-// 	list, err := uc.GetUserByType("Y")
-// 	assert.NoError(t, err)
-// 	assert.NotNil(t, list)
-// 	assert.Equal(t, mocks.MockUsers, list)
-// 	mockRepo.AssertExpectations(t)
-// }
+func TestUsecase_GetUserByType(t *testing.T) {
+	t.Run("when call GetUserByType 'Y', then return list user", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-// func TestGetUserByID(t *testing.T) {
-// 	mockRepo := new(mocks.Repository)
-// 	mockRepo.On("GetUserByID", "1234567890").Return(&mocks.MockUserById, nil)
+		mockRepo := mock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetUserByType("Y").Return(mock.MockUsers, nil)
+		uc := NewUsecase(mockRepo)
+		list, err := uc.GetUserByType("Y")
+		assert.NoError(t, err)
+		assert.NotNil(t, list)
+		assert.Equal(t, mock.MockUsers, list)
+	})
 
-// 	uc := NewUsecase(mockRepo)
-// 	u, err := uc.GetUserByID(string(mocks.MockUserById.ID))
-// 	assert.NoError(t, err)
-// 	assert.NotNil(t, u)
-// 	assert.Equal(t, mocks.MockUserById.FullNameEn, u.FullNameEn)
-// 	mockRepo.AssertExpectations(t)
-// }
-// func TestDeleteUser(t *testing.T) {
-// 	mockRepo := new(mocks.Repository)
-// 	mockRepo.On("DeleteUser", "1234567890").Return(nil)
+	t.Run("when call GetUserByType 'N', then return list user", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-// 	uc := NewUsecase(mockRepo)
-// 	u := uc.DeleteUser(string(mocks.MockUserById.ID))
+		mockRepo := mock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetUserByType("N").Return(mock.MockUsers, nil)
+		uc := NewUsecase(mockRepo)
+		list, err := uc.GetUserByType("N")
+		assert.NoError(t, err)
+		assert.NotNil(t, list)
+		assert.Equal(t, mock.MockUsers, list)
+	})
 
-// 	assert.Equal(t, nil, u)
-// 	mockRepo.AssertExpectations(t)
-// }
+	t.Run("when call GetUserByType isn't 'Y' or 'N', then return error ErrInvalidFlag", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-// func TestUpdateUser(t *testing.T) {
-// 	mockRepo := new(mocks.Repository)
-// 	mockRepo.On("UpdateUser", mock.AnythingOfType("*models.User")).Return(&mocks.MockUserById, nil)
-// 	uc := NewUsecase(mockRepo)
-// 	u, err := uc.UpdateUser(&mocks.MockUserById)
-// 	assert.NoError(t, err)
-// 	assert.NotNil(t, u)
-// 	assert.Equal(t, mocks.MockUser.FullNameEn, u.FullNameEn)
-// 	mockRepo.AssertExpectations(t)
-// }
+		mockRepo := mock.NewMockRepository(ctrl)
+		uc := NewUsecase(mockRepo)
+		_, err := uc.GetUserByType("")
+
+		assert.EqualError(t, err, utils.ErrInvalidFlag.Error())
+	})
+}
+
+func TestUsecase_GetUserByID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mock.NewMockRepository(ctrl)
+	mockRepo.EXPECT().GetUserByID("1234567890").Return(&mock.MockUserById, nil)
+	uc := NewUsecase(mockRepo)
+	u, err := uc.GetUserByID(string(mock.MockUserById.ID))
+	assert.NoError(t, err)
+	assert.NotNil(t, u)
+	assert.Equal(t, mock.MockUserById.GetFullname(), u.GetFullname())
+}
+
+func TestUsecase_DeleteUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mock.NewMockRepository(ctrl)
+	mockRepo.EXPECT().DeleteUser("1234567890").Return(nil)
+
+	uc := NewUsecase(mockRepo)
+	u := uc.DeleteUser(string(mock.MockUserById.ID))
+
+	assert.Equal(t, nil, u)
+}
+
+func TestUsecase_UpdateUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mock.NewMockRepository(ctrl)
+	mockRepo.EXPECT().UpdateUser(gomock.Any()).Return(&mock.MockUserById, nil)
+
+	uc := NewUsecase(mockRepo)
+	u, err := uc.UpdateUser(&mock.MockUserById, nil)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, u)
+	assert.Equal(t, mock.MockUser.GetFullname(), u.GetFullname())
+}
+
+func TestUsecase_getTranscriptFilename(t *testing.T) {
+	u := mock.MockUser
+
+	filename := getTranscriptFilename(&u)
+	assert.NotEmpty(t, filename)
+
+	path := "files/transcripts"
+	filenameExp := fmt.Sprintf("%s/transcript_%s_%s_", path, strings.ToUpper(u.FirstName), strings.ToUpper(u.LastName))
+	assert.Contains(t, filename, filenameExp)
+	assert.Contains(t, filename, ".pdf")
+	assert.Equal(t, len(filenameExp)+12, len(filename))
+}
