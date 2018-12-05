@@ -17,6 +17,21 @@ type User struct {
 	SiteID            string        `bson:"siteId" json:"SiteId,omitempty"`
 }
 
+func (u *User) IsAdmin() bool {
+	emails := []string{
+		"suphakrit@odds.team",
+		"jin@odds.team",
+		"roof@odds.team",
+	}
+
+	for _, email := range emails {
+		if u.Email == email {
+			return true
+		}
+	}
+	return false
+}
+
 func (u *User) GetFullname() string {
 	return u.FirstName + " " + u.LastName
 }
