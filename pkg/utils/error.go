@@ -14,6 +14,7 @@ var (
 	ErrInvalidFormat   = errors.New("Invalid format")
 	ErrInvalidToken    = errors.New("Invalid token")
 	ErrBadRequest      = errors.New("Bad request")
+	ErrInvalidFlag     = errors.New("Invalid flag")
 )
 
 func NewError(ctx echo.Context, status int, err error) error {

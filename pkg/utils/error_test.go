@@ -19,6 +19,7 @@ func TestConfigError(t *testing.T) {
 	assert.Equal(t, "Invalid format", ErrInvalidFormat.Error())
 	assert.Equal(t, "Invalid token", ErrInvalidToken.Error())
 	assert.Equal(t, "Bad request", ErrBadRequest.Error())
+	assert.Equal(t, "Invalid flag", ErrInvalidFlag.Error())
 }
 
 func TestNewError(t *testing.T) {
