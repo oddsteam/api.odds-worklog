@@ -151,7 +151,7 @@ func (u *usecase) ExportPdf() (string, error) {
 
 	companyName := "บริษัท ออด-อี (ประเทศไทย) จํากัด"
 	companyAddress := "2549/41-43 พหลโยธิน ลาดยาว จตุจักร กรุงเทพ 10900"
-	employeeName := sd.FullNameEn
+	employeeName := sd.GetFullname()
 	employeeAddress := "265/28 อ.เมือง ต.ในเมือง จ.ชัยภูมิ 36000"
 	salaryString := "ห้าร้อยบาทถ้วน"
 
@@ -338,7 +338,7 @@ func (u *usecase) ExportIncome(corporateFlag string) (string, error) {
 			t := income.SubmitDate
 			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
-			d := []string{user.FullNameEn, user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), tf}
+			d := []string{user.GetFullname(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), tf}
 			strWrite = append(strWrite, d)
 		}
 	}

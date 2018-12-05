@@ -17,7 +17,6 @@ import (
 
 	mock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
-	// "gitlab.odds.team/worklog/api.odds-worklog/user"
 )
 
 func TestCreateUser(t *testing.T) {
@@ -25,17 +24,8 @@ func TestCreateUser(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUser := new(models.User)
-		mockUser.ID = bson.ObjectIdHex("5bbcf2f90fd2df527bc39539")
-		mockUser.FullNameEn = "นายทดสอบชอบลงทุน"
-		mockUser.Email = "test@abc.com"
-		mockUser.BankAccountName = "ทดสอบชอบลงทุน"
-		mockUser.BankAccountNumber = "123123123123"
-		mockUser.ThaiCitizenID = "1234567890123"
-		mockUser.CorporateFlag = "Y"
-		mockUser.Vat = "Y"
 		mockUsecase := mock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().CreateUser(mockUser).Return(&mock.MockUser, nil)
+		mockUsecase.EXPECT().CreateUser(&mock.MockUser).Return(&mock.MockUser, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mock.UserJson))
@@ -71,17 +61,8 @@ func TestCreateUser(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUser := new(models.User)
-		mockUser.ID = bson.ObjectIdHex("5bbcf2f90fd2df527bc39539")
-		mockUser.FullNameEn = "นายทดสอบชอบลงทุน"
-		mockUser.Email = "test@abc.com"
-		mockUser.BankAccountName = "ทดสอบชอบลงทุน"
-		mockUser.BankAccountNumber = "123123123123"
-		mockUser.ThaiCitizenID = "1234567890123"
-		mockUser.CorporateFlag = "Y"
-		mockUser.Vat = "Y"
 		mockUsecase := mock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().CreateUser(mockUser).Return(&mock.MockUser, errors.New(""))
+		mockUsecase.EXPECT().CreateUser(&mock.MockUser).Return(&mock.MockUser, errors.New(""))
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mock.UserJson))
@@ -249,19 +230,10 @@ func TestUpdateUser(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUser := new(models.User)
-		mockUser.ID = bson.ObjectIdHex("5bbcf2f90fd2df527bc39539")
-		mockUser.FullNameEn = "นายทดสอบชอบลงทุน"
-		mockUser.Email = "test@abc.com"
-		mockUser.BankAccountName = "ทดสอบชอบลงทุน"
-		mockUser.BankAccountNumber = "123123123123"
-		mockUser.ThaiCitizenID = "1234567890123"
-		mockUser.CorporateFlag = "Y"
-		mockUser.Vat = "Y"
 		mockUsecase := mock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.User, 0)
 		mockListUser = append(mockListUser, &mock.MockUser)
-		mockUsecase.EXPECT().UpdateUser(mockUser).Return(&mock.MockUser, nil)
+		mockUsecase.EXPECT().UpdateUser(&mock.MockUser).Return(&mock.MockUser, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(mock.UserJson))
@@ -316,20 +288,10 @@ func TestUpdateUser(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUser := new(models.User)
-		mockUser.ID = bson.ObjectIdHex("5bbcf2f90fd2df527bc39539")
-		mockUser.FullNameEn = "นายทดสอบชอบลงทุน"
-		mockUser.Email = "test@abc.com"
-		mockUser.BankAccountName = "ทดสอบชอบลงทุน"
-		mockUser.BankAccountNumber = "123123123123"
-		mockUser.ThaiCitizenID = "1234567890123"
-		mockUser.CorporateFlag = "Y"
-		mockUser.Vat = "Y"
-
 		mockUsecase := mock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.User, 0)
 		mockListUser = append(mockListUser, &mock.MockUser)
-		mockUsecase.EXPECT().UpdateUser(mockUser).Return(&mock.MockUser, errors.New(""))
+		mockUsecase.EXPECT().UpdateUser(&mock.MockUser).Return(&mock.MockUser, errors.New(""))
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(mock.UserJson))
@@ -435,7 +397,8 @@ func TestUpdatePartialUser(t *testing.T) {
 
 		mockUser := new(models.User)
 		mockUser.ID = bson.ObjectIdHex("5bbcf2f90fd2df527bc39539")
-		mockUser.FullNameEn = "ODDS junk"
+		mockUser.FirstName = "ODDS"
+		mockUser.LastName = "junk"
 		mockUser.Email = "xx@c.com"
 		mockUser.BankAccountName = "ทดสอบชอบลงทุน"
 		mockUser.BankAccountNumber = "123123123123"
@@ -447,7 +410,7 @@ func TestUpdatePartialUser(t *testing.T) {
 		mockListUser = append(mockListUser, &mock.MockUser)
 		mockUsecase.EXPECT().GetUserByID(mock.MockUser.ID.Hex()).Return(mockUser, nil)
 		mockUsecase.EXPECT().UpdateUser(mockUser).Return(mockUser, nil)
-		mockIoReader := `{"fullnameEh" : "ODDS junk","email" : "xx@c.com"}`
+		mockIoReader := `{"firstName" : "ODDS","lastName" : "junk","email" : "xx@c.com"}`
 
 		e := echo.New()
 		req := httptest.NewRequest(http.MethodPatch, "/", strings.NewReader(mockIoReader))
@@ -468,15 +431,6 @@ func TestUpdatePartialUser(t *testing.T) {
 	t.Run("should return InternalError if no have requestBody", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-
-		mockUser := new(models.User)
-		mockUser.ID = bson.ObjectIdHex("5bbcf2f90fd2df527bc39539")
-		mockUser.FullNameEn = "นายทดสอบชอบลงทุน"
-		mockUser.Email = "test@abc.com"
-		mockUser.BankAccountName = "ทดสอบชอบลงทุน"
-		mockUser.BankAccountNumber = "123123123123"
-		mockUser.ThaiCitizenID = "1234567890123"
-		mockUser.CorporateFlag = "Y"
 
 		mockUsecase := mock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.User, 0)

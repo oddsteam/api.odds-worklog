@@ -13,7 +13,7 @@ func (u *usecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.I
 	year, month := utils.GetYearMonthNow()
 	_, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month)
 	if err == nil {
-		return nil, errors.New("Sorry, has income data of user " + userDetail.FullNameEn)
+		return nil, errors.New("Sorry, has income data of user " + userDetail.GetFullname())
 	}
 	ins, err := calIncomeSum(req.TotalIncome, userDetail.Vat)
 	if err != nil {

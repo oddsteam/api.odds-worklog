@@ -10,24 +10,28 @@ import (
 var (
 	MockUser = models.User{
 		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39539"),
-		FullNameEn:        "นายทดสอบชอบลงทุน",
+		FirstName:         "ทดสอบ",
+		LastName:          "ชอบลงทุน",
 		Email:             "test@abc.com",
 		BankAccountName:   "ทดสอบชอบลงทุน",
 		BankAccountNumber: "123123123123",
 		ThaiCitizenID:     "1234567890123",
 		CorporateFlag:     "Y",
 		Vat:               "Y",
+		SlackAccount:      "test@abc.com",
 	}
 
 	MockAdmin = models.User{
 		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39535"),
-		FullNameEn:        "นายทดสอบชอบลงทุน",
+		FirstName:         "ทดสอบ",
+		LastName:          "ชอบลงทุน",
 		Email:             "jin@odds.team",
 		BankAccountName:   "ทดสอบชอบลงทุน",
 		BankAccountNumber: "123123123123",
 		ThaiCitizenID:     "1234567890123",
 		CorporateFlag:     "Y",
 		Vat:               "Y",
+		SlackAccount:      "test@abc.com",
 	}
 
 	MockToken = models.Token{
@@ -36,7 +40,8 @@ var (
 
 	MockUserById = models.User{
 		ID:                "1234567890",
-		FullNameEn:        "นายทดสอบชอบลงทุน",
+		FirstName:         "ทดสอบ",
+		LastName:          "ชอบลงทุน",
 		Email:             "test@abc.com",
 		BankAccountName:   "ทดสอบชอบลงทุน",
 		BankAccountNumber: "123123123123",
@@ -47,7 +52,8 @@ var (
 
 	MockUserById2 = models.User{
 		ID:                "1234567891",
-		FullNameEn:        "นายทดสอบชอบลงทุน",
+		FirstName:         "ทดสอบ",
+		LastName:          "ชอบลงทุน",
 		Email:             "test@abc.com",
 		BankAccountName:   "ทดสอบชอบลงทุน",
 		BankAccountNumber: "123123123123",

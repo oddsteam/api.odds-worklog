@@ -63,7 +63,7 @@ func handleToken(user *models.User) (*models.Token, error) {
 	}
 
 	firstLogin := "Y"
-	if user.FullNameEn != "" {
+	if !user.IsFullnameEmpty() {
 		firstLogin = "N"
 	}
 
