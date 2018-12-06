@@ -141,12 +141,13 @@ func (h *HttpHandler) GetIndividualIncomeStatus(c echo.Context) error {
 // @Failure 400 {object} utils.HTTPError
 // @Router /incomes/month/{id} [get]
 func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(*models.JwtCustomClaims)
+	if claims.User.ID.Hex() == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 
-	income, _ := h.Usecase.GetIncomeByUserIdAndCurrentMonth(id)
+	income, _ := h.Usecase.GetIncomeByUserIdAndCurrentMonth(claims.User.ID.Hex())
 	if income == nil {
 		return c.JSON(http.StatusOK, nil)
 	}
@@ -239,7 +240,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.PUT("/:id", handler.UpdateIncome)
 	r.GET("/status/corporate", handler.GetCorporateIncomeStatus)
 	r.GET("/status/individual", handler.GetIndividualIncomeStatus)
-	r.GET("/month/:id", handler.GetIncomeByUserIdAndCurrentMonth)
+	r.GET("/month", handler.GetIncomeByUserIdAndCurrentMonth)
 	r.GET("/export/corporate", handler.GetExportCorporate)
 	r.GET("/export/individual", handler.GetExportIndividual)
 	r.GET("/export/pdf", handler.GetExportPdf)

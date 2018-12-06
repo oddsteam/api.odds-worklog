@@ -258,8 +258,14 @@ func TestGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		c.SetParamNames("id")
-		c.SetParamValues(mockIncome.MockIncome.UserID)
+		claims := &models.JwtCustomClaims{
+			&userMocks.MockUser,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		c.Set("user", token)
 
 		handler := &HttpHandler{mockUsecase}
 		handler.GetIncomeByUserIdAndCurrentMonth(c)
@@ -280,7 +286,17 @@ func TestGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		mockUser := userMocks.MockUser
+		mockUser.ID = ""
+		claims := &models.JwtCustomClaims{
+			&mockUser,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
+		c.Set("user", token)
 		handler := &HttpHandler{mockUsecase}
 		handler.GetIncomeByUserIdAndCurrentMonth(c)
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
