@@ -157,7 +157,7 @@ func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
 // GetExportPdf godoc
 // @Summary Get Export Pdf
 // @Description Get Export to Pdf file.
-// @Tages incomes
+// @Tags incomes
 // @Accept json
 // @Produce json
 // @Success 200 {array} string

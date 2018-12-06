@@ -142,6 +142,9 @@
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "incomes"
+                ],
                 "summary": "Get Export Pdf",
                 "responses": {
                     "200": {
@@ -439,34 +442,6 @@
                     },
                     "401": {
                         "description": "Unauthorized",
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/utils.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/reminder/send": {
-            "get": {
-                "description": "Send Notification Reminder",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "reminder"
-                ],
-                "summary": "Send Reminder",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "$ref": "#/definitions/utils.HTTPError"
@@ -949,6 +924,9 @@
                 "firstLogin": {
                     "type": "string"
                 },
+                "idUser": {
+                    "type": "string"
+                },
                 "token": {
                     "type": "string"
                 }
@@ -957,6 +935,9 @@
         "models.User": {
             "type": "object",
             "properties": {
+                "SiteId": {
+                    "type": "string"
+                },
                 "bankAccountName": {
                     "type": "string"
                 },
@@ -969,13 +950,25 @@
                 "email": {
                     "type": "string"
                 },
-                "fullnameEn": {
+                "firstName": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string"
                 },
+                "lastName": {
+                    "type": "string"
+                },
+                "slackAccount": {
+                    "type": "string"
+                },
                 "thaiCitizenId": {
+                    "type": "string"
+                },
+                "transcript": {
+                    "type": "string"
+                },
+                "vat": {
                     "type": "string"
                 }
             }

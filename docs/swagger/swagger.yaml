@@ -68,11 +68,15 @@ definitions:
     properties:
       firstLogin:
         type: string
+      idUser:
+        type: string
       token:
         type: string
     type: object
   models.User:
     properties:
+      SiteId:
+        type: string
       bankAccountName:
         type: string
       bankAccountNumber:
@@ -81,11 +85,19 @@ definitions:
         type: string
       email:
         type: string
-      fullnameEn:
+      firstName:
         type: string
       id:
         type: string
+      lastName:
+        type: string
+      slackAccount:
+        type: string
       thaiCitizenId:
+        type: string
+      transcript:
+        type: string
+      vat:
         type: string
     type: object
   utils.HTTPError:
@@ -250,6 +262,8 @@ paths:
             $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Get Export Pdf
+      tags:
+      - incomes
   /incomes/month/{id}:
     get:
       consumes:
@@ -399,25 +413,6 @@ paths:
       summary: Login with google account
       tags:
       - login
-  /reminder/send:
-    get:
-      description: Send Notification Reminder
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/string'
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-            type: object
-      summary: Send Reminder
-      tags:
-      - reminder
   /setting/reminder:
     get:
       description: Get Reminder Setting
