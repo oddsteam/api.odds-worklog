@@ -86,6 +86,19 @@ func (mr *MockRepositoryMockRecorder) GetUserByID(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockRepository)(nil).GetUserByID), id)
 }
 
+// GetUserBySiteID mocks base method
+func (m *MockRepository) GetUserBySiteID(id string) ([]*models.User, error) {
+	ret := m.ctrl.Call(m, "GetUserBySiteID", id)
+	ret0, _ := ret[0].([]*models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserBySiteID indicates an expected call of GetUserBySiteID
+func (mr *MockRepositoryMockRecorder) GetUserBySiteID(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBySiteID", reflect.TypeOf((*MockRepository)(nil).GetUserBySiteID), id)
+}
+
 // GetUserByEmail mocks base method
 func (m *MockRepository) GetUserByEmail(email string) (*models.User, error) {
 	ret := m.ctrl.Call(m, "GetUserByEmail", email)
@@ -197,6 +210,19 @@ func (m *MockUsecase) GetUserByID(id string) (*models.User, error) {
 // GetUserByID indicates an expected call of GetUserByID
 func (mr *MockUsecaseMockRecorder) GetUserByID(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockUsecase)(nil).GetUserByID), id)
+}
+
+// GetUserBySiteID mocks base method
+func (m *MockUsecase) GetUserBySiteID(id string) ([]*models.User, error) {
+	ret := m.ctrl.Call(m, "GetUserBySiteID", id)
+	ret0, _ := ret[0].([]*models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserBySiteID indicates an expected call of GetUserBySiteID
+func (mr *MockUsecaseMockRecorder) GetUserBySiteID(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBySiteID", reflect.TypeOf((*MockUsecase)(nil).GetUserBySiteID), id)
 }
 
 // UpdateUser mocks base method

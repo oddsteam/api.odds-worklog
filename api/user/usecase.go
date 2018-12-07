@@ -48,6 +48,10 @@ func (u *usecase) GetUserByID(id string) (*models.User, error) {
 	return u.repo.GetUserByID(id)
 }
 
+func (u *usecase) GetUserBySiteID(id string) ([]*models.User, error) {
+	return u.repo.GetUserBySiteID(id)
+}
+
 func (u *usecase) UpdateUser(m *models.User, file *multipart.FileHeader) (*models.User, error) {
 	user, err := u.repo.UpdateUser(m)
 	if err != nil {

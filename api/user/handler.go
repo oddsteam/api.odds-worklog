@@ -67,7 +67,6 @@ func (h *HttpHandler) CreateUser(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /users [get]
 func (h *HttpHandler) GetUser(c echo.Context) error {
-
 	checkUser, message := IsUserAdmin(c)
 	if !checkUser {
 		return c.JSON(http.StatusUnauthorized, message)
@@ -91,13 +90,41 @@ func (h *HttpHandler) GetUser(c echo.Context) error {
 // @Failure 400 {object} utils.HTTPError
 // @Router /users/{id} [get]
 func (h *HttpHandler) GetUserByID(c echo.Context) error {
-
 	id := c.Param("id")
 	if id == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 
 	user, err := h.Usecase.GetUserByID(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusNoContent, err)
+	}
+	return c.JSON(http.StatusOK, user)
+}
+
+// GetUserBySiteId godoc
+// @Summary Get User By Site Id
+// @Description Get User By Site Id
+// @Tags users
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param  id path string true "Site id"
+// @Success 200 {object} models.User
+// @Failure 204 {object} utils.HTTPError
+// @Failure 400 {object} utils.HTTPError
+// @Router /users/site/{id} [get]
+func (h *HttpHandler) GetUserBySiteID(c echo.Context) error {
+	isAdmin, message := IsUserAdmin(c)
+	if !isAdmin {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+
+	user, err := h.Usecase.GetUserBySiteID(id)
 	if err != nil {
 		return utils.NewError(c, http.StatusNoContent, err)
 	}
@@ -220,6 +247,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("", handler.GetUser)
 	r.POST("", handler.CreateUser)
 	r.GET("/:id", handler.GetUserByID)
+	r.GET("/site/:id", handler.GetUserBySiteID)
 	r.PUT("/:id", handler.UpdateUser)
 	r.DELETE("/:id", handler.DeleteUser)
 	r.PATCH("/:id", handler.UpdatePartialUser)

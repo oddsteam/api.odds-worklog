@@ -74,6 +74,7 @@ func TestUsecase_GetUser(t *testing.T) {
 
 		uc := NewUsecase(mockRepo)
 		u, err := uc.GetUser()
+
 		assert.NoError(t, err)
 		assert.NotNil(t, u)
 		assert.Equal(t, mock.MockUsers[0].GetFullname(), u[0].GetFullname())
@@ -87,8 +88,10 @@ func TestUsecase_GetUserByType(t *testing.T) {
 
 		mockRepo := mock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().GetUserByType("Y").Return(mock.MockUsers, nil)
+
 		uc := NewUsecase(mockRepo)
 		list, err := uc.GetUserByType("Y")
+
 		assert.NoError(t, err)
 		assert.NotNil(t, list)
 		assert.Equal(t, mock.MockUsers, list)
@@ -100,8 +103,10 @@ func TestUsecase_GetUserByType(t *testing.T) {
 
 		mockRepo := mock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().GetUserByType("N").Return(mock.MockUsers, nil)
+
 		uc := NewUsecase(mockRepo)
 		list, err := uc.GetUserByType("N")
+
 		assert.NoError(t, err)
 		assert.NotNil(t, list)
 		assert.Equal(t, mock.MockUsers, list)
@@ -125,11 +130,28 @@ func TestUsecase_GetUserByID(t *testing.T) {
 
 	mockRepo := mock.NewMockRepository(ctrl)
 	mockRepo.EXPECT().GetUserByID("1234567890").Return(&mock.MockUserById, nil)
+
 	uc := NewUsecase(mockRepo)
 	u, err := uc.GetUserByID(string(mock.MockUserById.ID))
+
 	assert.NoError(t, err)
 	assert.NotNil(t, u)
 	assert.Equal(t, mock.MockUserById.GetFullname(), u.GetFullname())
+}
+
+func TestUsecase_GetUserBySiteID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mock.NewMockRepository(ctrl)
+	mockRepo.EXPECT().GetUserBySiteID("1234567890").Return(mock.MockUsers, nil)
+
+	uc := NewUsecase(mockRepo)
+	users, err := uc.GetUserBySiteID("1234567890")
+
+	assert.NoError(t, err)
+	assert.NotNil(t, users)
+	assert.Equal(t, mock.MockUsers, users)
 }
 
 func TestUsecase_DeleteUser(t *testing.T) {

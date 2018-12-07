@@ -58,6 +58,17 @@ func (r *repository) GetUserByID(id string) (*models.User, error) {
 	return user, nil
 }
 
+func (r *repository) GetUserBySiteID(id string) ([]*models.User, error) {
+	users := make([]*models.User, 0)
+
+	coll := r.session.GetCollection(userColl)
+	err := coll.Find(bson.M{"siteId": id}).All(&users)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
 func (r *repository) GetUserByEmail(email string) (*models.User, error) {
 	user := new(models.User)
 	coll := r.session.GetCollection(userColl)

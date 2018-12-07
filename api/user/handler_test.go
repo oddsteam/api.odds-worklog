@@ -225,6 +225,38 @@ func TestGetUserByID(t *testing.T) {
 
 }
 
+func TestGetUserBySiteId(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockUsecase := mock.NewMockUsecase(ctrl)
+	mockListUser := make([]*models.User, 0)
+	mockListUser = append(mockListUser, &mock.MockUser)
+	mockUsecase.EXPECT().GetUserBySiteID("12345").Return(mockListUser, nil)
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.GET, "/", nil)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	claims := &models.JwtCustomClaims{
+		&mock.MockAdmin,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	c.Set("user", token)
+	c.SetParamNames("id")
+	c.SetParamValues("12345")
+
+	handler := &HttpHandler{mockUsecase}
+	handler.GetUserBySiteID(c)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+}
+
 func TestUpdateUser(t *testing.T) {
 	t.Run("when update user success it should return status OK", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
