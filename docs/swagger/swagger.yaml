@@ -665,4 +665,36 @@ paths:
       summary: Update User By Id
       tags:
       - users
+  /users/site/{id}:
+    get:
+      consumes:
+      - multipart/form-data
+      description: Get User By Site Id
+      parameters:
+      - description: Site id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+            type: object
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get User By Site Id
+      tags:
+      - users
 swagger: "2.0"
