@@ -48,9 +48,9 @@ func (u *usecase) CreateUser(email string) (*models.User, error) {
 	user := &models.User{}
 	user.Email = email
 	if user.IsAdmin() {
-		user.Role = "A"
+		user.Role = "admin"
 	} else {
-		user.Role = "I"
+		user.Role = "individual"
 	}
 	return u.UserUsecase.CreateUser(user)
 }
