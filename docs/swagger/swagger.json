@@ -992,9 +992,6 @@
                 "bankAccountNumber": {
                     "type": "string"
                 },
-                "corporateFlag": {
-                    "type": "string"
-                },
                 "email": {
                     "type": "string"
                 },
@@ -1005,6 +1002,9 @@
                     "type": "string"
                 },
                 "lastName": {
+                    "type": "string"
+                },
+                "role": {
                     "type": "string"
                 },
                 "slackAccount": {

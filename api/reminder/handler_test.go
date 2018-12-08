@@ -299,13 +299,13 @@ func (fs MockInComeUsecase) UpdateIncome(id string, req *models.IncomeReq, user 
 	return nil, nil
 }
 
-func (fs MockInComeUsecase) GetIncomeStatusList(corporateFlag string) ([]*models.IncomeStatus, error) {
+func (fs MockInComeUsecase) GetIncomeStatusList(role string) ([]*models.IncomeStatus, error) {
 	mockIncomeStatus := new(models.IncomeStatus)
 
-	if corporateFlag == "N" {
+	if role == "individual" {
 		mockUser := new(models.User)
 		mockUser.Email = "test1@test.com"
-		mockUser.CorporateFlag = "N"
+		mockUser.Role = role
 		mockIncomeStatus.User = mockUser
 		mockIncomeStatus.Status = "N"
 	}
@@ -316,7 +316,7 @@ func (fs MockInComeUsecase) GetIncomeByUserIdAndCurrentMonth(userID string) (*mo
 	return nil, nil
 }
 
-func (fs MockInComeUsecase) ExportIncome(corporateFlag string) (string, error) {
+func (fs MockInComeUsecase) ExportIncome(role string) (string, error) {
 	return "", nil
 }
 

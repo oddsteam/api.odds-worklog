@@ -83,9 +83,9 @@ func calIncomeSum(income string, vattype string) (*incomeSum, error) {
 	return ins, nil
 }
 
-func (u *usecase) GetIncomeStatusList(corporateFlag string) ([]*models.IncomeStatus, error) {
+func (u *usecase) GetIncomeStatusList(role string) ([]*models.IncomeStatus, error) {
 	var incomeList []*models.IncomeStatus
-	users, err := u.userRepo.GetUserByType(corporateFlag)
+	users, err := u.userRepo.GetUserByRole(role)
 	if err != nil {
 		return nil, err
 	}
@@ -314,15 +314,15 @@ func getImageBytes() []byte {
 	return b
 }
 
-func (u *usecase) ExportIncome(corporateFlag string) (string, error) {
-	file, filename, err := utils.CreateCVSFile(corporateFlag)
+func (u *usecase) ExportIncome(role string) (string, error) {
+	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()
 
 	if err != nil {
 		return "", err
 	}
 
-	users, err := u.userRepo.GetUserByType(corporateFlag)
+	users, err := u.userRepo.GetUserByRole(role)
 	if err != nil {
 		return "", err
 	}
@@ -352,9 +352,8 @@ func (u *usecase) ExportIncome(corporateFlag string) (string, error) {
 	csvWriter.Flush()
 
 	ep := models.Export{
-		Filename:      filename,
-		CorporateFlag: corporateFlag,
-		Date:          time.Now(),
+		Filename: filename,
+		Date:     time.Now(),
 	}
 	err = u.repo.AddExport(&ep)
 	if err != nil {

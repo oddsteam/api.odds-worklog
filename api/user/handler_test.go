@@ -435,7 +435,6 @@ func TestUpdatePartialUser(t *testing.T) {
 		mockUser.BankAccountName = "ทดสอบชอบลงทุน"
 		mockUser.BankAccountNumber = "123123123123"
 		mockUser.ThaiCitizenID = "1234567890123"
-		mockUser.CorporateFlag = "Y"
 
 		mockUsecase := mock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.User, 0)

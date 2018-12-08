@@ -37,11 +37,11 @@ func (r *repository) GetUser() ([]*models.User, error) {
 	return users, nil
 }
 
-func (r *repository) GetUserByType(corporateFlag string) ([]*models.User, error) {
+func (r *repository) GetUserByRole(role string) ([]*models.User, error) {
 	users := make([]*models.User, 0)
 
 	coll := r.session.GetCollection(userColl)
-	err := coll.Find(bson.M{"corporateFlag": corporateFlag}).All(&users)
+	err := coll.Find(bson.M{"role": role}).All(&users)
 	if err != nil {
 		return nil, err
 	}

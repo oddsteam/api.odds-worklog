@@ -37,11 +37,8 @@ func (u *usecase) GetUser() ([]*models.User, error) {
 	return u.repo.GetUser()
 }
 
-func (u *usecase) GetUserByType(corporateFlag string) ([]*models.User, error) {
-	if corporateFlag != "Y" && corporateFlag != "N" {
-		return nil, utils.ErrInvalidFlag
-	}
-	return u.repo.GetUserByType(corporateFlag)
+func (u *usecase) GetUserByRole(role string) ([]*models.User, error) {
+	return u.repo.GetUserByRole(role)
 }
 
 func (u *usecase) GetUserByID(id string) (*models.User, error) {

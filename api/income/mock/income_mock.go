@@ -5,11 +5,10 @@
 package mock_income
 
 import (
-	reflect "reflect"
-	time "time"
-
 	gomock "github.com/golang/mock/gomock"
 	models "gitlab.odds.team/worklog/api.odds-worklog/models"
+	reflect "reflect"
+	time "time"
 )
 
 // MockRepository is a mock of Repository interface
@@ -159,16 +158,16 @@ func (mr *MockUsecaseMockRecorder) UpdateIncome(id, req, user interface{}) *gomo
 }
 
 // GetIncomeStatusList mocks base method
-func (m *MockUsecase) GetIncomeStatusList(corporateFlag string) ([]*models.IncomeStatus, error) {
-	ret := m.ctrl.Call(m, "GetIncomeStatusList", corporateFlag)
+func (m *MockUsecase) GetIncomeStatusList(role string) ([]*models.IncomeStatus, error) {
+	ret := m.ctrl.Call(m, "GetIncomeStatusList", role)
 	ret0, _ := ret[0].([]*models.IncomeStatus)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetIncomeStatusList indicates an expected call of GetIncomeStatusList
-func (mr *MockUsecaseMockRecorder) GetIncomeStatusList(corporateFlag interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeStatusList", reflect.TypeOf((*MockUsecase)(nil).GetIncomeStatusList), corporateFlag)
+func (mr *MockUsecaseMockRecorder) GetIncomeStatusList(role interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeStatusList", reflect.TypeOf((*MockUsecase)(nil).GetIncomeStatusList), role)
 }
 
 // GetIncomeByUserIdAndCurrentMonth mocks base method
@@ -185,19 +184,19 @@ func (mr *MockUsecaseMockRecorder) GetIncomeByUserIdAndCurrentMonth(userID inter
 }
 
 // ExportIncome mocks base method
-func (m *MockUsecase) ExportIncome(corporateFlag string) (string, error) {
-	ret := m.ctrl.Call(m, "ExportIncome", corporateFlag)
+func (m *MockUsecase) ExportIncome(role string) (string, error) {
+	ret := m.ctrl.Call(m, "ExportIncome", role)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ExportIncome indicates an expected call of ExportIncome
-func (mr *MockUsecaseMockRecorder) ExportIncome(corporateFlag interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncome", reflect.TypeOf((*MockUsecase)(nil).ExportIncome), corporateFlag)
+func (mr *MockUsecaseMockRecorder) ExportIncome(role interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncome", reflect.TypeOf((*MockUsecase)(nil).ExportIncome), role)
 }
 
-// Export Pdf mocks base method
+// ExportPdf mocks base method
 func (m *MockUsecase) ExportPdf() (string, error) {
 	ret := m.ctrl.Call(m, "ExportPdf")
 	ret0, _ := ret[0].(string)
@@ -205,7 +204,7 @@ func (m *MockUsecase) ExportPdf() (string, error) {
 	return ret0, ret1
 }
 
-// Export Pdf an expected call of Export Pdf
+// ExportPdf indicates an expected call of ExportPdf
 func (mr *MockUsecaseMockRecorder) ExportPdf() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportPdf", reflect.TypeOf((*MockUsecase)(nil).ExportPdf))
 }

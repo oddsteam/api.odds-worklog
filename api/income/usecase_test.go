@@ -24,10 +24,10 @@ func TestUsecaseExportIncome(t *testing.T) {
 		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
 
 		mockRepoUser := userMock.NewMockRepository(ctrl)
-		mockRepoUser.EXPECT().GetUserByType("Y").Return(userMock.MockUsers, nil)
+		mockRepoUser.EXPECT().GetUserByRole("corporate").Return(userMock.MockUsers, nil)
 
 		usecase := NewUsecase(mockRepoIncome, mockRepoUser)
-		filename, err := usecase.ExportIncome("Y")
+		filename, err := usecase.ExportIncome("corporate")
 
 		assert.NoError(t, err)
 		assert.NotNil(t, filename)
@@ -142,10 +142,10 @@ func TestUsecaseGetListIncome(t *testing.T) {
 		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.MockUserById2.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
 
 		mockUserRepo := userMock.NewMockRepository(ctrl)
-		mockUserRepo.EXPECT().GetUserByType("Y").Return(userMock.MockUsers, nil)
+		mockUserRepo.EXPECT().GetUserByRole("corporate").Return(userMock.MockUsers, nil)
 
 		uc := NewUsecase(mockRepoIncome, mockUserRepo)
-		res, err := uc.GetIncomeStatusList("Y")
+		res, err := uc.GetIncomeStatusList("corporate")
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, incomeMock.MockIncomeStatusList[0].Status, res[0].Status)

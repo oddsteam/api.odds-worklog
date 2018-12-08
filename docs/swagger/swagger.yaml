@@ -82,8 +82,6 @@ definitions:
         type: string
       bankAccountNumber:
         type: string
-      corporateFlag:
-        type: string
       email:
         type: string
       firstName:
@@ -91,6 +89,8 @@ definitions:
       id:
         type: string
       lastName:
+        type: string
+      role:
         type: string
       slackAccount:
         type: string

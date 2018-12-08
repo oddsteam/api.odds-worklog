@@ -54,7 +54,6 @@ func TestCreateUser(t *testing.T) {
 		email := "abc@odds.team"
 		user := new(models.User)
 		user.Email = email
-		user.CorporateFlag = "F"
 
 		mockUsecase := userMock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().CreateUser(gomock.Any()).Return(user, nil)
@@ -64,7 +63,6 @@ func TestCreateUser(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, email, userRes.Email)
-		assert.Equal(t, "F", userRes.CorporateFlag)
 	})
 
 	t.Run("when email is not odds.team, then return error ErrEmailIsNotOddsTeam", func(t *testing.T) {
@@ -74,7 +72,6 @@ func TestCreateUser(t *testing.T) {
 		email := "abc@mail.com"
 		user := new(models.User)
 		user.Email = email
-		user.CorporateFlag = "F"
 
 		mockUsecase := userMock.NewMockUsecase(ctrl)
 		usecase := NewUsecase(mockUsecase)

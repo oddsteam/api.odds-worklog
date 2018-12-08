@@ -81,46 +81,35 @@ func TestUsecase_GetUser(t *testing.T) {
 	})
 }
 
-func TestUsecase_GetUserByType(t *testing.T) {
-	t.Run("when call GetUserByType 'Y', then return list user", func(t *testing.T) {
+func TestUsecase_GetUserByRole(t *testing.T) {
+	t.Run("when call GetUserByRole 'corporate', then return list user", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		mockRepo := mock.NewMockRepository(ctrl)
-		mockRepo.EXPECT().GetUserByType("Y").Return(mock.MockUsers, nil)
+		mockRepo.EXPECT().GetUserByRole("corporate").Return(mock.MockUsers, nil)
 
 		uc := NewUsecase(mockRepo)
-		list, err := uc.GetUserByType("Y")
+		list, err := uc.GetUserByRole("corporate")
 
 		assert.NoError(t, err)
 		assert.NotNil(t, list)
 		assert.Equal(t, mock.MockUsers, list)
 	})
 
-	t.Run("when call GetUserByType 'N', then return list user", func(t *testing.T) {
+	t.Run("when call GetUserByRole 'individual', then return list user", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		mockRepo := mock.NewMockRepository(ctrl)
-		mockRepo.EXPECT().GetUserByType("N").Return(mock.MockUsers, nil)
+		mockRepo.EXPECT().GetUserByRole("individual").Return(mock.MockUsers, nil)
 
 		uc := NewUsecase(mockRepo)
-		list, err := uc.GetUserByType("N")
+		list, err := uc.GetUserByRole("individual")
 
 		assert.NoError(t, err)
 		assert.NotNil(t, list)
 		assert.Equal(t, mock.MockUsers, list)
-	})
-
-	t.Run("when call GetUserByType isn't 'Y' or 'N', then return error ErrInvalidFlag", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockRepo := mock.NewMockRepository(ctrl)
-		uc := NewUsecase(mockRepo)
-		_, err := uc.GetUserByType("")
-
-		assert.EqualError(t, err, utils.ErrInvalidFlag.Error())
 	})
 }
 

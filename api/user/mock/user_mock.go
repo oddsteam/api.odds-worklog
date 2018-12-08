@@ -60,17 +60,17 @@ func (mr *MockRepositoryMockRecorder) GetUser() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockRepository)(nil).GetUser))
 }
 
-// GetUserByType mocks base method
-func (m *MockRepository) GetUserByType(corporateFlag string) ([]*models.User, error) {
-	ret := m.ctrl.Call(m, "GetUserByType", corporateFlag)
+// GetUserByRole mocks base method
+func (m *MockRepository) GetUserByRole(role string) ([]*models.User, error) {
+	ret := m.ctrl.Call(m, "GetUserByRole", role)
 	ret0, _ := ret[0].([]*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetUserByType indicates an expected call of GetUserByType
-func (mr *MockRepositoryMockRecorder) GetUserByType(corporateFlag interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByType", reflect.TypeOf((*MockRepository)(nil).GetUserByType), corporateFlag)
+// GetUserByRole indicates an expected call of GetUserByRole
+func (mr *MockRepositoryMockRecorder) GetUserByRole(role interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByRole", reflect.TypeOf((*MockRepository)(nil).GetUserByRole), role)
 }
 
 // GetUserByID mocks base method
@@ -186,17 +186,17 @@ func (mr *MockUsecaseMockRecorder) GetUser() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockUsecase)(nil).GetUser))
 }
 
-// GetUserByType mocks base method
-func (m *MockUsecase) GetUserByType(corporateFlag string) ([]*models.User, error) {
-	ret := m.ctrl.Call(m, "GetUserByType", corporateFlag)
+// GetUserByRole mocks base method
+func (m *MockUsecase) GetUserByRole(role string) ([]*models.User, error) {
+	ret := m.ctrl.Call(m, "GetUserByRole", role)
 	ret0, _ := ret[0].([]*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetUserByType indicates an expected call of GetUserByType
-func (mr *MockUsecaseMockRecorder) GetUserByType(corporateFlag interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByType", reflect.TypeOf((*MockUsecase)(nil).GetUserByType), corporateFlag)
+// GetUserByRole indicates an expected call of GetUserByRole
+func (mr *MockUsecaseMockRecorder) GetUserByRole(role interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByRole", reflect.TypeOf((*MockUsecase)(nil).GetUserByRole), role)
 }
 
 // GetUserByID mocks base method

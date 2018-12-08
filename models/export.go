@@ -7,8 +7,7 @@ import (
 )
 
 type Export struct {
-	ID            bson.ObjectId `bson:"_id" json:"id"`
-	Filename      string        `bson:"filename" json:"filename"`
-	CorporateFlag string        `bson:"corporateFlag" json:"corporateFlag"`
-	Date          time.Time     `bson:"date" json:"date"`
+	ID       bson.ObjectId `bson:"_id" json:"id"`
+	Filename string        `bson:"filename" json:"filename"`
+	Date     time.Time     `bson:"date" json:"date"`
 }
