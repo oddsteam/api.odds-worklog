@@ -47,7 +47,7 @@ func (u *usecase) CreateUser(email string) (*models.User, error) {
 	}
 	user := &models.User{}
 	user.Email = email
-	user.CorporateFlag = "F"
+	user.CorporateFlag = "N"
 	return u.UserUsecase.CreateUser(user)
 }
 
