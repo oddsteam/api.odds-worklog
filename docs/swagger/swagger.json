@@ -971,11 +971,12 @@
                 "firstLogin": {
                     "type": "string"
                 },
-                "idUser": {
-                    "type": "string"
-                },
                 "token": {
                     "type": "string"
+                },
+                "user": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.User"
                 }
             }
         },
