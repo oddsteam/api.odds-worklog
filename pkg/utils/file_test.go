@@ -8,7 +8,7 @@ import (
 )
 
 func TestCreateCSVFile(t *testing.T) {
-	file, filename, err := CreateCVSFile("Y")
+	file, filename, err := CreateCVSFile("corporate")
 	assert.NotNil(t, file)
 	assert.NotEmpty(t, filename)
 	assert.NoError(t, err)

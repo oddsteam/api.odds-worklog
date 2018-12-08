@@ -104,7 +104,7 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/status/corporate [get]
 func (h *HttpHandler) GetCorporateIncomeStatus(c echo.Context) error {
-	status, err := h.Usecase.GetIncomeStatusList("Y")
+	status, err := h.Usecase.GetIncomeStatusList("corporate")
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -123,7 +123,7 @@ func (h *HttpHandler) GetCorporateIncomeStatus(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/status/individual [get]
 func (h *HttpHandler) GetIndividualIncomeStatus(c echo.Context) error {
-	status, err := h.Usecase.GetIncomeStatusList("N")
+	status, err := h.Usecase.GetIncomeStatusList("individual")
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -186,7 +186,7 @@ func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
 	if !checkUser {
 		return c.JSON(http.StatusUnauthorized, message)
 	}
-	filename, err := h.Usecase.ExportIncome("Y")
+	filename, err := h.Usecase.ExportIncome("corporate")
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -207,7 +207,7 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	if !checkUser {
 		return c.JSON(http.StatusUnauthorized, message)
 	}
-	filename, err := h.Usecase.ExportIncome("N")
+	filename, err := h.Usecase.ExportIncome("individual")
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}

@@ -166,7 +166,7 @@ func TestGetCorporateIncomeStatus(t *testing.T) {
 		mockUsecase := mockIncome.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.IncomeStatus, 0)
 		mockListUser = append(mockListUser, &mockIncome.MockCorporateIncomeStatus)
-		mockUsecase.EXPECT().GetIncomeStatusList("Y").Return(mockListUser, nil)
+		mockUsecase.EXPECT().GetIncomeStatusList("corporate").Return(mockListUser, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -186,7 +186,7 @@ func TestGetCorporateIncomeStatus(t *testing.T) {
 		mockUsecase := mockIncome.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.IncomeStatus, 0)
 		mockListUser = append(mockListUser, &mockIncome.MockIndividualIncomeStatus)
-		mockUsecase.EXPECT().GetIncomeStatusList("Y").Return(mockListUser, nil)
+		mockUsecase.EXPECT().GetIncomeStatusList("corporate").Return(mockListUser, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -210,7 +210,7 @@ func TestGetIndividualIncomeStatus(t *testing.T) {
 		mockUsecase := mockIncome.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.IncomeStatus, 0)
 		mockListUser = append(mockListUser, &mockIncome.MockIndividualIncomeStatus)
-		mockUsecase.EXPECT().GetIncomeStatusList("N").Return(mockListUser, nil)
+		mockUsecase.EXPECT().GetIncomeStatusList("individual").Return(mockListUser, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -230,7 +230,7 @@ func TestGetIndividualIncomeStatus(t *testing.T) {
 		mockUsecase := mockIncome.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.IncomeStatus, 0)
 		mockListUser = append(mockListUser, &mockIncome.MockCorporateIncomeStatus)
-		mockUsecase.EXPECT().GetIncomeStatusList("N").Return(mockListUser, nil)
+		mockUsecase.EXPECT().GetIncomeStatusList("individual").Return(mockListUser, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -328,7 +328,7 @@ func TestGetExportCorporateIncomeStatus(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := mockIncome.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().ExportIncome("Y").Return("test.csv", nil)
+		mockUsecase.EXPECT().ExportIncome("corporate").Return("test.csv", nil)
 		e := echo.New()
 		claims := &models.JwtCustomClaims{
 			&userMocks.MockUser,
@@ -355,7 +355,7 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := mockIncome.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().ExportIncome("N").Return("test.csv", nil)
+		mockUsecase.EXPECT().ExportIncome("individual").Return("test.csv", nil)
 		e := echo.New()
 		claims := &models.JwtCustomClaims{
 			&userMocks.MockUser,
