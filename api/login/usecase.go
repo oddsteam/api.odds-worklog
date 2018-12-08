@@ -1,7 +1,6 @@
 package login
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -9,6 +8,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 	oauth2 "google.golang.org/api/oauth2/v2"
 )
 
@@ -36,16 +36,28 @@ func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
 	}
 
 	if !verifyAudience(tokenInfo.Audience) {
-		return nil, errors.New("Token is not account @odds.team")
+		return nil, utils.ErrTokenIsNotOddsTeam
 	}
 	return tokenInfo, nil
 }
 
 func (u *usecase) CreateUser(email string) (*models.User, error) {
+	if !isOddsTeam(email) {
+		return nil, utils.ErrEmailIsNotOddsTeam
+	}
 	user := &models.User{}
 	user.Email = email
 	user.CorporateFlag = "F"
 	return u.UserUsecase.CreateUser(user)
+}
+
+func isOddsTeam(email string) bool {
+	if len(email) < 10 {
+		return false
+	}
+
+	host := email[len(email)-9:]
+	return host == "odds.team"
 }
 
 func verifyAudience(aud string) bool {
@@ -70,7 +82,7 @@ func handleToken(user *models.User) (*models.Token, error) {
 	token := &models.Token{
 		Token:      tok,
 		FirstLogin: firstLogin,
-		IdUser:     user.ID.Hex(),
+		User:       user,
 	}
 
 	return token, nil

@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 func TestVerifyAudience(t *testing.T) {
@@ -50,7 +51,7 @@ func TestCreateUser(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		email := "abc@mail.com"
+		email := "abc@odds.team"
 		user := new(models.User)
 		user.Email = email
 		user.CorporateFlag = "F"
@@ -65,4 +66,27 @@ func TestCreateUser(t *testing.T) {
 		assert.Equal(t, email, userRes.Email)
 		assert.Equal(t, "F", userRes.CorporateFlag)
 	})
+
+	t.Run("when email is not odds.team, then return error ErrEmailIsNotOddsTeam", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		email := "abc@mail.com"
+		user := new(models.User)
+		user.Email = email
+		user.CorporateFlag = "F"
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		usecase := NewUsecase(mockUsecase)
+		userRes, err := usecase.CreateUser(email)
+
+		assert.Nil(t, userRes)
+		assert.EqualError(t, err, utils.ErrEmailIsNotOddsTeam.Error())
+	})
+}
+
+func TestUsecase_isOddsTeam(t *testing.T) {
+	assert.True(t, isOddsTeam("a@odds.team"))
+	assert.False(t, isOddsTeam(""))
+	assert.False(t, isOddsTeam("a@gmail.com"))
 }

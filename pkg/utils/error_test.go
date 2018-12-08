@@ -20,6 +20,8 @@ func TestConfigError(t *testing.T) {
 	assert.Equal(t, "Invalid token", ErrInvalidToken.Error())
 	assert.Equal(t, "Bad request", ErrBadRequest.Error())
 	assert.Equal(t, "Invalid flag", ErrInvalidFlag.Error())
+	assert.Equal(t, "Email is not account @odds.team", ErrEmailIsNotOddsTeam.Error())
+	assert.Equal(t, "Token is not account @odds.team", ErrTokenIsNotOddsTeam.Error())
 }
 
 func TestNewError(t *testing.T) {
