@@ -267,11 +267,20 @@ func TestUpdateUser(t *testing.T) {
 		mockListUser = append(mockListUser, &mock.MockUser)
 		mockUsecase.EXPECT().UpdateUser(&mock.MockUser, nil).Return(&mock.MockUser, nil)
 
+		claims := &models.JwtCustomClaims{
+			&mock.MockUser,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
 		e := echo.New()
 		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(mock.UserJson))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", token)
 		c.SetParamNames("id")
 		c.SetParamValues("5bc89e26f37e2f0df54e6fef")
 		handler := &HttpHandler{mockUsecase}
@@ -325,11 +334,20 @@ func TestUpdateUser(t *testing.T) {
 		mockListUser = append(mockListUser, &mock.MockUser)
 		mockUsecase.EXPECT().UpdateUser(&mock.MockUser, nil).Return(&mock.MockUser, errors.New(""))
 
+		claims := &models.JwtCustomClaims{
+			&mock.MockUser,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
 		e := echo.New()
 		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(mock.UserJson))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", token)
 		c.SetParamNames("id")
 		c.SetParamValues("5bc89e26f37e2f0df54e6fef")
 		handler := &HttpHandler{mockUsecase}

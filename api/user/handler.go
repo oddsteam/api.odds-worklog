@@ -161,6 +161,9 @@ func (h *HttpHandler) UpdateUser(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 
+	ut := getUserFromToken(c)
+	u.Email = ut.Email
+
 	file, _ := c.FormFile("file")
 	user, err := h.Usecase.UpdateUser(&u, file)
 	if err != nil {
@@ -230,13 +233,17 @@ func (h *HttpHandler) UpdatePartialUser(c echo.Context) error {
 }
 
 func IsUserAdmin(c echo.Context) (bool, string) {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(*models.JwtCustomClaims)
-	u := claims.User
+	u := getUserFromToken(c)
 	if u.IsAdmin() {
 		return true, ""
 	}
 	return false, "ไม่มีสิทธิในการใช้งาน"
+}
+
+func getUserFromToken(c echo.Context) *models.User {
+	t := c.Get("user").(*jwt.Token)
+	claims := t.Claims.(*models.JwtCustomClaims)
+	return claims.User
 }
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
