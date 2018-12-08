@@ -50,16 +50,24 @@ func (u *usecase) GetUserBySiteID(id string) ([]*models.User, error) {
 }
 
 func (u *usecase) UpdateUser(m *models.User, file *multipart.FileHeader) (*models.User, error) {
+	if err := m.ValidateRole(); err != nil {
+		return nil, err
+	}
+
+	if m.Role == "admin" && !m.IsAdmin() {
+		return nil, utils.ErrInvalidUserRole
+	}
+
 	user, err := u.repo.UpdateUser(m)
 	if err != nil {
-		return nil, errors.New("Update user failed")
+		return nil, err
 	}
 
 	if file != nil {
 		filename := getTranscriptFilename(user)
 		err = saveTranscript(file, filename)
 		if err != nil {
-			return nil, errors.New("Save transcript failed")
+			return nil, utils.ErrSaveTranscript
 		}
 	}
 	return user, nil

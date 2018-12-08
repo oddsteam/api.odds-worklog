@@ -157,18 +157,49 @@ func TestUsecase_DeleteUser(t *testing.T) {
 }
 
 func TestUsecase_UpdateUser(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	t.Run("update user success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-	mockRepo := mock.NewMockRepository(ctrl)
-	mockRepo.EXPECT().UpdateUser(gomock.Any()).Return(&mock.MockUserById, nil)
+		mockRepo := mock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().UpdateUser(gomock.Any()).Return(&mock.MockUserById, nil)
 
-	uc := NewUsecase(mockRepo)
-	u, err := uc.UpdateUser(&mock.MockUserById, nil)
+		uc := NewUsecase(mockRepo)
+		u, err := uc.UpdateUser(&mock.MockUserById, nil)
 
-	assert.NoError(t, err)
-	assert.NotNil(t, u)
-	assert.Equal(t, mock.MockUser.GetFullname(), u.GetFullname())
+		assert.NoError(t, err)
+		assert.NotNil(t, u)
+		assert.Equal(t, mock.MockUser.GetFullname(), u.GetFullname())
+	})
+
+	t.Run("when update user invalid role, then retuen erro nil, ErrInvalidUserRole", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockRepo := mock.NewMockRepository(ctrl)
+		uc := NewUsecase(mockRepo)
+		mu := mock.MockUser
+		mu.Role = ""
+		u, err := uc.UpdateUser(&mu, nil)
+
+		assert.Nil(t, u)
+		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
+	})
+
+	t.Run("when update user invalid role permission, then retuen erro nil, ErrInvalidUserRole", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockRepo := mock.NewMockRepository(ctrl)
+		uc := NewUsecase(mockRepo)
+		mu := mock.MockUser
+		mu.Role = "admin"
+		mu.Email = "a@odds.team"
+		u, err := uc.UpdateUser(&mu, nil)
+
+		assert.Nil(t, u)
+		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
+	})
 }
 
 func TestUsecase_getTranscriptFilename(t *testing.T) {

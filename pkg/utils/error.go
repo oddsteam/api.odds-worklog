@@ -17,6 +17,8 @@ var (
 	ErrInvalidFlag        = errors.New("Invalid flag")
 	ErrEmailIsNotOddsTeam = errors.New("Email is not account @odds.team")
 	ErrTokenIsNotOddsTeam = errors.New("Token is not account @odds.team")
+	ErrInvalidUserRole    = errors.New("Invalid user role")
+	ErrSaveTranscript     = errors.New("Save transcript failed")
 )
 
 func NewError(ctx echo.Context, status int, err error) error {

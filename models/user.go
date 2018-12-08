@@ -1,6 +1,9 @@
 package models
 
-import "gopkg.in/mgo.v2/bson"
+import (
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+	"gopkg.in/mgo.v2/bson"
+)
 
 type User struct {
 	ID                bson.ObjectId `bson:"_id" json:"id"`
@@ -38,4 +41,11 @@ func (u *User) GetFullname() string {
 
 func (u *User) IsFullnameEmpty() bool {
 	return u.FirstName == "" || u.LastName == ""
+}
+
+func (u *User) ValidateRole() error {
+	if u.Role != "corporate" && u.Role != "individual" && u.Role != "admin" {
+		return utils.ErrInvalidUserRole
+	}
+	return nil
 }

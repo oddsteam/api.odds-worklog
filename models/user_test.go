@@ -3,6 +3,8 @@ package models
 import (
 	"testing"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,4 +34,19 @@ func TestUser(t *testing.T) {
 	u.FirstName = "Tester"
 	u.LastName = ""
 	assert.True(t, u.IsFullnameEmpty())
+
+	u.Role = "admin"
+	assert.Nil(t, u.ValidateRole())
+
+	u.Role = "corporate"
+	assert.Nil(t, u.ValidateRole())
+
+	u.Role = "individual"
+	assert.Nil(t, u.ValidateRole())
+
+	u.Role = ""
+	assert.EqualError(t, u.ValidateRole(), utils.ErrInvalidUserRole.Error())
+
+	u.Role = "abc"
+	assert.EqualError(t, u.ValidateRole(), utils.ErrInvalidUserRole.Error())
 }
