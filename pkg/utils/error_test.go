@@ -24,6 +24,7 @@ func TestConfigError(t *testing.T) {
 	assert.Equal(t, "Token is not account @odds.team", ErrTokenIsNotOddsTeam.Error())
 	assert.Equal(t, "Invalid user role", ErrInvalidUserRole.Error())
 	assert.Equal(t, "Save transcript failed", ErrSaveTranscript.Error())
+	assert.Equal(t, "Not PDF file", ErrNotPDFFile.Error())
 }
 
 func TestNewError(t *testing.T) {
