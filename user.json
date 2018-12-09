@@ -1,7 +1,7 @@
 [
     {
         "firstName": "Tester",
-        "lasterName": "Number1",
+        "lastName": "Number1",
         "role": "corporate",
         "email": "tester1@odds.team",
         "bankAccountName": "นักทดสอบ 1",
@@ -14,7 +14,7 @@
     },
     {
         "firstName": "Tester",
-        "lasterName": "Number2",
+        "lastName": "Number2",
         "role": "corporate",
         "email": "tester2@odds.team",
         "bankAccountName": "นักทดสอบ 2",
@@ -27,7 +27,7 @@
     },
     {
         "firstName": "Tester",
-        "lasterName": "Number3",
+        "lastName": "Number3",
         "role": "individual",
         "email": "tester3@odds.team",
         "bankAccountName": "นักทดสอบ 3",
@@ -40,7 +40,7 @@
     },
     {
         "firstName": "Tester",
-        "lasterName": "Number4",
+        "lastName": "Number4",
         "role": "individual",
         "email": "tester4@odds.team",
         "bankAccountName": "นักทดสอบ 4",
