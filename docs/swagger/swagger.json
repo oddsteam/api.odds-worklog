@@ -10,6 +10,48 @@
     "host": "http://worklog-dev.odds.team/api",
     "basePath": "/v1",
     "paths": {
+        "/files/transcript": {
+            "post": {
+                "description": "Upload transcript file",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "files"
+                ],
+                "summary": "Upload transcript file",
+                "parameters": [
+                    {
+                        "description": "file",
+                        "name": "file",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/incomes": {
             "post": {
                 "description": "Add Income",
@@ -867,6 +909,14 @@
         }
     },
     "definitions": {
+        "models.CommonResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Income": {
             "type": "object",
             "properties": {

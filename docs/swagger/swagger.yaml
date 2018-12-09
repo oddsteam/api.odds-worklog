@@ -1,5 +1,10 @@
 basePath: /v1
 definitions:
+  models.CommonResponse:
+    properties:
+      message:
+        type: string
+    type: object
   models.Income:
     properties:
       id:
@@ -116,6 +121,34 @@ info:
   title: Odds-Worklog Example API
   version: "1.0"
 paths:
+  /files/transcript:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload transcript file
+      parameters:
+      - description: file
+        in: body
+        name: file
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Upload transcript file
+      tags:
+      - files
   /incomes:
     post:
       consumes:

@@ -7,7 +7,6 @@ package mock_user
 import (
 	gomock "github.com/golang/mock/gomock"
 	models "gitlab.odds.team/worklog/api.odds-worklog/models"
-	multipart "mime/multipart"
 	reflect "reflect"
 )
 
@@ -226,16 +225,16 @@ func (mr *MockUsecaseMockRecorder) GetUserBySiteID(id interface{}) *gomock.Call 
 }
 
 // UpdateUser mocks base method
-func (m *MockUsecase) UpdateUser(u *models.User, file *multipart.FileHeader) (*models.User, error) {
-	ret := m.ctrl.Call(m, "UpdateUser", u, file)
+func (m *MockUsecase) UpdateUser(u *models.User) (*models.User, error) {
+	ret := m.ctrl.Call(m, "UpdateUser", u)
 	ret0, _ := ret[0].(*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UpdateUser indicates an expected call of UpdateUser
-func (mr *MockUsecaseMockRecorder) UpdateUser(u, file interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockUsecase)(nil).UpdateUser), u, file)
+func (mr *MockUsecaseMockRecorder) UpdateUser(u interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockUsecase)(nil).UpdateUser), u)
 }
 
 // DeleteUser mocks base method

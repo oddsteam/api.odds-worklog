@@ -163,9 +163,7 @@ func (h *HttpHandler) UpdateUser(c echo.Context) error {
 
 	ut := getUserFromToken(c)
 	u.Email = ut.Email
-
-	file, _ := c.FormFile("file")
-	user, err := h.Usecase.UpdateUser(&u, file)
+	user, err := h.Usecase.UpdateUser(&u)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -227,8 +225,7 @@ func (h *HttpHandler) UpdatePartialUser(c echo.Context) error {
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	file, _ := c.FormFile("file")
-	newUser, err := h.Usecase.UpdateUser(user, file)
+	newUser, err := h.Usecase.UpdateUser(user)
 	return c.JSON(http.StatusOK, newUser)
 }
 

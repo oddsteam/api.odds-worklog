@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/api/file"
+
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -55,6 +57,8 @@ func main() {
 	user.NewHttpHandler(r, session)
 	income.NewHttpHandler(r, session)
 	reminder.NewHTTPHandler(r, session)
+	file.NewHttpHandler(r)
+
 	reminderRepo := reminder.NewRepository(session)
 	s, err := reminderRepo.GetReminder()
 	if err != nil {

@@ -265,7 +265,7 @@ func TestUpdateUser(t *testing.T) {
 		mockUsecase := mock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.User, 0)
 		mockListUser = append(mockListUser, &mock.MockUser)
-		mockUsecase.EXPECT().UpdateUser(&mock.MockUser, nil).Return(&mock.MockUser, nil)
+		mockUsecase.EXPECT().UpdateUser(&mock.MockUser).Return(&mock.MockUser, nil)
 
 		claims := &models.JwtCustomClaims{
 			&mock.MockUser,
@@ -332,7 +332,7 @@ func TestUpdateUser(t *testing.T) {
 		mockUsecase := mock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.User, 0)
 		mockListUser = append(mockListUser, &mock.MockUser)
-		mockUsecase.EXPECT().UpdateUser(&mock.MockUser, nil).Return(&mock.MockUser, errors.New(""))
+		mockUsecase.EXPECT().UpdateUser(&mock.MockUser).Return(&mock.MockUser, errors.New(""))
 
 		claims := &models.JwtCustomClaims{
 			&mock.MockUser,
@@ -458,7 +458,7 @@ func TestUpdatePartialUser(t *testing.T) {
 		mockListUser := make([]*models.User, 0)
 		mockListUser = append(mockListUser, &mock.MockUser)
 		mockUsecase.EXPECT().GetUserByID(mock.MockUser.ID.Hex()).Return(mockUser, nil)
-		mockUsecase.EXPECT().UpdateUser(mockUser, nil).Return(mockUser, nil)
+		mockUsecase.EXPECT().UpdateUser(mockUser).Return(mockUser, nil)
 		mockIoReader := `{"firstName" : "ODDS","lastName" : "junk","email" : "xx@c.com"}`
 
 		e := echo.New()

@@ -1,8 +1,6 @@
 package user
 
 import (
-	"fmt"
-	"strings"
 	"testing"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -165,7 +163,7 @@ func TestUsecase_UpdateUser(t *testing.T) {
 		mockRepo.EXPECT().UpdateUser(gomock.Any()).Return(&mock.MockUserById, nil)
 
 		uc := NewUsecase(mockRepo)
-		u, err := uc.UpdateUser(&mock.MockUserById, nil)
+		u, err := uc.UpdateUser(&mock.MockUserById)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, u)
@@ -180,7 +178,7 @@ func TestUsecase_UpdateUser(t *testing.T) {
 		uc := NewUsecase(mockRepo)
 		mu := mock.MockUser
 		mu.Role = ""
-		u, err := uc.UpdateUser(&mu, nil)
+		u, err := uc.UpdateUser(&mu)
 
 		assert.Nil(t, u)
 		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
@@ -195,22 +193,9 @@ func TestUsecase_UpdateUser(t *testing.T) {
 		mu := mock.MockUser
 		mu.Role = "admin"
 		mu.Email = "a@odds.team"
-		u, err := uc.UpdateUser(&mu, nil)
+		u, err := uc.UpdateUser(&mu)
 
 		assert.Nil(t, u)
 		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
 	})
-}
-
-func TestUsecase_getTranscriptFilename(t *testing.T) {
-	u := mock.MockUser
-
-	filename := getTranscriptFilename(&u)
-	assert.NotEmpty(t, filename)
-
-	path := "files/transcripts"
-	filenameExp := fmt.Sprintf("%s/transcript_%s_%s_", path, strings.ToUpper(u.FirstName), strings.ToUpper(u.LastName))
-	assert.Contains(t, filename, filenameExp)
-	assert.Contains(t, filename, ".pdf")
-	assert.Equal(t, len(filenameExp)+12, len(filename))
 }
