@@ -76,8 +76,6 @@ definitions:
     type: object
   models.User:
     properties:
-      SiteId:
-        type: string
       bankAccountName:
         type: string
       bankAccountNumber:
@@ -91,6 +89,8 @@ definitions:
       lastName:
         type: string
       role:
+        type: string
+      siteId:
         type: string
       slackAccount:
         type: string

@@ -983,9 +983,6 @@
         "models.User": {
             "type": "object",
             "properties": {
-                "SiteId": {
-                    "type": "string"
-                },
                 "bankAccountName": {
                     "type": "string"
                 },
@@ -1005,6 +1002,9 @@
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                },
+                "siteId": {
                     "type": "string"
                 },
                 "slackAccount": {
