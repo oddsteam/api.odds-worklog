@@ -111,15 +111,6 @@ func (u *usecase) GetIncomeByUserIdAndCurrentMonth(userId string) (*models.Incom
 	return u.repo.GetIncomeUserByYearMonth(userId, year, month)
 }
 
-func strDelimit(str string, sepstr string, sepcount int) string {
-	pos := len(str) - sepcount
-	for pos > 0 {
-		str = str[:pos] + sepstr + str[pos:]
-		pos = pos - sepcount
-	}
-	return str
-}
-
 var gofpdfDir string
 
 func ImageFile(fileStr string) string {
