@@ -12,8 +12,8 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/worker"
 )
 
-// NewHTTPHandler for reminder resource godoc
-func NewHTTPHandler(r *echo.Group, session *mongo.Session) {
+// NewHttpHandler for reminder resource godoc
+func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	reminderRepo := NewRepository(session)
 
 	r = r.Group("/reminder")

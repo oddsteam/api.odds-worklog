@@ -57,9 +57,10 @@ func main() {
 	// Handler
 	user.NewHttpHandler(r, session)
 	income.NewHttpHandler(r, session)
-	reminder.NewHTTPHandler(r, session)
-	file.NewHttpHandler(r)
+	reminder.NewHttpHandler(r, session)
+	file.NewHttpHandler(r, session)
 	site.NewHttpHandler(r, session)
+
 	reminderRepo := reminder.NewRepository(session)
 	s, err := reminderRepo.GetReminder()
 	if err != nil {
