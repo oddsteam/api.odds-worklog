@@ -135,7 +135,7 @@ func TestGetUser(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, rec.Code)
 	})
 
-	t.Run("when getUSer in usecase is have error  it should return StatusInternalServerError", func(t *testing.T) {
+	t.Run("when getUser in usecase is have error  it should return StatusInternalServerError", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
@@ -166,7 +166,7 @@ func TestGetUser(t *testing.T) {
 }
 
 func TestGetUserByID(t *testing.T) {
-	t.Run("when get user by success it should return status OK", func(t *testing.T) {
+	t.Run("when get user by id success it should return status OK", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
@@ -203,7 +203,7 @@ func TestGetUserByID(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 	})
 
-	t.Run("when getUSer in usecase is have error  it should return StatusNoContent", func(t *testing.T) {
+	t.Run("when getUser in usecase is have error  it should return StatusNoContent", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
@@ -358,7 +358,7 @@ func TestUpdateUser(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
-	t.Run("when delete user by success it should return status OK", func(t *testing.T) {
+	t.Run("when delete user by id success it should return status OK", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
