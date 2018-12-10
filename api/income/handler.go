@@ -29,8 +29,8 @@ func isRequestValid(m *models.IncomeReq) (bool, error) {
 // @Summary Add Income
 // @Description Add Income
 // @Tags incomes
-// @Accept  json
-// @Produce  json
+// @Accept json
+// @Produce json
 // @Param income body models.IncomeReq true  " "
 // @Success 200 {object} models.Income
 // @Failure 400 {object} utils.HTTPError
@@ -45,10 +45,8 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 	if ok, err := isRequestValid(&income); !ok {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(*models.JwtCustomClaims)
-
-	res, err := h.Usecase.AddIncome(&income, claims.User)
+	user := getUserFromToken(c)
+	res, err := h.Usecase.AddIncome(&income, user)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -59,10 +57,10 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 // @Summary Update Income
 // @Description Update Income
 // @Tags incomes
-// @Accept  json
-// @Produce  json
+// @Accept json
+// @Produce json
 // @Param income body models.IncomeReq true  " "
-// @Param  id path string true "Income ID"
+// @Param id path string true "Income ID"
 // @Success 200 {object} models.Income
 // @Failure 400 {object} utils.HTTPError
 // @Failure 422 {object} utils.HTTPError
@@ -82,10 +80,8 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 	if ok, err := isRequestValid(&req); !ok {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(*models.JwtCustomClaims)
-
-	res, err := h.Usecase.UpdateIncome(id, &req, claims.User)
+	user := getUserFromToken(c)
+	res, err := h.Usecase.UpdateIncome(id, &req, user)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -96,8 +92,8 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 // @Summary Get Corporate Income Status List
 // @Description Get Income Status List
 // @Tags incomes
-// @Accept  json
-// @Produce  json
+// @Accept json
+// @Produce json
 // @Success 200 {array} models.IncomeStatus
 // @Failure 400 {object} utils.HTTPError
 // @Failure 422 {object} utils.HTTPError
@@ -115,8 +111,8 @@ func (h *HttpHandler) GetCorporateIncomeStatus(c echo.Context) error {
 // @Summary Get Individual Income Status List
 // @Description Get Individual Income Status List
 // @Tags incomes
-// @Accept  json
-// @Produce  json
+// @Accept json
+// @Produce json
 // @Success 200 {array} models.IncomeStatus
 // @Failure 400 {object} utils.HTTPError
 // @Failure 422 {object} utils.HTTPError
@@ -130,24 +126,26 @@ func (h *HttpHandler) GetIndividualIncomeStatus(c echo.Context) error {
 	return c.JSON(http.StatusOK, status)
 }
 
-// GetIncomeByUserIdAndCurrentMonth godoc
+// GetIncomeCurrentMonthByUserId godoc
 // @Summary Get Income Of Current Month By User Id
 // @Description Get Income Of Current Month By User Id
 // @Tags incomes
-// @Accept  json
-// @Produce  json
-// @Param  id path string true "User ID"
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
 // @Success 200 {object} models.Income
 // @Failure 400 {object} utils.HTTPError
-// @Router /incomes/month/{id} [get]
-func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(*models.JwtCustomClaims)
-	if claims.User.ID.Hex() == "" {
+// @Router /incomes/current-month/{id} [get]
+func (h *HttpHandler) GetIncomeCurrentMonthByUserId(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
-
-	income, _ := h.Usecase.GetIncomeByUserIdAndCurrentMonth(claims.User.ID.Hex())
+	user := getUserFromToken(c)
+	if id != user.ID.Hex() {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	income, _ := h.Usecase.GetIncomeByUserIdAndCurrentMonth(id)
 	if income == nil {
 		return c.JSON(http.StatusOK, nil)
 	}
@@ -164,8 +162,11 @@ func (h *HttpHandler) GetIncomeByUserIdAndCurrentMonth(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/pdf [get]
 func (h *HttpHandler) GetExportPdf(c echo.Context) error {
+	isAdmin, message := IsUserAdmin(c)
+	if !isAdmin {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
 	filename, err := h.Usecase.ExportPdf()
-
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -182,8 +183,8 @@ func (h *HttpHandler) GetExportPdf(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/corporate [get]
 func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
-	checkUser, message := IsUserAdmin(c)
-	if !checkUser {
+	isAdmin, message := IsUserAdmin(c)
+	if !isAdmin {
 		return c.JSON(http.StatusUnauthorized, message)
 	}
 	filename, err := h.Usecase.ExportIncome("corporate")
@@ -203,8 +204,8 @@ func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/individual [get]
 func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
-	checkUser, message := IsUserAdmin(c)
-	if !checkUser {
+	isAdmin, message := IsUserAdmin(c)
+	if !isAdmin {
 		return c.JSON(http.StatusUnauthorized, message)
 	}
 	filename, err := h.Usecase.ExportIncome("individual")
@@ -222,13 +223,19 @@ func (h *HttpHandler) DropIncome(c echo.Context) error {
 }
 
 func IsUserAdmin(c echo.Context) (bool, string) {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(*models.JwtCustomClaims)
-	if claims.User.Email == "jin@odds.team" {
+	u := getUserFromToken(c)
+	if u.IsAdmin() {
 		return true, ""
 	}
 	return false, "ไม่มีสิทธิในการใช้งาน"
 }
+
+func getUserFromToken(c echo.Context) *models.User {
+	t := c.Get("user").(*jwt.Token)
+	claims := t.Claims.(*models.JwtCustomClaims)
+	return claims.User
+}
+
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	incomeRepo := NewRepository(session)
 	userRepo := user.NewRepository(session)
@@ -240,7 +247,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.PUT("/:id", handler.UpdateIncome)
 	r.GET("/status/corporate", handler.GetCorporateIncomeStatus)
 	r.GET("/status/individual", handler.GetIndividualIncomeStatus)
-	r.GET("/month", handler.GetIncomeByUserIdAndCurrentMonth)
+	r.GET("/current-month/:id", handler.GetIncomeCurrentMonthByUserId)
 	r.GET("/export/corporate", handler.GetExportCorporate)
 	r.GET("/export/individual", handler.GetExportIndividual)
 	r.GET("/export/pdf", handler.GetExportPdf)

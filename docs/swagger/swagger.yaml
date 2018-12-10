@@ -239,6 +239,33 @@ paths:
       summary: Update Income
       tags:
       - incomes
+  /incomes/current-month/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get Income Of Current Month By User Id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Income'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Income Of Current Month By User Id
+      tags:
+      - incomes
   /incomes/export/corporate:
     get:
       consumes:
@@ -303,33 +330,6 @@ paths:
             $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Get Export Pdf
-      tags:
-      - incomes
-  /incomes/month/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Get Income Of Current Month By User Id
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Income'
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-            type: object
-      summary: Get Income Of Current Month By User Id
       tags:
       - incomes
   /incomes/status/corporate:

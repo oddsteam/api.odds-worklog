@@ -7,7 +7,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
+	iincomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
@@ -18,9 +18,9 @@ func TestUsecaseExportIncome(t *testing.T) {
 		defer ctrl.Finish()
 
 		year, month := utils.GetYearMonthNow()
-		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.MockUserById.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.MockUserById2.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome := iincomeMock.NewMockRepository(ctrl)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.MockUserById.ID.Hex(), year, month).Return(&iincomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.MockUserById2.ID.Hex(), year, month).Return(&iincomeMock.MockIncome, nil)
 		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
 
 		mockRepoUser := userMock.NewMockRepository(ctrl)
@@ -95,18 +95,18 @@ func TestUsecaseAddIncome(t *testing.T) {
 		defer ctrl.Finish()
 		user := userMock.MockUser
 		mockUserRepo := userMock.NewMockRepository(ctrl)
-		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockRepoIncome := iincomeMock.NewMockRepository(ctrl)
 		mockUserRepo.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
 		mockRepoIncome.EXPECT().AddIncome(gomock.Any()).Return(nil)
 		year, month := utils.GetYearMonthNow()
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(incomeMock.MockIncome.UserID, year, month).Return(&incomeMock.MockIncome, errors.New(""))
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(iincomeMock.MockIncome.UserID, year, month).Return(&iincomeMock.MockIncome, errors.New(""))
 
 		uc := NewUsecase(mockRepoIncome, mockUserRepo)
-		res, err := uc.AddIncome(&incomeMock.MockIncomeReq, &userMock.MockUser)
+		res, err := uc.AddIncome(&iincomeMock.MockIncomeReq, &userMock.MockUser)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, incomeMock.MockIncome.UserID, res.UserID)
+		assert.Equal(t, iincomeMock.MockIncome.UserID, res.UserID)
 	})
 }
 
@@ -117,17 +117,17 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		user := userMock.MockUser
 
 		mockRepoUser := userMock.NewMockRepository(ctrl)
-		mockIncomeRepo := incomeMock.NewMockRepository(ctrl)
+		incomeMockRepo := iincomeMock.NewMockRepository(ctrl)
 		mockRepoUser.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
-		mockIncomeRepo.EXPECT().UpdateIncome(&incomeMock.MockIncome).Return(nil)
-		mockIncomeRepo.EXPECT().GetIncomeByID(incomeMock.MockIncome.ID.Hex(), userMock.MockUser.ID.Hex()).Return(&incomeMock.MockIncome, nil)
+		incomeMockRepo.EXPECT().UpdateIncome(&iincomeMock.MockIncome).Return(nil)
+		incomeMockRepo.EXPECT().GetIncomeByID(iincomeMock.MockIncome.ID.Hex(), userMock.MockUser.ID.Hex()).Return(&iincomeMock.MockIncome, nil)
 
-		uc := NewUsecase(mockIncomeRepo, mockRepoUser)
-		res, err := uc.UpdateIncome(incomeMock.MockIncome.ID.Hex(), &incomeMock.MockIncomeReq, &userMock.MockUser)
+		uc := NewUsecase(incomeMockRepo, mockRepoUser)
+		res, err := uc.UpdateIncome(iincomeMock.MockIncome.ID.Hex(), &iincomeMock.MockIncomeReq, &userMock.MockUser)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, incomeMock.MockIncome.UserID, res.UserID)
+		assert.Equal(t, iincomeMock.MockIncome.UserID, res.UserID)
 	})
 }
 
@@ -136,10 +136,10 @@ func TestUsecaseGetListIncome(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockRepoIncome := iincomeMock.NewMockRepository(ctrl)
 		year, month := utils.GetYearMonthNow()
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.MockUserById.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.MockUserById2.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.MockUserById.ID.Hex(), year, month).Return(&iincomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.MockUserById2.ID.Hex(), year, month).Return(&iincomeMock.MockIncome, nil)
 
 		mockUserRepo := userMock.NewMockRepository(ctrl)
 		mockUserRepo.EXPECT().GetUserByRole("corporate").Return(userMock.MockUsers, nil)
@@ -148,7 +148,7 @@ func TestUsecaseGetListIncome(t *testing.T) {
 		res, err := uc.GetIncomeStatusList("corporate")
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, incomeMock.MockIncomeStatusList[0].Status, res[0].Status)
+		assert.Equal(t, iincomeMock.MockIncomeStatusList[0].Status, res[0].Status)
 
 	})
 }
@@ -157,16 +157,16 @@ func TestUsecaseGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockRepoIncome := iincomeMock.NewMockRepository(ctrl)
 		year, month := utils.GetYearMonthNow()
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(incomeMock.MockIncome.UserID, year, month).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(iincomeMock.MockIncome.UserID, year, month).Return(&iincomeMock.MockIncome, nil)
 		mockUserRepo := userMock.NewMockRepository(ctrl)
 
 		uc := NewUsecase(mockRepoIncome, mockUserRepo)
-		res, err := uc.GetIncomeByUserIdAndCurrentMonth(incomeMock.MockIncome.UserID)
+		res, err := uc.GetIncomeByUserIdAndCurrentMonth(iincomeMock.MockIncome.UserID)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, incomeMock.MockIncome.SubmitDate, res.SubmitDate)
+		assert.Equal(t, iincomeMock.MockIncome.SubmitDate, res.SubmitDate)
 	})
 }
 
@@ -175,7 +175,7 @@ func TestUsecaseDropIncome(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockRepoIncome := iincomeMock.NewMockRepository(ctrl)
 		mockRepoIncome.EXPECT().DropIncome().Return(nil)
 		mockUserRepo := userMock.NewMockRepository(ctrl)
 

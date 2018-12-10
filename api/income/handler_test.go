@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	mockIncome "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
-	userMocks "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
+	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
+	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -23,14 +23,14 @@ func TestAddIncome(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mockIncome.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().AddIncome(&mockIncome.MockIncomeReq, &userMocks.MockUser).Return(&mockIncome.MockIncome, nil)
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().AddIncome(&incomeMock.MockIncomeReq, &userMock.MockUser).Return(&incomeMock.MockIncome, nil)
 
 		e := echo.New()
-		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mockIncome.MockIncomeReqJson))
+		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(incomeMock.MockIncomeReqJson))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		claims := &models.JwtCustomClaims{
-			&userMocks.MockUser,
+			&userMock.MockUser,
 			jwt.StandardClaims{
 				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 			},
@@ -52,15 +52,15 @@ func TestAddIncome(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mockIncome.NewMockUsecase(ctrl)
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 
 		e := echo.New()
-		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(mockIncome.MockIncomeResJson))
+		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(incomeMock.MockIncomeResJson))
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 
 		claims := &models.JwtCustomClaims{
-			&userMocks.MockUser,
+			&userMock.MockUser,
 			jwt.StandardClaims{
 				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 			},
@@ -71,7 +71,7 @@ func TestAddIncome(t *testing.T) {
 
 		c.Set("user", token)
 		c.SetParamNames("id")
-		c.SetParamValues(mockIncome.MockIncome.ID.Hex())
+		c.SetParamValues(incomeMock.MockIncome.ID.Hex())
 
 		handler := &HttpHandler{mockUsecase}
 		handler.AddIncome(c)
@@ -85,15 +85,15 @@ func TestUpdateIncome(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mockIncome.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().UpdateIncome(mockIncome.MockIncome.ID.Hex(), &mockIncome.MockIncomeReq, &userMocks.MockUser).Return(&mockIncome.MockIncome, nil)
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().UpdateIncome(incomeMock.MockIncome.ID.Hex(), &incomeMock.MockIncomeReq, &userMock.MockUser).Return(&incomeMock.MockIncome, nil)
 
 		e := echo.New()
-		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(mockIncome.MockIncomeReqJson))
+		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(incomeMock.MockIncomeReqJson))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 		claims := &models.JwtCustomClaims{
-			&userMocks.MockUser,
+			&userMock.MockUser,
 			jwt.StandardClaims{
 				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 			},
@@ -104,7 +104,7 @@ func TestUpdateIncome(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", token)
 		c.SetParamNames("id")
-		c.SetParamValues(mockIncome.MockIncome.ID.Hex())
+		c.SetParamValues(incomeMock.MockIncome.ID.Hex())
 
 		handler := &HttpHandler{mockUsecase}
 		handler.UpdateIncome(c)
@@ -116,7 +116,7 @@ func TestUpdateIncome(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mockIncome.NewMockUsecase(ctrl)
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.PUT, "/", nil)
@@ -132,15 +132,15 @@ func TestUpdateIncome(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mockIncome.NewMockUsecase(ctrl)
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 
 		e := echo.New()
-		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(mockIncome.MockIncomeResJson))
+		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(incomeMock.MockIncomeResJson))
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 
 		claims := &models.JwtCustomClaims{
-			&userMocks.MockUser,
+			&userMock.MockUser,
 			jwt.StandardClaims{
 				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 			},
@@ -149,7 +149,7 @@ func TestUpdateIncome(t *testing.T) {
 
 		c.Set("user", token)
 		c.SetParamNames("id")
-		c.SetParamValues(mockIncome.MockIncome.ID.Hex())
+		c.SetParamValues(incomeMock.MockIncome.ID.Hex())
 
 		handler := &HttpHandler{mockUsecase}
 		handler.UpdateIncome(c)
@@ -163,9 +163,9 @@ func TestGetCorporateIncomeStatus(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mockIncome.NewMockUsecase(ctrl)
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.IncomeStatus, 0)
-		mockListUser = append(mockListUser, &mockIncome.MockCorporateIncomeStatus)
+		mockListUser = append(mockListUser, &incomeMock.MockCorporateIncomeStatus)
 		mockUsecase.EXPECT().GetIncomeStatusList("corporate").Return(mockListUser, nil)
 
 		e := echo.New()
@@ -183,9 +183,9 @@ func TestGetCorporateIncomeStatus(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mockIncome.NewMockUsecase(ctrl)
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.IncomeStatus, 0)
-		mockListUser = append(mockListUser, &mockIncome.MockIndividualIncomeStatus)
+		mockListUser = append(mockListUser, &incomeMock.MockIndividualIncomeStatus)
 		mockUsecase.EXPECT().GetIncomeStatusList("corporate").Return(mockListUser, nil)
 
 		e := echo.New()
@@ -195,7 +195,7 @@ func TestGetCorporateIncomeStatus(t *testing.T) {
 
 		handler := &HttpHandler{mockUsecase}
 		handler.GetCorporateIncomeStatus(c)
-		incomeByte, _ := json.Marshal(mockIncome.MockIndividualIncomeStatus)
+		incomeByte, _ := json.Marshal(incomeMock.MockIndividualIncomeStatus)
 		incomeJson := string(incomeByte)
 		assert.NotEqual(t, incomeJson, rec.Body)
 
@@ -207,9 +207,9 @@ func TestGetIndividualIncomeStatus(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mockIncome.NewMockUsecase(ctrl)
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.IncomeStatus, 0)
-		mockListUser = append(mockListUser, &mockIncome.MockIndividualIncomeStatus)
+		mockListUser = append(mockListUser, &incomeMock.MockIndividualIncomeStatus)
 		mockUsecase.EXPECT().GetIncomeStatusList("individual").Return(mockListUser, nil)
 
 		e := echo.New()
@@ -227,9 +227,9 @@ func TestGetIndividualIncomeStatus(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mockIncome.NewMockUsecase(ctrl)
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.IncomeStatus, 0)
-		mockListUser = append(mockListUser, &mockIncome.MockCorporateIncomeStatus)
+		mockListUser = append(mockListUser, &incomeMock.MockCorporateIncomeStatus)
 		mockUsecase.EXPECT().GetIncomeStatusList("individual").Return(mockListUser, nil)
 
 		e := echo.New()
@@ -239,38 +239,41 @@ func TestGetIndividualIncomeStatus(t *testing.T) {
 
 		handler := &HttpHandler{mockUsecase}
 		handler.GetIndividualIncomeStatus(c)
-		incomeByte, _ := json.Marshal(mockIncome.MockCorporateIncomeStatus)
+		incomeByte, _ := json.Marshal(incomeMock.MockCorporateIncomeStatus)
 		incomeJson := string(incomeByte)
 		assert.NotEqual(t, incomeJson, rec.Body)
 
 	})
 }
 
-func TestGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
+func TestGetIncomeGetIncomeCurrentMonthByUserId(t *testing.T) {
 	t.Run("when get income by user id in current month success it should be return status OK", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mockIncome.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().GetIncomeByUserIdAndCurrentMonth(mockIncome.MockIncome.UserID).Return(&mockIncome.MockIncome, nil)
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetIncomeByUserIdAndCurrentMonth(incomeMock.MockIncome.UserID).Return(&incomeMock.MockIncome, nil)
 
-		e := echo.New()
-		req := httptest.NewRequest(echo.GET, "/", nil)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
 		claims := &models.JwtCustomClaims{
-			&userMocks.MockUser,
+			&userMock.MockUser,
 			jwt.StandardClaims{
 				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 			},
 		}
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
 		c.Set("user", token)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
 
 		handler := &HttpHandler{mockUsecase}
-		handler.GetIncomeByUserIdAndCurrentMonth(c)
+		handler.GetIncomeCurrentMonthByUserId(c)
 
-		incomeByte, _ := json.Marshal(mockIncome.MockIncome)
+		incomeByte, _ := json.Marshal(incomeMock.MockIncome)
 		incomeJson := string(incomeByte)
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.Equal(t, incomeJson, rec.Body.String())
@@ -280,13 +283,13 @@ func TestGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mockIncome.NewMockUsecase(ctrl)
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		mockUser := userMocks.MockUser
+		mockUser := userMock.MockUser
 		mockUser.ID = ""
 		claims := &models.JwtCustomClaims{
 			&mockUser,
@@ -298,7 +301,7 @@ func TestGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 
 		c.Set("user", token)
 		handler := &HttpHandler{mockUsecase}
-		handler.GetIncomeByUserIdAndCurrentMonth(c)
+		handler.GetIncomeCurrentMonthByUserId(c)
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 	})
 }
@@ -308,7 +311,7 @@ func TestGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 // 		ctrl := gomock.NewController(t)
 // 		defer ctrl.Finish()
 
-// 		mockUsecase := mockIncome.NewMockUsecase(ctrl)
+// 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 // 		mockUsecase.EXPECT().ExportPdf().Return("test.pdf", nil)
 // 		e := echo.New()
 // 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -327,11 +330,11 @@ func TestGetExportCorporateIncomeStatus(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mockIncome.NewMockUsecase(ctrl)
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().ExportIncome("corporate").Return("test.csv", nil)
 		e := echo.New()
 		claims := &models.JwtCustomClaims{
-			&userMocks.MockUser,
+			&userMock.MockUser,
 			jwt.StandardClaims{
 				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 			},
@@ -354,11 +357,11 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mockIncome.NewMockUsecase(ctrl)
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().ExportIncome("individual").Return("test.csv", nil)
 		e := echo.New()
 		claims := &models.JwtCustomClaims{
-			&userMocks.MockUser,
+			&userMock.MockUser,
 			jwt.StandardClaims{
 				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 			},
@@ -382,7 +385,7 @@ func TestDropIncome(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mockIncome.NewMockUsecase(ctrl)
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().DropIncome().Return(nil)
 
 		e := echo.New()
@@ -393,7 +396,7 @@ func TestDropIncome(t *testing.T) {
 		handler := &HttpHandler{mockUsecase}
 		handler.DropIncome(c)
 		assert.Equal(t, http.StatusOK, rec.Code)
-		assert.Equal(t, "{\"message\":\"DropIncome Success!\"}", rec.Body.String())
+		assert.Equal(t, `{"message":"DropIncome Success!"}`, rec.Body.String())
 
 	})
 }
