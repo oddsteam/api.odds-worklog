@@ -11,6 +11,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/login"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/reminder"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	_ "gitlab.odds.team/worklog/api.odds-worklog/docs"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
@@ -58,7 +59,7 @@ func main() {
 	income.NewHttpHandler(r, session)
 	reminder.NewHTTPHandler(r, session)
 	file.NewHttpHandler(r)
-
+	site.NewHttpHandler(r, session)
 	reminderRepo := reminder.NewRepository(session)
 	s, err := reminderRepo.GetReminder()
 	if err != nil {

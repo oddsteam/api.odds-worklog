@@ -60,6 +60,8 @@ income `mockgen -source="api/income/interface.go" -destination="api/income/mock/
 
 login `mockgen -source="api/login/interface.go" -destination="api/login/mock/login_mock.go"`
 
+sites `mockgen -source="api/sites/interface.go" -destination="api/sites/mock/site_mock.go"`
+
 ### Swagger
 
 After fill Comment to each handler, you must run `swag init` to generate docs swagger 
