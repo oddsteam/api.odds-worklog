@@ -7,17 +7,23 @@ import (
 	"os"
 	"strings"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
+
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 type HttpHandler struct {
+	usecase Usecase
 }
 
-func NewHttpHandler(r *echo.Group) {
-	h := &HttpHandler{}
+func NewHttpHandler(r *echo.Group, session *mongo.Session) {
+	repo := user.NewRepository(session)
+	u := NewUsecase(repo)
+	h := &HttpHandler{u}
 	r.POST("/files/transcript", h.UploadTranscript)
 }
 
@@ -61,6 +67,11 @@ func (h *HttpHandler) UploadTranscript(c echo.Context) error {
 
 	// Copy
 	_, err = io.Copy(dst, src)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	err = h.usecase.UpdateUser(u.ID.Hex(), filename)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
