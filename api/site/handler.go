@@ -37,16 +37,16 @@ func isRequestValid(m *models.Site) (bool, error) {
 // @Failure 500 {object} utils.HTTPError
 // @Router /sites [post]
 func (h *HttpHandler) CreateSiteGroup(c echo.Context) error {
-	var sites models.Site
-	if err := c.Bind(&sites); err != nil {
+	var site models.Site
+	if err := c.Bind(&site); err != nil {
 		return utils.NewError(c, http.StatusUnprocessableEntity, err)
 	}
 
-	if ok, err := isRequestValid(&sites); !ok {
+	if ok, err := isRequestValid(&site); !ok {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 
-	resSite, err := h.Usecase.CreateSiteGroup(&sites)
+	resSite, err := h.Usecase.CreateSiteGroup(&site)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -57,7 +57,7 @@ func (h *HttpHandler) CreateSiteGroup(c echo.Context) error {
 // @Summary Update Site By Id
 // @Description Update Site By Id
 // @Tags sites
-// @Accept  multipart/form-data
+// @Accept  json
 // @Produce  json
 // @Param  id path string true "Site ID"
 // @Param user body models.Site true  "id can empty"
@@ -72,18 +72,18 @@ func (h *HttpHandler) UpdateSiteGroup(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 
-	sites := models.Site{
+	site := models.Site{
 		ID: bson.ObjectIdHex(id),
 	}
-	if err := c.Bind(&sites); err != nil {
+	if err := c.Bind(&site); err != nil {
 		return utils.NewError(c, http.StatusUnprocessableEntity, err)
 	}
 
-	if ok, err := isRequestValid(&sites); !ok {
+	if ok, err := isRequestValid(&site); !ok {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 
-	res, err := h.Usecase.UpdateSiteGroup(&sites)
+	res, err := h.Usecase.UpdateSiteGroup(&site)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -100,20 +100,20 @@ func (h *HttpHandler) UpdateSiteGroup(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /sites [get]
 func (h *HttpHandler) GetSiteGroup(c echo.Context) error {
-	sites, err := h.Usecase.GetSiteGroup()
+	site, err := h.Usecase.GetSiteGroup()
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, sites)
+	return c.JSON(http.StatusOK, site)
 }
 
 // GetSiteGroupByID godoc
 // @Summary Get Site By Id
 // @Description Get Site By Id
 // @Tags sites
-// @Accept  multipart/form-data
-// @Produce  json
-// @Param  id path string true "Site ID"
+// @Accept json
+// @Produce json
+// @Param id path string true "Site ID"
 // @Success 200 {object} models.Site
 // @Failure 204 {object} utils.HTTPError
 // @Failure 400 {object} utils.HTTPError
@@ -124,20 +124,20 @@ func (h *HttpHandler) GetSiteGroupByID(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 
-	sites, err := h.Usecase.GetSiteGroupByID(id)
+	site, err := h.Usecase.GetSiteGroupByID(id)
 	if err != nil {
 		return utils.NewError(c, http.StatusNoContent, err)
 	}
-	return c.JSON(http.StatusOK, sites)
+	return c.JSON(http.StatusOK, site)
 }
 
 // DeleteSiteGroup godoc
 // @Summary Delete Site
 // @Description Delete Site By Id
 // @Tags sites
-// @Accept  multipart/form-data
-// @Produce  json
-// @Param  id path string true "Site ID"
+// @Accept json
+// @Produce json
+// @Param id path string true "Site ID"
 // @Success 204 {object} models.Site
 // @Failure 400 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError

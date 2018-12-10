@@ -5,8 +5,8 @@ import (
 )
 
 type Repository interface {
-	CreateSiteGroup(sites *models.Site) (*models.Site, error)
-	UpdateSiteGroup(sites *models.Site) (*models.Site, error)
+	CreateSiteGroup(site *models.Site) (*models.Site, error)
+	UpdateSiteGroup(site *models.Site) (*models.Site, error)
 	GetSiteGroup() ([]*models.Site, error)
 	GetSiteGroupByID(id string) (*models.Site, error)
 	DeleteSiteGroup(id string) error

@@ -82,9 +82,9 @@ func (h *HttpHandler) GetUser(c echo.Context) error {
 // @Summary Get User By Id
 // @Description Get User By Id
 // @Tags users
-// @Accept  multipart/form-data
-// @Produce  json
-// @Param  id path string true "User ID"
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
 // @Success 200 {object} models.User
 // @Failure 204 {object} utils.HTTPError
 // @Failure 400 {object} utils.HTTPError
@@ -106,9 +106,9 @@ func (h *HttpHandler) GetUserByID(c echo.Context) error {
 // @Summary Get User By Site Id
 // @Description Get User By Site Id
 // @Tags users
-// @Accept  multipart/form-data
-// @Produce  json
-// @Param  id path string true "Site id"
+// @Accept json
+// @Produce json
+// @Param id path string true "Site id"
 // @Success 200 {object} models.User
 // @Failure 204 {object} utils.HTTPError
 // @Failure 400 {object} utils.HTTPError
@@ -135,9 +135,9 @@ func (h *HttpHandler) GetUserBySiteID(c echo.Context) error {
 // @Summary Update User By Id
 // @Description Update User By Id
 // @Tags users
-// @Accept  multipart/form-data
-// @Produce  json
-// @Param  id path string true "User ID"
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
 // @Param user body models.User true  "id can empty"
 // @Success 200 {object} models.User
 // @Failure 400 {object} utils.HTTPError
@@ -174,9 +174,9 @@ func (h *HttpHandler) UpdateUser(c echo.Context) error {
 // @Summary Delete User
 // @Description Delete User By Id
 // @Tags users
-// @Accept  multipart/form-data
-// @Produce  json
-// @Param  id path string true "User ID"
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
 // @Success 204 {object} models.User
 // @Failure 400 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
@@ -202,9 +202,9 @@ func (h *HttpHandler) DeleteUser(c echo.Context) error {
 // @Summary Update Partial User
 // @Description Delete Update Partial User
 // @Tags users
-// @Accept  multipart/form-data
-// @Produce  json
-// @Param  id path string true "User ID"
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
 // @Param user body models.User true  "id can empty"
 // @Success 200 {object} models.User
 // @Failure 400 {object} utils.HTTPError

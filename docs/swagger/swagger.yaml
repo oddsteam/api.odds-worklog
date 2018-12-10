@@ -69,6 +69,13 @@ definitions:
       time:
         type: string
     type: object
+  models.Site:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
   models.Token:
     properties:
       firstLogin:
@@ -494,6 +501,173 @@ paths:
       summary: Save Reminder Setting
       tags:
       - reminder
+  /sites:
+    get:
+      consumes:
+      - application/json
+      description: get site list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Site'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: List Site
+      tags:
+      - sites
+    post:
+      consumes:
+      - application/json
+      description: Create Site Group
+      parameters:
+      - description: id can empty
+        in: body
+        name: site
+        required: true
+        schema:
+          $ref: '#/definitions/models.Site'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Site'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Create Site Group
+      tags:
+      - sites
+  /sites/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Site By Id
+      parameters:
+      - description: Site ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/models.Site'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Delete Site
+      tags:
+      - sites
+    get:
+      consumes:
+      - application/json
+      description: Get Site By Id
+      parameters:
+      - description: Site ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Site'
+            type: object
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Site By Id
+      tags:
+      - sites
+    put:
+      consumes:
+      - application/json
+      description: Update Site By Id
+      parameters:
+      - description: Site ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: id can empty
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.Site'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Site'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Update Site By Id
+      tags:
+      - sites
   /users:
     get:
       consumes:
@@ -558,7 +732,7 @@ paths:
   /users/{id}:
     delete:
       consumes:
-      - multipart/form-data
+      - application/json
       description: Delete User By Id
       parameters:
       - description: User ID
@@ -589,7 +763,7 @@ paths:
       - users
     get:
       consumes:
-      - multipart/form-data
+      - application/json
       description: Get User By Id
       parameters:
       - description: User ID
@@ -620,7 +794,7 @@ paths:
       - users
     patch:
       consumes:
-      - multipart/form-data
+      - application/json
       description: Delete Update Partial User
       parameters:
       - description: User ID
@@ -658,7 +832,7 @@ paths:
       - users
     put:
       consumes:
-      - multipart/form-data
+      - application/json
       description: Update User By Id
       parameters:
       - description: User ID
@@ -702,7 +876,7 @@ paths:
   /users/site/{id}:
     get:
       consumes:
-      - multipart/form-data
+      - application/json
       description: Get User By Site Id
       parameters:
       - description: Site id
