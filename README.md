@@ -60,7 +60,7 @@ income `mockgen -source="api/income/interface.go" -destination="api/income/mock/
 
 login `mockgen -source="api/login/interface.go" -destination="api/login/mock/login_mock.go"`
 
-sites `mockgen -source="api/sites/interface.go" -destination="api/sites/mock/site_mock.go"`
+site `mockgen -source="api/site/interface.go" -destination="api/site/mock/site_mock.go"`
 
 ### Swagger
 

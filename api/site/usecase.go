@@ -17,11 +17,7 @@ func (u *usecase) CreateSiteGroup(m *models.Site) (*models.Site, error) {
 }
 
 func (u *usecase) UpdateSiteGroup(m *models.Site) (*models.Site, error) {
-	res, err := u.repo.UpdateSiteGroup(m)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
+	return u.repo.UpdateSiteGroup(m)
 }
 
 func (u *usecase) GetSiteGroup() ([]*models.Site, error) {
