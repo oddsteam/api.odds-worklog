@@ -34,6 +34,12 @@ At project path<br>
     mongoimport --host localhost --port 27017 --db odds_worklog_db --collection user --type json --file user.json --maintainInsertionOrder --jsonArray
 ```
 
+* **Import site data** <br>
+At project path<br>
+```bash 
+    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection site --type json --file site.json --maintainInsertionOrder --jsonArray
+```
+
 * **Setup Authen mongodb**<br>
 If run by `go run main.go`, must config below
 
