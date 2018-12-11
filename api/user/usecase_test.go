@@ -5,6 +5,7 @@ import (
 
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
+	siteMock "gitlab.odds.team/worklog/api.odds-worklog/api/site/mock"
 	mock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 
 	"github.com/golang/mock/gomock"
@@ -18,11 +19,12 @@ func TestUsecase_CreateUser(t *testing.T) {
 
 		user := mock.MockUser
 
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := mock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().CreateUser(&user).Return(&user, nil)
 		mockRepo.EXPECT().GetUserByEmail(user.Email).Return(nil, utils.ErrNotFound)
 
-		uc := NewUsecase(mockRepo)
+		uc := NewUsecase(mockRepo, mockSiteRepo)
 		userRes, err := uc.CreateUser(&user)
 
 		assert.NoError(t, err)
@@ -37,8 +39,9 @@ func TestUsecase_CreateUser(t *testing.T) {
 		user := mock.MockUser
 		user.Email = "abc"
 
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := mock.NewMockRepository(ctrl)
-		uc := NewUsecase(mockRepo)
+		uc := NewUsecase(mockRepo, mockSiteRepo)
 		userRes, err := uc.CreateUser(&user)
 
 		assert.EqualError(t, err, utils.ErrInvalidFormat.Error())
@@ -50,10 +53,11 @@ func TestUsecase_CreateUser(t *testing.T) {
 		defer ctrl.Finish()
 
 		user := mock.MockUser
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := mock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().GetUserByEmail(user.Email).Return(&user, nil)
 
-		uc := NewUsecase(mockRepo)
+		uc := NewUsecase(mockRepo, mockSiteRepo)
 		userRes, err := uc.CreateUser(&user)
 
 		assert.EqualError(t, err, utils.ErrConflict.Error())
@@ -67,10 +71,12 @@ func TestUsecase_GetUser(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockSiteRepo.EXPECT().GetSiteGroup().Return(siteMock.MockSites, nil)
 		mockRepo := mock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().GetUser().Return(mock.MockUsers, nil)
 
-		uc := NewUsecase(mockRepo)
+		uc := NewUsecase(mockRepo, mockSiteRepo)
 		u, err := uc.GetUser()
 
 		assert.NoError(t, err)
@@ -84,10 +90,11 @@ func TestUsecase_GetUserByRole(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := mock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().GetUserByRole("corporate").Return(mock.MockUsers, nil)
 
-		uc := NewUsecase(mockRepo)
+		uc := NewUsecase(mockRepo, mockSiteRepo)
 		list, err := uc.GetUserByRole("corporate")
 
 		assert.NoError(t, err)
@@ -99,10 +106,11 @@ func TestUsecase_GetUserByRole(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := mock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().GetUserByRole("individual").Return(mock.MockUsers, nil)
 
-		uc := NewUsecase(mockRepo)
+		uc := NewUsecase(mockRepo, mockSiteRepo)
 		list, err := uc.GetUserByRole("individual")
 
 		assert.NoError(t, err)
@@ -115,10 +123,11 @@ func TestUsecase_GetUserByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	mockSiteRepo := siteMock.NewMockRepository(ctrl)
 	mockRepo := mock.NewMockRepository(ctrl)
 	mockRepo.EXPECT().GetUserByID("1234567890").Return(&mock.MockUserById, nil)
 
-	uc := NewUsecase(mockRepo)
+	uc := NewUsecase(mockRepo, mockSiteRepo)
 	u, err := uc.GetUserByID(string(mock.MockUserById.ID))
 
 	assert.NoError(t, err)
@@ -130,10 +139,11 @@ func TestUsecase_GetUserBySiteID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	mockSiteRepo := siteMock.NewMockRepository(ctrl)
 	mockRepo := mock.NewMockRepository(ctrl)
 	mockRepo.EXPECT().GetUserBySiteID("1234567890").Return(mock.MockUsers, nil)
 
-	uc := NewUsecase(mockRepo)
+	uc := NewUsecase(mockRepo, mockSiteRepo)
 	users, err := uc.GetUserBySiteID("1234567890")
 
 	assert.NoError(t, err)
@@ -145,10 +155,11 @@ func TestUsecase_DeleteUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	mockSiteRepo := siteMock.NewMockRepository(ctrl)
 	mockRepo := mock.NewMockRepository(ctrl)
 	mockRepo.EXPECT().DeleteUser("1234567890").Return(nil)
 
-	uc := NewUsecase(mockRepo)
+	uc := NewUsecase(mockRepo, mockSiteRepo)
 	u := uc.DeleteUser(string(mock.MockUserById.ID))
 
 	assert.Equal(t, nil, u)
@@ -159,10 +170,11 @@ func TestUsecase_UpdateUser(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := mock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().UpdateUser(gomock.Any()).Return(&mock.MockUserById, nil)
 
-		uc := NewUsecase(mockRepo)
+		uc := NewUsecase(mockRepo, mockSiteRepo)
 		u, err := uc.UpdateUser(&mock.MockUserById)
 
 		assert.NoError(t, err)
@@ -174,8 +186,9 @@ func TestUsecase_UpdateUser(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := mock.NewMockRepository(ctrl)
-		uc := NewUsecase(mockRepo)
+		uc := NewUsecase(mockRepo, mockSiteRepo)
 		mu := mock.MockUser
 		mu.Role = ""
 		u, err := uc.UpdateUser(&mu)
@@ -188,8 +201,9 @@ func TestUsecase_UpdateUser(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := mock.NewMockRepository(ctrl)
-		uc := NewUsecase(mockRepo)
+		uc := NewUsecase(mockRepo, mockSiteRepo)
 		mu := mock.MockUser
 		mu.Role = "admin"
 		mu.Email = "a@odds.team"

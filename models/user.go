@@ -18,6 +18,7 @@ type User struct {
 	SlackAccount      string        `bson:"slackAccount" json:"slackAccount"`
 	Transcript        string        `bson:"transcript" json:"transcript,omitempty"`
 	SiteID            string        `bson:"siteId" json:"siteId,omitempty"`
+	Site              *Site         `bson:"-" json:"site,omitempty"`
 }
 
 func (u *User) IsAdmin() bool {

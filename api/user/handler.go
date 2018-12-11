@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
 	"gopkg.in/mgo.v2/bson"
@@ -244,8 +245,9 @@ func getUserFromToken(c echo.Context) *models.User {
 }
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
+	sr := site.NewRepository(session)
 	ur := NewRepository(session)
-	uc := NewUsecase(ur)
+	uc := NewUsecase(ur, sr)
 	handler := &HttpHandler{uc}
 	r = r.Group("/users")
 	r.GET("", handler.GetUser)
