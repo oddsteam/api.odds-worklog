@@ -6,7 +6,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const siteColl = "sites"
+const siteColl = "site"
 
 type repository struct {
 	session *mongo.Session
