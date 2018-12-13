@@ -24,7 +24,9 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	repo := user.NewRepository(session)
 	u := NewUsecase(repo)
 	h := &HttpHandler{u}
-	r.POST("/files/transcript", h.UploadTranscript)
+	r = r.Group("/files")
+	r.POST("/transcript", h.UploadTranscript)
+	r.GET("/transcript", h.DownloadTranscript)
 }
 
 // UploadTranscript godoc
@@ -94,4 +96,32 @@ func getTranscriptFilename(u *models.User) (filename string) {
 	r := utils.RandStringBytes(12)
 	filename = fmt.Sprintf("%s/%s_%s_%s.pdf", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r)
 	return
+}
+
+// DownloadTranscript godoc
+// @Summary Download transcript file
+// @Description Download transcript file
+// @Tags files
+// @Produce json
+// @Param id path string true "user id"
+// @Success 200 {array} string
+// @Failure 400 {object} utils.HTTPError
+// @Failure 401 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/transcript/{id} [get]
+func (h *HttpHandler) DownloadTranscript(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return utils.NewError(c, http.StatusBadRequest, utils.ErrInvalidPath)
+	}
+	user := getUserFromToken(c)
+	if user.ID.Hex() != id && !user.IsAdmin() {
+		return utils.NewError(c, http.StatusUnauthorized, utils.ErrPermissionDenied)
+	}
+
+	filename, err := h.usecase.GetPathTranscript(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.Attachment(filename, filename)
 }

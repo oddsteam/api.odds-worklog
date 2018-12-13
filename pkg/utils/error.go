@@ -20,6 +20,8 @@ var (
 	ErrInvalidUserRole    = errors.New("Invalid user role")
 	ErrSaveTranscript     = errors.New("Save transcript failed")
 	ErrNotPDFFile         = errors.New("Not PDF file")
+	ErrNoTranscriptFile   = errors.New("No transcript file.")
+	ErrPermissionDenied   = errors.New("Permission denied.")
 )
 
 func NewError(ctx echo.Context, status int, err error) error {

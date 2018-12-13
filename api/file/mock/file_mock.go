@@ -43,3 +43,16 @@ func (m *MockUsecase) UpdateUser(id, filename string) error {
 func (mr *MockUsecaseMockRecorder) UpdateUser(id, filename interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockUsecase)(nil).UpdateUser), id, filename)
 }
+
+// GetPathTranscript mocks base method
+func (m *MockUsecase) GetPathTranscript(id string) (string, error) {
+	ret := m.ctrl.Call(m, "GetPathTranscript", id)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPathTranscript indicates an expected call of GetPathTranscript
+func (mr *MockUsecaseMockRecorder) GetPathTranscript(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPathTranscript", reflect.TypeOf((*MockUsecase)(nil).GetPathTranscript), id)
+}
