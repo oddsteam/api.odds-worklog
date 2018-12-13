@@ -16,28 +16,27 @@ func NewRepository(session *mongo.Session) Repository {
 	return &repository{session}
 }
 
-func (r *repository) CreateSiteGroup(sites *models.Site) (*models.Site, error) {
+func (r *repository) CreateSiteGroup(site *models.Site) (*models.Site, error) {
 	coll := r.session.GetCollection(siteColl)
-	sites.ID = bson.NewObjectId()
-	err := coll.Insert(sites)
+	site.ID = bson.NewObjectId()
+	err := coll.Insert(site)
 	if err != nil {
 		return nil, err
 	}
-	return sites, nil
+	return site, nil
 }
 
-func (r *repository) UpdateSiteGroup(sites *models.Site) (*models.Site, error) {
+func (r *repository) UpdateSiteGroup(site *models.Site) (*models.Site, error) {
 	coll := r.session.GetCollection(siteColl)
-	err := coll.UpdateId(sites.ID, &sites)
+	err := coll.UpdateId(site.ID, &site)
 	if err != nil {
 		return nil, err
 	}
-	return sites, nil
+	return site, nil
 }
 
 func (r *repository) GetSiteGroup() ([]*models.Site, error) {
 	sites := make([]*models.Site, 0)
-
 	coll := r.session.GetCollection(siteColl)
 	err := coll.Find(bson.M{}).All(&sites)
 	if err != nil {
@@ -47,13 +46,23 @@ func (r *repository) GetSiteGroup() ([]*models.Site, error) {
 }
 
 func (r *repository) GetSiteGroupByID(id string) (*models.Site, error) {
-	sites := new(models.Site)
+	site := new(models.Site)
 	coll := r.session.GetCollection(siteColl)
-	err := coll.FindId(bson.ObjectIdHex(id)).One(&sites)
+	err := coll.FindId(bson.ObjectIdHex(id)).One(&site)
 	if err != nil {
 		return nil, err
 	}
-	return sites, nil
+	return site, nil
+}
+
+func (r *repository) GetSiteGroupByName(name string) (*models.Site, error) {
+	site := new(models.Site)
+	coll := r.session.GetCollection(siteColl)
+	err := coll.Find(bson.M{"name": name}).One(&site)
+	if err != nil {
+		return nil, err
+	}
+	return site, nil
 }
 
 func (r *repository) DeleteSiteGroup(id string) error {

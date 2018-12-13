@@ -9,6 +9,7 @@ type Repository interface {
 	UpdateSiteGroup(site *models.Site) (*models.Site, error)
 	GetSiteGroup() ([]*models.Site, error)
 	GetSiteGroupByID(id string) (*models.Site, error)
+	GetSiteGroupByName(name string) (*models.Site, error)
 	DeleteSiteGroup(id string) error
 }
 

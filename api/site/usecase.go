@@ -2,6 +2,7 @@ package site
 
 import (
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 type usecase struct {
@@ -13,6 +14,13 @@ func NewUsecase(r Repository) Usecase {
 }
 
 func (u *usecase) CreateSiteGroup(m *models.Site) (*models.Site, error) {
+	s, err := u.repo.GetSiteGroupByName(m.Name)
+	if err != nil {
+		return nil, err
+	}
+	if s != nil {
+		return nil, utils.ErrConflict
+	}
 	return u.repo.CreateSiteGroup(m)
 }
 

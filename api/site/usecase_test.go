@@ -14,6 +14,7 @@ func TestUsecase_CreateSiteGroup(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := mock.NewMockRepository(ctrl)
+	mockRepo.EXPECT().GetSiteGroupByName(mock.MockSite.Name).Return(nil, nil)
 	mockRepo.EXPECT().CreateSiteGroup(&mock.MockSite).Return(&mock.MockSite, nil)
 
 	uc := NewUsecase(mockRepo)

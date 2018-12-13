@@ -85,6 +85,19 @@ func (mr *MockRepositoryMockRecorder) GetSiteGroupByID(id interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSiteGroupByID", reflect.TypeOf((*MockRepository)(nil).GetSiteGroupByID), id)
 }
 
+// GetSiteGroupByName mocks base method
+func (m *MockRepository) GetSiteGroupByName(name string) (*models.Site, error) {
+	ret := m.ctrl.Call(m, "GetSiteGroupByName", name)
+	ret0, _ := ret[0].(*models.Site)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSiteGroupByName indicates an expected call of GetSiteGroupByName
+func (mr *MockRepositoryMockRecorder) GetSiteGroupByName(name interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSiteGroupByName", reflect.TypeOf((*MockRepository)(nil).GetSiteGroupByName), name)
+}
+
 // DeleteSiteGroup mocks base method
 func (m *MockRepository) DeleteSiteGroup(id string) error {
 	ret := m.ctrl.Call(m, "DeleteSiteGroup", id)
