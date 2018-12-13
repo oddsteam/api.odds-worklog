@@ -20,3 +20,4 @@ report/
 
 # PDF file
 *.pdf
+!test.pdf

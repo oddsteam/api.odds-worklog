@@ -8,3 +8,4 @@ user.json
 .csv
 .gitkeep
 *.pdf
+!test.pdf
