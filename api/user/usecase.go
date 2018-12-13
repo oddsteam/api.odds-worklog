@@ -43,6 +43,7 @@ func (u *usecase) GetUser() ([]*models.User, error) {
 		for i, us := range users {
 			if s.ID.Hex() == us.SiteID {
 				users[i].Site = s
+				users[i].SiteID = ""
 				break
 			}
 		}
