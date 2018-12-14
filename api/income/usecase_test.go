@@ -170,22 +170,6 @@ func TestUsecaseGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 	})
 }
 
-func TestUsecaseDropIncome(t *testing.T) {
-	t.Run("when get income by user id current month success it should be return income model", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockRepoIncome := iincomeMock.NewMockRepository(ctrl)
-		mockRepoIncome.EXPECT().DropIncome().Return(nil)
-		mockUserRepo := userMock.NewMockRepository(ctrl)
-
-		uc := NewUsecase(mockRepoIncome, mockUserRepo)
-		err := uc.DropIncome()
-
-		assert.NoError(t, err)
-	})
-}
-
 func TestSetValueCSV(t *testing.T) {
 	assert.Equal(t, `="1"`, setValueCSV("1"))
 	assert.Equal(t, `="01"`, setValueCSV("01"))

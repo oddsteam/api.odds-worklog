@@ -155,10 +155,6 @@ func (u *usecase) ExportIncome(role string) (string, error) {
 	return filename, nil
 }
 
-func (u *usecase) DropIncome() error {
-	return u.repo.DropIncome()
-}
-
 func setValueCSV(s string) string {
 	return `="` + s + `"`
 }
