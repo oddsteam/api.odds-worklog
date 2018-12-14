@@ -1,0 +1,22 @@
+[
+    {
+        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2ca"},
+        "name": "KTB"
+    },
+    {
+        "_id": {"$oid": "5c0fcd3c0fd2df79d4adc2cb"},
+        "name": "AIS"
+    },
+    {
+        "_id": {"$oid": "5c0fcd3c0fd2df79d4adc2cc"},
+        "name": "SEC"
+    },
+    {
+        "_id": {"$oid": "5c0fcd3c0fd2df79d4adc2cd"},
+        "name": "SET"
+    },
+    {
+        "_id": {"$oid": "5c0fcd3c0fd2df79d4adc2ce"},
+        "name": "DTAC"
+    }
+]

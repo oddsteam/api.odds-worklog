@@ -1,6 +1,11 @@
 vendor
-.env*
 Dockerfile
 .DS_Store
 .gitignore
-src/**/.env
+docker-compose.yml
+README.md
+user.json
+.csv
+.gitkeep
+*.pdf
+!test.pdf

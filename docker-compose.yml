@@ -1,16 +1,20 @@
 version: '3'
 services:
   api:
-    container_name: 'api.odds-worklog'
-    build: './app'
+    container_name: 'odds-worklog-api'
+    build: .
     ports:
-      - '8080:8080'
+      - 8080:8080
     volumes:
-      - './app:/go/src/app'
+      - '.:/go/src/app'
     depends_on:
-      - 'mongo'
-  mongo:
-    container_name: 'mongodb'
-    build: './mongodb'
+      - 'mongodb'
+  mongodb:
+    container_name: 'odds-worklog-mongo'
+    image: 'mongo'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGO_INITDB_DATABASE: odds_worklog_db 
     ports:
-      - '27100:27017'
+      - 27017:27017 

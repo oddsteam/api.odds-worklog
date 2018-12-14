@@ -1,0 +1,72 @@
+[
+    {
+        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2aa"},
+        "firstName": "Admin",
+        "lastName": "Admin1",
+        "role": "admin",
+        "email": "suphakrit@odds.team",
+        "bankAccountName": "แอดมิน 1",
+        "bankAccountNumber": "12345678901",
+        "thaiCitizenId": "1234567890001",
+        "vat": "N",
+        "slackAccount": "",
+        "transcript": "",
+        "siteId": "5c0fca4f0fd2df79d4adc2ca"
+    },
+    {
+        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2ab"},
+        "firstName": "Tester",
+        "lastName": "Number1",
+        "role": "corporate",
+        "email": "tester1@odds.team",
+        "bankAccountName": "นักทดสอบ 1",
+        "bankAccountNumber": "12345678901",
+        "thaiCitizenId": "1234567890001",
+        "vat": "Y",
+        "slackAccount": "",
+        "transcript": "",
+        "siteId": "5c0fcd3c0fd2df79d4adc2cb"
+    },
+    {
+        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2ac"},
+        "firstName": "Tester",
+        "lastName": "Number2",
+        "role": "corporate",
+        "email": "tester2@odds.team",
+        "bankAccountName": "นักทดสอบ 2",
+        "bankAccountNumber": "12345678902",
+        "thaiCitizenId": "1234567890002",
+        "vat": "Y",
+        "slackAccount": "",
+        "transcript": "",
+        "siteId": "5c0fcd3c0fd2df79d4adc2cc"
+    },
+    {
+        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2ad"},
+        "firstName": "Tester",
+        "lastName": "Number3",
+        "role": "individual",
+        "email": "tester3@odds.team",
+        "bankAccountName": "นักทดสอบ 3",
+        "bankAccountNumber": "12345678903",
+        "thaiCitizenId": "1234567890003",
+        "vat": "N",
+        "slackAccount": "",
+        "transcript": "",
+        "siteId": "5c0fcd3c0fd2df79d4adc2cd"
+    },
+    {
+        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2ae"},
+        "firstName": "Tester",
+        "lastName": "Number4",
+        "role": "individual",
+        "email": "tester4@odds.team",
+        "bankAccountName": "นักทดสอบ 4",
+        "bankAccountNumber": "12345678904",
+        "thaiCitizenId": "1234567890004",
+        "vat": "N",
+        "slackAccount": "",
+        "transcript": "",
+        "siteId": "5c0fcd3c0fd2df79d4adc2ce"
+    }
+]

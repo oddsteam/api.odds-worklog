@@ -1,0 +1,82 @@
+package file
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/golang/mock/gomock"
+	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+)
+
+func TestUsecase_UpdateUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	filename := "test.pdf"
+	user := userMock.MockUser
+	mockUserRepo := userMock.NewMockRepository(ctrl)
+	mockUserRepo.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
+
+	user.Transcript = filename
+	mockUserRepo.EXPECT().UpdateUser(&user).Return(&user, nil)
+
+	usecase := NewUsecase(mockUserRepo)
+	err := usecase.UpdateUser(user.ID.Hex(), filename)
+
+	assert.NoError(t, err)
+}
+
+func TestUsecase_GetPathTranscript(t *testing.T) {
+	t.Run("get path transcript success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		user := userMock.MockUser
+		user.Transcript = "test.pdf"
+		mockUserRepo := userMock.NewMockRepository(ctrl)
+		mockUserRepo.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
+
+		usecase := NewUsecase(mockUserRepo)
+		filename, err := usecase.GetPathTranscript(user.ID.Hex())
+
+		assert.NoError(t, err)
+		assert.NotEmpty(t, filename)
+	})
+
+	t.Run("when transcript empty then return '', ErrNoTranscriptFile", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		user := userMock.MockUser
+		mockUserRepo := userMock.NewMockRepository(ctrl)
+		mockUserRepo.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
+
+		usecase := NewUsecase(mockUserRepo)
+		filename, err := usecase.GetPathTranscript(user.ID.Hex())
+
+		assert.EqualError(t, err, utils.ErrNoTranscriptFile.Error())
+		assert.Empty(t, filename)
+	})
+
+	t.Run(`when can't open transcript file 
+			then update user with empty transcript 
+			and return '', ErrNoTranscriptFile`,
+		func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			user := userMock.MockUser
+			user.Transcript = "no.pdf"
+			mockUserRepo := userMock.NewMockRepository(ctrl)
+			mockUserRepo.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
+			mockUserRepo.EXPECT().UpdateUser(gomock.Any())
+
+			usecase := NewUsecase(mockUserRepo)
+			filename, err := usecase.GetPathTranscript(user.ID.Hex())
+
+			assert.EqualError(t, err, utils.ErrNoTranscriptFile.Error())
+			assert.Empty(t, filename)
+		})
+}
