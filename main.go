@@ -44,7 +44,7 @@ func main() {
 	// Middleware
 	m := middleware.JWTConfig{
 		Claims:     &models.JwtCustomClaims{},
-		SigningKey: []byte("GmkZGF3CmpZNs88dLvbV"),
+		SigningKey: []byte("sMJuczqQPYzocl1s6SLj"),
 	}
 
 	r := e.Group("/v1")

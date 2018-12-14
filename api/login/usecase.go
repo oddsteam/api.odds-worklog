@@ -101,7 +101,7 @@ func genToken(user *models.User) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tok, err := token.SignedString([]byte("GmkZGF3CmpZNs88dLvbV"))
+	tok, err := token.SignedString([]byte("sMJuczqQPYzocl1s6SLj"))
 	if err != nil {
 		return "", fmt.Errorf("Generate token error: %s", err.Error())
 	}
