@@ -831,44 +831,6 @@ paths:
       summary: Get User By Id
       tags:
       - users
-    patch:
-      consumes:
-      - application/json
-      description: Delete Update Partial User
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: id can empty
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/models.User'
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.User'
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-            type: object
-      summary: Update Partial User
-      tags:
-      - users
     put:
       consumes:
       - application/json

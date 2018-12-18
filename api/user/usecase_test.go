@@ -172,10 +172,11 @@ func TestUsecase_UpdateUser(t *testing.T) {
 
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := mock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetUserByID(gomock.Any()).Return(&mock.MockUserById, nil)
 		mockRepo.EXPECT().UpdateUser(gomock.Any()).Return(&mock.MockUserById, nil)
 
 		uc := NewUsecase(mockRepo, mockSiteRepo)
-		u, err := uc.UpdateUser(&mock.MockUserById)
+		u, err := uc.UpdateUser(&mock.MockUserById, mock.MockUserById.IsAdmin())
 
 		assert.NoError(t, err)
 		assert.NotNil(t, u)
@@ -191,7 +192,7 @@ func TestUsecase_UpdateUser(t *testing.T) {
 		uc := NewUsecase(mockRepo, mockSiteRepo)
 		mu := mock.MockUser
 		mu.Role = ""
-		u, err := uc.UpdateUser(&mu)
+		u, err := uc.UpdateUser(&mu, mu.IsAdmin())
 
 		assert.Nil(t, u)
 		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
@@ -206,7 +207,7 @@ func TestUsecase_UpdateUser(t *testing.T) {
 		uc := NewUsecase(mockRepo, mockSiteRepo)
 		mu := mock.MockUser
 		mu.Vat = ""
-		u, err := uc.UpdateUser(&mu)
+		u, err := uc.UpdateUser(&mu, mu.IsAdmin())
 
 		assert.Nil(t, u)
 		assert.EqualError(t, err, utils.ErrInvalidUserVat.Error())
@@ -222,7 +223,7 @@ func TestUsecase_UpdateUser(t *testing.T) {
 		mu := mock.MockUser
 		mu.Role = "admin"
 		mu.Email = "a@odds.team"
-		u, err := uc.UpdateUser(&mu)
+		u, err := uc.UpdateUser(&mu, mu.IsAdmin())
 
 		assert.Nil(t, u)
 		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
