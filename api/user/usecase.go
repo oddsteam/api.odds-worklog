@@ -76,6 +76,9 @@ func (u *usecase) UpdateUser(m *models.User) (*models.User, error) {
 	if m.IsAdmin() && m.Role != "admin" {
 		m.Role = "admin"
 	}
+
+	m.FirstName = utils.ToFirstUpper(m.FirstName)
+	m.LastName = utils.ToFirstUpper(m.LastName)
 	user, err := u.repo.UpdateUser(m)
 	if err != nil {
 		return nil, err
