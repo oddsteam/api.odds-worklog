@@ -197,6 +197,21 @@ func TestUsecase_UpdateUser(t *testing.T) {
 		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
 	})
 
+	t.Run("when update user invalid vat, then retuen erro nil, ErrInvalidUserVat", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := mock.NewMockRepository(ctrl)
+		uc := NewUsecase(mockRepo, mockSiteRepo)
+		mu := mock.MockUser
+		mu.Vat = ""
+		u, err := uc.UpdateUser(&mu)
+
+		assert.Nil(t, u)
+		assert.EqualError(t, err, utils.ErrInvalidUserVat.Error())
+	})
+
 	t.Run("when update user invalid role permission, then retuen erro nil, ErrInvalidUserRole", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()

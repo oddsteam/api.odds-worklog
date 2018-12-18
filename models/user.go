@@ -50,3 +50,10 @@ func (u *User) ValidateRole() error {
 	}
 	return nil
 }
+
+func (u *User) ValidateVat() error {
+	if u.Vat != "N" && u.Vat != "Y" {
+		return utils.ErrInvalidUserVat
+	}
+	return nil
+}

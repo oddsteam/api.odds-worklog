@@ -67,6 +67,9 @@ func (u *usecase) UpdateUser(m *models.User) (*models.User, error) {
 	if err := m.ValidateRole(); err != nil {
 		return nil, err
 	}
+	if err := m.ValidateVat(); err != nil {
+		return nil, err
+	}
 	if m.Role == "admin" && !m.IsAdmin() {
 		return nil, utils.ErrInvalidUserRole
 	}
