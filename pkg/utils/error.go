@@ -23,6 +23,7 @@ var (
 	ErrNoTranscriptFile   = errors.New("No transcript file.")
 	ErrPermissionDenied   = errors.New("Permission denied.")
 	ErrInvalidUserVat     = errors.New("Invalid user vat.")
+	ErrEmptyCustomerId    = errors.New("Customer id is empty.")
 )
 
 func NewError(ctx echo.Context, status int, err error) error {

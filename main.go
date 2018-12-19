@@ -18,6 +18,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/worker"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/po"
 )
 
 // @title Odds-Worklog Example API
@@ -60,6 +61,7 @@ func main() {
 	reminder.NewHttpHandler(r, session)
 	file.NewHttpHandler(r, session)
 	site.NewHttpHandler(r, session)
+	po.NewHttpHandler(r, session)
 
 	reminderRepo := reminder.NewRepository(session)
 	s, err := reminderRepo.GetReminder()
