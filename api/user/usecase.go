@@ -108,7 +108,7 @@ func (u *usecase) UpdateUser(m *models.User, isAdmin bool) (*models.User, error)
 	user.Role = m.Role
 	user.Vat = m.Vat
 
-	user, err = u.repo.UpdateUser(m)
+	user, err = u.repo.UpdateUser(user)
 	if err != nil {
 		return nil, err
 	}
