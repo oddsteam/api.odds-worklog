@@ -459,6 +459,58 @@
                 }
             }
         },
+        "/invoices": {
+            "post": {
+                "description": "Create New Invoice",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "summary": "Create New Invoice",
+                "parameters": [
+                    {
+                        "description": "id can be empty",
+                        "name": "invoice",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.Invoice"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Invoice"
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Login get token",
@@ -1211,6 +1263,23 @@
                 "user": {
                     "type": "object",
                     "$ref": "#/definitions/models.User"
+                }
+            }
+        },
+        "models.Invoice": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "invoiceNo": {
+                    "type": "string"
+                },
+                "poId": {
+                    "type": "string"
                 }
             }
         },
