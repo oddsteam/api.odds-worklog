@@ -24,6 +24,7 @@ var (
 	ErrPermissionDenied   = errors.New("Permission denied.")
 	ErrInvalidUserVat     = errors.New("Invalid user vat.")
 	ErrEmptyCustomerId    = errors.New("Customer id is empty.")
+	ErrNotImageFile       = errors.New("Not image file")
 )
 
 func NewError(ctx echo.Context, status int, err error) error {

@@ -24,16 +24,16 @@ func isRequestValid(m *models.Po) (bool, error) {
 
 // Create godoc
 // @Summary Create PO
-//@Description Create PO
-//@Tags po
+// @Description Create PO
+// @Tags po
 // @Accept  json
 // @Produce  json
 // @Param poes body models.Po true "require customer id"
-//@Success 200 {object} model.Po
-//@Failure 500 {object} utils.HTTPError
+// @Success 200 {object} models.Po
+// @Failure 500 {object} utils.HTTPError
 // @Router /poes [post]
 func (h *HttpHandler) Create(c echo.Context) error {
-	var po models.Po 
+	var po models.Po
 	if err := c.Bind(&po); err != nil {
 		return utils.NewError(c, http.StatusUnprocessableEntity, err)
 	}
@@ -48,10 +48,10 @@ func (h *HttpHandler) Create(c echo.Context) error {
 
 }
 
-func NewHttpHandler(r *echo.Group, session *mongo.Session){
+func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	ur := NewRepository(session)
 	uc := NewUsecase(ur)
 	handler := &HttpHandler{uc}
 	r = r.Group("/poes")
-	r.POST("",handler.Create)
+	r.POST("", handler.Create)
 }

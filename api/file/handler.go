@@ -26,6 +26,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	h := &HttpHandler{u}
 	r = r.Group("/files")
 	r.POST("/transcript", h.UploadTranscript)
+	r.POST("/image", h.UploadImageProfile)
 	r.GET("/transcript/:id", h.DownloadTranscript)
 }
 
@@ -124,4 +125,56 @@ func (h *HttpHandler) DownloadTranscript(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.Attachment(filename, filename)
+}
+
+// UploadImageProfile godoc
+// @Summary Upload image profile
+// @Description Upload image profile
+// @Tags files
+// @Accept image/png,image/gif,image/jpeg
+// @Produce json
+// @Param image-profile body int true "file"
+// @Success 200 {object} models.CommonResponse
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/image [post]
+func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
+	file, err := c.FormFile("image-profile")
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	src, err := file.Open()
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	defer src.Close()
+
+	u := getUserFromToken(c)
+	filename := getImageFilename(u)
+
+	dst, err := os.Create(filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	err = h.usecase.UpdateImageProfileUser(u.ID.Hex(), filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, models.CommonResponse{Message: "Upload image profile success"})
+}
+
+func getImageFilename(u *models.User) (filename string) {
+	path := "files/images"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.Mkdir(path, os.ModePerm)
+	}
+	filename = fmt.Sprintf("%s/%s_%s.png", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName))
+	return
 }

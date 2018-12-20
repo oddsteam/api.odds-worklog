@@ -57,6 +57,15 @@ definitions:
       token:
         type: string
     type: object
+  models.Po:
+    properties:
+      customerId:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
   models.Reminder:
     properties:
       name:
@@ -109,6 +118,8 @@ definitions:
         type: string
       id:
         type: string
+      imageProfile:
+        type: string
       lastName:
         type: string
       role:
@@ -142,6 +153,36 @@ info:
   title: Odds-Worklog Example API
   version: "1.0"
 paths:
+  /files/image:
+    post:
+      consumes:
+      - image/png
+      - image/gif
+      - image/jpeg
+      description: Upload image profile
+      parameters:
+      - description: file
+        in: body
+        name: image-profile
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Upload image profile
+      tags:
+      - files
   /files/transcript:
     post:
       consumes:
@@ -539,6 +580,35 @@ paths:
       summary: Login with google account
       tags:
       - login
+  /poes:
+    post:
+      consumes:
+      - application/json
+      description: Create PO
+      parameters:
+      - description: require customer id
+        in: body
+        name: poes
+        required: true
+        schema:
+          $ref: '#/definitions/models.Po'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Po'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Create PO
+      tags:
+      - po
   /setting/reminder:
     get:
       description: Get Reminder Setting

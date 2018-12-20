@@ -5,8 +5,9 @@
 package mock_file
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockUsecase is a mock of Usecase interface
@@ -42,6 +43,18 @@ func (m *MockUsecase) UpdateUser(id, filename string) error {
 // UpdateUser indicates an expected call of UpdateUser
 func (mr *MockUsecaseMockRecorder) UpdateUser(id, filename interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockUsecase)(nil).UpdateUser), id, filename)
+}
+
+// UpdateImageProfileUser mocks base method
+func (m *MockUsecase) UpdateImageProfileUser(id, filename string) error {
+	ret := m.ctrl.Call(m, "UpdateImageProfileUser", id, filename)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateImageProfileUser indicates an expected call of UpdateImageProfileUser
+func (mr *MockUsecaseMockRecorder) UpdateImageProfileUser(id, filename interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateImageProfileUser", reflect.TypeOf((*MockUsecase)(nil).UpdateImageProfileUser), id, filename)
 }
 
 // GetPathTranscript mocks base method
