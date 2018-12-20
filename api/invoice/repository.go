@@ -25,3 +25,13 @@ func (r *repository) Create(i *models.Invoice) (*models.Invoice, error) {
 	}
 	return i, nil
 }
+
+func (r *repository) Get() ([]*models.Invoice, error) {
+	invoices := make([]*models.Invoice, 0)
+	coll := r.session.GetCollection(invoiceColl)
+	err := coll.Find(bson.M{}).All(&invoices)
+	if err != nil {
+		return nil, err
+	}
+	return invoices, nil
+}

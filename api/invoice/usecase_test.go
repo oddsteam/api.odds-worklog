@@ -1,6 +1,7 @@
 package invoice
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -41,5 +42,37 @@ func TestUsecase_Create(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, invoice)
+	})
+}
+
+func TestUsecase_Get(t *testing.T) {
+	t.Run("when get invoice list success, then return ([]*models.Invoice, nil)", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().Get().Return(invoiceMock.Invoices, nil)
+
+		u := NewUsecase(mockRepo)
+		invoices, err := u.Get()
+
+		b, _ := json.Marshal(invoices)
+		j := string(b)
+		assert.NoError(t, err)
+		assert.Equal(t, invoiceMock.InvoicesJson, j)
+	})
+
+	t.Run("when get invoice list error, then return (nil, error)", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().Get().Return(nil, errors.New(""))
+
+		u := NewUsecase(mockRepo)
+		invoices, err := u.Get()
+
+		assert.Error(t, err)
+		assert.Nil(t, invoices)
 	})
 }

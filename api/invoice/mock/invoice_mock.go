@@ -46,6 +46,19 @@ func (mr *MockUsecaseMockRecorder) Create(i interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUsecase)(nil).Create), i)
 }
 
+// Get mocks base method
+func (m *MockUsecase) Get() ([]*models.Invoice, error) {
+	ret := m.ctrl.Call(m, "Get")
+	ret0, _ := ret[0].([]*models.Invoice)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get indicates an expected call of Get
+func (mr *MockUsecaseMockRecorder) Get() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockUsecase)(nil).Get))
+}
+
 // MockRepository is a mock of Repository interface
 type MockRepository struct {
 	ctrl     *gomock.Controller
@@ -80,4 +93,17 @@ func (m *MockRepository) Create(i *models.Invoice) (*models.Invoice, error) {
 // Create indicates an expected call of Create
 func (mr *MockRepositoryMockRecorder) Create(i interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), i)
+}
+
+// Get mocks base method
+func (m *MockRepository) Get() ([]*models.Invoice, error) {
+	ret := m.ctrl.Call(m, "Get")
+	ret0, _ := ret[0].([]*models.Invoice)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get indicates an expected call of Get
+func (mr *MockRepositoryMockRecorder) Get() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockRepository)(nil).Get))
 }

@@ -6,8 +6,10 @@ import (
 
 type Usecase interface {
 	Create(i *models.Invoice) (*models.Invoice, error)
+	Get() ([]*models.Invoice, error)
 }
 
 type Repository interface {
 	Create(i *models.Invoice) (*models.Invoice, error)
+	Get() ([]*models.Invoice, error)
 }

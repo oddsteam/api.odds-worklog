@@ -12,6 +12,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
 	mockInvoice "gitlab.odds.team/worklog/api.odds-worklog/api/invoice/mock"
+	mockUser "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 )
 
 func TestCreate(t *testing.T) {
@@ -24,6 +25,7 @@ func TestCreate(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", mockUser.TokenAdmin)
 
 		iMock := mockInvoice.Invoice
 		uMock := mockInvoice.NewMockUsecase(ctrl)
@@ -45,6 +47,7 @@ func TestCreate(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", mockUser.TokenAdmin)
 
 		uMock := mockInvoice.NewMockUsecase(ctrl)
 		h := &HttpHandler{uMock}
@@ -66,10 +69,73 @@ func TestCreate(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", mockUser.TokenAdmin)
 
 		h := &HttpHandler{uMock}
 		h.Create(c)
 
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+}
+
+func TestGet(t *testing.T) {
+	t.Run("when get invoice list success, then return array json models.Invoice with status code 200", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", mockUser.TokenAdmin)
+
+		uMock := mockInvoice.NewMockUsecase(ctrl)
+		uMock.EXPECT().Get().Return(mockInvoice.Invoices, nil)
+
+		h := &HttpHandler{uMock}
+		h.Get(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, mockInvoice.InvoicesJson, rec.Body.String())
+	})
+
+	t.Run("when get invoice list error, then return json models.HTTPError with status code 500", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		uMock := mockInvoice.NewMockUsecase(ctrl)
+		uMock.EXPECT().Get().Return(nil, errors.New(""))
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", mockUser.TokenAdmin)
+
+		h := &HttpHandler{uMock}
+		h.Get(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+
+	t.Run("when request isn't admin, then return json models.HTTPError with status code 403", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		uMock := mockInvoice.NewMockUsecase(ctrl)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", mockUser.TokenUser)
+
+		h := &HttpHandler{uMock}
+		h.Get(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
 	})
 }
