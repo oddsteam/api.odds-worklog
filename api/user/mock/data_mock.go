@@ -2,7 +2,9 @@ package mock_user
 
 import (
 	"encoding/json"
+	"time"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -68,4 +70,20 @@ var (
 	MockUsers       = []*models.User{&MockUserById, &MockUserById2}
 	UserListByte, _ = json.Marshal(MockUsers)
 	UserListJson    = string(UserListByte)
+
+	claimsUser = &models.JwtCustomClaims{
+		&MockUser,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+		},
+	}
+	TokenUser = jwt.NewWithClaims(jwt.SigningMethodHS256, claimsUser)
+
+	claimsAdmin = &models.JwtCustomClaims{
+		&MockAdmin,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+		},
+	}
+	TokenAdmin = jwt.NewWithClaims(jwt.SigningMethodHS256, claimsAdmin)
 )
