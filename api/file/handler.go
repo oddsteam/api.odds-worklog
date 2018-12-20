@@ -26,7 +26,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	h := &HttpHandler{u}
 	r = r.Group("/files")
 	r.POST("/transcript", h.UploadTranscript)
-	r.GET("/transcript", h.DownloadTranscript)
+	r.GET("/transcript/:id", h.DownloadTranscript)
 }
 
 // UploadTranscript godoc
