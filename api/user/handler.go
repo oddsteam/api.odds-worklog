@@ -34,7 +34,7 @@ func isRequestValid(m *models.User) (bool, error) {
 // @Accept  json
 // @Produce  json
 // @Param user body models.User true  "id can empty"
-// @Success 200 {array} models.User
+// @Success 200 {object} models.User
 // @Failure 400 {object} utils.HTTPError
 // @Failure 422 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError

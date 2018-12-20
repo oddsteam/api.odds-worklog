@@ -488,6 +488,25 @@ paths:
       tags:
       - incomes
   /invoices:
+    get:
+      description: Get Invoice List
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Invoice'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Invoice List
+      tags:
+      - invoices
     post:
       consumes:
       - application/json
@@ -506,9 +525,8 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.Invoice'
-            type: array
+            $ref: '#/definitions/models.Invoice'
+            type: object
         "422":
           description: Unprocessable Entity
           schema:
@@ -863,9 +881,8 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.User'
-            type: array
+            $ref: '#/definitions/models.User'
+            type: object
         "400":
           description: Bad Request
           schema:

@@ -504,6 +504,34 @@
             }
         },
         "/invoices": {
+            "get": {
+                "description": "Get Invoice List",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "summary": "Get Invoice List",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Invoice"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create New Invoice",
                 "consumes": [
@@ -532,10 +560,8 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Invoice"
-                            }
+                            "type": "object",
+                            "$ref": "#/definitions/models.Invoice"
                         }
                     },
                     "422": {
@@ -1057,10 +1083,8 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.User"
-                            }
+                            "type": "object",
+                            "$ref": "#/definitions/models.User"
                         }
                     },
                     "400": {
