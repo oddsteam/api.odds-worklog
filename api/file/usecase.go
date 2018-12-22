@@ -48,6 +48,24 @@ func (u *usercasse) GetPathTranscript(id string) (string, error) {
 	return user.Transcript, nil
 }
 
+func (u *usercasse) GetPathImageProfile(id string) (string, error) {
+	user, err := u.repo.GetUserByID(id)
+	if err != nil {
+		return "", err
+	}
+	if user.ImageProfile == "" {
+		return "", utils.ErrNoImageProfileFile
+	}
+
+	_, err = os.Open(user.ImageProfile)
+	if err != nil {
+		user.ImageProfile = ""
+		u.repo.UpdateUser(user)
+		return "", utils.ErrNoImageProfileFile
+	}
+	return user.ImageProfile, nil
+}
+
 func (u *usercasse) UpdateImageProfileUser(id, filename string) error {
 	user, err := u.repo.GetUserByID(id)
 	if err != nil {

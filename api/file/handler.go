@@ -26,8 +26,9 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	h := &HttpHandler{u}
 	r = r.Group("/files")
 	r.POST("/transcript", h.UploadTranscript)
-	r.POST("/image", h.UploadImageProfile)
 	r.GET("/transcript/:id", h.DownloadTranscript)
+	r.POST("/image", h.UploadImageProfile)
+	r.GET("/image/:id", h.DownloadImageProfile)
 }
 
 // UploadTranscript godoc
@@ -140,7 +141,7 @@ func (h *HttpHandler) DownloadTranscript(c echo.Context) error {
 func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 	file, err := c.FormFile("image-profile")
 	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
+		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 	src, err := file.Open()
 	if err != nil {
@@ -167,9 +168,36 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, models.CommonResponse{Message: "Upload image profile success"})
+	return c.JSON(http.StatusOK, file)
 }
 
+// DownloadImageProfile godoc
+// @Summary Download image file
+// @Description Download image file
+// @Tags files
+// @Produce json
+// @Param id path string true "user id"
+// @Success 200 {array} string
+// @Failure 400 {object} utils.HTTPError
+// @Failure 401 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/image/{id} [get]
+func (h *HttpHandler) DownloadImageProfile(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return utils.NewError(c, http.StatusBadRequest, utils.ErrInvalidPath)
+	}
+	user := getUserFromToken(c)
+	if user.ID.Hex() != id && !user.IsAdmin() {
+		return utils.NewError(c, http.StatusUnauthorized, utils.ErrPermissionDenied)
+	}
+
+	filename, err := h.usecase.GetPathImageProfile(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.Attachment(filename, filename)
+}
 func getImageFilename(u *models.User) (filename string) {
 	path := "files/images"
 	if _, err := os.Stat(path); os.IsNotExist(err) {

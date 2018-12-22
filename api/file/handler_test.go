@@ -136,3 +136,109 @@ func TestDownloadTranscript(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	})
 }
+
+func TestDownloadImageProfile(t *testing.T) {
+	t.Run("download ImageProfile file success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.MockAdmin
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathImageProfile(u.ID.Hex()).Return("test.pdf", nil)
+		claims := &models.JwtCustomClaims{
+			&u,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", token)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.DownloadImageProfile(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+
+	t.Run("when param id is empty then return status code 400", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		handler := &HttpHandler{mockUsecase}
+		handler.DownloadImageProfile(c)
+
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+		assert.Equal(t, `{"code":400,"message":"Invalid path"}`, rec.Body.String())
+	})
+
+	t.Run("when not owner ImageProfile file and not admin then return status code 401", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.MockUser
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		claims := &models.JwtCustomClaims{
+			&u,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", token)
+		c.SetParamNames("id")
+		c.SetParamValues("1234")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.DownloadImageProfile(c)
+
+		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+		assert.Equal(t, `{"code":401,"message":"Permission denied."}`, rec.Body.String())
+	})
+
+	t.Run("when ImageProfile file error then return status code 500", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.MockUser
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathImageProfile(u.ID.Hex()).Return("", errors.New(""))
+		claims := &models.JwtCustomClaims{
+			&u,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", token)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.DownloadImageProfile(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+}

@@ -80,3 +80,38 @@ func TestUsecase_GetPathTranscript(t *testing.T) {
 			assert.Empty(t, filename)
 		})
 }
+
+func TestUsecase_GetPathImageProfile(t *testing.T) {
+	t.Run("when ImageProfile empty then return '', ErrNoImageProfileFile", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		user := userMock.MockUser
+		mockUserRepo := userMock.NewMockRepository(ctrl)
+		mockUserRepo.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
+
+		usecase := NewUsecase(mockUserRepo)
+		filename, err := usecase.GetPathImageProfile(user.ID.Hex())
+
+		assert.EqualError(t, err, utils.ErrNoImageProfileFile.Error())
+		assert.Empty(t, filename)
+	})
+
+	t.Run(`when can't open ImageProfile file  then update user with empty ImageProfile and return '', ErrNoImageProfileFile`,
+		func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			user := userMock.MockUser
+			user.ImageProfile = "noimg.png"
+			mockUserRepo := userMock.NewMockRepository(ctrl)
+			mockUserRepo.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
+			mockUserRepo.EXPECT().UpdateUser(gomock.Any())
+
+			usecase := NewUsecase(mockUserRepo)
+			filename, err := usecase.GetPathImageProfile(user.ID.Hex())
+
+			assert.EqualError(t, err, utils.ErrNoImageProfileFile.Error())
+			assert.Empty(t, filename)
+		})
+}
