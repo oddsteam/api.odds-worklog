@@ -1,6 +1,8 @@
 [
     {
-        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2aa"},
+        "_id": {
+            "$oid": "5c0fca4f0fd2df79d4adc2aa"
+        },
         "firstName": "Admin",
         "lastName": "Admin1",
         "role": "admin",
@@ -14,7 +16,9 @@
         "siteId": "5c0fca4f0fd2df79d4adc2ca"
     },
     {
-        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2ab"},
+        "_id": {
+            "$oid": "5c0fca4f0fd2df79d4adc2ab"
+        },
         "firstName": "Tester",
         "lastName": "Number1",
         "role": "corporate",
@@ -28,7 +32,9 @@
         "siteId": "5c0fcd3c0fd2df79d4adc2cb"
     },
     {
-        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2ac"},
+        "_id": {
+            "$oid": "5c0fca4f0fd2df79d4adc2ac"
+        },
         "firstName": "Tester",
         "lastName": "Number2",
         "role": "corporate",
@@ -42,7 +48,9 @@
         "siteId": "5c0fcd3c0fd2df79d4adc2cc"
     },
     {
-        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2ad"},
+        "_id": {
+            "$oid": "5c0fca4f0fd2df79d4adc2ad"
+        },
         "firstName": "Tester",
         "lastName": "Number3",
         "role": "individual",
@@ -56,7 +64,9 @@
         "siteId": "5c0fcd3c0fd2df79d4adc2cd"
     },
     {
-        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2ae"},
+        "_id": {
+            "$oid": "5c0fca4f0fd2df79d4adc2ae"
+        },
         "firstName": "Tester",
         "lastName": "Number4",
         "role": "individual",

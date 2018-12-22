@@ -1,0 +1,58 @@
+[
+    {
+        "_id": {
+            "$oid": "5c0fca4f0fd2df79d4ada001"
+        },
+        "poId": "5c0fca4f0fd2df79d4ada001",
+        "invoiceNo": "2018_001",
+        "amount": "10000",
+        "create": {
+            "$date": "2018-12-12T12:12:12Z"
+        },
+        "lastUpdate": {
+            "$date": "2018-12-12T12:12:12Z"
+        }
+    },
+    {
+        "_id": {
+            "$oid": "5c0fca4f0fd2df79d4ada002"
+        },
+        "poId": "5c0fca4f0fd2df79d4ada001",
+        "invoiceNo": "2018_002",
+        "amount": "20000",
+        "create": {
+            "$date": "2018-12-12T12:12:12Z"
+        },
+        "lastUpdate": {
+            "$date": "2018-12-12T12:12:12Z"
+        }
+    },
+    {
+        "_id": {
+            "$oid": "5c0fca4f0fd2df79d4ada003"
+        },
+        "poId": "5c0fca4f0fd2df79d4ada002",
+        "invoiceNo": "2018_001",
+        "amount": "20000",
+        "create": {
+            "$date": "2018-12-12T12:12:12Z"
+        },
+        "lastUpdate": {
+            "$date": "2018-12-12T12:12:12Z"
+        }
+    },
+    {
+        "_id": {
+            "$oid": "5c0fca4f0fd2df79d4ada004"
+        },
+        "poId": "5c0fca4f0fd2df79d4ada003",
+        "invoiceNo": "2018_001",
+        "amount": "30000",
+        "create": {
+            "$date": "2018-12-12T12:12:12Z"
+        },
+        "lastUpdate": {
+            "$date": "2018-12-12T12:12:12Z"
+        }
+    }
+]
