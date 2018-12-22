@@ -60,3 +60,8 @@ func (r *repository) Last(id string) (*models.Invoice, error) {
 	}
 	return invoice, nil
 }
+
+func (r *repository) Delete(id string) error {
+	coll := r.session.GetCollection(invoiceColl)
+	return coll.Remove(bson.M{"_id": bson.ObjectIdHex(id)})
+}

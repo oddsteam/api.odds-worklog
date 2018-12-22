@@ -289,3 +289,70 @@ func TestNextNo(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	})
 }
+
+func TestDelete(t *testing.T) {
+	t.Run("when delete invoice success, then return json models.Response with status code 200", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", mockUser.TokenAdmin)
+		c.SetParamNames("id")
+		c.SetParamValues("1234")
+
+		uMock := mockInvoice.NewMockUsecase(ctrl)
+		uMock.EXPECT().Delete("1234").Return(nil)
+
+		h := &HttpHandler{uMock}
+		h.Delete(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+
+	t.Run("when delete invoice error, then return json models.HTTPError status code 500", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		uMock := mockInvoice.NewMockUsecase(ctrl)
+		uMock.EXPECT().Delete("1234").Return(errors.New(""))
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", mockUser.TokenAdmin)
+		c.SetParamNames("id")
+		c.SetParamValues("1234")
+
+		h := &HttpHandler{uMock}
+		h.Delete(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+
+	t.Run("when request isn't admin, then return json models.HTTPError status code 403", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		uMock := mockInvoice.NewMockUsecase(ctrl)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", mockUser.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues("1234")
+
+		h := &HttpHandler{uMock}
+		h.Delete(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
+	})
+}

@@ -9,6 +9,7 @@ type Usecase interface {
 	Get() ([]*models.Invoice, error)
 	GetByPO(id string) ([]*models.Invoice, error)
 	NextNo(id string) (string, error)
+	Delete(id string) error
 }
 
 type Repository interface {
@@ -16,4 +17,5 @@ type Repository interface {
 	Get() ([]*models.Invoice, error)
 	GetByPO(id string) ([]*models.Invoice, error)
 	Last(id string) (*models.Invoice, error)
+	Delete(id string) error
 }

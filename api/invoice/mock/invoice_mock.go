@@ -85,6 +85,18 @@ func (mr *MockUsecaseMockRecorder) NextNo(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NextNo", reflect.TypeOf((*MockUsecase)(nil).NextNo), id)
 }
 
+// Delete mocks base method
+func (m *MockUsecase) Delete(id string) error {
+	ret := m.ctrl.Call(m, "Delete", id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete
+func (mr *MockUsecaseMockRecorder) Delete(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUsecase)(nil).Delete), id)
+}
+
 // MockRepository is a mock of Repository interface
 type MockRepository struct {
 	ctrl     *gomock.Controller
@@ -158,4 +170,16 @@ func (m *MockRepository) Last(id string) (*models.Invoice, error) {
 // Last indicates an expected call of Last
 func (mr *MockRepositoryMockRecorder) Last(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Last", reflect.TypeOf((*MockRepository)(nil).Last), id)
+}
+
+// Delete mocks base method
+func (m *MockRepository) Delete(id string) error {
+	ret := m.ctrl.Call(m, "Delete", id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete
+func (mr *MockRepositoryMockRecorder) Delete(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepository)(nil).Delete), id)
 }

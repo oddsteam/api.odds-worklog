@@ -72,3 +72,7 @@ func newNo(last string) (string, error) {
 	}
 	return no, nil
 }
+
+func (u *usecase) Delete(id string) error {
+	return u.invoiceRepo.Delete(id)
+}

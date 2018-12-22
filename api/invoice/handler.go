@@ -136,3 +136,26 @@ func (h *HttpHandler) NextNo(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, models.InvoiceNoRes{InvoiceNo: invoiceNo})
 }
+
+// Delete godoc
+// @Summary Delete invoice
+// @Description Delete invoice
+// @Tags invoices
+// @Param id path string true "id is invoice id"
+// @Success 200 {object} models.Response
+// @Failure 403 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /invoices/{id} [delete]
+func (h *HttpHandler) Delete(c echo.Context) error {
+	user := getUserFromToken(c)
+	if !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
+	id := c.Param("id")
+	err := h.usecase.Delete(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, models.Response{Message: "Delete invoice success."})
+}

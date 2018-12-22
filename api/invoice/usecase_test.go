@@ -199,5 +199,33 @@ func TestUsecase_NewNo(t *testing.T) {
 		assert.Equal(t, expected, actual)
 		assert.EqualError(t, errors.New("Over limit 999 invoices."), err.Error())
 	})
+}
 
+func TestUsecase_Delete(t *testing.T) {
+	t.Run("when delete invoice success, then return nil", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().Delete("1234").Return(nil)
+		mockPoRepo := poMock.NewMockRepository(ctrl)
+
+		u := NewUsecase(mockRepo, mockPoRepo)
+		err := u.Delete("1234")
+		assert.NoError(t, err)
+	})
+
+	t.Run("when delete invoice error, then return error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().Delete("1234").Return(errors.New(""))
+		mockPoRepo := poMock.NewMockRepository(ctrl)
+
+		u := NewUsecase(mockRepo, mockPoRepo)
+		err := u.Delete("1234")
+
+		assert.Error(t, err)
+	})
 }
