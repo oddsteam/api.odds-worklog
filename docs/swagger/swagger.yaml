@@ -1,10 +1,5 @@
 basePath: /v1
 definitions:
-  models.CommonResponse:
-    properties:
-      message:
-        type: string
-    type: object
   models.Customer:
     properties:
       address:
@@ -105,6 +100,11 @@ definitions:
       slack:
         type: boolean
       time:
+        type: string
+    type: object
+  models.Response:
+    properties:
+      message:
         type: string
     type: object
   models.Site:
@@ -357,7 +357,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.CommonResponse'
+            $ref: '#/definitions/models.Response'
             type: object
         "500":
           description: Internal Server Error
@@ -421,7 +421,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.CommonResponse'
+            $ref: '#/definitions/models.Response'
             type: object
         "500":
           description: Internal Server Error
@@ -768,6 +768,34 @@ paths:
             $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Create New Invoice
+      tags:
+      - invoices
+  /invoices/{id}:
+    delete:
+      description: Delete invoice
+      parameters:
+      - description: id is invoice id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Delete invoice
       tags:
       - invoices
   /invoices/po/{id}:

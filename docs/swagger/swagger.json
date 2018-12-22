@@ -283,7 +283,7 @@
                         "description": "OK",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/models.CommonResponse"
+                            "$ref": "#/definitions/models.Response"
                         }
                     },
                     "500": {
@@ -378,7 +378,7 @@
                         "description": "OK",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/models.CommonResponse"
+                            "$ref": "#/definitions/models.Response"
                         }
                     },
                     "500": {
@@ -964,6 +964,47 @@
                         "schema": {
                             "type": "object",
                             "$ref": "#/definitions/models.InvoiceNoRes"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/invoices/{id}": {
+            "delete": {
+                "description": "Delete invoice",
+                "tags": [
+                    "invoices"
+                ],
+                "summary": "Delete invoice",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id is invoice id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.Response"
                         }
                     },
                     "403": {
@@ -1716,14 +1757,6 @@
         }
     },
     "definitions": {
-        "models.CommonResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "models.Customer": {
             "type": "object",
             "properties": {
@@ -1877,6 +1910,14 @@
                     "type": "boolean"
                 },
                 "time": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Response": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }
