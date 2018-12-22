@@ -219,7 +219,7 @@ func (h *HttpHandler) DropIncome(c echo.Context) error {
 	if err := h.Usecase.DropIncome(); err != nil {
 		return utils.NewError(c, http.StatusOK, errors.New("DropIncome Failed!"))
 	}
-	return c.JSON(http.StatusOK, models.CommonResponse{Message: "DropIncome Success!"})
+	return c.JSON(http.StatusOK, models.Response{Message: "DropIncome Success!"})
 }
 
 func IsUserAdmin(c echo.Context) (bool, string) {

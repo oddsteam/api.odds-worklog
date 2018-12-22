@@ -38,7 +38,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 // @Accept multipart/form-data
 // @Produce json
 // @Param file body int true "file"
-// @Success 200 {object} models.CommonResponse
+// @Success 200 {object} models.Response
 // @Failure 500 {object} utils.HTTPError
 // @Router /files/transcript [post]
 func (h *HttpHandler) UploadTranscript(c echo.Context) error {
@@ -80,7 +80,7 @@ func (h *HttpHandler) UploadTranscript(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, models.CommonResponse{Message: "Upload transcript success"})
+	return c.JSON(http.StatusOK, models.Response{Message: "Upload transcript success"})
 }
 
 func getUserFromToken(c echo.Context) *models.User {
@@ -135,7 +135,7 @@ func (h *HttpHandler) DownloadTranscript(c echo.Context) error {
 // @Accept image/png,image/gif,image/jpeg
 // @Produce json
 // @Param image-profile body int true "file"
-// @Success 200 {object} models.CommonResponse
+// @Success 200 {object} models.Response
 // @Failure 500 {object} utils.HTTPError
 // @Router /files/image [post]
 func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
@@ -168,7 +168,7 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, models.CommonResponse{Message: "Upload transcript success"})
+	return c.JSON(http.StatusOK, models.Response{Message: "Upload transcript success"})
 }
 
 // DownloadImageProfile godoc
