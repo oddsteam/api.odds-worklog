@@ -71,6 +71,16 @@ func (r *repository) Last(id string) (*models.Invoice, error) {
 	return invoice, nil
 }
 
+func (r *repository) Update(i *models.Invoice) (*models.Invoice, error) {
+	i.LastUpdate = time.Now()
+	coll := r.session.GetCollection(invoiceColl)
+	err := coll.UpdateId(i.ID, &i)
+	if err != nil {
+		return nil, err
+	}
+	return i, nil
+}
+
 func (r *repository) Delete(id string) error {
 	coll := r.session.GetCollection(invoiceColl)
 	return coll.Remove(bson.M{"_id": bson.ObjectIdHex(id)})

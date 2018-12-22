@@ -98,6 +98,19 @@ func (mr *MockUsecaseMockRecorder) NextNo(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NextNo", reflect.TypeOf((*MockUsecase)(nil).NextNo), id)
 }
 
+// Update mocks base method
+func (m *MockUsecase) Update(i *models.Invoice) (*models.Invoice, error) {
+	ret := m.ctrl.Call(m, "Update", i)
+	ret0, _ := ret[0].(*models.Invoice)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Update indicates an expected call of Update
+func (mr *MockUsecaseMockRecorder) Update(i interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsecase)(nil).Update), i)
+}
+
 // Delete mocks base method
 func (m *MockUsecase) Delete(id string) error {
 	ret := m.ctrl.Call(m, "Delete", id)
@@ -196,6 +209,19 @@ func (m *MockRepository) Last(id string) (*models.Invoice, error) {
 // Last indicates an expected call of Last
 func (mr *MockRepositoryMockRecorder) Last(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Last", reflect.TypeOf((*MockRepository)(nil).Last), id)
+}
+
+// Update mocks base method
+func (m *MockRepository) Update(i *models.Invoice) (*models.Invoice, error) {
+	ret := m.ctrl.Call(m, "Update", i)
+	ret0, _ := ret[0].(*models.Invoice)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Update indicates an expected call of Update
+func (mr *MockRepositoryMockRecorder) Update(i interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), i)
 }
 
 // Delete mocks base method

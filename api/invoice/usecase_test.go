@@ -235,6 +235,60 @@ func TestUsecase_NewNo(t *testing.T) {
 	})
 }
 
+func TestUsecase_Update(t *testing.T) {
+	t.Run("when update invoice success, then return (*models.Invoice, nil)", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		inv := invoiceMock.Invoice
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetByID(inv.ID.Hex()).Return(&inv, nil)
+		mockRepo.EXPECT().Update(&inv).Return(&inv, nil)
+		mockPoRepo := poMock.NewMockRepository(ctrl)
+
+		u := NewUsecase(mockRepo, mockPoRepo)
+		invoice, err := u.Update(&inv)
+
+		assert.NoError(t, err)
+		assert.Equal(t, inv.PoID, invoice.PoID)
+		assert.Equal(t, inv.InvoiceNo, invoice.InvoiceNo)
+		assert.Equal(t, inv.Amount, invoice.Amount)
+	})
+
+	t.Run("when update invoice error, then return (nil, error)", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		inv := invoiceMock.Invoice
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetByID(inv.ID.Hex()).Return(&inv, nil)
+		mockRepo.EXPECT().Update(&inv).Return(nil, errors.New("error"))
+		mockPoRepo := poMock.NewMockRepository(ctrl)
+
+		u := NewUsecase(mockRepo, mockPoRepo)
+		invoice, err := u.Update(&inv)
+
+		assert.Error(t, err)
+		assert.Nil(t, invoice)
+	})
+
+	t.Run("when get invoice error, then return (nil, error)", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		inv := invoiceMock.Invoice
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetByID(inv.ID.Hex()).Return(nil, errors.New("error"))
+		mockPoRepo := poMock.NewMockRepository(ctrl)
+
+		u := NewUsecase(mockRepo, mockPoRepo)
+		invoice, err := u.Update(&inv)
+
+		assert.Error(t, err)
+		assert.Nil(t, invoice)
+	})
+}
+
 func TestUsecase_Delete(t *testing.T) {
 	t.Run("when delete invoice success, then return nil", func(t *testing.T) {
 		ctrl := gomock.NewController(t)

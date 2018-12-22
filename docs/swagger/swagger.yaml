@@ -828,6 +828,42 @@ paths:
       summary: Get Invoice List by id
       tags:
       - invoices
+    put:
+      consumes:
+      - application/json
+      description: Update Invoice
+      parameters:
+      - description: id is invoice id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Invoice'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Update Invoice
+      tags:
+      - invoices
   /invoices/po/{id}:
     get:
       description: Get Invoice List by PO

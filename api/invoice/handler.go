@@ -3,6 +3,8 @@ package invoice
 import (
 	"net/http"
 
+	"gopkg.in/mgo.v2/bson"
+
 	"gitlab.odds.team/worklog/api.odds-worklog/api/po"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
@@ -27,6 +29,8 @@ func NewHttpHandler(g *echo.Group, s *mongo.Session) {
 	g.POST("", h.Create)
 	g.GET("", h.Get)
 	g.GET("/:id", h.GetByID)
+	g.PUT("/:id", h.Update)
+	g.DELETE("/:id", h.Delete)
 	g.GET("/po/:id/next-no", h.NextNo)
 	g.GET("/po/:id", h.GetByPO)
 }
@@ -160,6 +164,38 @@ func (h *HttpHandler) NextNo(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, models.InvoiceNoRes{InvoiceNo: invoiceNo})
+}
+
+// Update godoc
+// @Summary Update Invoice
+// @Description Update Invoice
+// @Tags invoices
+// @Accept json
+// @Produce json
+// @Param id path string true  "id is invoice id"
+// @Success 200 {object} models.Invoice
+// @Failure 403 {object} utils.HTTPError
+// @Failure 400 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /invoices/{id} [put]
+func (h *HttpHandler) Update(c echo.Context) error {
+	user := getUserFromToken(c)
+	if !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
+	var i models.Invoice
+	if err := c.Bind(&i); err != nil {
+		return utils.NewError(c, http.StatusBadRequest, err)
+	}
+
+	id := c.Param("id")
+	i.ID = bson.ObjectIdHex(id)
+	invoice, err := h.usecase.Update(&i)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, invoice)
 }
 
 // Delete godoc

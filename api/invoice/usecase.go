@@ -80,3 +80,16 @@ func newNo(last string) (string, error) {
 func (u *usecase) Delete(id string) error {
 	return u.invoiceRepo.Delete(id)
 }
+
+func (u *usecase) Update(i *models.Invoice) (*models.Invoice, error) {
+	invoice, err := u.invoiceRepo.GetByID(i.ID.Hex())
+	if err != nil {
+		return nil, err
+	}
+	invoice.Amount = i.Amount
+	invoice, err = u.invoiceRepo.Update(invoice)
+	if err != nil {
+		return nil, err
+	}
+	return invoice, nil
+}
