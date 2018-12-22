@@ -41,6 +41,16 @@ func (r *repository) Get() ([]*models.Invoice, error) {
 	return invoices, nil
 }
 
+func (r *repository) GetByID(id string) (*models.Invoice, error) {
+	invoice := new(models.Invoice)
+	coll := r.session.GetCollection(invoiceColl)
+	err := coll.FindId(bson.ObjectIdHex(id)).One(&invoice)
+	if err != nil {
+		return nil, err
+	}
+	return invoice, nil
+}
+
 func (r *repository) GetByPO(id string) ([]*models.Invoice, error) {
 	invoices := make([]*models.Invoice, 0)
 	coll := r.session.GetCollection(invoiceColl)

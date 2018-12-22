@@ -41,6 +41,10 @@ func (u *usecase) GetByPO(id string) ([]*models.Invoice, error) {
 	return u.invoiceRepo.GetByPO(id)
 }
 
+func (u *usecase) GetByID(id string) (*models.Invoice, error) {
+	return u.invoiceRepo.GetByID(id)
+}
+
 func (u *usecase) NextNo(id string) (string, error) {
 	// _, err := u.poRepo.GetPO(id)
 	// if err != nil {

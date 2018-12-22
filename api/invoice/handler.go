@@ -26,6 +26,7 @@ func NewHttpHandler(g *echo.Group, s *mongo.Session) {
 	g = g.Group("/invoices")
 	g.POST("", h.Create)
 	g.GET("", h.Get)
+	g.GET("/:id", h.GetByID)
 	g.GET("/po/:id/next-no", h.NextNo)
 	g.GET("/po/:id", h.GetByPO)
 }
@@ -110,6 +111,30 @@ func (h *HttpHandler) GetByPO(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, invoices)
+}
+
+// GetByID godoc
+// @Summary Get Invoice List by id
+// @Description Get Invoice List by id
+// @Tags invoices
+// @Produce json
+// @Param id path string true  "id is invoice id"
+// @Success 200 {array} models.Invoice
+// @Failure 403 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /invoices/{id} [get]
+func (h *HttpHandler) GetByID(c echo.Context) error {
+	user := getUserFromToken(c)
+	if !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
+	id := c.Param("id")
+	invoice, err := h.usecase.GetByID(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, invoice)
 }
 
 // NextNo godoc
