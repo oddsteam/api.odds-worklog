@@ -5,6 +5,15 @@ definitions:
       message:
         type: string
     type: object
+  models.Customer:
+    properties:
+      address:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
   models.Income:
     properties:
       id:
@@ -153,6 +162,172 @@ info:
   title: Odds-Worklog Example API
   version: "1.0"
 paths:
+  /customer:
+    get:
+      consumes:
+      - application/json
+      description: get customer list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Customer'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: List customer
+      tags:
+      - customers
+    post:
+      consumes:
+      - application/json
+      description: Create Customer
+      parameters:
+      - description: ' '
+        in: body
+        name: customer
+        required: true
+        schema:
+          $ref: '#/definitions/models.IncomeReq'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Customer'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Create Customer
+      tags:
+      - customer
+  /customer/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Customer By Id
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/models.Customer'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Delete Customer
+      tags:
+      - customer
+    get:
+      consumes:
+      - application/json
+      description: Get Customer By Id
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Customer'
+            type: object
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Customer By Id
+      tags:
+      - customers
+    put:
+      consumes:
+      - application/json
+      description: Update Customer By Id
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: id can empty
+        in: body
+        name: customer
+        required: true
+        schema:
+          $ref: '#/definitions/models.Customer'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Customer'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Update Customer By Id
+      tags:
+      - customer
   /files/image:
     post:
       consumes:
@@ -181,6 +356,42 @@ paths:
             $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Upload image profile
+      tags:
+      - files
+  /files/image/{id}:
+    get:
+      description: Download image file
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Download image file
       tags:
       - files
   /files/transcript:
