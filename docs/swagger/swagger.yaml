@@ -54,11 +54,25 @@ definitions:
     properties:
       amount:
         type: string
+      create:
+        type: string
       id:
         type: string
       invoiceNo:
         type: string
+      lastUpdate:
+        type: string
       poId:
+        type: string
+    type: object
+  models.InvoiceNoReq:
+    properties:
+      poId:
+        type: string
+    type: object
+  models.InvoiceNoRes:
+    properties:
+      invoiceNo:
         type: string
     type: object
   models.Login:
@@ -710,6 +724,11 @@ paths:
             items:
               $ref: '#/definitions/models.Invoice'
             type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
@@ -738,8 +757,13 @@ paths:
           schema:
             $ref: '#/definitions/models.Invoice'
             type: object
-        "422":
-          description: Unprocessable Entity
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
@@ -749,6 +773,70 @@ paths:
             $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Create New Invoice
+      tags:
+      - invoices
+  /invoices/po/{id}:
+    get:
+      description: Get Invoice List by PO
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Invoice'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Invoice List by PO
+      tags:
+      - invoices
+  /invoices/po/next-no:
+    get:
+      consumes:
+      - application/json
+      description: Get next invoice no
+      parameters:
+      - description: poId don't empty
+        in: body
+        name: invoiceNoReq
+        required: true
+        schema:
+          $ref: '#/definitions/models.InvoiceNoReq'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.InvoiceNoRes'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get next invoice no
       tags:
       - invoices
   /login:
