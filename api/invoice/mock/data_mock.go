@@ -29,4 +29,6 @@ var (
 	Invoices     = []*models.Invoice{&Invoice, &Invoice2}
 	iBytes, _    = json.Marshal(Invoices)
 	InvoicesJson = string(iBytes)
+
+	InvoiceNoReqJson = `{"poID":"1234"}`
 )

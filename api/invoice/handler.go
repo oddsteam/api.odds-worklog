@@ -3,6 +3,8 @@ package invoice
 import (
 	"net/http"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/api/po"
+
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -16,13 +18,15 @@ type HttpHandler struct {
 }
 
 func NewHttpHandler(g *echo.Group, s *mongo.Session) {
-	repo := NewRepository(s)
-	use := NewUsecase(repo)
+	invoiceRepo := NewRepository(s)
+	poRepo := po.NewRepository(s)
+	use := NewUsecase(invoiceRepo, poRepo)
 	h := &HttpHandler{use}
 
 	g = g.Group("/invoices")
 	g.POST("", h.Create)
 	g.GET("", h.Get)
+	g.GET("/po/next-no", h.NextNo)
 }
 
 func getUserFromToken(c echo.Context) *models.User {
@@ -50,7 +54,7 @@ func (h *HttpHandler) Create(c echo.Context) error {
 
 	var i models.Invoice
 	if err := c.Bind(&i); err != nil {
-		return utils.NewError(c, http.StatusUnprocessableEntity, err)
+		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 
 	invoice, err := h.usecase.Create(&i)
@@ -79,4 +83,33 @@ func (h *HttpHandler) Get(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, invoices)
+}
+
+// NextNo godoc
+// @Summary Get next invoice no
+// @Description Get next invoice no
+// @Tags invoices
+// @Accept json
+// @Produce json
+// @Param invoiceNoReq body models.InvoiceNoReq true  "poId don't empty"
+// @Success 200 {object} models.InvoiceNoRes
+// @Failure 500 {object} utils.HTTPError
+// @Router /invoices/po/next-no [get]
+func (h *HttpHandler) NextNo(c echo.Context) error {
+	user := getUserFromToken(c)
+	if !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
+	var req models.InvoiceNoReq
+	err := c.Bind(&req)
+	if req.PoID == "" {
+		return utils.NewError(c, http.StatusBadRequest, utils.ErrInvalidPath)
+	}
+
+	invoiceNo, err := h.usecase.NextNo(req.PoID)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, models.InvoiceNoRes{InvoiceNo: invoiceNo})
 }

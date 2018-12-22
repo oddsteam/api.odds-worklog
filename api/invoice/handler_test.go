@@ -38,7 +38,7 @@ func TestCreate(t *testing.T) {
 		assert.Equal(t, mockInvoice.InvoiceJson, rec.Body.String())
 	})
 
-	t.Run("when bind invoice error, then return json models.HTTPError with status code 422", func(t *testing.T) {
+	t.Run("when request is invalid, then return json models.HTTPError with status code 400", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
@@ -53,7 +53,7 @@ func TestCreate(t *testing.T) {
 		h := &HttpHandler{uMock}
 		h.Create(c)
 
-		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
 	})
 
 	t.Run("when create invoice error, then return json models.HTTPError with status code 500", func(t *testing.T) {
@@ -137,5 +137,87 @@ func TestGet(t *testing.T) {
 		h.Get(c)
 
 		assert.Equal(t, http.StatusForbidden, rec.Code)
+	})
+}
+
+func TestNextNo(t *testing.T) {
+	t.Run("when request is valid, then reuturn json models.InvoiceNoRes with status code 200", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mockInvoice.InvoiceNoReqJson))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", mockUser.TokenAdmin)
+
+		no := "2018_001"
+		uMock := mockInvoice.NewMockUsecase(ctrl)
+		uMock.EXPECT().NextNo("1234").Return(no, nil)
+
+		h := &HttpHandler{uMock}
+		h.NextNo(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, `{"invoiceNo":"2018_001"}`, rec.Body.String())
+	})
+
+	t.Run("when request isn't admin, then return json models.HTTPError with status code 403", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mockInvoice.InvoiceNoReqJson))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", mockUser.TokenUser)
+
+		uMock := mockInvoice.NewMockUsecase(ctrl)
+
+		h := &HttpHandler{uMock}
+		h.NextNo(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
+	})
+
+	t.Run("when request is invalid, then return json models.HTTPError with status code 400", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		uMock := mockInvoice.NewMockUsecase(ctrl)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", mockUser.TokenAdmin)
+
+		h := &HttpHandler{uMock}
+		h.NextNo(c)
+
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	})
+
+	t.Run("when nextNo is error, then reuturn json models.HTTPError with status code 500", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mockInvoice.InvoiceNoReqJson))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", mockUser.TokenAdmin)
+
+		uMock := mockInvoice.NewMockUsecase(ctrl)
+		uMock.EXPECT().NextNo("1234").Return("", errors.New(""))
+
+		h := &HttpHandler{uMock}
+		h.NextNo(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	})
 }
