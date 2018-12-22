@@ -198,6 +198,8 @@ func TestGetByPO(t *testing.T) {
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 		c.Set("user", mockUser.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues("1234")
 
 		h := &HttpHandler{uMock}
 		h.GetByPO(c)
@@ -211,11 +213,13 @@ func TestNextNo(t *testing.T) {
 		defer ctrl.Finish()
 
 		e := echo.New()
-		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mockInvoice.InvoiceNoReqJson))
+		req := httptest.NewRequest(echo.POST, "/", nil)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 		c.Set("user", mockUser.TokenAdmin)
+		c.SetParamNames("id")
+		c.SetParamValues("1234")
 
 		no := "2018_001"
 		uMock := mockInvoice.NewMockUsecase(ctrl)
@@ -232,25 +236,6 @@ func TestNextNo(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		e := echo.New()
-		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mockInvoice.InvoiceNoReqJson))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-		c.Set("user", mockUser.TokenUser)
-
-		uMock := mockInvoice.NewMockUsecase(ctrl)
-
-		h := &HttpHandler{uMock}
-		h.NextNo(c)
-
-		assert.Equal(t, http.StatusForbidden, rec.Code)
-	})
-
-	t.Run("when request is invalid, then return json models.HTTPError with status code 400", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
 		uMock := mockInvoice.NewMockUsecase(ctrl)
 
 		e := echo.New()
@@ -258,27 +243,31 @@ func TestNextNo(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		c.Set("user", mockUser.TokenAdmin)
+		c.Set("user", mockUser.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues("1234")
 
 		h := &HttpHandler{uMock}
 		h.NextNo(c)
 
-		assert.Equal(t, http.StatusBadRequest, rec.Code)
+		assert.Equal(t, http.StatusForbidden, rec.Code)
 	})
 
 	t.Run("when nextNo is error, then reuturn json models.HTTPError with status code 500", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
+		uMock := mockInvoice.NewMockUsecase(ctrl)
+		uMock.EXPECT().NextNo("1234").Return("", errors.New(""))
+
 		e := echo.New()
-		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mockInvoice.InvoiceNoReqJson))
+		req := httptest.NewRequest(echo.POST, "/", nil)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 		c.Set("user", mockUser.TokenAdmin)
-
-		uMock := mockInvoice.NewMockUsecase(ctrl)
-		uMock.EXPECT().NextNo("1234").Return("", errors.New(""))
+		c.SetParamNames("id")
+		c.SetParamValues("1234")
 
 		h := &HttpHandler{uMock}
 		h.NextNo(c)

@@ -26,7 +26,7 @@ func NewHttpHandler(g *echo.Group, s *mongo.Session) {
 	g = g.Group("/invoices")
 	g.POST("", h.Create)
 	g.GET("", h.Get)
-	g.GET("/po/next-no", h.NextNo)
+	g.GET("/po/:id/next-no", h.NextNo)
 	g.GET("/po/:id", h.GetByPO)
 }
 
@@ -93,6 +93,7 @@ func (h *HttpHandler) Get(c echo.Context) error {
 // @Description Get Invoice List by PO
 // @Tags invoices
 // @Produce json
+// @Param id path string true  "id is poId"
 // @Success 200 {array} models.Invoice
 // @Failure 403 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
@@ -117,25 +118,19 @@ func (h *HttpHandler) GetByPO(c echo.Context) error {
 // @Tags invoices
 // @Accept json
 // @Produce json
-// @Param invoiceNoReq body models.InvoiceNoReq true  "poId don't empty"
+// @Param id path string true "id is PO id"
 // @Success 200 {object} models.InvoiceNoRes
 // @Failure 403 {object} utils.HTTPError
-// @Failure 400 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
-// @Router /invoices/po/next-no [get]
+// @Router /invoices/po/{id}/next-no [get]
 func (h *HttpHandler) NextNo(c echo.Context) error {
 	user := getUserFromToken(c)
 	if !user.IsAdmin() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
-	var req models.InvoiceNoReq
-	err := c.Bind(&req)
-	if req.PoID == "" {
-		return utils.NewError(c, http.StatusBadRequest, utils.ErrInvalidPath)
-	}
-
-	invoiceNo, err := h.usecase.NextNo(req.PoID)
+	id := c.Param("id")
+	invoiceNo, err := h.usecase.NextNo(id)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
