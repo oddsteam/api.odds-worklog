@@ -59,6 +59,19 @@ func (mr *MockUsecaseMockRecorder) Get() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockUsecase)(nil).Get))
 }
 
+// NextNo mocks base method
+func (m *MockUsecase) NextNo(id string) (string, error) {
+	ret := m.ctrl.Call(m, "NextNo", id)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NextNo indicates an expected call of NextNo
+func (mr *MockUsecaseMockRecorder) NextNo(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NextNo", reflect.TypeOf((*MockUsecase)(nil).NextNo), id)
+}
+
 // MockRepository is a mock of Repository interface
 type MockRepository struct {
 	ctrl     *gomock.Controller
@@ -106,4 +119,17 @@ func (m *MockRepository) Get() ([]*models.Invoice, error) {
 // Get indicates an expected call of Get
 func (mr *MockRepositoryMockRecorder) Get() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockRepository)(nil).Get))
+}
+
+// Last mocks base method
+func (m *MockRepository) Last(id string) (*models.Invoice, error) {
+	ret := m.ctrl.Call(m, "Last", id)
+	ret0, _ := ret[0].(*models.Invoice)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Last indicates an expected call of Last
+func (mr *MockRepositoryMockRecorder) Last(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Last", reflect.TypeOf((*MockRepository)(nil).Last), id)
 }

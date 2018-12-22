@@ -3,12 +3,15 @@ package invoice
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/golang/mock/gomock"
 	invoiceMock "gitlab.odds.team/worklog/api.odds-worklog/api/invoice/mock"
+	poMock "gitlab.odds.team/worklog/api.odds-worklog/api/po/mock"
 )
 
 func TestUsecase_Create(t *testing.T) {
@@ -19,8 +22,9 @@ func TestUsecase_Create(t *testing.T) {
 		inv := invoiceMock.Invoice
 		mockRepo := invoiceMock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().Create(&inv).Return(&inv, nil)
+		mockPoRepo := poMock.NewMockRepository(ctrl)
 
-		u := NewUsecase(mockRepo)
+		u := NewUsecase(mockRepo, mockPoRepo)
 		invoice, err := u.Create(&inv)
 
 		assert.NoError(t, err)
@@ -36,8 +40,9 @@ func TestUsecase_Create(t *testing.T) {
 		inv := invoiceMock.Invoice
 		mockRepo := invoiceMock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().Create(&inv).Return(nil, errors.New("error"))
+		mockPoRepo := poMock.NewMockRepository(ctrl)
 
-		u := NewUsecase(mockRepo)
+		u := NewUsecase(mockRepo, mockPoRepo)
 		invoice, err := u.Create(&inv)
 
 		assert.Error(t, err)
@@ -52,8 +57,9 @@ func TestUsecase_Get(t *testing.T) {
 
 		mockRepo := invoiceMock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().Get().Return(invoiceMock.Invoices, nil)
+		mockPoRepo := poMock.NewMockRepository(ctrl)
 
-		u := NewUsecase(mockRepo)
+		u := NewUsecase(mockRepo, mockPoRepo)
 		invoices, err := u.Get()
 
 		b, _ := json.Marshal(invoices)
@@ -68,11 +74,96 @@ func TestUsecase_Get(t *testing.T) {
 
 		mockRepo := invoiceMock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().Get().Return(nil, errors.New(""))
+		mockPoRepo := poMock.NewMockRepository(ctrl)
 
-		u := NewUsecase(mockRepo)
+		u := NewUsecase(mockRepo, mockPoRepo)
 		invoices, err := u.Get()
 
 		assert.Error(t, err)
 		assert.Nil(t, invoices)
 	})
+}
+
+func TestUsecase_NextNo(t *testing.T) {
+	t.Run("when get last invoice success, then return (string, nil)", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mIvoice := invoiceMock.Invoice
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().Last(mIvoice.PoID).Return(&mIvoice, nil)
+		mockPoRepo := poMock.NewMockRepository(ctrl)
+
+		u := NewUsecase(mockRepo, mockPoRepo)
+		invoiceNo, err := u.NextNo(invoiceMock.Invoice.PoID)
+
+		assert.NoError(t, err)
+		assert.NotEmpty(t, invoiceNo)
+	})
+
+	t.Run("when get last invoice error, then return (string, nil)", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mIvoice := invoiceMock.Invoice
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().Last(mIvoice.PoID).Return(nil, errors.New(""))
+		mockPoRepo := poMock.NewMockRepository(ctrl)
+
+		u := NewUsecase(mockRepo, mockPoRepo)
+		invoiceNo, err := u.NextNo(mIvoice.PoID)
+
+		assert.NoError(t, err)
+		assert.NotEmpty(t, invoiceNo)
+	})
+}
+
+func TestUsecase_NewNo(t *testing.T) {
+	var lastNo, expected, actual string
+	var err error
+
+	t.Run("when last invoice no in current year, then return invoice no increase by 1", func(t *testing.T) {
+		lastNo = "2018_001"
+		expected = "2018_002"
+		actual, err = newNo(lastNo)
+		assert.Equal(t, expected, actual)
+		assert.NoError(t, err)
+
+		lastNo = "2018_099"
+		expected = "2018_100"
+		actual, err = newNo(lastNo)
+		assert.Equal(t, expected, actual)
+		assert.NoError(t, err)
+
+		lastNo = "2018_101"
+		expected = "2018_102"
+		actual, err = newNo(lastNo)
+		assert.Equal(t, expected, actual)
+		assert.NoError(t, err)
+	})
+
+	t.Run("when create new invoice no, then return invoice no is yyyy_001 (yyyy is year pattern)", func(t *testing.T) {
+		lastNo = ""
+		expected = fmt.Sprintf("%04d_001", time.Now().Year())
+		actual, err = newNo(lastNo)
+		assert.Equal(t, expected, actual)
+		assert.NoError(t, err)
+	})
+
+	t.Run("when last invoice no isn't in cerrent year, then return invoice no is yyyy_001 in current year (yyyy is year pattern)", func(t *testing.T) {
+		lastNo = "2017_900"
+		expected = fmt.Sprintf("%04d_001", time.Now().Year())
+		actual, err = newNo(lastNo)
+		assert.Equal(t, expected, actual)
+		assert.NoError(t, err)
+	})
+
+	t.Run(`when new invoice no over limit 999, then return error "Over limit 999 invoices."`, func(t *testing.T) {
+		lastNo = fmt.Sprintf("%04d_999", time.Now().Year())
+		expected = ""
+		actual, err = newNo(lastNo)
+		assert.Equal(t, expected, actual)
+		assert.EqualError(t, errors.New("Over limit 999 invoices."), err.Error())
+	})
+
 }

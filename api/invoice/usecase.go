@@ -1,21 +1,62 @@
 package invoice
 
 import (
+	"errors"
+	"fmt"
+	"strconv"
+	"strings"
+	"time"
+
+	"gitlab.odds.team/worklog/api.odds-worklog/api/po"
+
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
 type usecase struct {
-	repo Repository
+	invoiceRepo Repository
+	poRepo      po.Repository
 }
 
-func NewUsecase(repo Repository) Usecase {
-	return &usecase{repo}
+func NewUsecase(invoiceRepo Repository, poRepo po.Repository) Usecase {
+	return &usecase{invoiceRepo, poRepo}
 }
 
 func (u *usecase) Create(i *models.Invoice) (*models.Invoice, error) {
-	return u.repo.Create(i)
+	return u.invoiceRepo.Create(i)
 }
 
 func (u *usecase) Get() ([]*models.Invoice, error) {
-	return u.repo.Get()
+	return u.invoiceRepo.Get()
+}
+
+func (u *usecase) NextNo(id string) (string, error) {
+	// po, err := u.poRepo.GetPO(id)
+	// if err != nil {
+	// 	return "", errors.New("PO not found.")
+	// }
+	invoice, err := u.invoiceRepo.Last(id)
+	if err != nil {
+		println("error: " + err.Error())
+		return newNo("")
+	}
+	println("OK")
+	return newNo(invoice.InvoiceNo)
+}
+
+func newNo(last string) (string, error) {
+	var no string
+	limit := 999
+	t := time.Now()
+	s := strings.Split(last, "_")
+	if s[0] == strconv.Itoa(t.Year()) {
+		n, _ := strconv.Atoi(s[1])
+		n++
+		if n > limit {
+			return "", errors.New("Over limit 999 invoices.")
+		}
+		no = fmt.Sprintf("%s_%03d", s[0], n)
+	} else {
+		no = fmt.Sprintf("%04d_001", t.Year())
+	}
+	return no, nil
 }
