@@ -65,11 +65,6 @@ definitions:
       poId:
         type: string
     type: object
-  models.InvoiceNoReq:
-    properties:
-      poId:
-        type: string
-    type: object
   models.InvoiceNoRes:
     properties:
       invoiceNo:
@@ -778,6 +773,12 @@ paths:
   /invoices/po/{id}:
     get:
       description: Get Invoice List by PO
+      parameters:
+      - description: id is poId
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -800,19 +801,17 @@ paths:
       summary: Get Invoice List by PO
       tags:
       - invoices
-  /invoices/po/next-no:
+  /invoices/po/{id}/next-no:
     get:
       consumes:
       - application/json
       description: Get next invoice no
       parameters:
-      - description: poId don't empty
-        in: body
-        name: invoiceNoReq
+      - description: id is PO id
+        in: path
+        name: id
         required: true
-        schema:
-          $ref: '#/definitions/models.InvoiceNoReq'
-          type: object
+        type: string
       produces:
       - application/json
       responses:
@@ -820,11 +819,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.InvoiceNoRes'
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
             type: object
         "403":
           description: Forbidden

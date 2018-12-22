@@ -890,44 +890,33 @@
                 }
             }
         },
-        "/invoices/po/next-no": {
+        "/invoices/po/{id}": {
             "get": {
-                "description": "Get next invoice no",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Get Invoice List by PO",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "invoices"
                 ],
-                "summary": "Get next invoice no",
+                "summary": "Get Invoice List by PO",
                 "parameters": [
                     {
-                        "description": "poId don't empty",
-                        "name": "invoiceNoReq",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/models.InvoiceNoReq"
-                        }
+                        "type": "string",
+                        "description": "id is poId",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/models.InvoiceNoRes"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/utils.HTTPError"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Invoice"
+                            }
                         }
                     },
                     "403": {
@@ -947,24 +936,34 @@
                 }
             }
         },
-        "/invoices/po/{id}": {
+        "/invoices/po/{id}/next-no": {
             "get": {
-                "description": "Get Invoice List by PO",
+                "description": "Get next invoice no",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "invoices"
                 ],
-                "summary": "Get Invoice List by PO",
+                "summary": "Get next invoice no",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id is PO id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Invoice"
-                            }
+                            "type": "object",
+                            "$ref": "#/definitions/models.InvoiceNoRes"
                         }
                     },
                     "403": {
@@ -1812,14 +1811,6 @@
                 "lastUpdate": {
                     "type": "string"
                 },
-                "poId": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.InvoiceNoReq": {
-            "type": "object",
-            "properties": {
                 "poId": {
                     "type": "string"
                 }
