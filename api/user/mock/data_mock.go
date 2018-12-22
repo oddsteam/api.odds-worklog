@@ -36,6 +36,9 @@ var (
 		SlackAccount:      "test@abc.com",
 	}
 
+	adminByte, _  = json.Marshal(MockAdmin)
+	MockAdminJson = string(adminByte)
+
 	MockToken = models.Token{
 		Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NjE5NTcxMzZ9.RB3arc4-OyzASAaUhC2W3ReWaXAt_z2Fd3BN4aWTgEY",
 	}

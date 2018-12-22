@@ -1,6 +1,7 @@
 package invoice
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -14,6 +15,19 @@ import (
 	mockInvoice "gitlab.odds.team/worklog/api.odds-worklog/api/invoice/mock"
 	mockUser "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 )
+
+func TestGetUserFromToken(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(echo.POST, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.Set("user", mockUser.TokenAdmin)
+
+	user := getUserFromToken(c)
+	b, _ := json.Marshal(user)
+	actual := string(b)
+	assert.Equal(t, mockUser.MockAdminJson, actual)
+}
 
 func TestCreate(t *testing.T) {
 	t.Run("when create invoice success, then return json models.Invoice with status code 200", func(t *testing.T) {
