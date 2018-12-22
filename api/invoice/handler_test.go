@@ -392,7 +392,7 @@ func TestUpdate(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", mockUser.TokenAdmin)
 		c.SetParamNames("id")
-		c.SetParamValues("1234")
+		c.SetParamValues("5bbcf2f90fd2df527bc30000")
 
 		iMock := mockInvoice.Invoice
 		uMock := mockInvoice.NewMockUsecase(ctrl)
@@ -440,7 +440,7 @@ func TestUpdate(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", mockUser.TokenAdmin)
 		c.SetParamNames("id")
-		c.SetParamValues("1234")
+		c.SetParamValues("5bbcf2f90fd2df527bc30000")
 
 		h := &HttpHandler{uMock}
 		h.Update(c)
@@ -461,7 +461,7 @@ func TestUpdate(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", mockUser.TokenUser)
 		c.SetParamNames("id")
-		c.SetParamValues("1234")
+		c.SetParamValues("5bbcf2f90fd2df527bc30000")
 
 		h := &HttpHandler{uMock}
 		h.Update(c)
