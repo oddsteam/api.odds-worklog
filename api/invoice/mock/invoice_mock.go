@@ -59,6 +59,19 @@ func (mr *MockUsecaseMockRecorder) Get() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockUsecase)(nil).Get))
 }
 
+// GetByPO mocks base method
+func (m *MockUsecase) GetByPO(id string) ([]*models.Invoice, error) {
+	ret := m.ctrl.Call(m, "GetByPO", id)
+	ret0, _ := ret[0].([]*models.Invoice)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByPO indicates an expected call of GetByPO
+func (mr *MockUsecaseMockRecorder) GetByPO(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByPO", reflect.TypeOf((*MockUsecase)(nil).GetByPO), id)
+}
+
 // NextNo mocks base method
 func (m *MockUsecase) NextNo(id string) (string, error) {
 	ret := m.ctrl.Call(m, "NextNo", id)
@@ -119,6 +132,19 @@ func (m *MockRepository) Get() ([]*models.Invoice, error) {
 // Get indicates an expected call of Get
 func (mr *MockRepositoryMockRecorder) Get() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockRepository)(nil).Get))
+}
+
+// GetByPO mocks base method
+func (m *MockRepository) GetByPO(id string) ([]*models.Invoice, error) {
+	ret := m.ctrl.Call(m, "GetByPO", id)
+	ret0, _ := ret[0].([]*models.Invoice)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByPO indicates an expected call of GetByPO
+func (mr *MockRepositoryMockRecorder) GetByPO(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByPO", reflect.TypeOf((*MockRepository)(nil).GetByPO), id)
 }
 
 // Last mocks base method

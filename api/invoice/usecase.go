@@ -22,6 +22,10 @@ func NewUsecase(invoiceRepo Repository, poRepo po.Repository) Usecase {
 }
 
 func (u *usecase) Create(i *models.Invoice) (*models.Invoice, error) {
+	// _, err := u.poRepo.GetPO(id)
+	// if err != nil {
+	// 	return nil, errors.New("PO not found.")
+	// }
 	return u.invoiceRepo.Create(i)
 }
 
@@ -29,8 +33,16 @@ func (u *usecase) Get() ([]*models.Invoice, error) {
 	return u.invoiceRepo.Get()
 }
 
+func (u *usecase) GetByPO(id string) ([]*models.Invoice, error) {
+	// _, err := u.poRepo.GetPO(id)
+	// if err != nil {
+	// 	return nil, errors.New("PO not found.")
+	// }
+	return u.invoiceRepo.GetByPO(id)
+}
+
 func (u *usecase) NextNo(id string) (string, error) {
-	// po, err := u.poRepo.GetPO(id)
+	// _, err := u.poRepo.GetPO(id)
 	// if err != nil {
 	// 	return "", errors.New("PO not found.")
 	// }

@@ -27,6 +27,7 @@ func NewHttpHandler(g *echo.Group, s *mongo.Session) {
 	g.POST("", h.Create)
 	g.GET("", h.Get)
 	g.GET("/po/next-no", h.NextNo)
+	g.GET("/po/:id", h.GetByPO)
 }
 
 func getUserFromToken(c echo.Context) *models.User {
@@ -43,7 +44,8 @@ func getUserFromToken(c echo.Context) *models.User {
 // @Produce json
 // @Param invoice body models.Invoice true  "id can be empty"
 // @Success 200 {object} models.Invoice
-// @Failure 422 {object} utils.HTTPError
+// @Failure 403 {object} utils.HTTPError
+// @Failure 400 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /invoices [post]
 func (h *HttpHandler) Create(c echo.Context) error {
@@ -70,6 +72,7 @@ func (h *HttpHandler) Create(c echo.Context) error {
 // @Tags invoices
 // @Produce json
 // @Success 200 {array} models.Invoice
+// @Failure 403 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /invoices [get]
 func (h *HttpHandler) Get(c echo.Context) error {
@@ -85,6 +88,29 @@ func (h *HttpHandler) Get(c echo.Context) error {
 	return c.JSON(http.StatusOK, invoices)
 }
 
+// GetByPO godoc
+// @Summary Get Invoice List by PO
+// @Description Get Invoice List by PO
+// @Tags invoices
+// @Produce json
+// @Success 200 {array} models.Invoice
+// @Failure 403 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /invoices/po/{id} [get]
+func (h *HttpHandler) GetByPO(c echo.Context) error {
+	user := getUserFromToken(c)
+	if !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
+	id := c.Param("id")
+	invoices, err := h.usecase.GetByPO(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, invoices)
+}
+
 // NextNo godoc
 // @Summary Get next invoice no
 // @Description Get next invoice no
@@ -93,6 +119,8 @@ func (h *HttpHandler) Get(c echo.Context) error {
 // @Produce json
 // @Param invoiceNoReq body models.InvoiceNoReq true  "poId don't empty"
 // @Success 200 {object} models.InvoiceNoRes
+// @Failure 403 {object} utils.HTTPError
+// @Failure 400 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /invoices/po/next-no [get]
 func (h *HttpHandler) NextNo(c echo.Context) error {

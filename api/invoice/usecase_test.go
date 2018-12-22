@@ -84,6 +84,40 @@ func TestUsecase_Get(t *testing.T) {
 	})
 }
 
+func TestUsecase_GetByPO(t *testing.T) {
+	t.Run("when get invoice list by PO success, then return ([]*models.Invoice, nil)", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetByPO("1234").Return(invoiceMock.Invoices, nil)
+		mockPoRepo := poMock.NewMockRepository(ctrl)
+
+		u := NewUsecase(mockRepo, mockPoRepo)
+		invoices, err := u.GetByPO("1234")
+
+		b, _ := json.Marshal(invoices)
+		j := string(b)
+		assert.NoError(t, err)
+		assert.Equal(t, invoiceMock.InvoicesJson, j)
+	})
+
+	t.Run("when get invoice list by PO error, then return (nil, error)", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetByPO("1234").Return(nil, errors.New(""))
+		mockPoRepo := poMock.NewMockRepository(ctrl)
+
+		u := NewUsecase(mockRepo, mockPoRepo)
+		invoices, err := u.GetByPO("1234")
+
+		assert.Error(t, err)
+		assert.Nil(t, invoices)
+	})
+}
+
 func TestUsecase_NextNo(t *testing.T) {
 	t.Run("when get last invoice success, then return (string, nil)", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
