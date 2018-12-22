@@ -168,7 +168,7 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, file)
+	return c.JSON(http.StatusOK, models.CommonResponse{Message: "Upload transcript success"})
 }
 
 // DownloadImageProfile godoc
