@@ -27,6 +27,7 @@ func TestConfigError(t *testing.T) {
 	assert.Equal(t, "Not PDF file", ErrNotPDFFile.Error())
 	assert.Equal(t, "No transcript file.", ErrNoTranscriptFile.Error())
 	assert.Equal(t, "Permission denied.", ErrPermissionDenied.Error())
+	assert.Equal(t, "Invalid user vat.", ErrInvalidUserVat.Error())
 }
 
 func TestNewError(t *testing.T) {

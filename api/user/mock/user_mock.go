@@ -225,16 +225,16 @@ func (mr *MockUsecaseMockRecorder) GetUserBySiteID(id interface{}) *gomock.Call 
 }
 
 // UpdateUser mocks base method
-func (m *MockUsecase) UpdateUser(u *models.User) (*models.User, error) {
-	ret := m.ctrl.Call(m, "UpdateUser", u)
+func (m *MockUsecase) UpdateUser(u *models.User, isAdmin bool) (*models.User, error) {
+	ret := m.ctrl.Call(m, "UpdateUser", u, isAdmin)
 	ret0, _ := ret[0].(*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UpdateUser indicates an expected call of UpdateUser
-func (mr *MockUsecaseMockRecorder) UpdateUser(u interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockUsecase)(nil).UpdateUser), u)
+func (mr *MockUsecaseMockRecorder) UpdateUser(u, isAdmin interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockUsecase)(nil).UpdateUser), u, isAdmin)
 }
 
 // DeleteUser mocks base method

@@ -49,4 +49,16 @@ func TestUser(t *testing.T) {
 
 	u.Role = "abc"
 	assert.EqualError(t, u.ValidateRole(), utils.ErrInvalidUserRole.Error())
+
+	u.Vat = "N"
+	assert.Nil(t, u.ValidateVat())
+
+	u.Vat = "Y"
+	assert.Nil(t, u.ValidateVat())
+
+	u.Vat = ""
+	assert.EqualError(t, u.ValidateVat(), utils.ErrInvalidUserVat.Error())
+
+	u.Vat = "abc"
+	assert.EqualError(t, u.ValidateVat(), utils.ErrInvalidUserVat.Error())
 }

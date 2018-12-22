@@ -1,9 +1,7 @@
 package user
 
 import (
-	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"net/http"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
@@ -163,8 +161,7 @@ func (h *HttpHandler) UpdateUser(c echo.Context) error {
 	}
 
 	ut := getUserFromToken(c)
-	u.Email = ut.Email
-	user, err := h.Usecase.UpdateUser(&u)
+	user, err := h.Usecase.UpdateUser(&u, ut.IsAdmin())
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -199,37 +196,6 @@ func (h *HttpHandler) DeleteUser(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-// UpdatePartialUser godoc
-// @Summary Update Partial User
-// @Description Delete Update Partial User
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param id path string true "User ID"
-// @Param user body models.User true  "id can empty"
-// @Success 200 {object} models.User
-// @Failure 400 {object} utils.HTTPError
-// @Failure 500 {object} utils.HTTPError
-// @Router /users/{id} [patch]
-func (h *HttpHandler) UpdatePartialUser(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
-	}
-
-	user, err := h.Usecase.GetUserByID(id)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	b, _ := ioutil.ReadAll(c.Request().Body)
-	err = json.Unmarshal(b, &user)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	newUser, err := h.Usecase.UpdateUser(user)
-	return c.JSON(http.StatusOK, newUser)
-}
-
 func IsUserAdmin(c echo.Context) (bool, string) {
 	u := getUserFromToken(c)
 	if u.IsAdmin() {
@@ -256,5 +222,4 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/site/:id", handler.GetUserBySiteID)
 	r.PUT("/:id", handler.UpdateUser)
 	r.DELETE("/:id", handler.DeleteUser)
-	r.PATCH("/:id", handler.UpdatePartialUser)
 }

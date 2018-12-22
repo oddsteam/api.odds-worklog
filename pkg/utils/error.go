@@ -22,6 +22,7 @@ var (
 	ErrNotPDFFile         = errors.New("Not PDF file")
 	ErrNoTranscriptFile   = errors.New("No transcript file.")
 	ErrPermissionDenied   = errors.New("Permission denied.")
+	ErrInvalidUserVat     = errors.New("Invalid user vat.")
 )
 
 func NewError(ctx echo.Context, status int, err error) error {

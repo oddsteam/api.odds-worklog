@@ -1,7 +1,6 @@
 package user
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -13,7 +12,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/mgo.v2/bson"
 
 	mock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
@@ -265,7 +263,7 @@ func TestUpdateUser(t *testing.T) {
 		mockUsecase := mock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.User, 0)
 		mockListUser = append(mockListUser, &mock.MockUser)
-		mockUsecase.EXPECT().UpdateUser(&mock.MockUser).Return(&mock.MockUser, nil)
+		mockUsecase.EXPECT().UpdateUser(&mock.MockUser, gomock.Any()).Return(&mock.MockUser, nil)
 
 		claims := &models.JwtCustomClaims{
 			&mock.MockUser,
@@ -332,7 +330,7 @@ func TestUpdateUser(t *testing.T) {
 		mockUsecase := mock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.User, 0)
 		mockListUser = append(mockListUser, &mock.MockUser)
-		mockUsecase.EXPECT().UpdateUser(&mock.MockUser).Return(&mock.MockUser, errors.New(""))
+		mockUsecase.EXPECT().UpdateUser(&mock.MockUser, gomock.Any()).Return(&mock.MockUser, errors.New(""))
 
 		claims := &models.JwtCustomClaims{
 			&mock.MockUser,
@@ -435,67 +433,6 @@ func TestDeleteUser(t *testing.T) {
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
 		handler := &HttpHandler{mockUsecase}
 		handler.DeleteUser(c)
-
-		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-	})
-}
-
-func TestUpdatePartialUser(t *testing.T) {
-	t.Run("when update user by method patch success it should return status OK", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockUser := new(models.User)
-		mockUser.ID = bson.ObjectIdHex("5bbcf2f90fd2df527bc39539")
-		mockUser.FirstName = "ODDS"
-		mockUser.LastName = "junk"
-		mockUser.Email = "xx@c.com"
-		mockUser.BankAccountName = "ทดสอบชอบลงทุน"
-		mockUser.BankAccountNumber = "123123123123"
-		mockUser.ThaiCitizenID = "1234567890123"
-
-		mockUsecase := mock.NewMockUsecase(ctrl)
-		mockListUser := make([]*models.User, 0)
-		mockListUser = append(mockListUser, &mock.MockUser)
-		mockUsecase.EXPECT().GetUserByID(mock.MockUser.ID.Hex()).Return(mockUser, nil)
-		mockUsecase.EXPECT().UpdateUser(mockUser).Return(mockUser, nil)
-		mockIoReader := `{"firstName" : "ODDS","lastName" : "junk","email" : "xx@c.com"}`
-
-		e := echo.New()
-		req := httptest.NewRequest(http.MethodPatch, "/", strings.NewReader(mockIoReader))
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-		c.SetParamNames("id")
-		c.SetParamValues("5bbcf2f90fd2df527bc39539")
-
-		handler := &HttpHandler{mockUsecase}
-		handler.UpdatePartialUser(c)
-
-		userByte, _ := json.Marshal(mockUser)
-		UserJson := string(userByte)
-		assert.Equal(t, http.StatusOK, rec.Code)
-		assert.Equal(t, UserJson, rec.Body.String())
-	})
-
-	t.Run("should return InternalError if no have requestBody", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockUsecase := mock.NewMockUsecase(ctrl)
-		mockListUser := make([]*models.User, 0)
-		mockListUser = append(mockListUser, &mock.MockUser)
-		mockUsecase.EXPECT().GetUserByID(mock.MockUser.ID.Hex()).Return(&mock.MockUser, nil)
-
-		e := echo.New()
-		req := httptest.NewRequest(http.MethodPatch, "/", nil)
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-		c.SetParamNames("id")
-		c.SetParamValues("5bbcf2f90fd2df527bc39539")
-
-		handler := &HttpHandler{mockUsecase}
-		handler.UpdatePartialUser(c)
 
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	})

@@ -1,6 +1,8 @@
 package user
 
 import (
+	"errors"
+
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -63,17 +65,51 @@ func (u *usecase) GetUserBySiteID(id string) ([]*models.User, error) {
 	return u.repo.GetUserBySiteID(id)
 }
 
-func (u *usecase) UpdateUser(m *models.User) (*models.User, error) {
+func (u *usecase) UpdateUser(m *models.User, isAdmin bool) (*models.User, error) {
 	if err := m.ValidateRole(); err != nil {
 		return nil, err
 	}
-	if m.Role == "admin" && !m.IsAdmin() {
+	if err := m.ValidateVat(); err != nil {
+		return nil, err
+	}
+	if m.Role == "admin" && !isAdmin {
 		return nil, utils.ErrInvalidUserRole
 	}
 	if m.IsAdmin() && m.Role != "admin" {
 		m.Role = "admin"
 	}
-	user, err := u.repo.UpdateUser(m)
+
+	user, err := u.repo.GetUserByID(m.ID.Hex())
+	if err != nil {
+		return nil, err
+	}
+
+	if m.FirstName != "" {
+		user.FirstName = utils.ToFirstUpper(m.FirstName)
+	}
+	if m.LastName != "" {
+		user.LastName = utils.ToFirstUpper(m.LastName)
+	}
+	if m.BankAccountName != "" {
+		user.BankAccountName = m.BankAccountName
+	}
+	if m.BankAccountNumber != "" {
+		user.BankAccountNumber = m.BankAccountNumber
+	}
+	if m.ThaiCitizenID != "" {
+		user.ThaiCitizenID = m.ThaiCitizenID
+	}
+	if m.SlackAccount != "" {
+		if err := utils.ValidateEmail(m.SlackAccount); err != nil {
+			return nil, errors.New("Invalid slack acount.")
+		}
+		user.SlackAccount = m.SlackAccount
+	}
+	user.Role = m.Role
+	user.Vat = m.Vat
+	user.SiteID = m.SiteID
+
+	user, err = u.repo.UpdateUser(user)
 	if err != nil {
 		return nil, err
 	}
