@@ -985,14 +985,14 @@
         },
         "/invoices/{id}": {
             "get": {
-                "description": "Get Invoice List by id",
+                "description": "Get Invoice by id",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "invoices"
                 ],
-                "summary": "Get Invoice List by id",
+                "summary": "Get Invoice by id",
                 "parameters": [
                     {
                         "type": "string",
@@ -1006,10 +1006,8 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Invoice"
-                            }
+                            "type": "object",
+                            "$ref": "#/definitions/models.Invoice"
                         }
                     },
                     "403": {

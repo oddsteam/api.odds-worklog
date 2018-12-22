@@ -118,12 +118,12 @@ func (h *HttpHandler) GetByPO(c echo.Context) error {
 }
 
 // GetByID godoc
-// @Summary Get Invoice List by id
-// @Description Get Invoice List by id
+// @Summary Get Invoice by id
+// @Description Get Invoice by id
 // @Tags invoices
 // @Produce json
-// @Param id path string true  "id is invoice id"
-// @Success 200 {array} models.Invoice
+// @Param id path string true "id is invoice id"
+// @Success 200 {object} models.Invoice
 // @Failure 403 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /invoices/{id} [get]

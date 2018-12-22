@@ -799,7 +799,7 @@ paths:
       tags:
       - invoices
     get:
-      description: Get Invoice List by id
+      description: Get Invoice by id
       parameters:
       - description: id is invoice id
         in: path
@@ -812,9 +812,8 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.Invoice'
-            type: array
+            $ref: '#/definitions/models.Invoice'
+            type: object
         "403":
           description: Forbidden
           schema:
@@ -825,7 +824,7 @@ paths:
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
-      summary: Get Invoice List by id
+      summary: Get Invoice by id
       tags:
       - invoices
     put:
