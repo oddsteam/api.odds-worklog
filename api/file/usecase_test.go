@@ -15,12 +15,12 @@ func TestUsecase_UpdateUser(t *testing.T) {
 	defer ctrl.Finish()
 
 	filename := "test.pdf"
-	user := userMock.MockUser
+	user := userMock.User
 	mockUserRepo := userMock.NewMockRepository(ctrl)
-	mockUserRepo.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
+	mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
 
 	user.Transcript = filename
-	mockUserRepo.EXPECT().UpdateUser(&user).Return(&user, nil)
+	mockUserRepo.EXPECT().Update(&user).Return(&user, nil)
 
 	usecase := NewUsecase(mockUserRepo)
 	err := usecase.UpdateUser(user.ID.Hex(), filename)
@@ -33,10 +33,10 @@ func TestUsecase_GetPathTranscript(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		user := userMock.MockUser
+		user := userMock.User
 		user.Transcript = "test.pdf"
 		mockUserRepo := userMock.NewMockRepository(ctrl)
-		mockUserRepo.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
+		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
 
 		usecase := NewUsecase(mockUserRepo)
 		filename, err := usecase.GetPathTranscript(user.ID.Hex())
@@ -49,9 +49,9 @@ func TestUsecase_GetPathTranscript(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		user := userMock.MockUser
+		user := userMock.User
 		mockUserRepo := userMock.NewMockRepository(ctrl)
-		mockUserRepo.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
+		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
 
 		usecase := NewUsecase(mockUserRepo)
 		filename, err := usecase.GetPathTranscript(user.ID.Hex())
@@ -67,11 +67,11 @@ func TestUsecase_GetPathTranscript(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			user := userMock.MockUser
+			user := userMock.User
 			user.Transcript = "no.pdf"
 			mockUserRepo := userMock.NewMockRepository(ctrl)
-			mockUserRepo.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
-			mockUserRepo.EXPECT().UpdateUser(gomock.Any())
+			mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+			mockUserRepo.EXPECT().Update(gomock.Any())
 
 			usecase := NewUsecase(mockUserRepo)
 			filename, err := usecase.GetPathTranscript(user.ID.Hex())
@@ -86,9 +86,9 @@ func TestUsecase_GetPathImageProfile(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		user := userMock.MockUser
+		user := userMock.User
 		mockUserRepo := userMock.NewMockRepository(ctrl)
-		mockUserRepo.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
+		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
 
 		usecase := NewUsecase(mockUserRepo)
 		filename, err := usecase.GetPathImageProfile(user.ID.Hex())
@@ -102,11 +102,11 @@ func TestUsecase_GetPathImageProfile(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			user := userMock.MockUser
+			user := userMock.User
 			user.ImageProfile = "noimg.png"
 			mockUserRepo := userMock.NewMockRepository(ctrl)
-			mockUserRepo.EXPECT().GetUserByID(user.ID.Hex()).Return(&user, nil)
-			mockUserRepo.EXPECT().UpdateUser(gomock.Any())
+			mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+			mockUserRepo.EXPECT().Update(gomock.Any())
 
 			usecase := NewUsecase(mockUserRepo)
 			filename, err := usecase.GetPathImageProfile(user.ID.Hex())

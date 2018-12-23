@@ -25,7 +25,7 @@ func TestGetUserFromToken(t *testing.T) {
 	user := getUserFromToken(c)
 	b, _ := json.Marshal(user)
 	actual := string(b)
-	assert.Equal(t, userMock.MockAdminJson, actual)
+	assert.Equal(t, userMock.AdminJson, actual)
 }
 
 func TestCreate(t *testing.T) {

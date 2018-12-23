@@ -17,21 +17,21 @@ func NewUsecase(r Repository, sr site.Repository) Usecase {
 	return &usecase{r, sr}
 }
 
-func (u *usecase) CreateUser(m *models.User) (*models.User, error) {
+func (u *usecase) Create(m *models.User) (*models.User, error) {
 	err := utils.ValidateEmail(m.Email)
 	if err != nil {
 		return nil, err
 	}
-	user, err := u.repo.GetUserByEmail(m.Email)
+	user, err := u.repo.GetByEmail(m.Email)
 	if err == nil {
 		return user, utils.ErrConflict
 	}
 
-	return u.repo.CreateUser(m)
+	return u.repo.Create(m)
 }
 
-func (u *usecase) GetUser() ([]*models.User, error) {
-	users, err := u.repo.GetUser()
+func (u *usecase) Get() ([]*models.User, error) {
+	users, err := u.repo.Get()
 	if err != nil {
 		return nil, err
 	}
@@ -53,19 +53,19 @@ func (u *usecase) GetUser() ([]*models.User, error) {
 	return users, nil
 }
 
-func (u *usecase) GetUserByRole(role string) ([]*models.User, error) {
-	return u.repo.GetUserByRole(role)
+func (u *usecase) GetByRole(role string) ([]*models.User, error) {
+	return u.repo.GetByRole(role)
 }
 
-func (u *usecase) GetUserByID(id string) (*models.User, error) {
-	return u.repo.GetUserByID(id)
+func (u *usecase) GetByID(id string) (*models.User, error) {
+	return u.repo.GetByID(id)
 }
 
-func (u *usecase) GetUserBySiteID(id string) ([]*models.User, error) {
-	return u.repo.GetUserBySiteID(id)
+func (u *usecase) GetBySiteID(id string) ([]*models.User, error) {
+	return u.repo.GetBySiteID(id)
 }
 
-func (u *usecase) UpdateUser(m *models.User, isAdmin bool) (*models.User, error) {
+func (u *usecase) Update(m *models.User, isAdmin bool) (*models.User, error) {
 	if err := m.ValidateRole(); err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (u *usecase) UpdateUser(m *models.User, isAdmin bool) (*models.User, error)
 		m.Role = "admin"
 	}
 
-	user, err := u.repo.GetUserByID(m.ID.Hex())
+	user, err := u.repo.GetByID(m.ID.Hex())
 	if err != nil {
 		return nil, err
 	}
@@ -109,13 +109,13 @@ func (u *usecase) UpdateUser(m *models.User, isAdmin bool) (*models.User, error)
 	user.Vat = m.Vat
 	user.SiteID = m.SiteID
 
-	user, err = u.repo.UpdateUser(user)
+	user, err = u.repo.Update(user)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (u *usecase) DeleteUser(id string) error {
-	return u.repo.DeleteUser(id)
+func (u *usecase) Delete(id string) error {
+	return u.repo.Delete(id)
 }

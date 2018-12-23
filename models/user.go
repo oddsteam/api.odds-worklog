@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -20,6 +22,8 @@ type User struct {
 	SiteID            string        `bson:"siteId" json:"siteId,omitempty"`
 	ImageProfile      string        `bson:"imageProfile" json:"imageProfile,omitempty"`
 	Site              *Site         `bson:"-" json:"site,omitempty"`
+	Create            time.Time     `bson:"create" json:"create"`
+	LastUpdate        time.Time     `bson:"lastUpdate" json:"lastUpdate"`
 }
 
 func (u *User) IsAdmin() bool {

@@ -1,7 +1,6 @@
 package user
 
 import (
-	"errors"
 	"net/http"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
@@ -13,71 +12,80 @@ import (
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
-	validator "gopkg.in/go-playground/validator.v9"
 )
 
 type HttpHandler struct {
 	Usecase Usecase
 }
 
-func isRequestValid(m *models.User) (bool, error) {
-	if err := validator.New().Struct(m); err != nil {
-		return false, err
-	}
-	return true, nil
+func NewHttpHandler(r *echo.Group, session *mongo.Session) {
+	sr := site.NewRepository(session)
+	ur := NewRepository(session)
+	uc := NewUsecase(ur, sr)
+	handler := &HttpHandler{uc}
+
+	r = r.Group("/users")
+	r.GET("", handler.Get)
+	r.POST("", handler.Create)
+	r.GET("/:id", handler.GetByID)
+	r.GET("/site/:id", handler.GetBySiteID)
+	r.PUT("/:id", handler.Update)
+	r.DELETE("/:id", handler.Delete)
 }
 
-// CreateUser godoc
+func getUserFromToken(c echo.Context) *models.User {
+	t := c.Get("user").(*jwt.Token)
+	claims := t.Claims.(*models.JwtCustomClaims)
+	return claims.User
+}
+
+// Create godoc
 // @Summary Create User
 // @Description Create User
 // @Tags users
-// @Accept  json
-// @Produce  json
+// @Accept json
+// @Produce json
 // @Param user body models.User true  "id can empty"
 // @Success 200 {object} models.User
 // @Failure 400 {object} utils.HTTPError
-// @Failure 422 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /users [post]
-func (h *HttpHandler) CreateUser(c echo.Context) error {
+func (h *HttpHandler) Create(c echo.Context) error {
 	var u models.User
 	if err := c.Bind(&u); err != nil {
-		return utils.NewError(c, http.StatusUnprocessableEntity, err)
-	}
-
-	if ok, err := isRequestValid(&u); !ok {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 
-	user, err := h.Usecase.CreateUser(&u)
+	user, err := h.Usecase.Create(&u)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusCreated, user)
 }
 
-// GetUser godoc
+// Get godoc
 // @Summary List user
 // @Description get user list
 // @Tags users
-// @Accept  json
-// @Produce  json
+// @Accept json
+// @Produce json
 // @Success 200 {array} models.User
+// @Failure 403 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /users [get]
-func (h *HttpHandler) GetUser(c echo.Context) error {
-	checkUser, message := IsUserAdmin(c)
-	if !checkUser {
-		return c.JSON(http.StatusUnauthorized, message)
+func (h *HttpHandler) Get(c echo.Context) error {
+	user := getUserFromToken(c)
+	if !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
-	users, err := h.Usecase.GetUser()
+	users, err := h.Usecase.Get()
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, users)
 }
 
-// GetUserById godoc
+// GetById godoc
 // @Summary Get User By Id
 // @Description Get User By Id
 // @Tags users
@@ -88,51 +96,43 @@ func (h *HttpHandler) GetUser(c echo.Context) error {
 // @Failure 204 {object} utils.HTTPError
 // @Failure 400 {object} utils.HTTPError
 // @Router /users/{id} [get]
-func (h *HttpHandler) GetUserByID(c echo.Context) error {
+func (h *HttpHandler) GetByID(c echo.Context) error {
 	id := c.Param("id")
-	if id == "" {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
-	}
-
-	user, err := h.Usecase.GetUserByID(id)
+	user, err := h.Usecase.GetByID(id)
 	if err != nil {
 		return utils.NewError(c, http.StatusNoContent, err)
 	}
 	return c.JSON(http.StatusOK, user)
 }
 
-// GetUserBySiteId godoc
+// GetBySiteId godoc
 // @Summary Get User By Site Id
 // @Description Get User By Site Id
 // @Tags users
 // @Accept json
 // @Produce json
 // @Param id path string true "Site id"
-// @Success 200 {object} models.User
+// @Success 200 {array} models.User
 // @Failure 204 {object} utils.HTTPError
 // @Failure 400 {object} utils.HTTPError
 // @Router /users/site/{id} [get]
-func (h *HttpHandler) GetUserBySiteID(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
-		return c.JSON(http.StatusUnauthorized, message)
+func (h *HttpHandler) GetBySiteID(c echo.Context) error {
+	u := getUserFromToken(c)
+	if !u.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
 	id := c.Param("id")
-	if id == "" {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
-	}
-
-	user, err := h.Usecase.GetUserBySiteID(id)
+	user, err := h.Usecase.GetBySiteID(id)
 	if err != nil {
 		return utils.NewError(c, http.StatusNoContent, err)
 	}
 	return c.JSON(http.StatusOK, user)
 }
 
-// UpdateUserById godoc
-// @Summary Update User By Id
-// @Description Update User By Id
+// Update godoc
+// @Summary Update User
+// @Description Update User
 // @Tags users
 // @Accept json
 // @Produce json
@@ -140,86 +140,44 @@ func (h *HttpHandler) GetUserBySiteID(c echo.Context) error {
 // @Param user body models.User true  "id can empty"
 // @Success 200 {object} models.User
 // @Failure 400 {object} utils.HTTPError
-// @Failure 422 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /users/{id} [put]
-func (h *HttpHandler) UpdateUser(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
-	}
-
-	u := models.User{
-		ID: bson.ObjectIdHex(id),
-	}
+func (h *HttpHandler) Update(c echo.Context) error {
+	var u models.User
 	if err := c.Bind(&u); err != nil {
-		return utils.NewError(c, http.StatusUnprocessableEntity, err)
-	}
-
-	if ok, err := isRequestValid(&u); !ok {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
-
+	id := c.Param("id")
+	u.ID = bson.ObjectIdHex(id)
 	ut := getUserFromToken(c)
-	user, err := h.Usecase.UpdateUser(&u, ut.IsAdmin())
+	user, err := h.Usecase.Update(&u, ut.IsAdmin())
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, user)
 }
 
-// DeleteUser godoc
+// Delete godoc
 // @Summary Delete User
-// @Description Delete User By Id
+// @Description Delete User
 // @Tags users
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
-// @Success 204 {object} models.User
+// @Success 200 {object} models.Response
 // @Failure 400 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /users/{id} [delete]
-func (h *HttpHandler) DeleteUser(c echo.Context) error {
-	checkUser, message := IsUserAdmin(c)
-	if !checkUser {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
-	id := c.Param("id")
-	if id == "" {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+func (h *HttpHandler) Delete(c echo.Context) error {
+	u := getUserFromToken(c)
+	if !u.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
-	err := h.Usecase.DeleteUser(id)
+	id := c.Param("id")
+	err := h.Usecase.Delete(id)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	return c.NoContent(http.StatusNoContent)
-}
-
-func IsUserAdmin(c echo.Context) (bool, string) {
-	u := getUserFromToken(c)
-	if u.IsAdmin() {
-		return true, ""
-	}
-	return false, "ไม่มีสิทธิในการใช้งาน"
-}
-
-func getUserFromToken(c echo.Context) *models.User {
-	t := c.Get("user").(*jwt.Token)
-	claims := t.Claims.(*models.JwtCustomClaims)
-	return claims.User
-}
-
-func NewHttpHandler(r *echo.Group, session *mongo.Session) {
-	sr := site.NewRepository(session)
-	ur := NewRepository(session)
-	uc := NewUsecase(ur, sr)
-	handler := &HttpHandler{uc}
-	r = r.Group("/users")
-	r.GET("", handler.GetUser)
-	r.POST("", handler.CreateUser)
-	r.GET("/:id", handler.GetUserByID)
-	r.GET("/site/:id", handler.GetUserBySiteID)
-	r.PUT("/:id", handler.UpdateUser)
-	r.DELETE("/:id", handler.DeleteUser)
+	return c.JSON(http.StatusOK, models.Response{Message: "Delete user success."})
 }

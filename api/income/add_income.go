@@ -9,7 +9,7 @@ import (
 )
 
 func (u *usecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.Income, error) {
-	userDetail, _ := u.userRepo.GetUserByID(user.ID.Hex())
+	userDetail, _ := u.userRepo.GetByID(user.ID.Hex())
 	year, month := utils.GetYearMonthNow()
 	_, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month)
 	if err == nil {

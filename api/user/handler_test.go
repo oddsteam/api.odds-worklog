@@ -6,42 +6,40 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 
-	mock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
+	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
-func TestCreateUser(t *testing.T) {
-	t.Run("when create user success it should return status OK", func(t *testing.T) {
+func TestCreate(t *testing.T) {
+	t.Run("when create user success, return json models.User with status code 200", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().CreateUser(&mock.MockUser).Return(&mock.MockUser, nil)
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().Create(&userMock.User).Return(&userMock.User, nil)
 
 		e := echo.New()
-		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mock.UserJson))
+		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(userMock.UserJson))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 
 		handler := &HttpHandler{mockUsecase}
-		handler.CreateUser(c)
+		handler.Create(c)
 
 		assert.Equal(t, http.StatusCreated, rec.Code)
 	})
 
-	t.Run("when content type is not valid it should return StatusUnprocessableEntity", func(t *testing.T) {
+	t.Run("when content type is not valid it should return StatusBadRequest", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockUsecase := userMock.NewMockUsecase(ctrl)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", strings.NewReader("string"))
@@ -50,126 +48,105 @@ func TestCreateUser(t *testing.T) {
 		c := e.NewContext(req, rec)
 
 		handler := &HttpHandler{mockUsecase}
-		handler.CreateUser(c)
+		handler.Create(c)
 
-		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
 	})
 
 	t.Run("when usecase createUser is have error it should return StatusInternalServerError", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().CreateUser(&mock.MockUser).Return(&mock.MockUser, errors.New(""))
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().Create(&userMock.User).Return(&userMock.User, errors.New(""))
 
 		e := echo.New()
-		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mock.UserJson))
+		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(userMock.UserJson))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 
 		handler := &HttpHandler{mockUsecase}
-		handler.CreateUser(c)
+		handler.Create(c)
 
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	})
 }
 
-func TestGetUser(t *testing.T) {
+func TestGet(t *testing.T) {
 	t.Run("when get user success it should return status OK", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockUsecase := userMock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.User, 0)
-		mockListUser = append(mockListUser, &mock.MockUser)
-		mockUsecase.EXPECT().GetUser().Return(mockListUser, nil)
+		mockListUser = append(mockListUser, &userMock.User)
+		mockUsecase.EXPECT().Get().Return(mockListUser, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
 
-		claims := &models.JwtCustomClaims{
-			&mock.MockAdmin,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		c.Set("user", token)
 		handler := &HttpHandler{mockUsecase}
-		handler.GetUser(c)
+		handler.Get(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 
-	t.Run("when current user is not admin it should return StatusUnauthorized", func(t *testing.T) {
+	t.Run("when current user is not admin it should return StatusForbidden", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockUsecase := userMock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.User, 0)
-		mockListUser = append(mockListUser, &mock.MockUser)
+		mockListUser = append(mockListUser, &userMock.User)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
 
-		claims := &models.JwtCustomClaims{
-			&mock.MockUser,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		c.Set("user", token)
 		handler := &HttpHandler{mockUsecase}
-		handler.GetUser(c)
+		handler.Get(c)
 
-		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+		assert.Equal(t, http.StatusForbidden, rec.Code)
 	})
 
 	t.Run("when getUser in usecase is have error  it should return StatusInternalServerError", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockUsecase := userMock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.User, 0)
-		mockListUser = append(mockListUser, &mock.MockUser)
-		mockUsecase.EXPECT().GetUser().Return(mockListUser, errors.New(""))
+		mockListUser = append(mockListUser, &userMock.User)
+		mockUsecase.EXPECT().Get().Return(mockListUser, errors.New(""))
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
 
-		claims := &models.JwtCustomClaims{
-			&mock.MockAdmin,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		c.Set("user", token)
 		handler := &HttpHandler{mockUsecase}
-		handler.GetUser(c)
+		handler.Get(c)
 
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	})
 
 }
 
-func TestGetUserByID(t *testing.T) {
+func TestGetByID(t *testing.T) {
 	t.Run("when get user by id success it should return status OK", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().GetUserByID(mock.MockUser.ID.Hex()).Return(&mock.MockUser, nil)
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetByID(userMock.User.ID.Hex()).Return(&userMock.User, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -179,34 +156,17 @@ func TestGetUserByID(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
 		handler := &HttpHandler{mockUsecase}
-		handler.GetUserByID(c)
+		handler.GetByID(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
-	})
-
-	t.Run("when request is no have id it should return StatusBadRequest", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockUsecase := mock.NewMockUsecase(ctrl)
-		e := echo.New()
-		req := httptest.NewRequest(echo.GET, "/", nil)
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-
-		handler := &HttpHandler{mockUsecase}
-		handler.GetUserByID(c)
-
-		assert.Equal(t, http.StatusBadRequest, rec.Code)
 	})
 
 	t.Run("when getUser in usecase is have error  it should return StatusNoContent", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().GetUserByID(mock.MockUser.ID.Hex()).Return(&mock.MockUser, errors.New(""))
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetByID(userMock.User.ID.Hex()).Return(&userMock.User, errors.New(""))
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -216,269 +176,166 @@ func TestGetUserByID(t *testing.T) {
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
 
 		handler := &HttpHandler{mockUsecase}
-		handler.GetUserByID(c)
+		handler.GetByID(c)
 
 		assert.Equal(t, http.StatusNoContent, rec.Code)
 	})
 
 }
 
-func TestGetUserBySiteId(t *testing.T) {
+func TestGetBySiteId(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUsecase := mock.NewMockUsecase(ctrl)
+	mockUsecase := userMock.NewMockUsecase(ctrl)
 	mockListUser := make([]*models.User, 0)
-	mockListUser = append(mockListUser, &mock.MockUser)
-	mockUsecase.EXPECT().GetUserBySiteID("12345").Return(mockListUser, nil)
+	mockListUser = append(mockListUser, &userMock.User)
+	mockUsecase.EXPECT().GetBySiteID("12345").Return(mockListUser, nil)
 
 	e := echo.New()
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-
-	claims := &models.JwtCustomClaims{
-		&mock.MockAdmin,
-		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	c.Set("user", token)
+	c.Set("user", userMock.TokenAdmin)
 	c.SetParamNames("id")
 	c.SetParamValues("12345")
 
 	handler := &HttpHandler{mockUsecase}
-	handler.GetUserBySiteID(c)
+	handler.GetBySiteID(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 }
 
-func TestUpdateUser(t *testing.T) {
-	t.Run("when update user success it should return status OK", func(t *testing.T) {
+func TestUpdate(t *testing.T) {
+	t.Run("when update user success, then return json models.User with status code 200", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mock.NewMockUsecase(ctrl)
-		mockListUser := make([]*models.User, 0)
-		mockListUser = append(mockListUser, &mock.MockUser)
-		mockUsecase.EXPECT().UpdateUser(&mock.MockUser, gomock.Any()).Return(&mock.MockUser, nil)
-
-		claims := &models.JwtCustomClaims{
-			&mock.MockUser,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().Update(&userMock.User, gomock.Any()).Return(&userMock.User, nil)
 
 		e := echo.New()
-		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(mock.UserJson))
+		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(userMock.UserJson))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		c.Set("user", token)
+		c.Set("user", userMock.TokenUser)
 		c.SetParamNames("id")
-		c.SetParamValues("5bc89e26f37e2f0df54e6fef")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+
 		handler := &HttpHandler{mockUsecase}
-		handler.UpdateUser(c)
+		handler.Update(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, userMock.UserJson, rec.Body.String())
 	})
 
-	t.Run("when request is no have id it should return StatusBadRequest", func(t *testing.T) {
+	t.Run("when request is invalid, then return json models.HTTPError with status code 400", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+
 		e := echo.New()
-		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(mock.UserJson))
+		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(""))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("5bc89e26f37e2f0df54e6fef")
 
 		handler := &HttpHandler{mockUsecase}
-		handler.UpdateUser(c)
+		handler.Update(c)
 
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 	})
 
-	t.Run("when content type is not valid it should return StatusUnprocessableEntity", func(t *testing.T) {
+	t.Run("when update user error, then return json models.HTTPError with status code 500", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().Update(&userMock.User, gomock.Any()).Return(&userMock.User, errors.New(""))
 
 		e := echo.New()
-		req := httptest.NewRequest(echo.POST, "/", strings.NewReader("string"))
+		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(userMock.UserJson))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
 		c.SetParamNames("id")
-		c.SetParamValues("5bc89e26f37e2f0df54e6fef")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+
 		handler := &HttpHandler{mockUsecase}
-		handler.UpdateUser(c)
-
-		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
-	})
-
-	t.Run("when UpdateUser in usecase have error it should return StatusInternalServerError", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockUsecase := mock.NewMockUsecase(ctrl)
-		mockListUser := make([]*models.User, 0)
-		mockListUser = append(mockListUser, &mock.MockUser)
-		mockUsecase.EXPECT().UpdateUser(&mock.MockUser, gomock.Any()).Return(&mock.MockUser, errors.New(""))
-
-		claims := &models.JwtCustomClaims{
-			&mock.MockUser,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-		e := echo.New()
-		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(mock.UserJson))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-		c.Set("user", token)
-		c.SetParamNames("id")
-		c.SetParamValues("5bc89e26f37e2f0df54e6fef")
-		handler := &HttpHandler{mockUsecase}
-		handler.UpdateUser(c)
+		handler.Update(c)
 
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	})
 }
 
-func TestDeleteUser(t *testing.T) {
-	t.Run("when delete user by id success it should return status OK", func(t *testing.T) {
+func TestDelete(t *testing.T) {
+	t.Run("when delete user success, then return json models.Response with status code 200", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().DeleteUser(mock.MockUser.ID.Hex()).Return(nil)
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().Delete(userMock.User.ID.Hex()).Return(nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.DELETE, "/", nil)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		claims := &models.JwtCustomClaims{
-			&mock.MockAdmin,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		c.Set("user", token)
+		c.Set("user", userMock.TokenAdmin)
 		c.SetParamNames("id")
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
-		handler := &HttpHandler{mockUsecase}
-		handler.DeleteUser(c)
 
-		assert.Equal(t, http.StatusNoContent, rec.Code)
+		handler := &HttpHandler{mockUsecase}
+		handler.Delete(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, `{"message":"Delete user success."}`, rec.Body.String())
 	})
 
-	t.Run("when current user is not admin it should return StatusUnauthorized", func(t *testing.T) {
+	t.Run("when request is not admin, then return json models.HTTPError with status code 403", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockUsecase := userMock.NewMockUsecase(ctrl)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.DELETE, "/", nil)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		claims := &models.JwtCustomClaims{
-			&mock.MockUser,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		c.Set("user", token)
-		handler := &HttpHandler{mockUsecase}
-		handler.DeleteUser(c)
+		c.Set("user", userMock.TokenUser)
 
-		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+		handler := &HttpHandler{mockUsecase}
+		handler.Delete(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
 	})
 
-	t.Run("when DeleteUser in usecase is have error it should return StatusInternalServerError", func(t *testing.T) {
+	t.Run("when delete error, then return json models.HTTPError with status code 500", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := mock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().DeleteUser(mock.MockUser.ID.Hex()).Return(errors.New(""))
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().Delete(userMock.User.ID.Hex()).Return(errors.New(""))
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.DELETE, "/", nil)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		claims := &models.JwtCustomClaims{
-			&mock.MockAdmin,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		c.Set("user", token)
+		c.Set("user", userMock.TokenAdmin)
 		c.SetParamNames("id")
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+
 		handler := &HttpHandler{mockUsecase}
-		handler.DeleteUser(c)
+		handler.Delete(c)
 
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-	})
-}
-
-func TestIsUserAdmin(t *testing.T) {
-	t.Run("it should return true if user is admin", func(t *testing.T) {
-		e := echo.New()
-		req := httptest.NewRequest(http.MethodPatch, "/", nil)
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-		c.SetParamNames("id")
-		c.SetParamValues("5bbcf2f90fd2df527bc39539")
-		claims := &models.JwtCustomClaims{
-			&mock.MockAdmin,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		c.Set("user", token)
-		isAdmin, _ := IsUserAdmin(c)
-
-		assert.Equal(t, true, isAdmin)
-	})
-
-	t.Run("it should return false with message if user is not admin", func(t *testing.T) {
-		e := echo.New()
-		req := httptest.NewRequest(http.MethodPatch, "/", nil)
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-		c.SetParamNames("id")
-		c.SetParamValues("5bbcf2f90fd2df527bc39539")
-		claims := &models.JwtCustomClaims{
-			&mock.MockUser,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		c.Set("user", token)
-		isAdmin, mess := IsUserAdmin(c)
-
-		assert.Equal(t, false, isAdmin)
-		assert.Equal(t, "ไม่มีสิทธิในการใช้งาน", mess)
 	})
 }

@@ -82,7 +82,7 @@ func login(c echo.Context, userRepo user.Repository) error {
 		return utils.NewError(c, http.StatusUnauthorized, err)
 	}
 
-	user, err := userRepo.GetUserByID(login.Token)
+	user, err := userRepo.GetByID(login.Token)
 	if err != nil {
 		return utils.NewError(c, http.StatusUnauthorized, err)
 	}

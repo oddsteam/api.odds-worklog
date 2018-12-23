@@ -5,22 +5,22 @@ import (
 )
 
 type Repository interface {
-	CreateUser(u *models.User) (*models.User, error)
-	GetUser() ([]*models.User, error)
-	GetUserByRole(role string) ([]*models.User, error)
-	GetUserByID(id string) (*models.User, error)
-	GetUserBySiteID(id string) ([]*models.User, error)
-	GetUserByEmail(email string) (*models.User, error)
-	UpdateUser(u *models.User) (*models.User, error)
-	DeleteUser(id string) error
+	Create(u *models.User) (*models.User, error)
+	Get() ([]*models.User, error)
+	GetByRole(role string) ([]*models.User, error)
+	GetByID(id string) (*models.User, error)
+	GetBySiteID(id string) ([]*models.User, error)
+	GetByEmail(email string) (*models.User, error)
+	Update(u *models.User) (*models.User, error)
+	Delete(id string) error
 }
 
 type Usecase interface {
-	CreateUser(u *models.User) (*models.User, error)
-	GetUser() ([]*models.User, error)
-	GetUserByRole(role string) ([]*models.User, error)
-	GetUserByID(id string) (*models.User, error)
-	GetUserBySiteID(id string) ([]*models.User, error)
-	UpdateUser(u *models.User, isAdmin bool) (*models.User, error)
-	DeleteUser(id string) error
+	Create(u *models.User) (*models.User, error)
+	Get() ([]*models.User, error)
+	GetByRole(role string) ([]*models.User, error)
+	GetByID(id string) (*models.User, error)
+	GetBySiteID(id string) ([]*models.User, error)
+	Update(u *models.User, isAdmin bool) (*models.User, error)
+	Delete(id string) error
 }

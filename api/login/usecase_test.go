@@ -30,7 +30,7 @@ func TestHandleToken(t *testing.T) {
 	})
 
 	t.Run("when user is't first login got FirstLogin = 'N'", func(t *testing.T) {
-		token, err := handleToken(&userMock.MockUser)
+		token, err := handleToken(&userMock.User)
 
 		assert.NoError(t, err)
 		assert.Equal(t, "N", token.FirstLogin)
@@ -39,7 +39,7 @@ func TestHandleToken(t *testing.T) {
 
 func TestGenToken(t *testing.T) {
 	t.Run("generate token success", func(t *testing.T) {
-		token, err := genToken(&userMock.MockUser)
+		token, err := genToken(&userMock.User)
 
 		assert.NoError(t, err)
 		assert.NotEmpty(t, token)
@@ -56,7 +56,7 @@ func TestCreateUser(t *testing.T) {
 		user.Email = email
 
 		mockUsecase := userMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().CreateUser(gomock.Any()).Return(user, nil)
+		mockUsecase.EXPECT().Create(gomock.Any()).Return(user, nil)
 
 		usecase := NewUsecase(mockUsecase)
 		userRes, err := usecase.CreateUser(email)

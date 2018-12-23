@@ -19,7 +19,7 @@ import (
 )
 
 func Test_getTranscriptFilename(t *testing.T) {
-	u := userMock.MockUser
+	u := userMock.User
 
 	filename := getTranscriptFilename(&u)
 	assert.NotEmpty(t, filename)
@@ -36,7 +36,7 @@ func TestDownloadTranscript(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		u := userMock.MockAdmin
+		u := userMock.Admin
 		mockUsecase := fileMock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().GetPathTranscript(u.ID.Hex()).Return("test.pdf", nil)
 		claims := &models.JwtCustomClaims{
@@ -82,7 +82,7 @@ func TestDownloadTranscript(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		u := userMock.MockUser
+		u := userMock.User
 		mockUsecase := fileMock.NewMockUsecase(ctrl)
 		claims := &models.JwtCustomClaims{
 			&u,
@@ -111,7 +111,7 @@ func TestDownloadTranscript(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		u := userMock.MockUser
+		u := userMock.User
 		mockUsecase := fileMock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().GetPathTranscript(u.ID.Hex()).Return("", errors.New(""))
 		claims := &models.JwtCustomClaims{
@@ -142,7 +142,7 @@ func TestDownloadImageProfile(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		u := userMock.MockAdmin
+		u := userMock.Admin
 		mockUsecase := fileMock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().GetPathImageProfile(u.ID.Hex()).Return("test.pdf", nil)
 		claims := &models.JwtCustomClaims{
@@ -188,7 +188,7 @@ func TestDownloadImageProfile(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		u := userMock.MockUser
+		u := userMock.User
 		mockUsecase := fileMock.NewMockUsecase(ctrl)
 		claims := &models.JwtCustomClaims{
 			&u,
@@ -217,7 +217,7 @@ func TestDownloadImageProfile(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		u := userMock.MockUser
+		u := userMock.User
 		mockUsecase := fileMock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().GetPathImageProfile(u.ID.Hex()).Return("", errors.New(""))
 		claims := &models.JwtCustomClaims{
