@@ -89,6 +89,8 @@ file `mockgen -source="api/file/interface.go" -destination="api/file/mock/file_m
 
 site `mockgen -source="api/site/interface.go" -destination="api/site/mock/site_mock.go"`
 
+customer `mockgen -source="api/customer/interface.go" -destination="api/customer/mock/customer_mock.go"`
+
 po `mockgen -source="api/po/interface.go" -destination="api/po/mock/po_mock.go"`
 
 invoice `mockgen -source="api/invoice/interface.go" -destination="api/invoice/mock/invoice_mock.go"`
