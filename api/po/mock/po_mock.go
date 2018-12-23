@@ -5,10 +5,9 @@
 package mock_po
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	models "gitlab.odds.team/worklog/api.odds-worklog/models"
+	reflect "reflect"
 )
 
 // MockRepository is a mock of Repository interface
@@ -58,6 +57,45 @@ func (m *MockRepository) Update(po *models.Po) (*models.Po, error) {
 // Update indicates an expected call of Update
 func (mr *MockRepositoryMockRecorder) Update(po interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), po)
+}
+
+// Get mocks base method
+func (m *MockRepository) Get() ([]*models.Po, error) {
+	ret := m.ctrl.Call(m, "Get")
+	ret0, _ := ret[0].([]*models.Po)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get indicates an expected call of Get
+func (mr *MockRepositoryMockRecorder) Get() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockRepository)(nil).Get))
+}
+
+// GetByID mocks base method
+func (m *MockRepository) GetByID(id string) (*models.Po, error) {
+	ret := m.ctrl.Call(m, "GetByID", id)
+	ret0, _ := ret[0].(*models.Po)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByID indicates an expected call of GetByID
+func (mr *MockRepositoryMockRecorder) GetByID(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockRepository)(nil).GetByID), id)
+}
+
+// GetByCusID mocks base method
+func (m *MockRepository) GetByCusID(id string) ([]*models.Po, error) {
+	ret := m.ctrl.Call(m, "GetByCusID", id)
+	ret0, _ := ret[0].([]*models.Po)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByCusID indicates an expected call of GetByCusID
+func (mr *MockRepositoryMockRecorder) GetByCusID(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByCusID", reflect.TypeOf((*MockRepository)(nil).GetByCusID), id)
 }
 
 // MockUsecase is a mock of Usecase interface
@@ -110,40 +148,40 @@ func (mr *MockUsecaseMockRecorder) Update(po interface{}) *gomock.Call {
 }
 
 // Get mocks base method
-func (m *MockUsecase) Get(po *models.Po) (*models.Po, error) {
-	ret := m.ctrl.Call(m, "Get", po)
-	ret0, _ := ret[0].(*models.Po)
+func (m *MockUsecase) Get() ([]*models.Po, error) {
+	ret := m.ctrl.Call(m, "Get")
+	ret0, _ := ret[0].([]*models.Po)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Update indicates an expected call of Get
-func (mr *MockUsecaseMockRecorder) Get(po interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockUsecase)(nil).Get), po)
+// Get indicates an expected call of Get
+func (mr *MockUsecaseMockRecorder) Get() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockUsecase)(nil).Get))
 }
 
 // GetByID mocks base method
-func (m *MockUsecase) GetByID(po *models.Po) (*models.Po, error) {
-	ret := m.ctrl.Call(m, "GetByID", po)
+func (m *MockUsecase) GetByID(id string) (*models.Po, error) {
+	ret := m.ctrl.Call(m, "GetByID", id)
 	ret0, _ := ret[0].(*models.Po)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Update indicates an expected call of GetByID
-func (mr *MockUsecaseMockRecorder) GetByID(po interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUsecase)(nil).GetByID), po)
+// GetByID indicates an expected call of GetByID
+func (mr *MockUsecaseMockRecorder) GetByID(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUsecase)(nil).GetByID), id)
 }
 
 // GetByCusID mocks base method
-func (m *MockUsecase) GetByCusID(po *models.Po) (*models.Po, error) {
-	ret := m.ctrl.Call(m, "GetByCusID", po)
-	ret0, _ := ret[0].(*models.Po)
+func (m *MockUsecase) GetByCusID(id string) ([]*models.Po, error) {
+	ret := m.ctrl.Call(m, "GetByCusID", id)
+	ret0, _ := ret[0].([]*models.Po)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Update indicates an expected call of GetByCusID
-func (mr *MockUsecaseMockRecorder) GetByCusID(po interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByCusID", reflect.TypeOf((*MockUsecase)(nil).GetByCusID), po)
+// GetByCusID indicates an expected call of GetByCusID
+func (mr *MockUsecaseMockRecorder) GetByCusID(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByCusID", reflect.TypeOf((*MockUsecase)(nil).GetByCusID), id)
 }
