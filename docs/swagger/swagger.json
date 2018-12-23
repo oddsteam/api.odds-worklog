@@ -1640,6 +1640,13 @@
                             }
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1688,13 +1695,6 @@
                             "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/utils.HTTPError"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1731,8 +1731,10 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/models.User"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
                         }
                     },
                     "204": {
@@ -1799,7 +1801,7 @@
                 }
             },
             "put": {
-                "description": "Update User By Id",
+                "description": "Update User",
                 "consumes": [
                     "application/json"
                 ],
@@ -1809,7 +1811,7 @@
                 "tags": [
                     "users"
                 ],
-                "summary": "Update User By Id",
+                "summary": "Update User",
                 "parameters": [
                     {
                         "type": "string",
@@ -1844,13 +1846,6 @@
                             "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/utils.HTTPError"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1861,7 +1856,7 @@
                 }
             },
             "delete": {
-                "description": "Delete User By Id",
+                "description": "Delete User",
                 "consumes": [
                     "application/json"
                 ],
@@ -1882,11 +1877,11 @@
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content",
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.Response"
                         }
                     },
                     "400": {
@@ -2114,6 +2109,9 @@
                 "bankAccountNumber": {
                     "type": "string"
                 },
+                "create": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -2127,6 +2125,9 @@
                     "type": "string"
                 },
                 "lastName": {
+                    "type": "string"
+                },
+                "lastUpdate": {
                     "type": "string"
                 },
                 "role": {
