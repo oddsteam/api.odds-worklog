@@ -24,7 +24,7 @@ var (
 	ErrNoImageProfileFile = errors.New("No image profile.")
 	ErrPermissionDenied   = errors.New("Permission denied.")
 	ErrInvalidUserVat     = errors.New("Invalid user vat.")
-	ErrEmptyCustomerId    = errors.New("Customer id is empty.")
+	ErrNotFoundCustomerId = errors.New("Customer id is NotFound.")
 	ErrNotImageFile       = errors.New("Not image file")
 )
 
