@@ -29,9 +29,9 @@ func isRequestValid(m *models.Po) (bool, error) {
 // @Summary Create PO
 // @Description Create PO
 // @Tags po
-// @Accept  json
-// @Produce  json
-// @Param poes body models.Po true "require customer id"
+// @Accept json
+// @Produce json
+// @Param po body models.Po true "customer id is require"
 // @Success 200 {object} models.Po
 // @Failure 500 {object} utils.HTTPError
 // @Router /poes [post]
@@ -55,10 +55,10 @@ func (h *HttpHandler) Create(c echo.Context) error {
 // @Summary Update PO
 // @Description Update PO
 // @Tags po
-// @Accept  json
-// @Produce  json
-// @Param  id path string true "Po ID"
-// @Param poes body models.Po
+// @Accept json
+// @Produce json
+// @Param id path string true "id is Po ID"
+// @Param po body models.Po true "customer id is require"
 // @Success 200 {object} models.Po
 // @Failure 500 {object} utils.HTTPError
 // @Router /poes/{id} [put]
