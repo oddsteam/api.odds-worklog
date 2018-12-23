@@ -4,7 +4,11 @@ definitions:
     properties:
       address:
         type: string
+      create:
+        type: string
       id:
+        type: string
+      lastUpdate:
         type: string
       name:
         type: string
@@ -171,7 +175,7 @@ info:
   title: Odds-Worklog Example API
   version: "1.0"
 paths:
-  /customer:
+  /customers:
     get:
       consumes:
       - application/json
@@ -185,6 +189,11 @@ paths:
             items:
               $ref: '#/definitions/models.Customer'
             type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
@@ -203,7 +212,7 @@ paths:
         name: customer
         required: true
         schema:
-          $ref: '#/definitions/models.IncomeReq'
+          $ref: '#/definitions/models.Customer'
           type: object
       produces:
       - application/json
@@ -213,8 +222,8 @@ paths:
           schema:
             $ref: '#/definitions/models.Customer'
             type: object
-        "400":
-          description: Bad Request
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
@@ -230,12 +239,12 @@ paths:
             type: object
       summary: Create Customer
       tags:
-      - customer
-  /customer/{id}:
+      - customers
+  /customers/{id}:
     delete:
       consumes:
       - application/json
-      description: Delete Customer By Id
+      description: Delete Customer
       parameters:
       - description: Customer ID
         in: path
@@ -245,13 +254,13 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
-          description: No Content
+        "200":
+          description: OK
           schema:
-            $ref: '#/definitions/models.Customer'
+            $ref: '#/definitions/models.Response'
             type: object
-        "400":
-          description: Bad Request
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
@@ -262,7 +271,7 @@ paths:
             type: object
       summary: Delete Customer
       tags:
-      - customer
+      - customers
     get:
       consumes:
       - application/json
@@ -297,7 +306,7 @@ paths:
     put:
       consumes:
       - application/json
-      description: Update Customer By Id
+      description: Update Customer
       parameters:
       - description: Customer ID
         in: path
@@ -319,8 +328,8 @@ paths:
           schema:
             $ref: '#/definitions/models.Customer'
             type: object
-        "400":
-          description: Bad Request
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
@@ -334,9 +343,9 @@ paths:
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
-      summary: Update Customer By Id
+      summary: Update Customer
       tags:
-      - customer
+      - customers
   /files/image:
     post:
       consumes:
@@ -990,9 +999,9 @@ paths:
       - application/json
       description: Create PO
       parameters:
-      - description: require customer id
+      - description: customer id is require
         in: body
-        name: poes
+        name: po
         required: true
         schema:
           $ref: '#/definitions/models.Po'
@@ -1011,6 +1020,40 @@ paths:
             $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Create PO
+      tags:
+      - po
+  /poes/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update PO
+      parameters:
+      - description: id is Po ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: customer id is require
+        in: body
+        name: po
+        required: true
+        schema:
+          $ref: '#/definitions/models.Po'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Po'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Update PO
       tags:
       - po
   /setting/reminder:
@@ -1196,7 +1239,7 @@ paths:
         type: string
       - description: id can empty
         in: body
-        name: user
+        name: sites
         required: true
         schema:
           $ref: '#/definitions/models.Site'

@@ -10,7 +10,7 @@
     "host": "http://worklog-dev.odds.team/api",
     "basePath": "/v1",
     "paths": {
-        "/customer": {
+        "/customers": {
             "get": {
                 "description": "get customer list",
                 "consumes": [
@@ -33,6 +33,13 @@
                             }
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -51,7 +58,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "customer"
+                    "customers"
                 ],
                 "summary": "Create Customer",
                 "parameters": [
@@ -62,7 +69,7 @@
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/models.IncomeReq"
+                            "$ref": "#/definitions/models.Customer"
                         }
                     }
                 ],
@@ -74,8 +81,8 @@
                             "$ref": "#/definitions/models.Customer"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "type": "object",
                             "$ref": "#/definitions/utils.HTTPError"
@@ -98,7 +105,7 @@
                 }
             }
         },
-        "/customer/{id}": {
+        "/customers/{id}": {
             "get": {
                 "description": "Get Customer By Id",
                 "consumes": [
@@ -145,7 +152,7 @@
                 }
             },
             "put": {
-                "description": "Update Customer By Id",
+                "description": "Update Customer",
                 "consumes": [
                     "application/json"
                 ],
@@ -153,9 +160,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "customer"
+                    "customers"
                 ],
-                "summary": "Update Customer By Id",
+                "summary": "Update Customer",
                 "parameters": [
                     {
                         "type": "string",
@@ -183,8 +190,8 @@
                             "$ref": "#/definitions/models.Customer"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "type": "object",
                             "$ref": "#/definitions/utils.HTTPError"
@@ -207,7 +214,7 @@
                 }
             },
             "delete": {
-                "description": "Delete Customer By Id",
+                "description": "Delete Customer",
                 "consumes": [
                     "application/json"
                 ],
@@ -215,7 +222,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "customer"
+                    "customers"
                 ],
                 "summary": "Delete Customer",
                 "parameters": [
@@ -228,15 +235,15 @@
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content",
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/models.Customer"
+                            "$ref": "#/definitions/models.Response"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "type": "object",
                             "$ref": "#/definitions/utils.HTTPError"
@@ -1219,8 +1226,58 @@
                 "summary": "Create PO",
                 "parameters": [
                     {
-                        "description": "require customer id",
-                        "name": "poes",
+                        "description": "customer id is require",
+                        "name": "po",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.Po"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.Po"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/poes/{id}": {
+            "put": {
+                "description": "Update PO",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "po"
+                ],
+                "summary": "Update PO",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id is Po ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "customer id is require",
+                        "name": "po",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -1474,7 +1531,7 @@
                     },
                     {
                         "description": "id can empty",
-                        "name": "user",
+                        "name": "sites",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -1857,7 +1914,13 @@
                 "address": {
                     "type": "string"
                 },
+                "create": {
+                    "type": "string"
+                },
                 "id": {
+                    "type": "string"
+                },
+                "lastUpdate": {
                     "type": "string"
                 },
                 "name": {
