@@ -4,16 +4,24 @@
 
 ## First step, please setup authen mongodb
 
-1. Run `docker run -it --name mongodb -d -p 27017:27017 mongo` <br> 
-If docker: Error response from daemon: Conflict. Run `docker rm $(docker ps -a -q)` for remove history containers are run. Or you can rename this container to other name.
+If first time, you must Run `docker volume create mongodbdata` for create mongodb docker volume.
 
-2. Run `docker exec -it mongodb bash`
+1. Start mongodb container <br> 
+Run `docker run -it --rm --name mongodb -d -p 27017:27017 -v mongodbdata:/data/db mongo` <br>
+If docker: Error response from daemon: Conflict. Run `docker rm $(docker ps -a -q)` for remove history containers are run. Or you can rename this container to other name. <br>
+If you use to setup mongodb authen, commands in below are optional.
 
-3. Run `mongo` or `mongo -u admin -p admin --authenticationDatabase admin`
+2. Invoke mongodb container <br>
+Run `docker exec -it mongodb bash`
 
-4. Run `use odds_worklog_db`
+3. Invoke mongodb <br>
+Run `mongo` or `mongo -u admin -p admin --authenticationDatabase admin`
 
-5. Run `db.createUser({user:"admin",pwd:"admin",roles:[{role:"readWrite",db:"odds_worklog_db"}]})`
+4. Select databes `odds_worklog_db` <br>
+Run `use odds_worklog_db`
+
+5. Create user for read/write data on `odds_worklog_db` <br>
+Run `db.createUser({user:"admin",pwd:"admin",roles:[{role:"readWrite",db:"odds_worklog_db"}]})`
 
 ## Run by docker-compose API+Mongodb
 
@@ -21,16 +29,18 @@ Run `docker-compose up --build -d`<br>
 *Note:* If you add new 3rd party package, you must be run `dep ensure` for setup dependency.
 
 ## Run by `go run main.go` <br>
-dep is a dependency management tool for Go
 
-1. Run `go get -u github.com/golang/dep/cmd/dep`
+1. Install `dep` dep is a dependency management tool for Go. <br>
+Run `go get -u github.com/golang/dep/cmd/dep`
 
-2. Run `dep ensure` (at project path)
+2. Setup dependency. This command will generate vendor package. It keep library to use in this project. <br>
+Run `dep ensure` (at project path)
 
 3. In .env file, change `MONGO_DB_HOST = "mongodb:27017"` from `mongodb` to `localhost` <br>
 *Note:* Don't `commit` this file (.env)
 
-4. Run `go run main.go` (at project path)
+4. Start API <br>
+Run `go run main.go` (at project path)
 
 ## API
 
@@ -41,6 +51,10 @@ develop cloud: https://worklog-dev.odds.team/api/v1/
 production cloud: https://worklog.odds.team/api/v1/
 
 ## Import mock data to mongodb
+
+If you use to import data mock, data should be alive. <br>
+Importion is optional.
+
 * **Import user data** <br>
 At project path<br>
 ```bash 
