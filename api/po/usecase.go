@@ -3,6 +3,7 @@ package po
 import (
 	"gitlab.odds.team/worklog/api.odds-worklog/api/customer"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 type usecase struct {
@@ -15,6 +16,10 @@ func NewUsecase(r Repository, custRepo customer.Repository) Usecase {
 }
 
 func (u *usecase) Create(m *models.Po) (*models.Po, error) {
+	_, err := u.custRepo.GetByID(m.CustomerId)
+	if err != nil {
+		return nil, utils.ErrNotFoundCustomerId
+	}
 	return u.repo.Create(m)
 }
 

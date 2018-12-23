@@ -36,9 +36,9 @@ func isRequestValid(m *models.Po) (bool, error) {
 // @Failure 500 {object} utils.HTTPError
 // @Router /poes [post]
 func (h *HttpHandler) Create(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
-		return c.JSON(http.StatusUnauthorized, message)
+	user := getUserFromToken(c)
+	if !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
 	var po models.Po
@@ -68,9 +68,9 @@ func (h *HttpHandler) Create(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /poes/{id} [put]
 func (h *HttpHandler) Update(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
-		return c.JSON(http.StatusUnauthorized, message)
+	user := getUserFromToken(c)
+	if !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
 	id := c.Param("id")
@@ -97,14 +97,6 @@ func getUserFromToken(c echo.Context) *models.User {
 	t := c.Get("user").(*jwt.Token)
 	claims := t.Claims.(*models.JwtCustomClaims)
 	return claims.User
-}
-
-func IsUserAdmin(c echo.Context) (bool, string) {
-	u := getUserFromToken(c)
-	if u.IsAdmin() {
-		return true, ""
-	}
-	return false, "ไม่มีสิทธิในการใช้งาน"
 }
 
 // Get godoc
