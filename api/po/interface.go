@@ -6,8 +6,10 @@ import (
 
 type Repository interface {
 	Create(po *models.Po) (*models.Po, error)
+	Update(po *models.Po) (*models.Po, error)
 }
 
 type Usecase interface {
 	Create(po *models.Po) (*models.Po, error)
+	Update(po *models.Po) (*models.Po, error)
 }
