@@ -34,3 +34,34 @@ func (r *repository) Update(po *models.Po) (*models.Po, error) {
 	}
 	return po, nil
 }
+
+func (r *repository) Get() ([]*models.Po, error) {
+	po := make([]*models.Po, 0)
+	coll := r.session.GetCollection(PoColl)
+	err := coll.Find(bson.M{}).All(&po)
+	if err != nil {
+		return nil, err
+	}
+	return po, nil
+}
+
+func (r *repository) GetByID(id string) (*models.Po, error) {
+	po := new(models.Po)
+	coll := r.session.GetCollection(PoColl)
+	err := coll.FindId(bson.ObjectIdHex(id)).One(&po)
+	if err != nil {
+		return nil, err
+	}
+	return po, nil
+}
+
+func (r *repository) GetByCusID(id string) ([]*models.Po, error) {
+	po := make([]*models.Po, 0)
+
+	coll := r.session.GetCollection(PoColl)
+	err := coll.Find(bson.M{"customerId": id}).All(&po)
+	if err != nil {
+		return nil, err
+	}
+	return po, nil
+}

@@ -107,6 +107,69 @@ func IsUserAdmin(c echo.Context) (bool, string) {
 	return false, "ไม่มีสิทธิในการใช้งาน"
 }
 
+// Get godoc
+// @Summary List Poes
+// @Description get site list
+// @Tags po
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.Po
+// @Failure 500 {object} utils.HTTPError
+// @Router /poes [get]
+func (h *HttpHandler) Get(c echo.Context) error {
+	res, err := h.Usecase.Get()
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, res)
+}
+
+// GetByID godoc
+// @Summary Get Poes List By Id
+// @Description Get Poes By Id
+// @Tags po
+// @Accept json
+// @Produce json
+// @Param id path string true "Poes ID"
+// @Success 200 {object} models.Po
+// @Failure 204 {object} utils.HTTPError
+// @Failure 400 {object} utils.HTTPError
+// @Router /poes/{id} [get]
+func (h *HttpHandler) GetByID(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	po, err := h.Usecase.GetByID(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusNoContent, err)
+	}
+	return c.JSON(http.StatusOK, po)
+}
+
+// GetByCusID godoc
+// @Summary Get Poes By Customer Id
+// @Description Get Get Poes By Customer Id
+// @Tags po
+// @Accept json
+// @Produce json
+// @Param id path string true "Poes ID"
+// @Success 200 {object} models.Po
+// @Failure 204 {object} utils.HTTPError
+// @Failure 400 {object} utils.HTTPError
+// @Router /poes/customer/{id} [get]
+func (h *HttpHandler) GetByCusID(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	po, err := h.Usecase.GetByCusID(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusNoContent, err)
+	}
+	return c.JSON(http.StatusOK, po)
+}
+
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	ur := NewRepository(session)
 	custRepo := customer.NewRepository(session)
@@ -115,4 +178,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r = r.Group("/poes")
 	r.POST("", handler.Create)
 	r.PUT("/:id", handler.Update)
+	r.GET("", handler.Get)
+	r.GET("/:id", handler.GetByID)
+	r.GET("/customer/:id", handler.GetByCusID)
 }

@@ -7,9 +7,15 @@ import (
 type Repository interface {
 	Create(po *models.Po) (*models.Po, error)
 	Update(po *models.Po) (*models.Po, error)
+	Get() ([]*models.Po, error)
+	GetByID(id string) (*models.Po, error)
+	GetByCusID(id string) ([]*models.Po, error)
 }
 
 type Usecase interface {
 	Create(po *models.Po) (*models.Po, error)
 	Update(po *models.Po) (*models.Po, error)
+	Get() ([]*models.Po, error)
+	GetByID(id string) (*models.Po, error)
+	GetByCusID(id string) ([]*models.Po, error)
 }
