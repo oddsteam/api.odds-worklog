@@ -4,14 +4,14 @@ import (
 	"errors"
 	"net/http"
 
-	"gopkg.in/mgo.v2/bson"
-
+	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/customer"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
-
-	"github.com/labstack/echo"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	validator "gopkg.in/go-playground/validator.v9"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type HttpHandler struct {
@@ -36,6 +36,11 @@ func isRequestValid(m *models.Po) (bool, error) {
 // @Failure 500 {object} utils.HTTPError
 // @Router /poes [post]
 func (h *HttpHandler) Create(c echo.Context) error {
+	isAdmin, message := IsUserAdmin(c)
+	if !isAdmin {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
+
 	var po models.Po
 	if err := c.Bind(&po); err != nil {
 		return utils.NewError(c, http.StatusUnprocessableEntity, err)
@@ -63,6 +68,11 @@ func (h *HttpHandler) Create(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /poes/{id} [put]
 func (h *HttpHandler) Update(c echo.Context) error {
+	isAdmin, message := IsUserAdmin(c)
+	if !isAdmin {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
+
 	id := c.Param("id")
 	if id == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
@@ -83,9 +93,24 @@ func (h *HttpHandler) Update(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+func getUserFromToken(c echo.Context) *models.User {
+	t := c.Get("user").(*jwt.Token)
+	claims := t.Claims.(*models.JwtCustomClaims)
+	return claims.User
+}
+
+func IsUserAdmin(c echo.Context) (bool, string) {
+	u := getUserFromToken(c)
+	if u.IsAdmin() {
+		return true, ""
+	}
+	return false, "ไม่มีสิทธิในการใช้งาน"
+}
+
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	ur := NewRepository(session)
-	uc := NewUsecase(ur)
+	custRepo := customer.NewRepository(session)
+	uc := NewUsecase(ur, custRepo)
 	handler := &HttpHandler{uc}
 	r = r.Group("/poes")
 	r.POST("", handler.Create)
