@@ -16,7 +16,7 @@ func NewUsecase(r Repository, custRepo customer.Repository) Usecase {
 }
 
 func (u *usecase) Create(m *models.Po) (*models.Po, error) {
-	_, err := u.custRepo.GetCustomerByID(m.CustomerId)
+	_, err := u.custRepo.GetByID(m.CustomerId)
 	if err != nil {
 		return nil, utils.ErrNotFoundCustomerId
 	}
