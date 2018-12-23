@@ -46,6 +46,19 @@ func (mr *MockRepositoryMockRecorder) Create(po interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), po)
 }
 
+// Update mocks base method
+func (m *MockRepository) Update(po *models.Po) (*models.Po, error) {
+	ret := m.ctrl.Call(m, "Update", po)
+	ret0, _ := ret[0].(*models.Po)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Update indicates an expected call of Update
+func (mr *MockRepositoryMockRecorder) Update(po interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), po)
+}
+
 // MockUsecase is a mock of Usecase interface
 type MockUsecase struct {
 	ctrl     *gomock.Controller
@@ -80,4 +93,17 @@ func (m *MockUsecase) Create(po *models.Po) (*models.Po, error) {
 // Create indicates an expected call of Create
 func (mr *MockUsecaseMockRecorder) Create(po interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUsecase)(nil).Create), po)
+}
+
+// Update mocks base method
+func (m *MockUsecase) Update(po *models.Po) (*models.Po, error) {
+	ret := m.ctrl.Call(m, "Update", po)
+	ret0, _ := ret[0].(*models.Po)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Update indicates an expected call of Update
+func (mr *MockUsecaseMockRecorder) Update(po interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsecase)(nil).Update), po)
 }
