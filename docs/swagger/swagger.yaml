@@ -1005,7 +1005,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: get site list
+      description: Get Po List
       produces:
       - application/json
       responses:
@@ -1015,12 +1015,17 @@ paths:
             items:
               $ref: '#/definitions/models.Po'
             type: array
+        "203":
+          description: Non-Authoritative Information
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
-      summary: List Poes
+      summary: Get Po List
       tags:
       - po
     post:
@@ -1043,6 +1048,16 @@ paths:
           schema:
             $ref: '#/definitions/models.Po'
             type: object
+        "203":
+          description: Non-Authoritative Information
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
@@ -1055,9 +1070,9 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get Poes By Id
+      description: Get Po By Id
       parameters:
-      - description: Poes ID
+      - description: Po ID
         in: path
         name: id
         required: true
@@ -1070,17 +1085,17 @@ paths:
           schema:
             $ref: '#/definitions/models.Po'
             type: object
-        "204":
-          description: No Content
+        "203":
+          description: Non-Authoritative Information
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
-      summary: Get Poes List By Id
+      summary: Get Po
       tags:
       - po
     put:
@@ -1107,6 +1122,16 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Po'
+            type: object
+        "203":
+          description: Non-Authoritative Information
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
             type: object
         "500":
           description: Internal Server Error
@@ -1135,13 +1160,13 @@ paths:
           schema:
             $ref: '#/definitions/models.Po'
             type: object
-        "204":
-          description: No Content
+        "203":
+          description: Non-Authoritative Information
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object

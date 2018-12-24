@@ -1213,7 +1213,7 @@
         },
         "/poes": {
             "get": {
-                "description": "get site list",
+                "description": "Get Po List",
                 "consumes": [
                     "application/json"
                 ],
@@ -1223,7 +1223,7 @@
                 "tags": [
                     "po"
                 ],
-                "summary": "List Poes",
+                "summary": "Get Po List",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1232,6 +1232,13 @@
                             "items": {
                                 "$ref": "#/definitions/models.Po"
                             }
+                        }
+                    },
+                    "203": {
+                        "description": "Non-Authoritative Information",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "500": {
@@ -1275,6 +1282,20 @@
                             "$ref": "#/definitions/models.Po"
                         }
                     },
+                    "203": {
+                        "description": "Non-Authoritative Information",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1315,15 +1336,15 @@
                             "$ref": "#/definitions/models.Po"
                         }
                     },
-                    "204": {
-                        "description": "No Content",
+                    "203": {
+                        "description": "Non-Authoritative Information",
                         "schema": {
                             "type": "object",
                             "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "$ref": "#/definitions/utils.HTTPError"
@@ -1334,7 +1355,7 @@
         },
         "/poes/{id}": {
             "get": {
-                "description": "Get Poes By Id",
+                "description": "Get Po By Id",
                 "consumes": [
                     "application/json"
                 ],
@@ -1344,11 +1365,11 @@
                 "tags": [
                     "po"
                 ],
-                "summary": "Get Poes List By Id",
+                "summary": "Get Po",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Poes ID",
+                        "description": "Po ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1362,15 +1383,15 @@
                             "$ref": "#/definitions/models.Po"
                         }
                     },
-                    "204": {
-                        "description": "No Content",
+                    "203": {
+                        "description": "Non-Authoritative Information",
                         "schema": {
                             "type": "object",
                             "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "$ref": "#/definitions/utils.HTTPError"
@@ -1415,6 +1436,20 @@
                         "schema": {
                             "type": "object",
                             "$ref": "#/definitions/models.Po"
+                        }
+                    },
+                    "203": {
+                        "description": "Non-Authoritative Information",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "500": {
