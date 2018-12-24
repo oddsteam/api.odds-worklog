@@ -17,6 +17,8 @@ definitions:
     properties:
       id:
         type: string
+      lastUpdate:
+        type: string
       netIncome:
         type: string
       note:

@@ -2087,6 +2087,9 @@
                 "id": {
                     "type": "string"
                 },
+                "lastUpdate": {
+                    "type": "string"
+                },
                 "netIncome": {
                     "type": "string"
                 },
