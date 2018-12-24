@@ -1,6 +1,8 @@
 package po
 
 import (
+	"time"
+
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gopkg.in/mgo.v2/bson"
@@ -17,8 +19,12 @@ func NewRepository(session *mongo.Session) Repository {
 }
 
 func (r *repository) Create(po *models.Po) (*models.Po, error) {
-	coll := r.session.GetCollection(PoColl)
+	t := time.Now()
 	po.ID = bson.NewObjectId()
+	po.Create = t
+	po.LastUpdate = t
+
+	coll := r.session.GetCollection(PoColl)
 	err := coll.Insert(po)
 	if err != nil {
 		return nil, err
@@ -27,6 +33,7 @@ func (r *repository) Create(po *models.Po) (*models.Po, error) {
 }
 
 func (r *repository) Update(po *models.Po) (*models.Po, error) {
+	po.LastUpdate = time.Now()
 	coll := r.session.GetCollection(PoColl)
 	err := coll.UpdateId(po.ID, &po)
 	if err != nil {

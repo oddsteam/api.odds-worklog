@@ -1212,6 +1212,37 @@
             }
         },
         "/poes": {
+            "get": {
+                "description": "get site list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "po"
+                ],
+                "summary": "List Poes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Po"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create PO",
                 "consumes": [
@@ -1254,7 +1285,99 @@
                 }
             }
         },
+        "/poes/customer/{id}": {
+            "get": {
+                "description": "Get Get Poes By Customer Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "po"
+                ],
+                "summary": "Get Poes By Customer Id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Poes ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.Po"
+                        }
+                    },
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/poes/{id}": {
+            "get": {
+                "description": "Get Poes By Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "po"
+                ],
+                "summary": "Get Poes List By Id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Poes ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.Po"
+                        }
+                    },
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "Update PO",
                 "consumes": [
@@ -2020,10 +2143,16 @@
         "models.Po": {
             "type": "object",
             "properties": {
+                "create": {
+                    "type": "string"
+                },
                 "customerId": {
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "lastUpdate": {
                     "type": "string"
                 },
                 "name": {

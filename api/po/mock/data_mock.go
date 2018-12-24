@@ -8,18 +8,20 @@ import (
 )
 
 var (
-	MockPo = models.Po{
+	Po = models.Po{
 		ID:         bson.ObjectIdHex("5c1f855d59fc7d06988c6e01"),
-		CustomerId: "01",
-		Name:       "ktb",
+		CustomerId: "5bbcf2f90fd2df527bc3c001",
+		Name:       "KTB",
 	}
-	MockPo2 = models.Po{
+	Po2 = models.Po{
 		ID:         bson.ObjectIdHex("5c1f856459fc7d06988c6e02"),
-		CustomerId: "02",
-		Name:       "ais",
+		CustomerId: "5bbcf2f90fd2df527bc3c002",
+		Name:       "AIS",
 	}
-	MockPoes = []*models.Po{&MockPo, &MockPo2}
+	Poes = []*models.Po{&Po, &Po2}
 
-	PoByte, _  = json.Marshal(MockPo)
-	MockPoJson = string(PoByte)
+	poByte, _   = json.Marshal(Po)
+	PoJson      = string(poByte)
+	poesByte, _ = json.Marshal(Poes)
+	PoesJson    = string(poesByte)
 )

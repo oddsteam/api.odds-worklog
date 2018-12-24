@@ -18,13 +18,20 @@ func NewUsecase(r Repository, custRepo customer.Repository) Usecase {
 func (u *usecase) Create(m *models.Po) (*models.Po, error) {
 	_, err := u.custRepo.GetByID(m.CustomerId)
 	if err != nil {
-		return nil, utils.ErrNotFoundCustomerId
+		return nil, utils.ErrCustomerNotFound
 	}
 	return u.repo.Create(m)
 }
 
 func (u *usecase) Update(m *models.Po) (*models.Po, error) {
-	return u.repo.Update(m)
+	po, err := u.repo.GetByID(m.ID.Hex())
+	if err != nil {
+		return nil, err
+	}
+	if m.Name != "" {
+		po.Name = m.Name
+	}
+	return u.repo.Update(po)
 }
 
 func (u *usecase) Get() ([]*models.Po, error) {
