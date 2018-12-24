@@ -23,9 +23,12 @@ func NewRepository(session *mongo.Session) Repository {
 }
 
 func (r *repository) AddIncome(income *models.Income) error {
-	coll := r.session.GetCollection(incomeColl)
+	t := time.Now()
+	income.SubmitDate = t
+	income.LastUpdate = t
 	income.ID = bson.NewObjectId()
 
+	coll := r.session.GetCollection(incomeColl)
 	err := coll.Insert(income)
 	if err != nil {
 		return err
@@ -65,6 +68,7 @@ func (r *repository) GetIncomeByID(incID, uID string) (*models.Income, error) {
 }
 
 func (r *repository) UpdateIncome(income *models.Income) error {
+	income.LastUpdate = time.Now()
 	coll := r.session.GetCollection(incomeColl)
 	err := coll.UpdateId(income.ID, &income)
 	if err != nil {
