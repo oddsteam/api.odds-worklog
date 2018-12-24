@@ -20,9 +20,10 @@ func TestUsecase_Create(t *testing.T) {
 		defer ctrl.Finish()
 
 		inv := invoiceMock.Invoice
-		mockRepo := invoiceMock.NewMockRepository(ctrl)
-		mockRepo.EXPECT().Create(&inv).Return(&inv, nil)
 		mockPoRepo := poMock.NewMockRepository(ctrl)
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockPoRepo.EXPECT().GetByID(inv.PoID).Return(&poMock.Po, nil)
+		mockRepo.EXPECT().Create(&inv).Return(&inv, nil)
 
 		u := NewUsecase(mockRepo, mockPoRepo)
 		invoice, err := u.Create(&inv)
@@ -38,9 +39,26 @@ func TestUsecase_Create(t *testing.T) {
 		defer ctrl.Finish()
 
 		inv := invoiceMock.Invoice
-		mockRepo := invoiceMock.NewMockRepository(ctrl)
-		mockRepo.EXPECT().Create(&inv).Return(nil, errors.New("error"))
 		mockPoRepo := poMock.NewMockRepository(ctrl)
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockPoRepo.EXPECT().GetByID(inv.PoID).Return(&poMock.Po, nil)
+		mockRepo.EXPECT().Create(&inv).Return(nil, errors.New("error"))
+
+		u := NewUsecase(mockRepo, mockPoRepo)
+		invoice, err := u.Create(&inv)
+
+		assert.Error(t, err)
+		assert.Nil(t, invoice)
+	})
+
+	t.Run("when get po error, then return (nil, error)", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		inv := invoiceMock.Invoice
+		mockPoRepo := poMock.NewMockRepository(ctrl)
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockPoRepo.EXPECT().GetByID(inv.PoID).Return(nil, errors.New("error"))
 
 		u := NewUsecase(mockRepo, mockPoRepo)
 		invoice, err := u.Create(&inv)
@@ -157,10 +175,11 @@ func TestUsecase_NextNo(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mIvoice := invoiceMock.Invoice
-		mockRepo := invoiceMock.NewMockRepository(ctrl)
-		mockRepo.EXPECT().Last(mIvoice.PoID).Return(&mIvoice, nil)
 		mockPoRepo := poMock.NewMockRepository(ctrl)
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mIvoice := invoiceMock.Invoice
+		mockPoRepo.EXPECT().GetByID(mIvoice.PoID).Return(&poMock.Po, nil)
+		mockRepo.EXPECT().Last(mIvoice.PoID).Return(&mIvoice, nil)
 
 		u := NewUsecase(mockRepo, mockPoRepo)
 		invoiceNo, err := u.NextNo(invoiceMock.Invoice.PoID)
@@ -173,16 +192,33 @@ func TestUsecase_NextNo(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mIvoice := invoiceMock.Invoice
 		mockRepo := invoiceMock.NewMockRepository(ctrl)
-		mockRepo.EXPECT().Last(mIvoice.PoID).Return(nil, errors.New(""))
 		mockPoRepo := poMock.NewMockRepository(ctrl)
+		mIvoice := invoiceMock.Invoice
+		mockPoRepo.EXPECT().GetByID(mIvoice.PoID).Return(&poMock.Po, nil)
+		mockRepo.EXPECT().Last(mIvoice.PoID).Return(nil, errors.New(""))
 
 		u := NewUsecase(mockRepo, mockPoRepo)
 		invoiceNo, err := u.NextNo(mIvoice.PoID)
 
 		assert.NoError(t, err)
 		assert.NotEmpty(t, invoiceNo)
+	})
+
+	t.Run("when get po error, then return ('', error)", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockPoRepo := poMock.NewMockRepository(ctrl)
+		mIvoice := invoiceMock.Invoice
+		mockPoRepo.EXPECT().GetByID(mIvoice.PoID).Return(nil, errors.New(""))
+
+		u := NewUsecase(mockRepo, mockPoRepo)
+		invoiceNo, err := u.NextNo(mIvoice.PoID)
+
+		assert.EqualError(t, errors.New("PO not found."), err.Error())
+		assert.Empty(t, invoiceNo)
 	})
 }
 
