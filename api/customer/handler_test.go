@@ -124,10 +124,10 @@ func TestGet(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenAdmin)
 
-		uMock := cusMock.NewMockUsecase(ctrl)
-		uMock.EXPECT().Get().Return(cusMock.Customers, nil)
+		usecaseMock := cusMock.NewMockUsecase(ctrl)
+		usecaseMock.EXPECT().Get().Return(cusMock.Customers, nil)
 
-		h := &HttpHandler{uMock}
+		h := &HttpHandler{usecaseMock}
 		h.Get(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -138,8 +138,8 @@ func TestGet(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		uMock := cusMock.NewMockUsecase(ctrl)
-		uMock.EXPECT().Get().Return(nil, errors.New(""))
+		usecaseMock := cusMock.NewMockUsecase(ctrl)
+		usecaseMock.EXPECT().Get().Return(nil, errors.New(""))
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", nil)
@@ -148,7 +148,7 @@ func TestGet(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenAdmin)
 
-		h := &HttpHandler{uMock}
+		h := &HttpHandler{usecaseMock}
 		h.Get(c)
 
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
@@ -346,10 +346,10 @@ func TestDelete(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues("1234")
 
-		uMock := cusMock.NewMockUsecase(ctrl)
-		uMock.EXPECT().Delete("1234").Return(nil)
+		usecaseMock := cusMock.NewMockUsecase(ctrl)
+		usecaseMock.EXPECT().Delete("1234").Return(nil)
 
-		h := &HttpHandler{uMock}
+		h := &HttpHandler{usecaseMock}
 		h.Delete(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -360,8 +360,8 @@ func TestDelete(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		uMock := cusMock.NewMockUsecase(ctrl)
-		uMock.EXPECT().Delete("1234").Return(errors.New(""))
+		usecaseMock := cusMock.NewMockUsecase(ctrl)
+		usecaseMock.EXPECT().Delete("1234").Return(errors.New(""))
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", nil)
@@ -372,7 +372,7 @@ func TestDelete(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues("1234")
 
-		h := &HttpHandler{uMock}
+		h := &HttpHandler{usecaseMock}
 		h.Delete(c)
 
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
@@ -382,7 +382,7 @@ func TestDelete(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		uMock := cusMock.NewMockUsecase(ctrl)
+		usecaseMock := cusMock.NewMockUsecase(ctrl)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", nil)
@@ -393,7 +393,7 @@ func TestDelete(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues("1234")
 
-		h := &HttpHandler{uMock}
+		h := &HttpHandler{usecaseMock}
 		h.Delete(c)
 
 		assert.Equal(t, http.StatusForbidden, rec.Code)
