@@ -72,3 +72,8 @@ func (r *repository) GetByCusID(id string) ([]*models.Po, error) {
 	}
 	return po, nil
 }
+
+func (r *repository) Delete(id string) error {
+	coll := r.session.GetCollection(PoColl)
+	return coll.Remove(bson.M{"_id": bson.ObjectIdHex(id)})
+}

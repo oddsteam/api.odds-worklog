@@ -45,3 +45,7 @@ func (u *usecase) GetByID(id string) (*models.Po, error) {
 func (u *usecase) GetByCusID(id string) ([]*models.Po, error) {
 	return u.repo.GetByCusID(id)
 }
+
+func (u *usecase) Delete(id string) error {
+	return u.repo.Delete(id)
+}

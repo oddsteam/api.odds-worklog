@@ -10,6 +10,7 @@ type Repository interface {
 	Get() ([]*models.Po, error)
 	GetByID(id string) (*models.Po, error)
 	GetByCusID(id string) ([]*models.Po, error)
+	Delete(id string) error
 }
 
 type Usecase interface {
@@ -18,4 +19,5 @@ type Usecase interface {
 	Get() ([]*models.Po, error)
 	GetByID(id string) (*models.Po, error)
 	GetByCusID(id string) ([]*models.Po, error)
+	Delete(id string) error
 }

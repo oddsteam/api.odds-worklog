@@ -28,6 +28,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("", handler.Get)
 	r.GET("/:id", handler.GetByID)
 	r.GET("/customer/:id", handler.GetByCusID)
+	r.DELETE("/:id", handler.Delete)
 }
 
 func getUserFromToken(c echo.Context) *models.User {
@@ -168,4 +169,28 @@ func (h *HttpHandler) GetByCusID(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, po)
+}
+
+// Delete godoc
+// @Summary Delete Po
+// @Description Delete Po
+// @Tags po
+// @Accept json
+// @Produce json
+// @Param id path string true "Po ID"
+// @Success 200 {object} models.Response
+// @Failure 403 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /poes/{id} [delete]
+func (h *HttpHandler) Delete(c echo.Context) error {
+	user := getUserFromToken(c)
+	if !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+	id := c.Param("id")
+	err := h.Usecase.Delete(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, models.Response{Message: "Delete product owner success."})
 }
