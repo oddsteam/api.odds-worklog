@@ -5,4 +5,5 @@ type Usecase interface {
 	UpdateImageProfileUser(id, filename string) error
 	GetPathTranscript(id string) (string, error)
 	GetPathImageProfile(id string) (string, error)
+	RemoveTranscript(filename string) error
 }

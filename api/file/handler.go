@@ -27,6 +27,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r = r.Group("/files")
 	r.POST("/transcript", h.UploadTranscript)
 	r.GET("/transcript/:id", h.DownloadTranscript)
+	r.DELETE("/transcript/:id", h.RemoveTranscript)
 	r.POST("/image", h.UploadImageProfile)
 	r.GET("/image/:id", h.DownloadImageProfile)
 }
@@ -198,6 +199,7 @@ func (h *HttpHandler) DownloadImageProfile(c echo.Context) error {
 	}
 	return c.Attachment(filename, filename)
 }
+
 func getImageFilename(u *models.User) (filename string) {
 	path := "files/images"
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -205,4 +207,43 @@ func getImageFilename(u *models.User) (filename string) {
 	}
 	filename = fmt.Sprintf("%s/%s_%s.png", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName))
 	return
+}
+
+// RemoveTranscript godoc
+// @Summary Remove image file
+// @Description remove transcript file
+// @Tags files
+// @Produce json
+// @Param id path string true "user id"
+// @Success 200 {array} string
+// @Failure 401 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/image/{id} [get]
+func (h *HttpHandler) RemoveTranscript(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return utils.NewError(c, http.StatusBadRequest, utils.ErrInvalidPath)
+	}
+
+	user := getUserFromToken(c)
+	if user.ID.Hex() != id && !user.IsAdmin() {
+		return utils.NewError(c, http.StatusUnauthorized, utils.ErrPermissionDenied)
+	}
+
+	filename, err := h.usecase.GetPathTranscript(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, utils.ErrNoTranscriptFile)
+	}
+
+	err = h.usecase.RemoveTranscript(filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	err = h.usecase.UpdateUser(id, "")
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, models.Response{Message: "Remove transcript success"})
 }

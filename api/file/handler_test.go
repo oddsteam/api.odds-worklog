@@ -242,3 +242,123 @@ func TestDownloadImageProfile(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	})
 }
+
+func TestRemoveTranscript(t *testing.T) {
+	t.Run("when remove transcript success status code should be ok", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.User
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathTranscript(u.ID.Hex()).Return("test.pdf", nil)
+		mockUsecase.EXPECT().RemoveTranscript("test.pdf").Return(nil)
+		mockUsecase.EXPECT().UpdateUser(u.ID.Hex(), "").Return(nil)
+		claims := &models.JwtCustomClaims{
+			&u,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", token)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.RemoveTranscript(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+	t.Run("when user no have transcript status code should be internal server error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.User
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathTranscript(u.ID.Hex()).Return("test.pdf", errors.New(""))
+		claims := &models.JwtCustomClaims{
+			&u,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", token)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.RemoveTranscript(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+		assert.Equal(t, `{"code":500,"message":"No transcript file."}`, rec.Body.String())
+	})
+	t.Run("when remove transcript is not success status code should be internal server error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.User
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathTranscript(u.ID.Hex()).Return("test.pdf", nil)
+		mockUsecase.EXPECT().RemoveTranscript("test.pdf").Return(errors.New(""))
+		claims := &models.JwtCustomClaims{
+			&u,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", token)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.RemoveTranscript(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+
+	t.Run("when user send request to method but no have token status code should be unauthorized", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.User
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		claims := &models.JwtCustomClaims{
+			&u,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", token)
+		c.SetParamNames("id")
+		c.SetParamValues("1234")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.RemoveTranscript(c)
+
+		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+		assert.Equal(t, `{"code":401,"message":"Permission denied."}`, rec.Body.String())
+	})
+}
