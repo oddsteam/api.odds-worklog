@@ -1064,6 +1064,37 @@ paths:
       tags:
       - po
   /poes/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Po
+      parameters:
+      - description: Po ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Delete Po
+      tags:
+      - po
     get:
       consumes:
       - application/json

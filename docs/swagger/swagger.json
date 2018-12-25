@@ -1453,6 +1453,51 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Delete Po",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "po"
+                ],
+                "summary": "Delete Po",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Po ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
             }
         },
         "/setting/reminder": {
