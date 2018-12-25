@@ -388,7 +388,7 @@ paths:
       - files
   /files/image/{id}:
     get:
-      description: Download image file
+      description: remove transcript file
       parameters:
       - description: user id
         in: path
@@ -404,11 +404,6 @@ paths:
             items:
               type: string
             type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-            type: object
         "401":
           description: Unauthorized
           schema:
@@ -419,7 +414,7 @@ paths:
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
-      summary: Download image file
+      summary: Remove image file
       tags:
       - files
   /files/transcript:

@@ -305,14 +305,14 @@
         },
         "/files/image/{id}": {
             "get": {
-                "description": "Download image file",
+                "description": "remove transcript file",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "files"
                 ],
-                "summary": "Download image file",
+                "summary": "Remove image file",
                 "parameters": [
                     {
                         "type": "string",
@@ -330,13 +330,6 @@
                             "items": {
                                 "type": "string"
                             }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "401": {
