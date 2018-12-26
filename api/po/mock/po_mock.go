@@ -5,9 +5,10 @@
 package mock_po
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	models "gitlab.odds.team/worklog/api.odds-worklog/models"
-	reflect "reflect"
 )
 
 // MockRepository is a mock of Repository interface

@@ -400,3 +400,71 @@ func TestUpdate(t *testing.T) {
 		assert.Equal(t, http.StatusForbidden, rec.Code)
 	})
 }
+
+func TestDelete(t *testing.T) {
+	t.Run("when delete po success, then return json models.Response with status code 200", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
+		c.SetParamNames("id")
+		c.SetParamValues("5c1f855d59fc7d06988c6e01")
+
+		usecaseMock := poMock.NewMockUsecase(ctrl)
+		usecaseMock.EXPECT().Delete("5c1f855d59fc7d06988c6e01").Return(nil)
+
+		h := &HttpHandler{usecaseMock}
+		h.Delete(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, `{"message":"Delete product owner success."}`, rec.Body.String())
+	})
+
+	t.Run("when delete po error, then return json models.HTTPError status code 500", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		usecaseMock := poMock.NewMockUsecase(ctrl)
+		usecaseMock.EXPECT().Delete("5c1f855d59fc7d06988c6e01").Return(errors.New(""))
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
+		c.SetParamNames("id")
+		c.SetParamValues("5c1f855d59fc7d06988c6e01")
+
+		h := &HttpHandler{usecaseMock}
+		h.Delete(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+
+	t.Run("when request isn't admin, then return json models.HTTPError status code 403", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		usecaseMock := poMock.NewMockUsecase(ctrl)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues("5c1f855d59fc7d06988c6e01")
+
+		h := &HttpHandler{usecaseMock}
+		h.Delete(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
+	})
+}

@@ -224,3 +224,34 @@ func TestUsecase_Update(t *testing.T) {
 		assert.Nil(t, p)
 	})
 }
+
+func TestUsecase_Delete(t *testing.T) {
+	t.Run("when delete po success, then return error nil", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		po := poMock.Po
+		cusRepo := cusMock.NewMockRepository(ctrl)
+		poRepo := poMock.NewMockRepository(ctrl)
+		poRepo.EXPECT().Delete(po.ID.Hex()).Return(nil)
+
+		u := NewUsecase(poRepo, cusRepo)
+		err := u.Delete(po.ID.Hex())
+		assert.NoError(t, err)
+	})
+
+	t.Run("when delete po error, then return error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		po := poMock.Po
+		cusRepo := cusMock.NewMockRepository(ctrl)
+		poRepo := poMock.NewMockRepository(ctrl)
+		poRepo.EXPECT().Delete(po.ID.Hex()).Return(errors.New("error"))
+
+		u := NewUsecase(poRepo, cusRepo)
+		err := u.Delete(po.ID.Hex())
+
+		assert.Error(t, err)
+	})
+}
