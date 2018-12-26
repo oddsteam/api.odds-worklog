@@ -210,7 +210,7 @@ func getImageFilename(u *models.User) (filename string) {
 }
 
 // RemoveTranscript godoc
-// @Summary Remove image file
+// @Summary Remove transcript file
 // @Description remove transcript file
 // @Tags files
 // @Produce json
@@ -246,4 +246,43 @@ func (h *HttpHandler) RemoveTranscript(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, models.Response{Message: "Remove transcript success"})
+}
+
+// RemoveImageFile godoc
+// @Summary Remove image file
+// @Description remove image file
+// @Tags files
+// @Produce json
+// @Param id path string true "user id"
+// @Success 200 {array} string
+// @Failure 401 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/image/{id} [delete]
+func (h *HttpHandler) RemoveImageFile(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return utils.NewError(c, http.StatusBadRequest, utils.ErrInvalidPath)
+	}
+
+	user := getUserFromToken(c)
+	if user.ID.Hex() != id && !user.IsAdmin() {
+		return utils.NewError(c, http.StatusUnauthorized, utils.ErrPermissionDenied)
+	}
+
+	filename, err := h.usecase.GetPathImageProfile(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, utils.ErrNoTranscriptFile)
+	}
+
+	err = h.usecase.RemoveImage(filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	err = h.usecase.UpdateImageProfileUser(id, "")
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, models.Response{Message: "Remove image success"})
 }

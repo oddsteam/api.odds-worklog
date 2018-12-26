@@ -87,3 +87,11 @@ func (u *usercasse) RemoveTranscript(filename string) error {
 	}
 	return nil
 }
+
+func (u *usercasse) RemoveImage(filename string) error {
+	err := os.Remove(filename)
+	if err != nil {
+		return err
+	}
+	return nil
+}

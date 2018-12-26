@@ -388,7 +388,38 @@ paths:
       - files
   /files/image/{id}:
     get:
-      description: remove transcript file
+      description: Download transcript file
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Download image file
+      tags:
+      - files
+  /files/image/delete/{id}:
+    delete:
+      description: Remove transcript file
       parameters:
       - description: user id
         in: path

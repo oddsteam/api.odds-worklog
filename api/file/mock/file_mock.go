@@ -94,3 +94,15 @@ func (m *MockUsecase) RemoveTranscript(filename string) error {
 func (mr *MockUsecaseMockRecorder) RemoveTranscript(filename interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveTranscript", reflect.TypeOf((*MockUsecase)(nil).RemoveTranscript), filename)
 }
+
+// RemoveImage mocks base method
+func (m *MockUsecase) RemoveImage(filename string) error {
+	ret := m.ctrl.Call(m, "RemoveImage", filename)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveImage indicates an expected call of RemoveImage
+func (mr *MockUsecaseMockRecorder) RemoveImage(filename interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveImage", reflect.TypeOf((*MockUsecase)(nil).RemoveImage), filename)
+}
