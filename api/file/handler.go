@@ -108,18 +108,14 @@ func getTranscriptFilename(u *models.User) (filename string) {
 // @Produce json
 // @Param id path string true "user id"
 // @Success 200 {array} string
-// @Failure 400 {object} utils.HTTPError
-// @Failure 401 {object} utils.HTTPError
+// @Failure 403 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /files/transcript/{id} [get]
 func (h *HttpHandler) DownloadTranscript(c echo.Context) error {
 	id := c.Param("id")
-	if id == "" {
-		return utils.NewError(c, http.StatusBadRequest, utils.ErrInvalidPath)
-	}
 	user := getUserFromToken(c)
 	if user.ID.Hex() != id && !user.IsAdmin() {
-		return utils.NewError(c, http.StatusUnauthorized, utils.ErrPermissionDenied)
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
 	filename, err := h.usecase.GetPathTranscript(id)
@@ -179,18 +175,14 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 // @Produce json
 // @Param id path string true "user id"
 // @Success 200 {array} string
-// @Failure 400 {object} utils.HTTPError
-// @Failure 401 {object} utils.HTTPError
+// @Failure 403 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /files/image/{id} [get]
 func (h *HttpHandler) DownloadImageProfile(c echo.Context) error {
 	id := c.Param("id")
-	if id == "" {
-		return utils.NewError(c, http.StatusBadRequest, utils.ErrInvalidPath)
-	}
 	user := getUserFromToken(c)
 	if user.ID.Hex() != id && !user.IsAdmin() {
-		return utils.NewError(c, http.StatusUnauthorized, utils.ErrPermissionDenied)
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
 	filename, err := h.usecase.GetPathImageProfile(id)
@@ -215,19 +207,15 @@ func getImageFilename(u *models.User) (filename string) {
 // @Tags files
 // @Produce json
 // @Param id path string true "user id"
-// @Success 200 {array} string
-// @Failure 401 {object} utils.HTTPError
+// @Success 200 {array} models.Response
+// @Failure 403 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
-// @Router /files/image/{id} [get]
+// @Router /files/transcript/{id} [delete]
 func (h *HttpHandler) RemoveTranscript(c echo.Context) error {
 	id := c.Param("id")
-	if id == "" {
-		return utils.NewError(c, http.StatusBadRequest, utils.ErrInvalidPath)
-	}
-
 	user := getUserFromToken(c)
 	if user.ID.Hex() != id && !user.IsAdmin() {
-		return utils.NewError(c, http.StatusUnauthorized, utils.ErrPermissionDenied)
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
 	filename, err := h.usecase.GetPathTranscript(id)
@@ -254,19 +242,15 @@ func (h *HttpHandler) RemoveTranscript(c echo.Context) error {
 // @Tags files
 // @Produce json
 // @Param id path string true "user id"
-// @Success 200 {array} string
-// @Failure 401 {object} utils.HTTPError
+// @Success 200 {object} models.Response
+// @Failure 403 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /files/image/{id} [delete]
 func (h *HttpHandler) RemoveImageFile(c echo.Context) error {
 	id := c.Param("id")
-	if id == "" {
-		return utils.NewError(c, http.StatusBadRequest, utils.ErrInvalidPath)
-	}
-
 	user := getUserFromToken(c)
 	if user.ID.Hex() != id && !user.IsAdmin() {
-		return utils.NewError(c, http.StatusUnauthorized, utils.ErrPermissionDenied)
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
 	filename, err := h.usecase.GetPathImageProfile(id)

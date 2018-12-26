@@ -387,39 +387,8 @@ paths:
       tags:
       - files
   /files/image/{id}:
-    get:
-      description: Download transcript file
-      parameters:
-      - description: user id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              type: string
-            type: array
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-            type: object
-      summary: Download image file
-      tags:
-      - files
-  /files/image/delete/{id}:
     delete:
-      description: Remove transcript file
+      description: remove image file
       parameters:
       - description: user id
         in: path
@@ -432,11 +401,10 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              type: string
-            type: array
-        "401":
-          description: Unauthorized
+            $ref: '#/definitions/models.Response'
+            type: object
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
@@ -446,6 +414,36 @@ paths:
             $ref: '#/definitions/utils.HTTPError'
             type: object
       summary: Remove image file
+      tags:
+      - files
+    get:
+      description: Download image file
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Download image file
       tags:
       - files
   /files/transcript:
@@ -477,6 +475,36 @@ paths:
       tags:
       - files
   /files/transcript/{id}:
+    delete:
+      description: remove transcript file
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Response'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Remove transcript file
+      tags:
+      - files
     get:
       description: Download transcript file
       parameters:
@@ -494,13 +522,8 @@ paths:
             items:
               type: string
             type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-            type: object
-        "401":
-          description: Unauthorized
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
