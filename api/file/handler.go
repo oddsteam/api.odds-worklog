@@ -30,6 +30,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.DELETE("/transcript/:id", h.RemoveTranscript)
 	r.POST("/image", h.UploadImageProfile)
 	r.GET("/image/:id", h.DownloadImageProfile)
+	r.DELETE("/image/:id", h.RemoveImageFile)
 }
 
 // UploadTranscript godoc
