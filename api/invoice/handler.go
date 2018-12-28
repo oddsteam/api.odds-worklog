@@ -173,6 +173,7 @@ func (h *HttpHandler) NextNo(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path string true  "id is invoice id"
+// @Param invoice body models.Invoice true  "require only 'amount'"
 // @Success 200 {object} models.Invoice
 // @Failure 403 {object} utils.HTTPError
 // @Failure 400 {object} utils.HTTPError

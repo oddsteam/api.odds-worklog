@@ -905,6 +905,13 @@ paths:
         name: id
         required: true
         type: string
+      - description: require only 'amount'
+        in: body
+        name: invoice
+        required: true
+        schema:
+          $ref: '#/definitions/models.Invoice'
+          type: object
       produces:
       - application/json
       responses:
