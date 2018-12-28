@@ -28,6 +28,7 @@ func TestCreate(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
 
 		handler := &HttpHandler{mockUsecase}
 		handler.Create(c)
@@ -46,6 +47,7 @@ func TestCreate(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
 
 		handler := &HttpHandler{mockUsecase}
 		handler.Create(c)
@@ -65,11 +67,31 @@ func TestCreate(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
 
 		handler := &HttpHandler{mockUsecase}
 		handler.Create(c)
 
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+
+	t.Run("when request isn't admin, then return json models.HTTPError with status code 403", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(userMock.UserJson))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+
+		handler := &HttpHandler{mockUsecase}
+		handler.Create(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
 	})
 }
 

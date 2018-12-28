@@ -1528,6 +1528,11 @@ paths:
           schema:
             $ref: '#/definitions/utils.HTTPError'
             type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
         "500":
           description: Internal Server Error
           schema:

@@ -48,9 +48,15 @@ func getUserFromToken(c echo.Context) *models.User {
 // @Param user body models.User true  "id can empty"
 // @Success 200 {object} models.User
 // @Failure 400 {object} utils.HTTPError
+// @Failure 403 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /users [post]
 func (h *HttpHandler) Create(c echo.Context) error {
+	user := getUserFromToken(c)
+	if !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
 	var u models.User
 	if err := c.Bind(&u); err != nil {
 		return utils.NewError(c, http.StatusBadRequest, err)
