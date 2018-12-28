@@ -75,9 +75,6 @@ func (u *usecase) Update(m *models.User, isAdmin bool) (*models.User, error) {
 	if m.Role == "admin" && !isAdmin {
 		return nil, utils.ErrInvalidUserRole
 	}
-	if m.IsAdmin() && m.Role != "admin" {
-		m.Role = "admin"
-	}
 
 	user, err := u.repo.GetByID(m.ID.Hex())
 	if err != nil {
