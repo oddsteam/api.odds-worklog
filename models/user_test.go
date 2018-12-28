@@ -14,16 +14,16 @@ func TestUser(t *testing.T) {
 	u.LastName = "Super"
 	assert.False(t, u.IsFullnameEmpty())
 
-	u.Email = "suphakrit@odds.team"
+	u.Role = "admin"
 	assert.True(t, u.IsAdmin())
 
-	u.Email = "jin@odds.team"
-	assert.True(t, u.IsAdmin())
+	u.Role = ""
+	assert.False(t, u.IsAdmin())
 
-	u.Email = "roof@odds.team"
-	assert.True(t, u.IsAdmin())
+	u.Role = "individual"
+	assert.False(t, u.IsAdmin())
 
-	u.Email = "a@odds.team"
+	u.Role = "corporate"
 	assert.False(t, u.IsAdmin())
 
 	assert.Equal(t, "Tester Super", u.GetFullname())

@@ -27,18 +27,7 @@ type User struct {
 }
 
 func (u *User) IsAdmin() bool {
-	emails := []string{
-		"suphakrit@odds.team",
-		"jin@odds.team",
-		"roof@odds.team",
-	}
-
-	for _, email := range emails {
-		if u.Email == email {
-			return true
-		}
-	}
-	return false
+	return u.Role == "admin"
 }
 
 func (u *User) GetFullname() string {
