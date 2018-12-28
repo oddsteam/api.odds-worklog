@@ -96,18 +96,6 @@ func (mr *MockRepositoryMockRecorder) AddExport(ep interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddExport", reflect.TypeOf((*MockRepository)(nil).AddExport), ep)
 }
 
-// DropIncome mocks base method
-func (m *MockRepository) DropIncome() error {
-	ret := m.ctrl.Call(m, "DropIncome")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DropIncome indicates an expected call of DropIncome
-func (mr *MockRepositoryMockRecorder) DropIncome() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DropIncome", reflect.TypeOf((*MockRepository)(nil).DropIncome))
-}
-
 // MockUsecase is a mock of Usecase interface
 type MockUsecase struct {
 	ctrl     *gomock.Controller
@@ -207,16 +195,4 @@ func (m *MockUsecase) ExportPdf() (string, error) {
 // ExportPdf indicates an expected call of ExportPdf
 func (mr *MockUsecaseMockRecorder) ExportPdf() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportPdf", reflect.TypeOf((*MockUsecase)(nil).ExportPdf))
-}
-
-// DropIncome mocks base method
-func (m *MockUsecase) DropIncome() error {
-	ret := m.ctrl.Call(m, "DropIncome")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DropIncome indicates an expected call of DropIncome
-func (mr *MockUsecaseMockRecorder) DropIncome() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DropIncome", reflect.TypeOf((*MockUsecase)(nil).DropIncome))
 }

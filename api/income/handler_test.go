@@ -310,24 +310,3 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 }
-
-func TestDropIncome(t *testing.T) {
-	t.Run("when drop table success it should be return status OK", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().DropIncome().Return(nil)
-
-		e := echo.New()
-		req := httptest.NewRequest(echo.GET, "/", nil)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-
-		handler := &HttpHandler{mockUsecase}
-		handler.DropIncome(c)
-		assert.Equal(t, http.StatusOK, rec.Code)
-		assert.Equal(t, `{"message":"DropIncome Success!"}`, rec.Body.String())
-
-	})
-}
