@@ -62,7 +62,11 @@ func (h *HttpHandler) UploadTranscript(c echo.Context) error {
 	defer src.Close()
 
 	u := getUserFromToken(c)
-	filename := getTranscriptFilename(u)
+	user, err := h.usecase.GetUserByID(u.ID.Hex())
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	filename := getTranscriptFilename(user)
 
 	// Destination
 	dst, err := os.Create(filename)
@@ -148,7 +152,11 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 	defer src.Close()
 
 	u := getUserFromToken(c)
-	filename := getImageFilename(u)
+	user, err := h.usecase.GetUserByID(u.ID.Hex())
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	filename := getImageFilename(user)
 
 	dst, err := os.Create(filename)
 	if err != nil {

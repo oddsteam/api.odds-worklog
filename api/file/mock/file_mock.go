@@ -5,9 +5,9 @@
 package mock_file
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
+	models "gitlab.odds.team/worklog/api.odds-worklog/models"
+	reflect "reflect"
 )
 
 // MockUsecase is a mock of Usecase interface
@@ -105,4 +105,17 @@ func (m *MockUsecase) RemoveImage(filename string) error {
 // RemoveImage indicates an expected call of RemoveImage
 func (mr *MockUsecaseMockRecorder) RemoveImage(filename interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveImage", reflect.TypeOf((*MockUsecase)(nil).RemoveImage), filename)
+}
+
+// GetUserByID mocks base method
+func (m *MockUsecase) GetUserByID(id string) (*models.User, error) {
+	ret := m.ctrl.Call(m, "GetUserByID", id)
+	ret0, _ := ret[0].(*models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByID indicates an expected call of GetUserByID
+func (mr *MockUsecaseMockRecorder) GetUserByID(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockUsecase)(nil).GetUserByID), id)
 }

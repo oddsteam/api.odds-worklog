@@ -3,6 +3,8 @@ package file
 import (
 	"os"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
+
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
@@ -94,4 +96,8 @@ func (u *usercasse) RemoveImage(filename string) error {
 		return err
 	}
 	return nil
+}
+
+func (u *usercasse) GetUserByID(id string) (*models.User, error) {
+	return u.repo.GetByID(id)
 }
