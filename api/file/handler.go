@@ -86,7 +86,7 @@ func (h *HttpHandler) UploadTranscript(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, models.Response{Message: "Upload transcript success"})
+	return c.JSON(http.StatusOK, models.Response{Message: "Upload transcript success."})
 }
 
 func getUserFromToken(c echo.Context) *models.User {
@@ -174,7 +174,7 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, models.Response{Message: "Upload transcript success"})
+	return c.JSON(http.StatusOK, models.Response{Message: "Upload image profile success."})
 }
 
 func getImageFilename(u *models.User, oldName string) (filename string) {
