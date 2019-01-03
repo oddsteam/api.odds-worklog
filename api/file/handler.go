@@ -156,7 +156,7 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	filename := getImageFilename(user)
+	filename := getImageFilename(user, file.Filename)
 
 	dst, err := os.Create(filename)
 	if err != nil {
@@ -175,6 +175,22 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, models.Response{Message: "Upload transcript success"})
+}
+
+func getImageFilename(u *models.User, oldName string) (filename string) {
+	path := "files/images"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.Mkdir(path, os.ModePerm)
+	}
+
+	t := ".png"
+	arr := strings.Split(oldName, ".")
+	if len(arr) == 2 {
+		t = arr[1]
+	}
+	r := utils.RandStringBytes(12)
+	filename = fmt.Sprintf("%s/%s_%s_%s.%s", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r, t)
+	return
 }
 
 // DownloadImageProfile godoc
@@ -199,15 +215,6 @@ func (h *HttpHandler) DownloadImageProfile(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.Attachment(filename, filename)
-}
-
-func getImageFilename(u *models.User) (filename string) {
-	path := "files/images"
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		os.Mkdir(path, os.ModePerm)
-	}
-	filename = fmt.Sprintf("%s/%s_%s.png", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName))
-	return
 }
 
 // RemoveTranscript godoc
