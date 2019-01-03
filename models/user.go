@@ -20,6 +20,7 @@ type User struct {
 	SlackAccount      string        `bson:"slackAccount" json:"slackAccount"`
 	Transcript        string        `bson:"transcript" json:"transcript,omitempty"`
 	SiteID            string        `bson:"siteId" json:"siteId,omitempty"`
+	Project           string        `bson:"project" json:"project,omitempty"`
 	ImageProfile      string        `bson:"imageProfile" json:"imageProfile,omitempty"`
 	Site              *Site         `bson:"-" json:"site,omitempty"`
 	Create            time.Time     `bson:"create" json:"create"`

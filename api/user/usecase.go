@@ -102,9 +102,14 @@ func (u *usecase) Update(m *models.User, isAdmin bool) (*models.User, error) {
 		}
 		user.SlackAccount = m.SlackAccount
 	}
+	if m.SiteID != "" {
+		user.SiteID = m.SiteID
+	}
+	if m.Project != "" {
+		user.Project = m.Project
+	}
 	user.Role = m.Role
 	user.Vat = m.Vat
-	user.SiteID = m.SiteID
 
 	user, err = u.repo.Update(user)
 	if err != nil {

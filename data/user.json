@@ -13,7 +13,8 @@
         "vat": "N",
         "slackAccount": "",
         "transcript": "",
-        "siteId": "5c0fca4f0fd2df79d4adc2ca"
+        "siteId": "5c0fca4f0fd2df79d4adc2ca",
+        "project": ""
     },
     {
         "_id": {
@@ -29,7 +30,8 @@
         "vat": "Y",
         "slackAccount": "",
         "transcript": "",
-        "siteId": "5c0fcd3c0fd2df79d4adc2cb"
+        "siteId": "5c0fcd3c0fd2df79d4adc2cb",
+        "project": ""
     },
     {
         "_id": {
@@ -45,7 +47,8 @@
         "vat": "Y",
         "slackAccount": "",
         "transcript": "",
-        "siteId": "5c0fcd3c0fd2df79d4adc2cc"
+        "siteId": "5c0fcd3c0fd2df79d4adc2cc",
+        "project": ""
     },
     {
         "_id": {
@@ -61,7 +64,8 @@
         "vat": "N",
         "slackAccount": "",
         "transcript": "",
-        "siteId": "5c0fcd3c0fd2df79d4adc2cd"
+        "siteId": "5c0fcd3c0fd2df79d4adc2cd",
+        "project": ""
     },
     {
         "_id": {
@@ -77,6 +81,7 @@
         "vat": "N",
         "slackAccount": "",
         "transcript": "",
-        "siteId": "5c0fcd3c0fd2df79d4adc2ce"
+        "siteId": "5c0fcd3c0fd2df79d4adc2ce",
+        "project": ""
     }
 ]

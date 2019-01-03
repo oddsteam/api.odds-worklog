@@ -154,6 +154,8 @@ definitions:
         type: string
       lastUpdate:
         type: string
+      project:
+        type: string
       role:
         type: string
       site:
