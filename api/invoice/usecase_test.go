@@ -227,20 +227,21 @@ func TestUsecase_NewNo(t *testing.T) {
 	var err error
 
 	t.Run("when last invoice no in current year, then return invoice no increase by 1", func(t *testing.T) {
-		lastNo = "2018_001"
-		expected = "2018_002"
+		year := fmt.Sprintf("%04d", time.Now().Year())
+		lastNo = year + "_001"
+		expected = year + "_002"
 		actual, err = newNo(lastNo)
 		assert.Equal(t, expected, actual)
 		assert.NoError(t, err)
 
-		lastNo = "2018_099"
-		expected = "2018_100"
+		lastNo = year + "_099"
+		expected = year + "_100"
 		actual, err = newNo(lastNo)
 		assert.Equal(t, expected, actual)
 		assert.NoError(t, err)
 
-		lastNo = "2018_101"
-		expected = "2018_102"
+		lastNo = year + "_101"
+		expected = year + "_102"
 		actual, err = newNo(lastNo)
 		assert.Equal(t, expected, actual)
 		assert.NoError(t, err)
