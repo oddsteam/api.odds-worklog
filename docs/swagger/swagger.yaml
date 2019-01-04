@@ -78,6 +78,8 @@ definitions:
     type: object
   models.Po:
     properties:
+      amount:
+        type: string
       create:
         type: string
       customerId:
@@ -119,6 +121,8 @@ definitions:
     type: object
   models.Site:
     properties:
+      color:
+        type: string
       id:
         type: string
       name:

@@ -2315,6 +2315,9 @@
         "models.Po": {
             "type": "object",
             "properties": {
+                "amount": {
+                    "type": "string"
+                },
                 "create": {
                     "type": "string"
                 },
@@ -2378,6 +2381,9 @@
         "models.Site": {
             "type": "object",
             "properties": {
+                "color": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
