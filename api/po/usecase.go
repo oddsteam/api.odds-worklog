@@ -20,7 +20,10 @@ func (u *usecase) Create(m *models.Po) (*models.Po, error) {
 	if err != nil {
 		return nil, utils.ErrCustomerNotFound
 	}
-	return u.repo.Create(m)
+	if utils.IsNumeric(m.Amount) {
+		return u.repo.Create(m)
+	}
+	return nil, utils.ErrInvalidAmount
 }
 
 func (u *usecase) Update(m *models.Po) (*models.Po, error) {
@@ -28,6 +31,10 @@ func (u *usecase) Update(m *models.Po) (*models.Po, error) {
 	if err != nil {
 		return nil, err
 	}
+	if !utils.IsNumeric(m.Amount) {
+		return nil, utils.ErrInvalidAmount
+	}
+	po.Amount = m.Amount
 	if m.Name != "" {
 		po.Name = m.Name
 	}
