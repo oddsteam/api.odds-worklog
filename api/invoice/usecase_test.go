@@ -66,6 +66,23 @@ func TestUsecase_Create(t *testing.T) {
 		assert.Error(t, err)
 		assert.Nil(t, invoice)
 	})
+
+	t.Run("when amount is invalid, then return (nil, error)", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		inv := invoiceMock.Invoice
+		mockPoRepo := poMock.NewMockRepository(ctrl)
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockPoRepo.EXPECT().GetByID(inv.PoID).Return(&poMock.Po, nil)
+
+		u := NewUsecase(mockRepo, mockPoRepo)
+		inv.Amount = ""
+		invoice, err := u.Create(&inv)
+
+		assert.Error(t, err)
+		assert.Nil(t, invoice)
+	})
 }
 
 func TestUsecase_Get(t *testing.T) {
@@ -319,6 +336,23 @@ func TestUsecase_Update(t *testing.T) {
 		mockPoRepo := poMock.NewMockRepository(ctrl)
 
 		u := NewUsecase(mockRepo, mockPoRepo)
+		invoice, err := u.Update(&inv)
+
+		assert.Error(t, err)
+		assert.Nil(t, invoice)
+	})
+
+	t.Run("when amount is invalid, then return (nil, error)", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		inv := invoiceMock.Invoice
+		mockRepo := invoiceMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetByID(inv.ID.Hex()).Return(&inv, nil)
+		mockPoRepo := poMock.NewMockRepository(ctrl)
+
+		u := NewUsecase(mockRepo, mockPoRepo)
+		inv.Amount = ""
 		invoice, err := u.Update(&inv)
 
 		assert.Error(t, err)

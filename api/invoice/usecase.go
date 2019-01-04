@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/po"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
@@ -26,7 +27,10 @@ func (u *usecase) Create(i *models.Invoice) (*models.Invoice, error) {
 	if err != nil {
 		return nil, errors.New("PO not found.")
 	}
-	return u.invoiceRepo.Create(i)
+	if utils.IsNumeric(i.Amount) {
+		return u.invoiceRepo.Create(i)
+	}
+	return nil, utils.ErrInvalidAmount
 }
 
 func (u *usecase) Get() ([]*models.Invoice, error) {
@@ -81,6 +85,9 @@ func (u *usecase) Update(i *models.Invoice) (*models.Invoice, error) {
 	invoice, err := u.invoiceRepo.GetByID(i.ID.Hex())
 	if err != nil {
 		return nil, err
+	}
+	if !utils.IsNumeric(i.Amount) {
+		return nil, utils.ErrInvalidAmount
 	}
 	invoice.Amount = i.Amount
 	invoice, err = u.invoiceRepo.Update(invoice)
