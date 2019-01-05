@@ -6,13 +6,11 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
 	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 
-	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
@@ -24,23 +22,14 @@ func TestAddIncome(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().AddIncome(&incomeMock.MockIncomeReq, &userMock.MockUser).Return(&incomeMock.MockIncome, nil)
+		mockUsecase.EXPECT().AddIncome(&incomeMock.MockIncomeReq, &userMock.User).Return(&incomeMock.MockIncome, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(incomeMock.MockIncomeReqJson))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		claims := &models.JwtCustomClaims{
-			&userMock.MockUser,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		claims.User.Email = "jin@odds.team"
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		c.Set("user", token)
+		c.Set("user", userMock.TokenUser)
 
 		handler := &HttpHandler{mockUsecase}
 		handler.AddIncome(c)
@@ -58,18 +47,7 @@ func TestAddIncome(t *testing.T) {
 		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(incomeMock.MockIncomeResJson))
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-
-		claims := &models.JwtCustomClaims{
-			&userMock.MockUser,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		claims.User.Email = "jin@odds.team"
-
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-		c.Set("user", token)
+		c.Set("user", userMock.TokenUser)
 		c.SetParamNames("id")
 		c.SetParamValues(incomeMock.MockIncome.ID.Hex())
 
@@ -86,23 +64,14 @@ func TestUpdateIncome(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().UpdateIncome(incomeMock.MockIncome.ID.Hex(), &incomeMock.MockIncomeReq, &userMock.MockUser).Return(&incomeMock.MockIncome, nil)
+		mockUsecase.EXPECT().UpdateIncome(incomeMock.MockIncome.ID.Hex(), &incomeMock.MockIncomeReq, &userMock.User).Return(&incomeMock.MockIncome, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(incomeMock.MockIncomeReqJson))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-
-		claims := &models.JwtCustomClaims{
-			&userMock.MockUser,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		c.Set("user", token)
+		c.Set("user", userMock.TokenUser)
 		c.SetParamNames("id")
 		c.SetParamValues(incomeMock.MockIncome.ID.Hex())
 
@@ -138,16 +107,7 @@ func TestUpdateIncome(t *testing.T) {
 		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(incomeMock.MockIncomeResJson))
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-
-		claims := &models.JwtCustomClaims{
-			&userMock.MockUser,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-		c.Set("user", token)
+		c.Set("user", userMock.TokenUser)
 		c.SetParamNames("id")
 		c.SetParamValues(incomeMock.MockIncome.ID.Hex())
 
@@ -254,19 +214,11 @@ func TestGetIncomeGetIncomeCurrentMonthByUserId(t *testing.T) {
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().GetIncomeByUserIdAndCurrentMonth(incomeMock.MockIncome.UserID).Return(&incomeMock.MockIncome, nil)
 
-		claims := &models.JwtCustomClaims{
-			&userMock.MockUser,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		c.Set("user", token)
+		c.Set("user", userMock.TokenUser)
 		c.SetParamNames("id")
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
 
@@ -289,17 +241,10 @@ func TestGetIncomeGetIncomeCurrentMonthByUserId(t *testing.T) {
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		mockUser := userMock.MockUser
+		mockUser := userMock.User
 		mockUser.ID = ""
-		claims := &models.JwtCustomClaims{
-			&mockUser,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		c.Set("user", userMock.TokenUser)
 
-		c.Set("user", token)
 		handler := &HttpHandler{mockUsecase}
 		handler.GetIncomeCurrentMonthByUserId(c)
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
@@ -332,19 +277,12 @@ func TestGetExportCorporateIncomeStatus(t *testing.T) {
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().ExportIncome("corporate").Return("test.csv", nil)
-		e := echo.New()
-		claims := &models.JwtCustomClaims{
-			&userMock.MockUser,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
+		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		c.Set("user", token)
+		c.Set("user", userMock.TokenAdmin)
 		handler := &HttpHandler{mockUsecase}
 		handler.GetExportCorporate(c)
 
@@ -359,19 +297,12 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().ExportIncome("individual").Return("test.csv", nil)
-		e := echo.New()
-		claims := &models.JwtCustomClaims{
-			&userMock.MockUser,
-			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			},
-		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
+		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		c.Set("user", token)
+		c.Set("user", userMock.TokenAdmin)
 
 		handler := &HttpHandler{mockUsecase}
 		handler.GetExportIndividual(c)

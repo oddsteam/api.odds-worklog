@@ -52,7 +52,7 @@ func (u *usecase) CreateUser(email string) (*models.User, error) {
 	} else {
 		user.Role = "individual"
 	}
-	return u.UserUsecase.CreateUser(user)
+	return u.UserUsecase.Create(user)
 }
 
 func isOddsTeam(email string) bool {

@@ -6,6 +6,7 @@ package mock_file
 
 import (
 	gomock "github.com/golang/mock/gomock"
+	models "gitlab.odds.team/worklog/api.odds-worklog/models"
 	reflect "reflect"
 )
 
@@ -44,6 +45,18 @@ func (mr *MockUsecaseMockRecorder) UpdateUser(id, filename interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockUsecase)(nil).UpdateUser), id, filename)
 }
 
+// UpdateImageProfileUser mocks base method
+func (m *MockUsecase) UpdateImageProfileUser(id, filename string) error {
+	ret := m.ctrl.Call(m, "UpdateImageProfileUser", id, filename)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateImageProfileUser indicates an expected call of UpdateImageProfileUser
+func (mr *MockUsecaseMockRecorder) UpdateImageProfileUser(id, filename interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateImageProfileUser", reflect.TypeOf((*MockUsecase)(nil).UpdateImageProfileUser), id, filename)
+}
+
 // GetPathTranscript mocks base method
 func (m *MockUsecase) GetPathTranscript(id string) (string, error) {
 	ret := m.ctrl.Call(m, "GetPathTranscript", id)
@@ -55,4 +68,54 @@ func (m *MockUsecase) GetPathTranscript(id string) (string, error) {
 // GetPathTranscript indicates an expected call of GetPathTranscript
 func (mr *MockUsecaseMockRecorder) GetPathTranscript(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPathTranscript", reflect.TypeOf((*MockUsecase)(nil).GetPathTranscript), id)
+}
+
+// GetPathImageProfile mocks base method
+func (m *MockUsecase) GetPathImageProfile(id string) (string, error) {
+	ret := m.ctrl.Call(m, "GetPathImageProfile", id)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPathImageProfile indicates an expected call of GetPathImageProfile
+func (mr *MockUsecaseMockRecorder) GetPathImageProfile(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPathImageProfile", reflect.TypeOf((*MockUsecase)(nil).GetPathImageProfile), id)
+}
+
+// RemoveTranscript mocks base method
+func (m *MockUsecase) RemoveTranscript(filename string) error {
+	ret := m.ctrl.Call(m, "RemoveTranscript", filename)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveTranscript indicates an expected call of RemoveTranscript
+func (mr *MockUsecaseMockRecorder) RemoveTranscript(filename interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveTranscript", reflect.TypeOf((*MockUsecase)(nil).RemoveTranscript), filename)
+}
+
+// RemoveImage mocks base method
+func (m *MockUsecase) RemoveImage(filename string) error {
+	ret := m.ctrl.Call(m, "RemoveImage", filename)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveImage indicates an expected call of RemoveImage
+func (mr *MockUsecaseMockRecorder) RemoveImage(filename interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveImage", reflect.TypeOf((*MockUsecase)(nil).RemoveImage), filename)
+}
+
+// GetUserByID mocks base method
+func (m *MockUsecase) GetUserByID(id string) (*models.User, error) {
+	ret := m.ctrl.Call(m, "GetUserByID", id)
+	ret0, _ := ret[0].(*models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByID indicates an expected call of GetUserByID
+func (mr *MockUsecaseMockRecorder) GetUserByID(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockUsecase)(nil).GetUserByID), id)
 }

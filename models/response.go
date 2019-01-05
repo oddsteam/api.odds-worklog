@@ -1,5 +1,5 @@
 package models
 
-type CommonResponse struct {
+type Response struct {
 	Message string `json:"message"`
 }

@@ -60,7 +60,7 @@ func (h *HttpHandler) CreateSiteGroup(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param  id path string true "Site ID"
-// @Param user body models.Site true  "id can empty"
+// @Param sites body models.Site true  "id can empty"
 // @Success 200 {object} models.Site
 // @Failure 400 {object} utils.HTTPError
 // @Failure 422 {object} utils.HTTPError

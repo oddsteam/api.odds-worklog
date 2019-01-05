@@ -6,26 +6,26 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
 	siteMock "gitlab.odds.team/worklog/api.odds-worklog/api/site/mock"
-	mock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
+	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUsecase_CreateUser(t *testing.T) {
+func TestUsecase_Create(t *testing.T) {
 	t.Run("create user success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		user := mock.MockUser
+		user := userMock.User
 
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
-		mockRepo := mock.NewMockRepository(ctrl)
-		mockRepo.EXPECT().CreateUser(&user).Return(&user, nil)
-		mockRepo.EXPECT().GetUserByEmail(user.Email).Return(nil, utils.ErrNotFound)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().Create(&user).Return(&user, nil)
+		mockRepo.EXPECT().GetByEmail(user.Email).Return(nil, utils.ErrNotFound)
 
 		uc := NewUsecase(mockRepo, mockSiteRepo)
-		userRes, err := uc.CreateUser(&user)
+		userRes, err := uc.Create(&user)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, userRes)
@@ -36,13 +36,13 @@ func TestUsecase_CreateUser(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		user := mock.MockUser
+		user := userMock.User
 		user.Email = "abc"
 
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
-		mockRepo := mock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
 		uc := NewUsecase(mockRepo, mockSiteRepo)
-		userRes, err := uc.CreateUser(&user)
+		userRes, err := uc.Create(&user)
 
 		assert.EqualError(t, err, utils.ErrInvalidFormat.Error())
 		assert.Nil(t, userRes)
@@ -52,13 +52,13 @@ func TestUsecase_CreateUser(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		user := mock.MockUser
+		user := userMock.User
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
-		mockRepo := mock.NewMockRepository(ctrl)
-		mockRepo.EXPECT().GetUserByEmail(user.Email).Return(&user, nil)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetByEmail(user.Email).Return(&user, nil)
 
 		uc := NewUsecase(mockRepo, mockSiteRepo)
-		userRes, err := uc.CreateUser(&user)
+		userRes, err := uc.Create(&user)
 
 		assert.EqualError(t, err, utils.ErrConflict.Error())
 		assert.NotNil(t, userRes)
@@ -66,121 +66,121 @@ func TestUsecase_CreateUser(t *testing.T) {
 
 }
 
-func TestUsecase_GetUser(t *testing.T) {
-	t.Run("when call GetUser, then user not nil", func(t *testing.T) {
+func TestUsecase_Get(t *testing.T) {
+	t.Run("when call Get, then user not nil", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockSiteRepo.EXPECT().GetSiteGroup().Return(siteMock.MockSites, nil)
-		mockRepo := mock.NewMockRepository(ctrl)
-		mockRepo.EXPECT().GetUser().Return(mock.MockUsers, nil)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().Get().Return(userMock.Users, nil)
 
 		uc := NewUsecase(mockRepo, mockSiteRepo)
-		u, err := uc.GetUser()
+		u, err := uc.Get()
 
 		assert.NoError(t, err)
 		assert.NotNil(t, u)
-		assert.Equal(t, mock.MockUsers[0].GetFullname(), u[0].GetFullname())
+		assert.Equal(t, userMock.Users[0].GetFullname(), u[0].GetFullname())
 	})
 }
 
-func TestUsecase_GetUserByRole(t *testing.T) {
-	t.Run("when call GetUserByRole 'corporate', then return list user", func(t *testing.T) {
+func TestUsecase_GetByRole(t *testing.T) {
+	t.Run("when call GetByRole 'corporate', then return list user", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
-		mockRepo := mock.NewMockRepository(ctrl)
-		mockRepo.EXPECT().GetUserByRole("corporate").Return(mock.MockUsers, nil)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
 
 		uc := NewUsecase(mockRepo, mockSiteRepo)
-		list, err := uc.GetUserByRole("corporate")
+		list, err := uc.GetByRole("corporate")
 
 		assert.NoError(t, err)
 		assert.NotNil(t, list)
-		assert.Equal(t, mock.MockUsers, list)
+		assert.Equal(t, userMock.Users, list)
 	})
 
-	t.Run("when call GetUserByRole 'individual', then return list user", func(t *testing.T) {
+	t.Run("when call GetByRole 'individual', then return list user", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
-		mockRepo := mock.NewMockRepository(ctrl)
-		mockRepo.EXPECT().GetUserByRole("individual").Return(mock.MockUsers, nil)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetByRole("individual").Return(userMock.Users, nil)
 
 		uc := NewUsecase(mockRepo, mockSiteRepo)
-		list, err := uc.GetUserByRole("individual")
+		list, err := uc.GetByRole("individual")
 
 		assert.NoError(t, err)
 		assert.NotNil(t, list)
-		assert.Equal(t, mock.MockUsers, list)
+		assert.Equal(t, userMock.Users, list)
 	})
 }
 
-func TestUsecase_GetUserByID(t *testing.T) {
+func TestUsecase_GetByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockSiteRepo := siteMock.NewMockRepository(ctrl)
-	mockRepo := mock.NewMockRepository(ctrl)
-	mockRepo.EXPECT().GetUserByID("1234567890").Return(&mock.MockUserById, nil)
+	mockRepo := userMock.NewMockRepository(ctrl)
+	mockRepo.EXPECT().GetByID(userMock.User.ID.Hex()).Return(&userMock.User, nil)
 
 	uc := NewUsecase(mockRepo, mockSiteRepo)
-	u, err := uc.GetUserByID(string(mock.MockUserById.ID))
+	u, err := uc.GetByID(userMock.User.ID.Hex())
 
 	assert.NoError(t, err)
 	assert.NotNil(t, u)
-	assert.Equal(t, mock.MockUserById.GetFullname(), u.GetFullname())
+	assert.Equal(t, userMock.User.GetFullname(), u.GetFullname())
 }
 
-func TestUsecase_GetUserBySiteID(t *testing.T) {
+func TestUsecase_GetBySiteID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockSiteRepo := siteMock.NewMockRepository(ctrl)
-	mockRepo := mock.NewMockRepository(ctrl)
-	mockRepo.EXPECT().GetUserBySiteID("1234567890").Return(mock.MockUsers, nil)
+	mockRepo := userMock.NewMockRepository(ctrl)
+	mockRepo.EXPECT().GetBySiteID("1234567890").Return(userMock.Users, nil)
 
 	uc := NewUsecase(mockRepo, mockSiteRepo)
-	users, err := uc.GetUserBySiteID("1234567890")
+	users, err := uc.GetBySiteID("1234567890")
 
 	assert.NoError(t, err)
 	assert.NotNil(t, users)
-	assert.Equal(t, mock.MockUsers, users)
+	assert.Equal(t, userMock.Users, users)
 }
 
-func TestUsecase_DeleteUser(t *testing.T) {
+func TestUsecase_Delete(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockSiteRepo := siteMock.NewMockRepository(ctrl)
-	mockRepo := mock.NewMockRepository(ctrl)
-	mockRepo.EXPECT().DeleteUser("1234567890").Return(nil)
+	mockRepo := userMock.NewMockRepository(ctrl)
+	mockRepo.EXPECT().Delete(userMock.User.ID.Hex()).Return(nil)
 
 	uc := NewUsecase(mockRepo, mockSiteRepo)
-	u := uc.DeleteUser(string(mock.MockUserById.ID))
+	u := uc.Delete(userMock.User.ID.Hex())
 
 	assert.Equal(t, nil, u)
 }
 
-func TestUsecase_UpdateUser(t *testing.T) {
+func TestUsecase_Update(t *testing.T) {
 	t.Run("update user success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
-		mockRepo := mock.NewMockRepository(ctrl)
-		mockRepo.EXPECT().GetUserByID(gomock.Any()).Return(&mock.MockUserById, nil)
-		mockRepo.EXPECT().UpdateUser(gomock.Any()).Return(&mock.MockUserById, nil)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetByID(gomock.Any()).Return(&userMock.User, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).Return(&userMock.User, nil)
 
 		uc := NewUsecase(mockRepo, mockSiteRepo)
-		u, err := uc.UpdateUser(&mock.MockUserById, mock.MockUserById.IsAdmin())
+		u, err := uc.Update(&userMock.User, userMock.User.IsAdmin())
 
 		assert.NoError(t, err)
 		assert.NotNil(t, u)
-		assert.Equal(t, mock.MockUser.GetFullname(), u.GetFullname())
+		assert.Equal(t, userMock.User.GetFullname(), u.GetFullname())
 	})
 
 	t.Run("when update user invalid role, then retuen erro nil, ErrInvalidUserRole", func(t *testing.T) {
@@ -188,11 +188,11 @@ func TestUsecase_UpdateUser(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
-		mockRepo := mock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
 		uc := NewUsecase(mockRepo, mockSiteRepo)
-		mu := mock.MockUser
+		mu := userMock.User
 		mu.Role = ""
-		u, err := uc.UpdateUser(&mu, mu.IsAdmin())
+		u, err := uc.Update(&mu, mu.IsAdmin())
 
 		assert.Nil(t, u)
 		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
@@ -203,29 +203,13 @@ func TestUsecase_UpdateUser(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
-		mockRepo := mock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
 		uc := NewUsecase(mockRepo, mockSiteRepo)
-		mu := mock.MockUser
+		mu := userMock.User
 		mu.Vat = ""
-		u, err := uc.UpdateUser(&mu, mu.IsAdmin())
+		u, err := uc.Update(&mu, mu.IsAdmin())
 
 		assert.Nil(t, u)
 		assert.EqualError(t, err, utils.ErrInvalidUserVat.Error())
-	})
-
-	t.Run("when update user invalid role permission, then retuen erro nil, ErrInvalidUserRole", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockSiteRepo := siteMock.NewMockRepository(ctrl)
-		mockRepo := mock.NewMockRepository(ctrl)
-		uc := NewUsecase(mockRepo, mockSiteRepo)
-		mu := mock.MockUser
-		mu.Role = "admin"
-		mu.Email = "a@odds.team"
-		u, err := uc.UpdateUser(&mu, mu.IsAdmin())
-
-		assert.Nil(t, u)
-		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
 	})
 }

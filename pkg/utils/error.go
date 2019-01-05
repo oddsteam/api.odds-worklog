@@ -21,8 +21,12 @@ var (
 	ErrSaveTranscript     = errors.New("Save transcript failed")
 	ErrNotPDFFile         = errors.New("Not PDF file")
 	ErrNoTranscriptFile   = errors.New("No transcript file.")
+	ErrNoImageProfileFile = errors.New("No image profile.")
 	ErrPermissionDenied   = errors.New("Permission denied.")
 	ErrInvalidUserVat     = errors.New("Invalid user vat.")
+	ErrCustomerNotFound   = errors.New("Customer is not found.")
+	ErrNotImageFile       = errors.New("Not image file")
+	ErrInvalidAmount      = errors.New("Invalid amount.")
 )
 
 func NewError(ctx echo.Context, status int, err error) error {

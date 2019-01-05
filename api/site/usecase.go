@@ -14,10 +14,7 @@ func NewUsecase(r Repository) Usecase {
 }
 
 func (u *usecase) CreateSiteGroup(m *models.Site) (*models.Site, error) {
-	s, err := u.repo.GetSiteGroupByName(m.Name)
-	if err != nil {
-		return nil, err
-	}
+	s, _ := u.repo.GetSiteGroupByName(m.Name)
 	if s != nil {
 		return nil, utils.ErrConflict
 	}

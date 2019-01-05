@@ -1,6 +1,8 @@
 [
     {
-        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2aa"},
+        "_id": {
+            "$oid": "5c0fca4f0fd2df79d4adc2aa"
+        },
         "firstName": "Admin",
         "lastName": "Admin1",
         "role": "admin",
@@ -11,10 +13,13 @@
         "vat": "N",
         "slackAccount": "",
         "transcript": "",
-        "siteId": "5c0fca4f0fd2df79d4adc2ca"
+        "siteId": "5c0fca4f0fd2df79d4adc2ca",
+        "project": ""
     },
     {
-        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2ab"},
+        "_id": {
+            "$oid": "5c0fca4f0fd2df79d4adc2ab"
+        },
         "firstName": "Tester",
         "lastName": "Number1",
         "role": "corporate",
@@ -25,10 +30,13 @@
         "vat": "Y",
         "slackAccount": "",
         "transcript": "",
-        "siteId": "5c0fcd3c0fd2df79d4adc2cb"
+        "siteId": "5c0fcd3c0fd2df79d4adc2cb",
+        "project": ""
     },
     {
-        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2ac"},
+        "_id": {
+            "$oid": "5c0fca4f0fd2df79d4adc2ac"
+        },
         "firstName": "Tester",
         "lastName": "Number2",
         "role": "corporate",
@@ -39,10 +47,13 @@
         "vat": "Y",
         "slackAccount": "",
         "transcript": "",
-        "siteId": "5c0fcd3c0fd2df79d4adc2cc"
+        "siteId": "5c0fcd3c0fd2df79d4adc2cc",
+        "project": ""
     },
     {
-        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2ad"},
+        "_id": {
+            "$oid": "5c0fca4f0fd2df79d4adc2ad"
+        },
         "firstName": "Tester",
         "lastName": "Number3",
         "role": "individual",
@@ -53,10 +64,13 @@
         "vat": "N",
         "slackAccount": "",
         "transcript": "",
-        "siteId": "5c0fcd3c0fd2df79d4adc2cd"
+        "siteId": "5c0fcd3c0fd2df79d4adc2cd",
+        "project": ""
     },
     {
-        "_id": {"$oid": "5c0fca4f0fd2df79d4adc2ae"},
+        "_id": {
+            "$oid": "5c0fca4f0fd2df79d4adc2ae"
+        },
         "firstName": "Tester",
         "lastName": "Number4",
         "role": "individual",
@@ -67,6 +81,7 @@
         "vat": "N",
         "slackAccount": "",
         "transcript": "",
-        "siteId": "5c0fcd3c0fd2df79d4adc2ce"
+        "siteId": "5c0fcd3c0fd2df79d4adc2ce",
+        "project": ""
     }
 ]

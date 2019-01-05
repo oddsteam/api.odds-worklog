@@ -24,7 +24,7 @@ func (u *usecase) ExportPdf() (string, error) {
 	userId := "5bde4e2e1a044b8c9ce44fe4"
 	year, month := utils.GetYearMonthNow()
 
-	sd, err_ := u.userRepo.GetUserByID(userId)
+	sd, err_ := u.userRepo.GetByID(userId)
 
 	if err_ != nil {
 		return "", err_

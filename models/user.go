@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -18,22 +20,15 @@ type User struct {
 	SlackAccount      string        `bson:"slackAccount" json:"slackAccount"`
 	Transcript        string        `bson:"transcript" json:"transcript,omitempty"`
 	SiteID            string        `bson:"siteId" json:"siteId,omitempty"`
+	Project           string        `bson:"project" json:"project,omitempty"`
+	ImageProfile      string        `bson:"imageProfile" json:"imageProfile,omitempty"`
 	Site              *Site         `bson:"-" json:"site,omitempty"`
+	Create            time.Time     `bson:"create" json:"create"`
+	LastUpdate        time.Time     `bson:"lastUpdate" json:"lastUpdate"`
 }
 
 func (u *User) IsAdmin() bool {
-	emails := []string{
-		"suphakrit@odds.team",
-		"jin@odds.team",
-		"roof@odds.team",
-	}
-
-	for _, email := range emails {
-		if u.Email == email {
-			return true
-		}
-	}
-	return false
+	return u.Role == "admin"
 }
 
 func (u *User) GetFullname() string {

@@ -71,3 +71,9 @@ func TestFormatCommas(t *testing.T) {
 	assert.Equal(t, "-1,234,567,890.00", FormatCommas("-1234567890."))
 	assert.Equal(t, "1,234,567,890.00", FormatCommas("1234567890."))
 }
+
+func TestIsNumber(t *testing.T) {
+	assert.True(t, IsNumeric("1234567890"))
+	assert.False(t, IsNumeric("1,234,567,890"))
+	assert.False(t, IsNumeric(""))
+}

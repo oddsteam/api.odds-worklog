@@ -5,6 +5,7 @@ import (
 )
 
 type Site struct {
-	ID   bson.ObjectId `bson:"_id" json:"id"`
-	Name string        `bson:"name" json:"name"`
+	ID    bson.ObjectId `bson:"_id" json:"id"`
+	Name  string        `bson:"name" json:"name"`
+	Color string        `bson:"color" json:"color"`
 }

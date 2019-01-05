@@ -80,7 +80,7 @@ func calIncomeSum(income string, vattype string) (*incomeSum, error) {
 
 func (u *usecase) GetIncomeStatusList(role string) ([]*models.IncomeStatus, error) {
 	var incomeList []*models.IncomeStatus
-	users, err := u.userRepo.GetUserByRole(role)
+	users, err := u.userRepo.GetByRole(role)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (u *usecase) ExportIncome(role string) (string, error) {
 		return "", err
 	}
 
-	users, err := u.userRepo.GetUserByRole(role)
+	users, err := u.userRepo.GetByRole(role)
 	if err != nil {
 		return "", err
 	}

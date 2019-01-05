@@ -3,12 +3,15 @@ package main
 import (
 	"log"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/api/customer"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/file"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/invoice"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/login"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/po"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/reminder"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
@@ -57,7 +60,9 @@ func main() {
 	reminder.NewHttpHandler(r, session)
 	file.NewHttpHandler(r, session)
 	site.NewHttpHandler(r, session)
-
+	po.NewHttpHandler(r, session)
+	invoice.NewHttpHandler(r, session)
+	customer.NewHttpHandler(r, session)
 	reminderRepo := reminder.NewRepository(session)
 	s, err := reminderRepo.GetReminder()
 	if err != nil {

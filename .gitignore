@@ -21,3 +21,8 @@ report/
 # PDF file
 *.pdf
 !test.pdf
+
+# Image file
+*.jpg
+*.jpeg
+*.png

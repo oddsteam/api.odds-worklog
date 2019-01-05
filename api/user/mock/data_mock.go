@@ -2,13 +2,15 @@ package mock_user
 
 import (
 	"encoding/json"
+	"time"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gopkg.in/mgo.v2/bson"
 )
 
 var (
-	MockUser = models.User{
+	User = models.User{
 		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39539"),
 		Role:              "corporate",
 		FirstName:         "Tester",
@@ -21,7 +23,20 @@ var (
 		SlackAccount:      "test@abc.com",
 	}
 
-	MockAdmin = models.User{
+	User2 = models.User{
+		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39530"),
+		Role:              "corporate",
+		FirstName:         "Tester",
+		LastName:          "Super",
+		Email:             "test@abc.com",
+		BankAccountName:   "ทดสอบชอบลงทุน",
+		BankAccountNumber: "123123123123",
+		ThaiCitizenID:     "1234567890123",
+		Vat:               "Y",
+		SlackAccount:      "test@abc.com",
+	}
+
+	Admin = models.User{
 		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39535"),
 		Role:              "admin",
 		FirstName:         "Tester",
@@ -34,38 +49,33 @@ var (
 		SlackAccount:      "test@abc.com",
 	}
 
-	MockToken = models.Token{
+	adminByte, _ = json.Marshal(Admin)
+	AdminJson    = string(adminByte)
+
+	Token = models.Token{
 		Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NjE5NTcxMzZ9.RB3arc4-OyzASAaUhC2W3ReWaXAt_z2Fd3BN4aWTgEY",
 	}
 
-	MockUserById = models.User{
-		ID:                "1234567890",
-		Role:              "corporate",
-		FirstName:         "Tester",
-		LastName:          "Super",
-		Email:             "test@abc.com",
-		BankAccountName:   "ทดสอบชอบลงทุน",
-		BankAccountNumber: "123123123123",
-		ThaiCitizenID:     "1234567890123",
-		Vat:               "Y",
-	}
-
-	MockUserById2 = models.User{
-		ID:                "1234567891",
-		Role:              "corporate",
-		FirstName:         "Tester",
-		LastName:          "Super",
-		Email:             "test@abc.com",
-		BankAccountName:   "ทดสอบชอบลงทุน",
-		BankAccountNumber: "123123123123",
-		ThaiCitizenID:     "1234567890123",
-		Vat:               "Y",
-	}
-
-	userByte, _ = json.Marshal(MockUser)
+	userByte, _ = json.Marshal(User)
 	UserJson    = string(userByte)
 
-	MockUsers       = []*models.User{&MockUserById, &MockUserById2}
-	UserListByte, _ = json.Marshal(MockUsers)
-	UserListJson    = string(UserListByte)
+	Users        = []*models.User{&User, &User2}
+	usersByte, _ = json.Marshal(Users)
+	UsersJson    = string(usersByte)
+
+	claimsUser = &models.JwtCustomClaims{
+		&User,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+		},
+	}
+	TokenUser = jwt.NewWithClaims(jwt.SigningMethodHS256, claimsUser)
+
+	claimsAdmin = &models.JwtCustomClaims{
+		&Admin,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+		},
+	}
+	TokenAdmin = jwt.NewWithClaims(jwt.SigningMethodHS256, claimsAdmin)
 )

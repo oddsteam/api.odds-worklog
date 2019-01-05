@@ -2,14 +2,13 @@ package income
 
 import (
 	"errors"
-	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 func (u *usecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.Income, error) {
-	userDetail, _ := u.userRepo.GetUserByID(user.ID.Hex())
+	userDetail, _ := u.userRepo.GetByID(user.ID.Hex())
 	year, month := utils.GetYearMonthNow()
 	_, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month)
 	if err == nil {
@@ -24,7 +23,6 @@ func (u *usecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.I
 		UserID:      user.ID.Hex(),
 		TotalIncome: req.TotalIncome,
 		NetIncome:   ins.Net,
-		SubmitDate:  time.Now(),
 		Note:        req.Note,
 		VAT:         ins.VAT,
 		WHT:         ins.WHT,

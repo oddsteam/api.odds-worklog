@@ -2,58 +2,91 @@
 
 ## Go version 1.11
 
-## Run Docker API+MONGODB<br>
+## First step, please setup authen mongodb
+
+If first time, you must Run `docker volume create mongodbdata` for create mongodb docker volume.
+
+1. Start mongodb container <br> 
+Run `docker run -it --rm --name mongodb -d -p 27017:27017 -v mongodbdata:/data/db mongo` <br>
+If docker: Error response from daemon: Conflict. Run `docker rm $(docker ps -a -q)` for remove history containers are run. Or you can rename this container to other name. <br>
+If you use to setup mongodb authen, commands in below are optional.
+
+2. Invoke mongodb container <br>
+Run `docker exec -it mongodb bash`
+
+3. Invoke mongodb <br>
+Run `mongo` or `mongo -u admin -p admin --authenticationDatabase admin`
+
+4. Select databes `odds_worklog_db` <br>
+Run `use odds_worklog_db`
+
+5. Create user for read/write data on `odds_worklog_db` <br>
+Run `db.createUser({user:"admin",pwd:"admin",roles:[{role:"readWrite",db:"odds_worklog_db"}]})`
+
+## Run by docker-compose API+Mongodb
+
 Run `docker-compose up --build -d`<br>
-*Note:* If you add new 3rd party package, you must run `dep ensure` for setup dependency.
+*Note:* If you add new 3rd party package, you must be run `dep ensure` for setup dependency.
 
-## Setup run by `go run main.go` <br>
-* **Docker mongodb**<br>
-Run `docker run -it -d -p 27017:27017 mongo`
+## Run by `go run main.go` <br>
 
-* **Setup Authen mongodb**<br>
-1. In .env file, change `MONGO_DB_HOST = "mongodb:27017"` `mongodb` to `localhost` <br>
+1. Install `dep` dep is a dependency management tool for Go. <br>
+Run `go get -u github.com/golang/dep/cmd/dep`
+
+2. Setup dependency. This command will generate vendor package. It keep library to use in this project. <br>
+Run `dep ensure` (at project path)
+
+3. In .env file, change `MONGO_DB_HOST = "mongodb:27017"` from `mongodb` to `localhost` <br>
 *Note:* Don't `commit` this file (.env)
 
-2. Run `docker exec -it CONTAINER_MONGODB_NAME bash`
-<br>get `CONTAINER_MONGODB_NAME` from `docker ps` NAMES
+4. Start API <br>
+Run `go run main.go` (at project path)
 
-3. Run `mongo`
+## API
 
-4. Run `use odds_worklog_db`
+local: http://localhost:8080/v1/
 
-5. Run `db.createUser({user:"admin",pwd:"admin",roles:[{role:"readWrite",db:"odds_worklog_db"}]})`
+develop cloud: https://worklog-dev.odds.team/api/v1/
 
-* **Setup dependency**<br>
-dep is a dependency management tool for Go <br>
-Run `go get -u github.com/golang/dep/cmd/dep` <br>
-Run `dep ensure` (at project path)
+production cloud: https://worklog.odds.team/api/v1/
+
+## Import mock data to mongodb
+
+If you use to import data mock, data should be alive. <br>
+Importion is optional.
 
 * **Import user data** <br>
 At project path<br>
 ```bash 
-    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection user --type json --file user.json --maintainInsertionOrder --jsonArray
+    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection user --type json --file data/user.json --maintainInsertionOrder --jsonArray
 ```
 
 * **Import site data** <br>
 At project path<br>
 ```bash 
-    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection site --type json --file site.json --maintainInsertionOrder --jsonArray
+    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection site --type json --file data/site.json --maintainInsertionOrder --jsonArray
 ```
 
-* **Setup Authen mongodb**<br>
-If run by `go run main.go`, must config below
+* **Import customer data** <br>
+At project path<br>
+```bash 
+    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection customer --type json --file data/customer.json --maintainInsertionOrder --jsonArray
+```
 
-1. `docker exec -it CONTAINER_MONGODB_NAME bash`
-<br>get `CONTAINER_MONGODB_NAME` from `docker ps` NAMES
+* **Import po data** <br>
+At project path<br>
+```bash 
+    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection po --type json --file data/po.json --maintainInsertionOrder --jsonArray
+```
 
-2. `mongo` or `mongo -u admin -p admin --authenticationDatabase admin`
-
-3. `use odds_worklog_db`
-
-## Host local
-[http://localhost:8080/](http://localhost:8080/)
+* **Import invoice data** <br>
+At project path<br>
+```bash 
+    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection invoice --type json --file data/invoice.json --maintainInsertionOrder --jsonArray
+```
 
 ## Command go mockgen
+
 GoMock is a mocking framework for the Go programming language.
 
 [https://github.com/golang/mock](https://github.com/golang/mock)
@@ -70,9 +103,15 @@ file `mockgen -source="api/file/interface.go" -destination="api/file/mock/file_m
 
 site `mockgen -source="api/site/interface.go" -destination="api/site/mock/site_mock.go"`
 
+customer `mockgen -source="api/customer/interface.go" -destination="api/customer/mock/customer_mock.go"`
+
+po `mockgen -source="api/po/interface.go" -destination="api/po/mock/po_mock.go"`
+
+invoice `mockgen -source="api/invoice/interface.go" -destination="api/invoice/mock/invoice_mock.go"`
+
 ### Swagger
 
-After fill Comment to each handler, you must run `swag init` to generate docs swagger 
+After fill comments to each handler, you must be run `swag init` to generate swagger docs
 
 [https://github.com/swaggo/swag](https://github.com/swaggo/swag)
 
@@ -80,27 +119,4 @@ After fill Comment to each handler, you must run `swag init` to generate docs sw
 
 local [http://localhost:8080/v1/swagger/index.html](http://localhost:8080/v1/swagger/index.html)
 
-online [http://worklog-dev.odds.team/api/v1/swagger/index.html](http://worklog-dev.odds.team/api/v1/swagger/index.html)
-
-## API
-local: http://localhost:8080/v1/
-
-dev clound: http://worklog-dev.odds.team/api/v1/
-
-### User
-| Method    | Path          |
-| ---       | ---           |
-| GET       | /users        |
-| GET       | /users/:id    |
-| POST      | /users/:id    |
-| POST      | /login        |
-| PUT       | /users/:id    |
-| PATCH     | /users/:id    |
-| DELETE    | /users/:id    |
-
-### Income
-| Method    | Path              |
-| ---       | ---               |
-| GET       | /incomes/status   |
-| POST      | /incomes/         |
-| PUT       | /incomes/:id      |   
+online [https://worklog-dev.odds.team/api/v1/swagger/index.html](http://worklog-dev.odds.team/api/v1/swagger/index.html)

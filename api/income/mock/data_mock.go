@@ -27,17 +27,17 @@ var (
 	}
 
 	MockIncomeStatus = models.IncomeStatus{
-		User:       &userMock.MockUser,
+		User:       &userMock.User,
 		SubmitDate: "2018-10-24 20:30:40",
 		Status:     "Y",
 	}
 
 	MockCorporateIncomeStatus = models.IncomeStatus{
-		User:   &userMock.MockUser,
+		User:   &userMock.User,
 		Status: "Y",
 	}
 	MockIndividualIncomeStatus = models.IncomeStatus{
-		User:   &userMock.MockUser,
+		User:   &userMock.User,
 		Status: "N",
 	}
 	MockIncomeStatusList = []*models.IncomeStatus{&MockIncomeStatus}
