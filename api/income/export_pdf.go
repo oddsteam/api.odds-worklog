@@ -43,7 +43,7 @@ func (u *usecase) ExportPdf() (string, error) {
 
 	companyName := "บริษัท ออด-อี (ประเทศไทย) จํากัด"
 	companyAddress := "2549/41-43 พหลโยธิน ลาดยาว จตุจักร กรุงเทพ 10900"
-	employeeName := sd.GetFullname()
+	employeeName := sd.GetName()
 	employeeAddress := "265/28 อ.เมือง ต.ในเมือง จ.ชัยภูมิ 36000"
 	salaryString := "ห้าร้อยบาทถ้วน"
 

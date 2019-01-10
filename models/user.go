@@ -12,6 +12,7 @@ type User struct {
 	Role              string        `bson:"role" json:"role"`
 	FirstName         string        `bson:"firstName" json:"firstName"`
 	LastName          string        `bson:"lastName" json:"lastName"`
+	CorporateName     string        `bson:"corporateName" json:"corporateName,omitempty"`
 	Email             string        `bson:"email" json:"email"`
 	BankAccountName   string        `bson:"bankAccountName" json:"bankAccountName"`
 	BankAccountNumber string        `bson:"bankAccountNumber" json:"bankAccountNumber"`
@@ -27,12 +28,25 @@ type User struct {
 	LastUpdate        time.Time     `bson:"lastUpdate" json:"lastUpdate"`
 }
 
+const (
+	admin      = "admin"
+	individual = "individual"
+	corporate  = "corporate"
+)
+
 func (u *User) IsAdmin() bool {
-	return u.Role == "admin"
+	return u.Role == admin
 }
 
 func (u *User) GetFullname() string {
 	return u.FirstName + " " + u.LastName
+}
+
+func (u *User) GetName() string {
+	if u.Role == corporate {
+		return u.CorporateName
+	}
+	return u.GetFullname()
 }
 
 func (u *User) IsFullnameEmpty() bool {
@@ -40,7 +54,7 @@ func (u *User) IsFullnameEmpty() bool {
 }
 
 func (u *User) ValidateRole() error {
-	if u.Role != "corporate" && u.Role != "individual" && u.Role != "admin" {
+	if u.Role != corporate && u.Role != individual && u.Role != admin {
 		return utils.ErrInvalidUserRole
 	}
 	return nil

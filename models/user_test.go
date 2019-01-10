@@ -61,4 +61,13 @@ func TestUser(t *testing.T) {
 
 	u.Vat = "abc"
 	assert.EqualError(t, u.ValidateVat(), utils.ErrInvalidUserVat.Error())
+
+	u.CorporateName = "abc"
+	u.Role = individual
+	u.FirstName = "a"
+	u.LastName = "b"
+	assert.Equal(t, "a b", u.GetName())
+
+	u.Role = corporate
+	assert.Equal(t, "abc", u.GetName())
 }
