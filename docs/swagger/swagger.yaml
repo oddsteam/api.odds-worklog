@@ -144,6 +144,8 @@ definitions:
         type: string
       bankAccountNumber:
         type: string
+      corporateName:
+        type: string
       create:
         type: string
       email:
