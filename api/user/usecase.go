@@ -87,6 +87,9 @@ func (u *usecase) Update(m *models.User, isAdmin bool) (*models.User, error) {
 	if m.LastName != "" {
 		user.LastName = utils.ToFirstUpper(m.LastName)
 	}
+	if m.CorporateName != "" {
+		user.CorporateName = m.CorporateName
+	}
 	if m.BankAccountName != "" {
 		user.BankAccountName = m.BankAccountName
 	}

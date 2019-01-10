@@ -130,7 +130,7 @@ func (u *usecase) ExportIncome(role string) (string, error) {
 			t := income.SubmitDate
 			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
-			d := []string{user.GetFullname(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), tf}
+			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), tf}
 			strWrite = append(strWrite, d)
 		}
 	}
