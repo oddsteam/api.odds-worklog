@@ -39,5 +39,10 @@ RUN mkdir -p files/tavi50 && mkdir image && mkdir font
 ADD image /app/image
 ADD font /app/font
 
-# Start API
-ENTRYPOINT ["/app/api"]
+# ARG
+ARG MONGO_DB_HOST
+ARG MONGO_DB_NAME
+ARG MONGO_DB_CONECTION_POOL
+ARG MONGO_DB_USERNAME
+ARG MONGO_DB_PASSWORD
+ARG API_PORT
