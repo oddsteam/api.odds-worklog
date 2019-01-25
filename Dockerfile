@@ -35,10 +35,14 @@ RUN apk add curl
 RUN apk add python
 WORKDIR /app
 COPY --from=build-state /go/bin/api /app
-ADD .env  /app
 RUN mkdir -p files/tavi50 && mkdir image && mkdir font
 ADD image /app/image
 ADD font /app/font
 
-# Start API
-ENTRYPOINT ["/app/api"]
+# ENV
+ENV MONGO_DB_HOST=
+ENV MONGO_DB_NAME=
+ENV MONGO_DB_CONECTION_POOL=
+ENV MONGO_DB_USERNAME=
+ENV MONGO_DB_PASSWORD=
+ENV API_PORT=
