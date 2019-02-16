@@ -74,5 +74,5 @@ func main() {
 		worker.StartWorker(s)
 	}
 	// Start server
-	e.Logger.Fatal(e.Start(c.APIPort))
+	e.Logger.Fatal(e.Start(":8080"))
 }

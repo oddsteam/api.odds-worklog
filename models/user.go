@@ -42,6 +42,10 @@ func (u *User) GetFullname() string {
 	return u.FirstName + " " + u.LastName
 }
 
+func (u *User) GetEmail() string {
+	return u.Email
+}
+
 func (u *User) GetName() string {
 	if u.Role == corporate {
 		return u.CorporateName
