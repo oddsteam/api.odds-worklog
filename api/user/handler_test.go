@@ -162,6 +162,71 @@ func TestGet(t *testing.T) {
 
 }
 
+func TestGetByEmail(t *testing.T) {
+	t.Run("when get user by email success it should return status OK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetByEmail(userMock.User.Email).Return(&userMock.User, nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
+		c.SetParamNames("email")
+		c.SetParamValues("test@abc.com")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.GetByEmail(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+
+	t.Run("when request is not admin, then return json models.HTTPError with status code 403", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+
+		handler := &HttpHandler{mockUsecase}
+		handler.GetByEmail(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
+	})
+
+	t.Run("when get user by email error, then return json models.HTTPError with status code 500", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetByEmail(userMock.User.Email).Return(nil, errors.New(""))
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
+		c.SetParamNames("email")
+		c.SetParamValues("test@abc.com")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.GetByEmail(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+}
+
 func TestGetByID(t *testing.T) {
 	t.Run("when get user by id success it should return status OK", func(t *testing.T) {
 		ctrl := gomock.NewController(t)

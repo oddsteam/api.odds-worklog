@@ -23,4 +23,5 @@ type Usecase interface {
 	GetBySiteID(id string) ([]*models.User, error)
 	Update(u *models.User, isAdmin bool) (*models.User, error)
 	Delete(id string) error
+	GetByEmail(email string) (*models.User, error)
 }

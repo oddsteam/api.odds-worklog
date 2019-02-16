@@ -119,6 +119,22 @@ func TestUsecase_GetByRole(t *testing.T) {
 	})
 }
 
+func TesTUsercase_GetByEmail(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockSiteRepo := siteMock.NewMockRepository(ctrl)
+	mockRepo := userMock.NewMockRepository(ctrl)
+	mockRepo.EXPECT().GetByEmail(userMock.User.Email).Return(&userMock.User, nil)
+
+	uc := NewUsecase(mockRepo, mockSiteRepo)
+	u, err := uc.GetByEmail(userMock.User.Email)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, u)
+	assert.Equal(t, userMock.User.GetEmail(), u.GetEmail())
+}
+
 func TestUsecase_GetByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

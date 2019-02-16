@@ -61,6 +61,10 @@ func (u *usecase) GetByID(id string) (*models.User, error) {
 	return u.repo.GetByID(id)
 }
 
+func (u *usecase) GetByEmail(email string) (*models.User, error) {
+	return u.repo.GetByEmail(email)
+}
+
 func (u *usecase) GetBySiteID(id string) ([]*models.User, error) {
 	return u.repo.GetBySiteID(id)
 }
