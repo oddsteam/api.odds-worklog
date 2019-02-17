@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
-	"gopkg.in/mgo.v2/bson"
+	"github.com/globalsign/mgo/bson"
 )
 
 type User struct {

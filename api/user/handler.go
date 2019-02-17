@@ -6,7 +6,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
-	"gopkg.in/mgo.v2/bson"
+	"github.com/globalsign/mgo/bson"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"

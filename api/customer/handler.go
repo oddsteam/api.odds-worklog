@@ -3,8 +3,8 @@ package customer
 import (
 	"net/http"
 
+	"github.com/globalsign/mgo/bson"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
-	"gopkg.in/mgo.v2/bson"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"

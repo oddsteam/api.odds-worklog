@@ -4,6 +4,7 @@ require (
 	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/elgs/cron v0.0.0-20160225024449-9eb6958bd525
+	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/go-openapi/jsonpointer v0.17.2 // indirect
 	github.com/go-openapi/jsonreference v0.17.2 // indirect
 	github.com/go-openapi/spec v0.17.2 // indirect
@@ -11,6 +12,7 @@ require (
 	github.com/go-playground/locales v0.12.1 // indirect
 	github.com/go-playground/universal-translator v0.16.0 // indirect
 	github.com/golang/mock v1.1.1
+	github.com/joho/godotenv v1.3.0
 	github.com/labstack/echo v0.0.0-20180911044237-1abaa3049251
 	github.com/labstack/gommon v0.2.7 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
@@ -27,5 +29,4 @@ require (
 	google.golang.org/api v0.0.0-20181114235557-83a9d304b1e6
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.21.0
-	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce
 )

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
-	"gopkg.in/mgo.v2/bson"
+	"github.com/globalsign/mgo/bson"
 )
 
 var (
