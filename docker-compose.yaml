@@ -1,0 +1,41 @@
+version: '3'
+services:
+  api:
+    container_name: 'odds-worklog-api'
+    build: .
+    command: /app/api 
+    ports:
+      - 8080:8080
+    environment:
+      MONGO_DB_HOST: mongodb:27017
+      MONGO_DB_NAME: odds_worklog_db
+      MONGO_DB_CONECTION_POOL: 10
+      MONGO_DB_USERNAME: admin
+      MONGO_DB_PASSWORD: admin
+      API_PORT: :8080
+    depends_on:
+      - 'mongodb'
+    networks: 
+      - odds_worklog_db
+      - odds_worklog_rabbitmq
+  mongodb:
+    container_name: 'odds-worklog-mongo'
+    image: 'mongo'
+    volumes:
+      - mongodbdata_odds_worklog:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGO_INITDB_DATABASE: odds_worklog_db 
+    expose:
+      - '27017' 
+    networks: 
+      - odds_worklog_db
+volumes:
+  mongodbdata_odds_worklog:
+networks: 
+  odds_worklog_api:
+  odds_worklog_db:
+  odds_worklog_rabbitmq:
+    external:
+      name: odds_worklog_rabbitmq
