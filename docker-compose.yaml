@@ -6,13 +6,8 @@ services:
     command: /app/api 
     ports:
       - 8080:8080
-    environment:
-      MONGO_DB_HOST: mongodb:27017
-      MONGO_DB_NAME: odds_worklog_db
-      MONGO_DB_CONECTION_POOL: 10
-      MONGO_DB_USERNAME: admin
-      MONGO_DB_PASSWORD: admin
-      API_PORT: :8080
+    env_file:
+      - dev.env
     depends_on:
       - 'mongodb'
     networks: 
@@ -23,10 +18,8 @@ services:
     image: 'mongo'
     volumes:
       - mongodbdata_odds_worklog:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: admin
-      MONGO_INITDB_DATABASE: odds_worklog_db 
+    env_file:
+      - dev.env
     expose:
       - '27017' 
     networks: 
