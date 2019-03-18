@@ -227,7 +227,7 @@ func TestGetByEmail(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 
-	t.Run("when get user by email error, then return json models.HTTPError with status code 500", func(t *testing.T) {
+	t.Run("when get user by email error, then return json models.HTTPError with status code 402", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
@@ -245,7 +245,7 @@ func TestGetByEmail(t *testing.T) {
 		handler := &HttpHandler{mockUsecase}
 		handler.GetByEmail(c)
 
-		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+		assert.Equal(t, http.StatusNoContent, rec.Code)
 	})
 }
 
