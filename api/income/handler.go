@@ -183,10 +183,10 @@ func (h *HttpHandler) GetExportPdf(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/corporate [get]
 func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
+	// isAdmin, message := IsUserAdmin(c)
+	// if !isAdmin {
+	// 	return c.JSON(http.StatusUnauthorized, message)
+	// }
 	filename, err := h.Usecase.ExportIncome("corporate")
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)

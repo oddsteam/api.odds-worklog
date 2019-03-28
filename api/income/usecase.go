@@ -17,9 +17,10 @@ type usecase struct {
 }
 
 type incomeSum struct {
-	Net string
-	VAT string
-	WHT string
+	Net         string
+	VAT         string
+	WHT         string
+	TotalIncome string
 }
 
 func NewUsecase(r Repository, ur user.Repository) Usecase {
@@ -44,11 +45,15 @@ func calWHT(income string) (string, float64, error) {
 	return utils.FloatToString(wht), utils.RealFloat(wht), nil
 }
 
-func calIncomeSum(income string, vattype string) (*incomeSum, error) {
+func calIncomeSum(workDate string, vattype string, dailyIncome string) (*incomeSum, error) {
 	var vat, wht string
 	var vatf, whtf float64
 	var ins = new(incomeSum)
 
+	date, _ := utils.StringToFloat64(workDate)
+	daily, _ := utils.StringToFloat64(dailyIncome)
+	sumIncome := date * daily
+	income := utils.FloatToString(sumIncome)
 	total, err := utils.StringToFloat64(income)
 	if err != nil {
 		return nil, err
@@ -72,7 +77,7 @@ func calIncomeSum(income string, vattype string) (*incomeSum, error) {
 		ins.VAT = vat
 		return ins, nil
 	}
-
+	ins.TotalIncome = income
 	net := total - whtf
 	ins.Net = utils.FloatToString(net)
 	return ins, nil
@@ -94,6 +99,7 @@ func (u *usecase) GetIncomeStatusList(role string) ([]*models.IncomeStatus, erro
 		if err != nil {
 			incomeList[index].Status = "N"
 		} else {
+			incomeList[index].WorkDate = incomeUser.WorkDate
 			incomeList[index].SubmitDate = incomeUser.SubmitDate.Format(time.RFC3339)
 			incomeList[index].Status = "Y"
 		}

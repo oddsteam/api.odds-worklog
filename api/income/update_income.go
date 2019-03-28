@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, user *models.User) (*models.Income, error) {
@@ -13,17 +14,28 @@ func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, user *models.Us
 		return nil, err
 	}
 
-	ins, err := calIncomeSum(req.TotalIncome, userDetail.Vat)
+	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome)
 	if err != nil {
 		return nil, err
 	}
+	netIncome, err := utils.StringToFloat64(ins.Net)
+	if err != nil {
+		return nil, err
+	}
+	specialIncome, err := utils.StringToFloat64(req.SpecialIncome)
+	if err != nil {
+		return nil, err
+	}
+	summaryIncome := utils.FloatToString(netIncome + specialIncome)
 
 	income.SubmitDate = time.Now()
-	income.TotalIncome = req.TotalIncome
-	income.NetIncome = ins.Net
+	income.TotalIncome = ins.TotalIncome
+	income.NetIncome = summaryIncome
 	income.VAT = ins.VAT
 	income.WHT = ins.WHT
 	income.Note = req.Note
+	income.WorkDate = req.WorkDate
+	income.SpecialIncome = req.SpecialIncome
 	u.repo.UpdateIncome(income)
 
 	return income, nil
