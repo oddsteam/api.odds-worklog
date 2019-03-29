@@ -64,6 +64,7 @@ func calIncomeSum(workDate string, vattype string, dailyIncome string) (*incomeS
 	}
 
 	ins.WHT = wht
+	ins.TotalIncome = income
 
 	if vattype == "Y" {
 		vat, vatf, err = calVAT(income)
@@ -77,7 +78,6 @@ func calIncomeSum(workDate string, vattype string, dailyIncome string) (*incomeS
 		ins.VAT = vat
 		return ins, nil
 	}
-	ins.TotalIncome = income
 	net := total - whtf
 	ins.Net = utils.FloatToString(net)
 	return ins, nil
