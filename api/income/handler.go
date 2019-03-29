@@ -183,11 +183,15 @@ func (h *HttpHandler) GetExportPdf(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/corporate [get]
 func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
-	// isAdmin, message := IsUserAdmin(c)
-	// if !isAdmin {
-	// 	return c.JSON(http.StatusUnauthorized, message)
-	// }
-	filename, err := h.Usecase.ExportIncome("corporate")
+	isAdmin, message := IsUserAdmin(c)
+	if !isAdmin {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
+	month := c.Param("month")
+	if month == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	filename, err := h.Usecase.ExportIncome("corporate", month)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -208,7 +212,11 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	if !isAdmin {
 		return c.JSON(http.StatusUnauthorized, message)
 	}
-	filename, err := h.Usecase.ExportIncome("individual")
+	month := c.Param("month")
+	if month == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	filename, err := h.Usecase.ExportIncome("individual", month)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -241,7 +249,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/status/corporate", handler.GetCorporateIncomeStatus)
 	r.GET("/status/individual", handler.GetIndividualIncomeStatus)
 	r.GET("/current-month/:id", handler.GetIncomeCurrentMonthByUserId)
-	r.GET("/export/corporate", handler.GetExportCorporate)
-	r.GET("/export/individual", handler.GetExportIndividual)
+	r.GET("/export/corporate/:month", handler.GetExportCorporate)
+	r.GET("/export/individual/:month", handler.GetExportIndividual)
 	r.GET("/export/pdf", handler.GetExportPdf)
 }

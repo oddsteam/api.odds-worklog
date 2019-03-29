@@ -276,13 +276,15 @@ func TestGetExportCorporateIncomeStatus(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().ExportIncome("corporate").Return("test.csv", nil)
+		mockUsecase.EXPECT().ExportIncome("corporate", "1").Return("test.csv", nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenAdmin)
+		c.SetParamNames("month")
+		c.SetParamValues("1")
 		handler := &HttpHandler{mockUsecase}
 		handler.GetExportCorporate(c)
 
@@ -296,14 +298,15 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().ExportIncome("individual").Return("test.csv", nil)
+		mockUsecase.EXPECT().ExportIncome("individual", "1").Return("test.csv", nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenAdmin)
-
+		c.SetParamNames("month")
+		c.SetParamValues("1")
 		handler := &HttpHandler{mockUsecase}
 		handler.GetExportIndividual(c)
 

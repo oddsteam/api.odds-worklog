@@ -5,10 +5,11 @@
 package mock_income
 
 import (
-	gomock "github.com/golang/mock/gomock"
-	models "gitlab.odds.team/worklog/api.odds-worklog/models"
 	reflect "reflect"
 	time "time"
+
+	gomock "github.com/golang/mock/gomock"
+	models "gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
 // MockRepository is a mock of Repository interface
@@ -172,16 +173,16 @@ func (mr *MockUsecaseMockRecorder) GetIncomeByUserIdAndCurrentMonth(userID inter
 }
 
 // ExportIncome mocks base method
-func (m *MockUsecase) ExportIncome(role string) (string, error) {
-	ret := m.ctrl.Call(m, "ExportIncome", role)
+func (m *MockUsecase) ExportIncome(role string, beforeMonth string) (string, error) {
+	ret := m.ctrl.Call(m, "ExportIncome", role, beforeMonth)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ExportIncome indicates an expected call of ExportIncome
-func (mr *MockUsecaseMockRecorder) ExportIncome(role interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncome", reflect.TypeOf((*MockUsecase)(nil).ExportIncome), role)
+func (mr *MockUsecaseMockRecorder) ExportIncome(role interface{}, beforeMonth interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncome", reflect.TypeOf((*MockUsecase)(nil).ExportIncome), role, beforeMonth)
 }
 
 // ExportPdf mocks base method

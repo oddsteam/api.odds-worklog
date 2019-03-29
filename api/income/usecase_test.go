@@ -27,7 +27,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 		mockRepoUser.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
 
 		usecase := NewUsecase(mockRepoIncome, mockRepoUser)
-		filename, err := usecase.ExportIncome("corporate")
+		filename, err := usecase.ExportIncome("corporate", "0")
 
 		assert.NoError(t, err)
 		assert.NotNil(t, filename)

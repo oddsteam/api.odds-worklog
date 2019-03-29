@@ -112,26 +112,27 @@ func (u *usecase) GetIncomeByUserIdAndCurrentMonth(userId string) (*models.Incom
 	return u.repo.GetIncomeUserByYearMonth(userId, year, month)
 }
 
-func (u *usecase) ExportIncome(role string) (string, error) {
+func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) {
 	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()
 
 	if err != nil {
 		return "", err
 	}
-
 	users, err := u.userRepo.GetByRole(role)
 	if err != nil {
 		return "", err
 	}
-
 	year, month := utils.GetYearMonthNow()
-
+	beforemonth, err := utils.StringToInt(beforeMonth)
+	if err != nil {
+		return "", err
+	}
 	strWrite := make([][]string, 0)
 	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินที่ต้องโอน", "วันที่กรอก"}
 	strWrite = append(strWrite, d)
 	for _, user := range users {
-		income, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month)
+		income, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month-time.Month(beforemonth))
 		if err == nil {
 			t := income.SubmitDate
 			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())

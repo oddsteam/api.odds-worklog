@@ -316,7 +316,7 @@ func (fs MockInComeUsecase) GetIncomeByUserIdAndCurrentMonth(userID string) (*mo
 	return nil, nil
 }
 
-func (fs MockInComeUsecase) ExportIncome(role string) (string, error) {
+func (fs MockInComeUsecase) ExportIncome(role string, beforeMonth string) (string, error) {
 	return "", nil
 }
 

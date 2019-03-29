@@ -19,6 +19,6 @@ type Usecase interface {
 	UpdateIncome(id string, req *models.IncomeReq, user *models.User) (*models.Income, error)
 	GetIncomeStatusList(role string) ([]*models.IncomeStatus, error)
 	GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error)
-	ExportIncome(role string) (string, error)
+	ExportIncome(role string, beforeMonth string) (string, error)
 	ExportPdf() (string, error)
 }
