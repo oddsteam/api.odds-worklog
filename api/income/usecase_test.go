@@ -35,6 +35,28 @@ func TestUsecaseExportIncome(t *testing.T) {
 		// remove file after test
 		os.Remove(filename)
 	})
+	t.Run("export corporate income beforeMonth success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		year, month := utils.GetYearMonthNow()
+		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month-1).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month-1).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+
+		mockRepoUser := userMock.NewMockRepository(ctrl)
+		mockRepoUser.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
+
+		usecase := NewUsecase(mockRepoIncome, mockRepoUser)
+		filename, err := usecase.ExportIncome("corporate", "1")
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
 }
 
 func TestCalVAT(t *testing.T) {
