@@ -6,8 +6,25 @@
         "firstName": "Admin",
         "lastName": "Admin1",
         "role": "admin",
-        "email": "suphakrit@odds.team",
+        "email": "admin1@odds.team",
         "bankAccountName": "แอดมิน 1",
+        "bankAccountNumber": "12345678901",
+        "thaiCitizenId": "1234567890001",
+        "vat": "N",
+        "slackAccount": "",
+        "transcript": "",
+        "siteId": "5c0fca4f0fd2df79d4adc2ca",
+        "project": ""
+    },
+    {
+        "_id": {
+            "$oid": "5c0fca4f0fd2df79d4adc2a2"
+        },
+        "firstName": "Admin",
+        "lastName": "Admin2",
+        "role": "admin",
+        "email": "admin2@odds.team",
+        "bankAccountName": "แอดมิน 2",
         "bankAccountNumber": "12345678901",
         "thaiCitizenId": "1234567890001",
         "vat": "N",
@@ -20,11 +37,11 @@
         "_id": {
             "$oid": "5c0fca4f0fd2df79d4adc2ab"
         },
-        "firstName": "Tester",
+        "firstName": "Corporate",
         "lastName": "Number1",
         "role": "corporate",
-        "email": "tester1@odds.team",
-        "bankAccountName": "นักทดสอบ 1",
+        "email": "corporate1@odds.team",
+        "bankAccountName": "corporate 1",
         "bankAccountNumber": "12345678901",
         "thaiCitizenId": "1234567890001",
         "vat": "Y",
@@ -37,11 +54,11 @@
         "_id": {
             "$oid": "5c0fca4f0fd2df79d4adc2ac"
         },
-        "firstName": "Tester",
+        "firstName": "Corporate",
         "lastName": "Number2",
         "role": "corporate",
-        "email": "tester2@odds.team",
-        "bankAccountName": "นักทดสอบ 2",
+        "email": "corporate2@odds.team",
+        "bankAccountName": "corporate 2",
         "bankAccountNumber": "12345678902",
         "thaiCitizenId": "1234567890002",
         "vat": "Y",
@@ -54,11 +71,11 @@
         "_id": {
             "$oid": "5c0fca4f0fd2df79d4adc2ad"
         },
-        "firstName": "Tester",
-        "lastName": "Number3",
+        "firstName": "Individual",
+        "lastName": "Number1",
         "role": "individual",
-        "email": "tester3@odds.team",
-        "bankAccountName": "นักทดสอบ 3",
+        "email": "individual1@odds.team",
+        "bankAccountName": "individual 1",
         "bankAccountNumber": "12345678903",
         "thaiCitizenId": "1234567890003",
         "vat": "N",
@@ -71,11 +88,11 @@
         "_id": {
             "$oid": "5c0fca4f0fd2df79d4adc2ae"
         },
-        "firstName": "Tester",
-        "lastName": "Number4",
+        "firstName": "Individual",
+        "lastName": "Number2",
         "role": "individual",
-        "email": "tester4@odds.team",
-        "bankAccountName": "นักทดสอบ 4",
+        "email": "individual2@odds.team",
+        "bankAccountName": "individual 2",
         "bankAccountNumber": "12345678904",
         "thaiCitizenId": "1234567890004",
         "vat": "N",
