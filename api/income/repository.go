@@ -27,7 +27,7 @@ func (r *repository) AddIncome(income *models.Income) error {
 	income.SubmitDate = t
 	income.LastUpdate = t
 	income.ID = bson.NewObjectId()
-
+	income.ExportStatus = false
 	coll := r.session.GetCollection(incomeColl)
 	err := coll.Insert(income)
 	if err != nil {
@@ -67,8 +67,19 @@ func (r *repository) GetIncomeByID(incID, uID string) (*models.Income, error) {
 	return income, nil
 }
 
+func (r *repository) GetIncomeByUserID(uID string) (*models.Income, error) {
+	income := new(models.Income)
+	coll := r.session.GetCollection(incomeColl)
+	err := coll.Find(bson.M{"userId": uID, "exportStatus": false}).One(&income)
+	if err != nil {
+		return nil, err
+	}
+	return income, nil
+}
+
 func (r *repository) UpdateIncome(income *models.Income) error {
 	income.LastUpdate = time.Now()
+	income.ExportStatus = false
 	coll := r.session.GetCollection(incomeColl)
 	err := coll.UpdateId(income.ID, &income)
 	if err != nil {
@@ -85,4 +96,13 @@ func (r *repository) AddExport(ep *models.Export) error {
 
 func (r *repository) DropIncome() error {
 	return r.session.GetCollection(incomeColl).DropCollection()
+}
+
+func (r *repository) UpdateExportStatus(id string) error {
+	coll := r.session.GetCollection(incomeColl)
+	err := coll.Update(bson.M{"userId": id}, bson.M{"$set": bson.M{"exportStatus": true}})
+	if err != nil {
+		return err
+	}
+	return nil
 }
