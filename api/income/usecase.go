@@ -134,6 +134,9 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 	for _, user := range users {
 		income, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month-time.Month(beforemonth))
 		if err == nil {
+			if beforeMonth == "0" {
+				u.repo.UpdateExportStatus(income.UserID)
+			}
 			t := income.SubmitDate
 			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
@@ -164,4 +167,50 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 
 func setValueCSV(s string) string {
 	return `="` + s + `"`
+}
+
+func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
+	file, filename, err := utils.CreateCVSFile(role)
+	defer file.Close()
+
+	if err != nil {
+		return "", err
+	}
+	users, err := u.userRepo.GetByRole(role)
+	if err != nil {
+		return "", err
+	}
+	strWrite := make([][]string, 0)
+	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินที่ต้องโอน", "วันที่กรอก"}
+	strWrite = append(strWrite, d)
+	for _, user := range users {
+		income, err := u.repo.GetIncomeByUserID(user.ID.Hex())
+		if err == nil {
+			u.repo.UpdateExportStatus(income.UserID)
+			t := income.SubmitDate
+			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
+			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
+			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), tf}
+			strWrite = append(strWrite, d)
+		}
+	}
+
+	if len(strWrite) == 1 {
+		return "", errors.New("No data for export to CSV file.")
+	}
+
+	csvWriter := csv.NewWriter(file)
+	csvWriter.WriteAll(strWrite)
+	csvWriter.Flush()
+
+	ep := models.Export{
+		Filename: filename,
+		Date:     time.Now(),
+	}
+	err = u.repo.AddExport(&ep)
+	if err != nil {
+		return "", err
+	}
+
+	return filename, nil
 }
