@@ -22,6 +22,7 @@ var (
 		WHT:           "3000",
 		WorkDate:      "20",
 		SpecialIncome: "2000",
+		ExportStatus:  false,
 	}
 	MockIncomeReq = models.IncomeReq{
 		WorkDate:      "100000",
