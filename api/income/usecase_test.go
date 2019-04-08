@@ -21,6 +21,8 @@ func TestUsecaseExportIncome(t *testing.T) {
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
 		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
 		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
 
 		mockRepoUser := userMock.NewMockRepository(ctrl)
