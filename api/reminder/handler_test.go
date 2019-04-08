@@ -328,6 +328,10 @@ func (fs MockInComeUsecase) DropIncome() error {
 	return nil
 }
 
+func (fs MockInComeUsecase) ExportIncomeNotExport(role string) (string, error) {
+	return "", nil
+}
+
 // func TestListEmailUserIncomeStatusIsNoShouldFail_WhenGetIncomeStatusListWithCorpFlagNIsEmpty(t *testing.T) {
 // 	mockIncomeUsecase := NewMockInComeUsecase()
 // 	expected := []string{"test1@test.com"}
