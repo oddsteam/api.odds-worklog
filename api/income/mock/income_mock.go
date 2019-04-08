@@ -68,9 +68,22 @@ func (m *MockRepository) GetIncomeByID(incID, uID string) (*models.Income, error
 	return ret0, ret1
 }
 
+// GetIncomeByUserID mocks base method
+func (m *MockRepository) GetIncomeByUserID(uID string) (*models.Income, error) {
+	ret := m.ctrl.Call(m, "GetIncomeByUserID", uID)
+	ret0, _ := ret[0].(*models.Income)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
 // GetIncomeByID indicates an expected call of GetIncomeByID
 func (mr *MockRepositoryMockRecorder) GetIncomeByID(incID, uID interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByID", reflect.TypeOf((*MockRepository)(nil).GetIncomeByID), incID, uID)
+}
+
+// GetIncomeByUserID indicates an expected call of GetIncomeByUserID
+func (mr *MockRepositoryMockRecorder) GetIncomeByUserID(uID interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByUserID", reflect.TypeOf((*MockRepository)(nil).GetIncomeByUserID), uID)
 }
 
 // UpdateIncome mocks base method
@@ -180,9 +193,22 @@ func (m *MockUsecase) ExportIncome(role string, beforeMonth string) (string, err
 	return ret0, ret1
 }
 
+// ExportIncomeNotExport mocks base method
+func (m *MockUsecase) ExportIncomeNotExport(role string) (string, error) {
+	ret := m.ctrl.Call(m, "ExportIncomeNotExport", role)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
 // ExportIncome indicates an expected call of ExportIncome
 func (mr *MockUsecaseMockRecorder) ExportIncome(role interface{}, beforeMonth interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncome", reflect.TypeOf((*MockUsecase)(nil).ExportIncome), role, beforeMonth)
+}
+
+// ExportIncomeNotExport indicates an expected call of ExportIncome
+func (mr *MockUsecaseMockRecorder) ExportIncomeNotExport(role interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncomeNotExport", reflect.TypeOf((*MockUsecase)(nil).ExportIncome), role)
 }
 
 // ExportPdf mocks base method
@@ -196,4 +222,16 @@ func (m *MockUsecase) ExportPdf() (string, error) {
 // ExportPdf indicates an expected call of ExportPdf
 func (mr *MockUsecaseMockRecorder) ExportPdf() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportPdf", reflect.TypeOf((*MockUsecase)(nil).ExportPdf))
+}
+
+// UpdateExportStatus mocks base method
+func (m *MockRepository) UpdateExportStatus(id string) error {
+	ret := m.ctrl.Call(m, "UpdateExportStatus", id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateExportStatus indicates an expected call of UpdateExportStatus
+func (mr *MockRepositoryMockRecorder) UpdateExportStatus(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateExportStatus", reflect.TypeOf((*MockRepository)(nil).UpdateExportStatus), id)
 }
