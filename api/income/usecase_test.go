@@ -61,6 +61,33 @@ func TestUsecaseExportIncome(t *testing.T) {
 	})
 }
 
+func TestUseCaseExportIncomeNotExport(t *testing.T) {
+	t.Run("export corporate income not export success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockRepoUser := userMock.NewMockRepository(ctrl)
+		mockRepoUser.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
+
+		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockRepoIncome.EXPECT().GetIncomeByUserID(userMock.User.ID.Hex()).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeByUserID(userMock.User2.ID.Hex()).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+
+		usecase := NewUsecase(mockRepoIncome, mockRepoUser)
+		filename, err := usecase.ExportIncomeNotExport("corporate")
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+
+	})
+}
+
 func TestCalVAT(t *testing.T) {
 	vat, vatf, err := calVAT("100000")
 	assert.NoError(t, err)
