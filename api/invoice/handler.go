@@ -3,7 +3,7 @@ package invoice
 import (
 	"net/http"
 
-	"gopkg.in/mgo.v2/bson"
+	"github.com/globalsign/mgo/bson"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/po"
 

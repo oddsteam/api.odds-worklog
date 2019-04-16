@@ -3,8 +3,8 @@ package models
 import (
 	"time"
 
+	"github.com/globalsign/mgo/bson"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type User struct {
@@ -26,6 +26,7 @@ type User struct {
 	Site              *Site         `bson:"-" json:"site,omitempty"`
 	Create            time.Time     `bson:"create" json:"create"`
 	LastUpdate        time.Time     `bson:"lastUpdate" json:"lastUpdate"`
+	DailyIncome       string        `bson:"dailyIncome" json:"dailyIncome"`
 }
 
 const (

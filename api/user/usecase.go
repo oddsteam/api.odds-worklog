@@ -115,6 +115,9 @@ func (u *usecase) Update(m *models.User, isAdmin bool) (*models.User, error) {
 	if m.Project != "" {
 		user.Project = m.Project
 	}
+	if m.DailyIncome != "" {
+		user.DailyIncome = m.DailyIncome
+	}
 	user.Role = m.Role
 	user.Vat = m.Vat
 

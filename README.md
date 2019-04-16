@@ -2,45 +2,55 @@
 
 ## Go version 1.11
 
-## First step, please setup authen mongodb
-
-If first time, you must Run `docker volume create mongodbdata` for create mongodb docker volume.
-
-1. Start mongodb container <br> 
-Run `docker run -it --rm --name mongodb -d -p 27017:27017 -v mongodbdata:/data/db mongo` <br>
-If docker: Error response from daemon: Conflict. Run `docker rm $(docker ps -a -q)` for remove history containers are run. Or you can rename this container to other name. <br>
-If you use to setup mongodb authen, commands in below are optional.
-
-2. Invoke mongodb container <br>
-Run `docker exec -it mongodb bash`
-
-3. Invoke mongodb <br>
-Run `mongo` or `mongo -u admin -p admin --authenticationDatabase admin`
-
-4. Select databes `odds_worklog_db` <br>
-Run `use odds_worklog_db`
-
-5. Create user for read/write data on `odds_worklog_db` <br>
-Run `db.createUser({user:"admin",pwd:"admin",roles:[{role:"readWrite",db:"odds_worklog_db"}]})`
-
 ## Run by docker-compose API+Mongodb
 
-Run `docker-compose up --build -d`<br>
-*Note:* If you add new 3rd party package, you must be run `dep ensure` for setup dependency.
+Run `docker-compose up --build -d`
+
+If error is `The container name "/odds-worklog-mongo" is already.`
+
+Run `docker stop odds-worklog-mongo` to stop container or
+
+Run `docker rm odds-worklog-mongo` to remove old container
+
+Then run `docker-compose up --build -d` again
+
+If api not start because `Authentication failed` you can setup authen mongodb below.
+
+
+## Setup authen mongodb
+
+If first time, you must Run `docker volume create mongodbdata_odds_worklog` for create mongodb docker volume.
+
+1. Start mongodb container <br> 
+If container mongo name `odds-worklog-mongo` is not running <br>
+Run `docker run -it --rm --name odds-worklog-mongo -d -p 27017:27017 -v mongodbdata_odds_worklog:/data/db mongo` <br>
+If docker: Error response from daemon: Conflict. Run `docker rm odds-worklog-mongo` to remove old container <br>
+If you have container using port `27017` you must be stop it and run command again.
+
+2. Invoke mongodb container <br>
+Run `docker exec -it odds-worklog-mongo bash`
+
+3. Invoke mongodb <br>
+Run `mongo`
+
+4. Create user admin <br>
+Run `use admin` <br>
+If no user admin <br>
+Run `db.createUser({user:"admin",pwd:"admin",roles:["root"]})` <br>
+Else authen, run `db.auth('admin','admin')`
+
+5. Create user for read/write data on `odds_worklog_db` <br>
+Run `use odds_worklog_db` <br>
+Run `db.createUser({user:"admin",pwd:"admin",roles:[{role:"readWrite",db:"odds_worklog_db"}]})`
+
+6. Exit mongo and container<br>
+Exit mongo in container, run `exit` <br>
+Exit container, run `exit`
+
 
 ## Run by `go run main.go` <br>
-
-1. Install `dep` dep is a dependency management tool for Go. <br>
-Run `go get -u github.com/golang/dep/cmd/dep`
-
-2. Setup dependency. This command will generate vendor package. It keep library to use in this project. <br>
-Run `dep ensure` (at project path)
-
-3. In .env file, change `MONGO_DB_HOST = "mongodb:27017"` from `mongodb` to `localhost` <br>
-*Note:* Don't `commit` this file (.env)
-
-4. Start API <br>
 Run `go run main.go` (at project path)
+
 
 ## API
 

@@ -197,7 +197,8 @@ func TestGetByEmail(t *testing.T) {
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenUser)
-
+		c.SetParamNames("email")
+		c.SetParamValues("test@abc.com")
 		handler := &HttpHandler{mockUsecase}
 		handler.GetByEmail(c)
 

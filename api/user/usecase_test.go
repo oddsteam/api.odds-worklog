@@ -150,7 +150,6 @@ func TestUsecase_GetByID(t *testing.T) {
 	assert.NotNil(t, u)
 	assert.Equal(t, userMock.User.GetFullname(), u.GetFullname())
 }
-
 func TestUsecase_GetBySiteID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

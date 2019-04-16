@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
-	mgo "gopkg.in/mgo.v2"
+	mgo "github.com/globalsign/mgo"
 )
 
 type Session struct {

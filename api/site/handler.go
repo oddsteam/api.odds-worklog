@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	validator "gopkg.in/go-playground/validator.v9"
-	"gopkg.in/mgo.v2/bson"
+	"github.com/globalsign/mgo/bson"
 )
 
 type HttpHandler struct {

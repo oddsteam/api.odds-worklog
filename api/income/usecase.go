@@ -17,9 +17,10 @@ type usecase struct {
 }
 
 type incomeSum struct {
-	Net string
-	VAT string
-	WHT string
+	Net         string
+	VAT         string
+	WHT         string
+	TotalIncome string
 }
 
 func NewUsecase(r Repository, ur user.Repository) Usecase {
@@ -44,11 +45,15 @@ func calWHT(income string) (string, float64, error) {
 	return utils.FloatToString(wht), utils.RealFloat(wht), nil
 }
 
-func calIncomeSum(income string, vattype string) (*incomeSum, error) {
+func calIncomeSum(workDate string, vattype string, dailyIncome string) (*incomeSum, error) {
 	var vat, wht string
 	var vatf, whtf float64
 	var ins = new(incomeSum)
 
+	date, _ := utils.StringToFloat64(workDate)
+	daily, _ := utils.StringToFloat64(dailyIncome)
+	sumIncome := date * daily
+	income := utils.FloatToString(sumIncome)
 	total, err := utils.StringToFloat64(income)
 	if err != nil {
 		return nil, err
@@ -59,6 +64,7 @@ func calIncomeSum(income string, vattype string) (*incomeSum, error) {
 	}
 
 	ins.WHT = wht
+	ins.TotalIncome = income
 
 	if vattype == "Y" {
 		vat, vatf, err = calVAT(income)
@@ -72,7 +78,6 @@ func calIncomeSum(income string, vattype string) (*incomeSum, error) {
 		ins.VAT = vat
 		return ins, nil
 	}
-
 	net := total - whtf
 	ins.Net = utils.FloatToString(net)
 	return ins, nil
@@ -94,6 +99,7 @@ func (u *usecase) GetIncomeStatusList(role string) ([]*models.IncomeStatus, erro
 		if err != nil {
 			incomeList[index].Status = "N"
 		} else {
+			incomeList[index].WorkDate = incomeUser.WorkDate
 			incomeList[index].SubmitDate = incomeUser.SubmitDate.Format(time.RFC3339)
 			incomeList[index].Status = "Y"
 		}
@@ -106,27 +112,31 @@ func (u *usecase) GetIncomeByUserIdAndCurrentMonth(userId string) (*models.Incom
 	return u.repo.GetIncomeUserByYearMonth(userId, year, month)
 }
 
-func (u *usecase) ExportIncome(role string) (string, error) {
+func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) {
 	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()
 
 	if err != nil {
 		return "", err
 	}
-
 	users, err := u.userRepo.GetByRole(role)
 	if err != nil {
 		return "", err
 	}
-
 	year, month := utils.GetYearMonthNow()
-
+	beforemonth, err := utils.StringToInt(beforeMonth)
+	if err != nil {
+		return "", err
+	}
 	strWrite := make([][]string, 0)
 	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินที่ต้องโอน", "วันที่กรอก"}
 	strWrite = append(strWrite, d)
 	for _, user := range users {
-		income, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month)
+		income, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month-time.Month(beforemonth))
 		if err == nil {
+			if beforeMonth == "0" {
+				u.repo.UpdateExportStatus(income.UserID)
+			}
 			t := income.SubmitDate
 			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
@@ -157,4 +167,50 @@ func (u *usecase) ExportIncome(role string) (string, error) {
 
 func setValueCSV(s string) string {
 	return `="` + s + `"`
+}
+
+func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
+	file, filename, err := utils.CreateCVSFile(role)
+	defer file.Close()
+
+	if err != nil {
+		return "", err
+	}
+	users, err := u.userRepo.GetByRole(role)
+	if err != nil {
+		return "", err
+	}
+	strWrite := make([][]string, 0)
+	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินที่ต้องโอน", "วันที่กรอก"}
+	strWrite = append(strWrite, d)
+	for _, user := range users {
+		income, err := u.repo.GetIncomeByUserID(user.ID.Hex())
+		if err == nil {
+			u.repo.UpdateExportStatus(income.UserID)
+			t := income.SubmitDate
+			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
+			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
+			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), tf}
+			strWrite = append(strWrite, d)
+		}
+	}
+
+	if len(strWrite) == 1 {
+		return "", errors.New("No data for export to CSV file.")
+	}
+
+	csvWriter := csv.NewWriter(file)
+	csvWriter.WriteAll(strWrite)
+	csvWriter.Flush()
+
+	ep := models.Export{
+		Filename: filename,
+		Date:     time.Now(),
+	}
+	err = u.repo.AddExport(&ep)
+	if err != nil {
+		return "", err
+	}
+
+	return filename, nil
 }

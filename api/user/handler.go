@@ -6,7 +6,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
-	"gopkg.in/mgo.v2/bson"
+	"github.com/globalsign/mgo/bson"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -28,7 +28,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("", handler.Get)
 	r.POST("", handler.Create)
 	r.GET("/:id", handler.GetByID)
-	r.GET("/:email", handler.GetByEmail)
+	r.GET("/email/:email", handler.GetByEmail)
 	r.GET("/site/:id", handler.GetBySiteID)
 	r.PUT("/:id", handler.Update)
 	r.DELETE("/:id", handler.Delete)

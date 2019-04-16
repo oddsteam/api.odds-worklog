@@ -6,20 +6,11 @@ FROM golang:1.11-alpine AS build-state
 RUN apk update && apk upgrade && \
     apk add --no-cache git
 
-# Download and install the latest release of dep for manage dependency
-ADD https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 /usr/bin/dep
-RUN chmod +x /usr/bin/dep
-
-# Define work directory 
-WORKDIR $GOPATH/src/gitlab.odds.team/worklog/api.odds-worklog
-
-# Install dependency
-COPY Gopkg.toml Gopkg.lock ./
-RUN dep ensure --vendor-only
-
-# Copy code from host to docker
-COPY . ./
-RUN ls
+WORKDIR /app
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+COPY . .
 
 # Run Test
 RUN CGO_ENABLED=0 GOOS=linux go test ./...
@@ -34,15 +25,7 @@ RUN apk update && apk upgrade
 RUN apk add curl
 RUN apk add python
 WORKDIR /app
-COPY --from=build-state /go/bin/api /app
 RUN mkdir -p files/tavi50 && mkdir image && mkdir font
 ADD image /app/image
 ADD font /app/font
-
-# ENV
-ENV MONGO_DB_HOST=
-ENV MONGO_DB_NAME=
-ENV MONGO_DB_CONECTION_POOL=
-ENV MONGO_DB_USERNAME=
-ENV MONGO_DB_PASSWORD=
-ENV API_PORT=
+COPY --from=build-state /go/bin/api /app
