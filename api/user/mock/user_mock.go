@@ -5,9 +5,10 @@
 package mock_user
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	models "gitlab.odds.team/worklog/api.odds-worklog/models"
-	reflect "reflect"
 )
 
 // MockRepository is a mock of Repository interface
@@ -209,6 +210,19 @@ func (m *MockUsecase) GetByID(id string) (*models.User, error) {
 // GetByID indicates an expected call of GetByID
 func (mr *MockUsecaseMockRecorder) GetByID(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUsecase)(nil).GetByID), id)
+}
+
+// GetByEmail mocks base method
+func (m *MockUsecase) GetByEmail(email string) (*models.User, error) {
+	ret := m.ctrl.Call(m, "GetByEmail", email)
+	ret0, _ := ret[0].(*models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByEmail indicates an expected call of GetByEmail
+func (mr *MockUsecaseMockRecorder) GetByEmail(email interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByEmail", reflect.TypeOf((*MockUsecase)(nil).GetByEmail), email)
 }
 
 // GetBySiteID mocks base method

@@ -14,18 +14,29 @@ func (u *usecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.I
 	if err == nil {
 		return nil, errors.New("Sorry, has income data of user " + userDetail.GetName())
 	}
-	ins, err := calIncomeSum(req.TotalIncome, userDetail.Vat)
+	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome)
 	if err != nil {
 		return nil, err
 	}
+	netIncome, err := utils.StringToFloat64(ins.Net)
+	if err != nil {
+		return nil, err
+	}
+	specialIncome, err := utils.StringToFloat64(req.SpecialIncome)
+	if err != nil {
+		return nil, err
+	}
+	summaryIncome := utils.FloatToString(netIncome + specialIncome)
 
 	income := models.Income{
-		UserID:      user.ID.Hex(),
-		TotalIncome: req.TotalIncome,
-		NetIncome:   ins.Net,
-		Note:        req.Note,
-		VAT:         ins.VAT,
-		WHT:         ins.WHT,
+		UserID:        user.ID.Hex(),
+		TotalIncome:   ins.TotalIncome,
+		NetIncome:     summaryIncome,
+		Note:          req.Note,
+		VAT:           ins.VAT,
+		WHT:           ins.WHT,
+		WorkDate:      req.WorkDate,
+		SpecialIncome: req.SpecialIncome,
 	}
 	err = u.repo.AddIncome(&income)
 	if err != nil {

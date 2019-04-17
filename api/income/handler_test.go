@@ -276,7 +276,29 @@ func TestGetExportCorporateIncomeStatus(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().ExportIncome("corporate").Return("test.csv", nil)
+		mockUsecase.EXPECT().ExportIncome("corporate", "1").Return("test.csv", nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
+		c.SetParamNames("month")
+		c.SetParamValues("1")
+		handler := &HttpHandler{mockUsecase}
+		handler.GetExportCorporate(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+}
+
+func TestGetExportDifferentCorporate(t *testing.T) {
+	t.Run("when export different corporate income success it should be return status OK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().ExportIncomeNotExport("corporate").Return("test.csv", nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -284,7 +306,7 @@ func TestGetExportCorporateIncomeStatus(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenAdmin)
 		handler := &HttpHandler{mockUsecase}
-		handler.GetExportCorporate(c)
+		handler.GetExportDifferentCorporate(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
@@ -296,16 +318,37 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().ExportIncome("individual").Return("test.csv", nil)
+		mockUsecase.EXPECT().ExportIncome("individual", "1").Return("test.csv", nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenAdmin)
-
+		c.SetParamNames("month")
+		c.SetParamValues("1")
 		handler := &HttpHandler{mockUsecase}
 		handler.GetExportIndividual(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+}
+
+func TestGetExportDifferentIndividuals(t *testing.T) {
+	t.Run("when export different individuals income success it should be return status OK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().ExportIncomeNotExport("individual").Return("test.csv", nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
+		handler := &HttpHandler{mockUsecase}
+		handler.GetExportDifferentIndividuals(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})

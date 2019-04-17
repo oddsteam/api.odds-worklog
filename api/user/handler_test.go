@@ -205,6 +205,50 @@ func TestGetByID(t *testing.T) {
 
 }
 
+func TestGetByEmail(t *testing.T) {
+	t.Run("when get user by email success it should return status OK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetByEmail(userMock.User.Email).Return(&userMock.User, nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("email")
+		c.SetParamValues("test@abc.com")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.GetByEmail(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+
+	t.Run("when get user by email error, then return json models.HTTPError with status code 402", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetByEmail(userMock.User.Email).Return(nil, errors.New(""))
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("email")
+		c.SetParamValues("test@abc.com")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.GetByEmail(c)
+
+		assert.Equal(t, http.StatusNoContent, rec.Code)
+	})
+}
+
 func TestGetBySiteId(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

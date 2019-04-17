@@ -21,19 +21,70 @@ func TestUsecaseExportIncome(t *testing.T) {
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
 		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
 		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
 
 		mockRepoUser := userMock.NewMockRepository(ctrl)
 		mockRepoUser.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
 
 		usecase := NewUsecase(mockRepoIncome, mockRepoUser)
-		filename, err := usecase.ExportIncome("corporate")
+		filename, err := usecase.ExportIncome("corporate", "0")
 
 		assert.NoError(t, err)
 		assert.NotNil(t, filename)
 
 		// remove file after test
 		os.Remove(filename)
+	})
+	t.Run("export corporate income beforeMonth success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		year, month := utils.GetYearMonthNow()
+		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month-1).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month-1).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+
+		mockRepoUser := userMock.NewMockRepository(ctrl)
+		mockRepoUser.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
+
+		usecase := NewUsecase(mockRepoIncome, mockRepoUser)
+		filename, err := usecase.ExportIncome("corporate", "1")
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
+}
+
+func TestUseCaseExportIncomeNotExport(t *testing.T) {
+	t.Run("export corporate income not export success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockRepoUser := userMock.NewMockRepository(ctrl)
+		mockRepoUser.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
+
+		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockRepoIncome.EXPECT().GetIncomeByUserID(userMock.User.ID.Hex()).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeByUserID(userMock.User2.ID.Hex()).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+
+		usecase := NewUsecase(mockRepoIncome, mockRepoUser)
+		filename, err := usecase.ExportIncomeNotExport("corporate")
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+
 	})
 }
 
@@ -70,23 +121,23 @@ func TestCalWHT(t *testing.T) {
 	assert.Equal(t, 2999.97, whtf)
 }
 func TestCalCorporateIncomeSum(t *testing.T) {
-	sum, err := calIncomeSum("100000", "Y")
+	sum, err := calIncomeSum("20", "Y", "5000")
 	assert.NoError(t, err)
 	assert.Equal(t, "104000.00", sum.Net)
 
-	sum, err = calIncomeSum("123456", "Y")
+	sum, err = calIncomeSum("20", "Y", "2000")
 	assert.NoError(t, err)
-	assert.Equal(t, "128394.24", sum.Net)
+	assert.Equal(t, "41600.00", sum.Net)
 }
 
 func TestCalPersonIncomeSum(t *testing.T) {
-	sum, err := calIncomeSum("100000", "N")
+	sum, err := calIncomeSum("20", "N", "5000")
 	assert.NoError(t, err)
 	assert.Equal(t, "97000.00", sum.Net)
 
-	sum, err = calIncomeSum("123456", "N")
+	sum, err = calIncomeSum("20", "N", "2000")
 	assert.NoError(t, err)
-	assert.Equal(t, "119752.32", sum.Net)
+	assert.Equal(t, "38800.00", sum.Net)
 }
 
 func TestUsecaseAddIncome(t *testing.T) {

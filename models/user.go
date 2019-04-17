@@ -3,8 +3,8 @@ package models
 import (
 	"time"
 
+	"github.com/globalsign/mgo/bson"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type User struct {
@@ -26,6 +26,7 @@ type User struct {
 	Site              *Site         `bson:"-" json:"site,omitempty"`
 	Create            time.Time     `bson:"create" json:"create"`
 	LastUpdate        time.Time     `bson:"lastUpdate" json:"lastUpdate"`
+	DailyIncome       string        `bson:"dailyIncome" json:"dailyIncome"`
 }
 
 const (
@@ -40,6 +41,10 @@ func (u *User) IsAdmin() bool {
 
 func (u *User) GetFullname() string {
 	return u.FirstName + " " + u.LastName
+}
+
+func (u *User) GetEmail() string {
+	return u.Email
 }
 
 func (u *User) GetName() string {

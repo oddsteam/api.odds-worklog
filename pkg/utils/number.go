@@ -12,6 +12,10 @@ func StringToFloat64(s string) (float64, error) {
 	return strconv.ParseFloat(s, 64)
 }
 
+func StringToInt(s string) (int, error) {
+	return strconv.Atoi(s)
+}
+
 func FloatToString(f float64) string {
 	return fmt.Sprintf("%.2f", f)
 }

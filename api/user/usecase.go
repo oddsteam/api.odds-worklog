@@ -61,6 +61,10 @@ func (u *usecase) GetByID(id string) (*models.User, error) {
 	return u.repo.GetByID(id)
 }
 
+func (u *usecase) GetByEmail(email string) (*models.User, error) {
+	return u.repo.GetByEmail(email)
+}
+
 func (u *usecase) GetBySiteID(id string) ([]*models.User, error) {
 	return u.repo.GetBySiteID(id)
 }
@@ -110,6 +114,9 @@ func (u *usecase) Update(m *models.User, isAdmin bool) (*models.User, error) {
 	}
 	if m.Project != "" {
 		user.Project = m.Project
+	}
+	if m.DailyIncome != "" {
+		user.DailyIncome = m.DailyIncome
 	}
 	user.Role = m.Role
 	user.Vat = m.Vat

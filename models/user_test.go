@@ -28,6 +28,9 @@ func TestUser(t *testing.T) {
 
 	assert.Equal(t, "Tester Super", u.GetFullname())
 
+	u.Email = "test@abc.com"
+	assert.Equal(t, "test@abc.com", u.GetEmail())
+
 	u.FirstName = ""
 	assert.True(t, u.IsFullnameEmpty())
 

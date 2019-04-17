@@ -316,7 +316,7 @@ func (fs MockInComeUsecase) GetIncomeByUserIdAndCurrentMonth(userID string) (*mo
 	return nil, nil
 }
 
-func (fs MockInComeUsecase) ExportIncome(role string) (string, error) {
+func (fs MockInComeUsecase) ExportIncome(role string, beforeMonth string) (string, error) {
 	return "", nil
 }
 
@@ -326,6 +326,10 @@ func (fs MockInComeUsecase) ExportPdf() (string, error) {
 
 func (fs MockInComeUsecase) DropIncome() error {
 	return nil
+}
+
+func (fs MockInComeUsecase) ExportIncomeNotExport(role string) (string, error) {
+	return "", nil
 }
 
 // func TestListEmailUserIncomeStatusIsNoShouldFail_WhenGetIncomeStatusListWithCorpFlagNIsEmpty(t *testing.T) {
