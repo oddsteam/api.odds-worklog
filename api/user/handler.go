@@ -112,26 +112,6 @@ func (h *HttpHandler) GetByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
-// GetByEmail godoc
-// @Summary Get User By Email
-// @Description Get User By Email
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param id path string true "Email"
-// @Success 200 {array} models.User
-// @Failure 204 {object} utils.HTTPError
-// @Failure 400 {object} utils.HTTPError
-// @Router /users/{email} [get]
-func (h *HttpHandler) GetByEmail(c echo.Context) error {
-	email := c.Param("email")
-	user, err := h.Usecase.GetByEmail(email)
-	if err != nil {
-		return utils.NewError(c, http.StatusNoContent, err)
-	}
-	return c.JSON(http.StatusOK, user)
-}
-
 // GetBySiteId godoc
 // @Summary Get User By Site Id
 // @Description Get User By Site Id
@@ -153,6 +133,30 @@ func (h *HttpHandler) GetBySiteID(c echo.Context) error {
 	user, err := h.Usecase.GetBySiteID(id)
 	if err != nil {
 		return utils.NewError(c, http.StatusNoContent, err)
+	}
+	return c.JSON(http.StatusOK, user)
+}
+
+// GetByEmail godoc
+// @Summary Get User By Email
+// @Description Get User By Email
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "Email"
+// @Success 200 {array} models.User
+// @Failure 204 {object} utils.HTTPError
+// @Failure 400 {object} utils.HTTPError
+// @Router /users/{email} [get]
+func (h *HttpHandler) GetByEmail(c echo.Context) error {
+	u := getUserFromToken(c)
+	if !u.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+	email := c.Param("email")
+	user, err := h.Usecase.GetByEmail(email)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, user)
 }

@@ -45,14 +45,15 @@ func calWHT(income string) (string, float64, error) {
 	return utils.FloatToString(wht), utils.RealFloat(wht), nil
 }
 
-func calIncomeSum(workDate string, vattype string, dailyIncome string) (*incomeSum, error) {
+func calIncomeSum(workDate string, vattype string, dailyIncome string, specialIncome string) (*incomeSum, error) {
 	var vat, wht string
 	var vatf, whtf float64
 	var ins = new(incomeSum)
 
 	date, _ := utils.StringToFloat64(workDate)
 	daily, _ := utils.StringToFloat64(dailyIncome)
-	sumIncome := date * daily
+	specialincome, _ := utils.StringToFloat64(specialIncome)
+	sumIncome := (date * daily) + specialincome
 	income := utils.FloatToString(sumIncome)
 	total, err := utils.StringToFloat64(income)
 	if err != nil {
