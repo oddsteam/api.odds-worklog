@@ -14,7 +14,7 @@ func (u *usecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.I
 	if err == nil {
 		return nil, errors.New("Sorry, has income data of user " + userDetail.GetName())
 	}
-	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome)
+	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome, req.SpecialIncome)
 	if err != nil {
 		return nil, err
 	}
@@ -22,11 +22,8 @@ func (u *usecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.I
 	if err != nil {
 		return nil, err
 	}
-	specialIncome, err := utils.StringToFloat64(req.SpecialIncome)
-	if err != nil {
-		return nil, err
-	}
-	summaryIncome := utils.FloatToString(netIncome + specialIncome)
+
+	summaryIncome := utils.FloatToString(netIncome)
 
 	income := models.Income{
 		UserID:        user.ID.Hex(),

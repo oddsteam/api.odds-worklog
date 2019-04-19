@@ -1,6 +1,7 @@
 package file
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,6 +27,60 @@ func TestUsecase_UpdateUser(t *testing.T) {
 	err := usecase.UpdateUser(user.ID.Hex(), filename)
 
 	assert.NoError(t, err)
+}
+
+func TestUsecase_UpdateImageProfileUser(t *testing.T) {
+	t.Run("happy case update image profile user is pass", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		filename := "test.jpg"
+		user := userMock.User
+		mockUserRepo := userMock.NewMockRepository(ctrl)
+		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+
+		user.ImageProfile = filename
+		mockUserRepo.EXPECT().Update(&user).Return(&user, nil)
+
+		usecase := NewUsecase(mockUserRepo)
+		err := usecase.UpdateImageProfileUser(user.ID.Hex(), filename)
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("when searching for an ID not found in GetById should return err", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		filename := "test.jpg"
+		user := userMock.User
+		mockUserRepo := userMock.NewMockRepository(ctrl)
+		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, errors.New("error"))
+
+		usecase := NewUsecase(mockUserRepo)
+		err := usecase.UpdateImageProfileUser(user.ID.Hex(), filename)
+
+		assert.Error(t, err)
+
+	})
+
+	t.Run("when update data fail should return err", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		filename := "test.jpg"
+		user := userMock.User
+		mockUserRepo := userMock.NewMockRepository(ctrl)
+		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+
+		user.ImageProfile = filename
+		mockUserRepo.EXPECT().Update(&user).Return(&user, errors.New("error"))
+		usecase := NewUsecase(mockUserRepo)
+		err := usecase.UpdateImageProfileUser(user.ID.Hex(), filename)
+
+		assert.Error(t, err)
+
+	})
 }
 
 func TestUsecase_GetPathTranscript(t *testing.T) {
