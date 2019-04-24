@@ -94,6 +94,7 @@ func (u *usecase) GetIncomeStatusList(role string) ([]*models.IncomeStatus, erro
 	year, month := utils.GetYearMonthNow()
 	for index, element := range users {
 		element.ThaiCitizenID = ""
+		element.DailyIncome = ""
 		incomeUser, err := u.repo.GetIncomeUserByYearMonth(element.ID.Hex(), year, month)
 		income := models.IncomeStatus{User: element}
 		incomeList = append(incomeList, &income)
