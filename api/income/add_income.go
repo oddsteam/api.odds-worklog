@@ -34,6 +34,7 @@ func (u *usecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.I
 		WHT:           ins.WHT,
 		WorkDate:      req.WorkDate,
 		SpecialIncome: req.SpecialIncome,
+		WorkingHour:   req.WorkingHour,
 	}
 	err = u.repo.AddIncome(&income)
 	if err != nil {

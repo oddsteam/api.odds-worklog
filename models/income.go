@@ -18,6 +18,7 @@ type Income struct {
 	WHT           string        `bson:"wht" json:"wht"`
 	WorkDate      string        `bson:"workDate" json:"workDate"`
 	SpecialIncome string        `bson:"specialIncome" json:"specialIncome"`
+	WorkingHour   string        `bson:"workingHour" json:"workingHour"`
 	ExportStatus  bool          `bson:"exportStatus" json:"exportStatus"`
 }
 
@@ -32,4 +33,5 @@ type IncomeReq struct {
 	SpecialIncome string `bson:"specialIncome" json:"specialIncome"`
 	Note          string `bson:"note" json:"note"`
 	WorkDate      string `bson:"workDate" json:"workDate"`
+	WorkingHour   string `bson:"workingHour" json:"workingHour"`
 }
