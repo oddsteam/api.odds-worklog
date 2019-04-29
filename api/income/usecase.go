@@ -27,6 +27,30 @@ func NewUsecase(r Repository, ur user.Repository) Usecase {
 	return &usecase{r, ur}
 }
 
+func calSummaryWht(whtIncome string, whtSpecialIncome string) (string, error) {
+	wht, err := utils.StringToFloat64(whtIncome)
+	if err != nil {
+		return "", err
+	}
+	whtSpecial, err := utils.StringToFloat64(whtSpecialIncome)
+	if err != nil {
+		return "", err
+	}
+	return utils.FloatToString(wht + whtSpecial), nil
+
+}
+func calSummaryVat(vatIncome string, vatSpecialIncome string) (string, error) {
+	vat, err := utils.StringToFloat64(vatIncome)
+	if err != nil {
+		return "", err
+	}
+	vatSpecial, err := utils.StringToFloat64(vatSpecialIncome)
+	if err != nil {
+		return "", err
+	}
+	return utils.FloatToString(vat + vatSpecial), nil
+
+}
 func calVAT(income string) (string, float64, error) {
 	num, err := utils.StringToFloat64(income)
 	if err != nil {
@@ -129,7 +153,7 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 		return "", err
 	}
 	strWrite := make([][]string, 0)
-	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินที่ต้องโอน", "วันที่กรอก"}
+	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินที่ต้องโอน", "จำนวนรายได้พิเศษที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 	strWrite = append(strWrite, d)
 	for _, user := range users {
 		income, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month-time.Month(beforemonth))
@@ -140,7 +164,7 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 			t := income.SubmitDate
 			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
-			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), tf}
+			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), setValueCSV(utils.FormatCommas(income.NetSpecialIncome)), income.Note, tf}
 			strWrite = append(strWrite, d)
 		}
 	}
