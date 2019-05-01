@@ -21,17 +21,26 @@ func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, user *models.Us
 	if err != nil {
 		return nil, err
 	}
+	summaryIncome, err := calTotalIncome(ins.TotalIncome, insSpecial.TotalIncome)
+	if err != nil {
+		return nil, err
+	}
 	summaryWht, err := calSummaryWht(ins.WHT, insSpecial.WHT)
 	if err != nil {
 		return nil, err
 	}
-	summaryVat, err := calSummaryVat(ins.VAT, insSpecial.VAT)
-	if err != nil {
-		return nil, err
+	var summaryVat string
+	if userDetail.Vat != "N" {
+		summaryVat, err = calSummaryVat(ins.VAT, insSpecial.VAT)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		summaryVat = ""
 	}
 
 	income.SubmitDate = time.Now()
-	income.TotalIncome = ins.TotalIncome
+	income.TotalIncome = summaryIncome
 	income.NetIncome = ins.Net
 	income.NetSpecialIncome = insSpecial.Net
 	income.VAT = summaryVat

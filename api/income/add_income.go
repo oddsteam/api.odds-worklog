@@ -22,18 +22,27 @@ func (u *usecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.I
 	if err != nil {
 		return nil, err
 	}
+	summaryIncome, err := calTotalIncome(ins.TotalIncome, insSpecial.TotalIncome)
+	if err != nil {
+		return nil, err
+	}
 	summaryWht, err := calSummaryWht(ins.WHT, insSpecial.WHT)
 	if err != nil {
 		return nil, err
 	}
-	summaryVat, err := calSummaryVat(ins.VAT, insSpecial.VAT)
-	if err != nil {
-		return nil, err
+	var summaryVat string
+	if userDetail.Vat != "N" {
+		summaryVat, err = calSummaryVat(ins.VAT, insSpecial.VAT)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		summaryVat = ""
 	}
 
 	income := models.Income{
 		UserID:           user.ID.Hex(),
-		TotalIncome:      ins.TotalIncome,
+		TotalIncome:      summaryIncome,
 		NetIncome:        ins.Net,
 		NetSpecialIncome: insSpecial.Net,
 		Note:             req.Note,

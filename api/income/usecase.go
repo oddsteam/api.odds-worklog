@@ -51,6 +51,19 @@ func calSummaryVat(vatIncome string, vatSpecialIncome string) (string, error) {
 	return utils.FloatToString(vat + vatSpecial), nil
 
 }
+
+func calTotalIncome(income string, specialIncome string) (string, error) {
+	in, err := utils.StringToFloat64(income)
+	if err != nil {
+		return "", err
+	}
+	ins, err := utils.StringToFloat64(specialIncome)
+	if err != nil {
+		return "", err
+	}
+	return utils.FloatToString(in + ins), nil
+}
+
 func calVAT(income string) (string, float64, error) {
 	num, err := utils.StringToFloat64(income)
 	if err != nil {
