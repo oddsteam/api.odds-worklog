@@ -5,8 +5,8 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"github.com/globalsign/mgo/bson"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
 var (
@@ -21,6 +21,7 @@ var (
 		ThaiCitizenID:     "1234567890123",
 		Vat:               "Y",
 		SlackAccount:      "test@abc.com",
+		Address:           "every Where",
 	}
 
 	User2 = models.User{
@@ -34,6 +35,7 @@ var (
 		ThaiCitizenID:     "1234567890123",
 		Vat:               "Y",
 		SlackAccount:      "test@abc.com",
+		Address:           "every Where",
 	}
 
 	Admin = models.User{
@@ -47,6 +49,7 @@ var (
 		ThaiCitizenID:     "1234567890123",
 		Vat:               "Y",
 		SlackAccount:      "test@abc.com",
+		Address:           "every Where",
 	}
 
 	adminByte, _ = json.Marshal(Admin)
