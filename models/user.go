@@ -27,6 +27,7 @@ type User struct {
 	Create            time.Time     `bson:"create" json:"create"`
 	LastUpdate        time.Time     `bson:"lastUpdate" json:"lastUpdate"`
 	DailyIncome       string        `bson:"dailyIncome" json:"dailyIncome,omitempty"`
+	Address           string        `bson:"address" json:"address,omitempty"`
 }
 
 const (
