@@ -1,9 +1,12 @@
 package income
 
 import (
+	"archive/zip"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"strconv"
 	"time"
@@ -18,12 +21,13 @@ func ImageFile(fileStr string) string {
 	return filepath.Join(gofpdfDir, "image", fileStr)
 }
 
-func (u *usecase) ExportPdf() (string, error) {
+func (u *usecase) ExportPdf(id string) (string, error) {
 	// pdf := gofpdf.New("P", "mm", "A4", "")
 
-	userId := "5bde4e2e1a044b8c9ce44fe4"
+	userId := id
 	year, month := utils.GetYearMonthNow()
-
+	var fileNames []string
+	var months []int
 	sd, err_ := u.userRepo.GetByID(userId)
 
 	if err_ != nil {
@@ -35,12 +39,6 @@ func (u *usecase) ExportPdf() (string, error) {
 	strArray := splitCitizen(str)
 	strArrayPosition := splitCitizen(strPosition)
 
-	d := time.Now()
-	dm := int(d.Month())
-	dd := "27"
-	dmn := converseMonthtoThaiName(dm)
-	dy := setDy((int(d.Year()) + 543), dm)
-
 	companyName := "บริษัท ออด-อี (ประเทศไทย) จํากัด"
 	companyAddress := "2549/41-43 พหลโยธิน ลาดยาว จตุจักร กรุงเทพ 10900"
 	employeeName := sd.GetName()
@@ -49,120 +47,128 @@ func (u *usecase) ExportPdf() (string, error) {
 
 	fmt.Sprintf("%s", companyName)
 
-	rs, _err := u.repo.GetIncomeUserByYearMonth(userId, year, month)
-	// utf8, erro := tis620.ToUTF8("สวัสดีครับ")
-
-	if _err != nil {
-		return "", _err
-	}
-
-	t1 := rs.UserID
-	fmt.Sprintf("%s", t1)
-
-	pdf := gopdf.GoPdf{}
-	pdf.Start(gopdf.Config{PageSize: gopdf.Rect{W: 930, H: 1350}}) //595.28, 841.89 = A4
-	pdf.AddPage()
-	var err error
-
-	err = pdf.AddTTFFont("THSarabunBold", "font/THSarabun-Bold.ttf")
-	if err != nil {
-		log.Print(err.Error())
-		return "", err
-	}
-
-	err = pdf.SetFont("THSarabunBold", "", 18)
-	if err != nil {
-		log.Print(err.Error())
-		return "", err
-	}
-
-	pdf.Image("image/tavi50.png", 0, 0, nil) //print image
-
-	pdf.SetX(97.5)
-	pdf.SetY(173.25)
-	pdf.Text(companyName)
-
-	pdf.SetX(97.5)
-	pdf.SetY(207.25)
-	pdf.Text(companyAddress)
-
-	pdf.SetX(97.5)
-	pdf.SetY(287.5)
-	pdf.Text(employeeName)
-
-	pdf.SetX(97.5)
-	pdf.SetY(327.5)
-	pdf.Text(employeeAddress)
-
-	pdf.SetX(315)
-	pdf.SetY(1060)
-	pdf.Text(salaryString)
-
-	pdf.SetX(547.25)
-	pdf.SetY(1195)
-	pdf.Text(dd)
-
-	pdf.SetX(590)
-	pdf.SetY(1195)
-	pdf.Text(dmn)
-
-	pdf.SetX(685)
-	pdf.SetY(1195)
-	pdf.Text(dy)
-
-	positionUserX := 590.75
-	positionUserY := 253.75
-
-	for i, r := range strArray {
-		if i == 0 {
-			pdf.SetX(positionUserX)
-			pdf.SetY(positionUserY)
-			pdf.Text(r)
-		} else if i == 1 || i == 5 || i == 10 || i == 12 {
-			positionUserX += 29
-			pdf.SetX(positionUserX)
-			pdf.SetY(positionUserY)
-			pdf.Text(r)
-		} else {
-			positionUserX += 19
-			pdf.SetX(positionUserX)
-			pdf.SetY(positionUserY)
-			pdf.Text(r)
+	for i := 1; i <= int(month); i++ {
+		rs, _ := u.repo.GetIncomeUserByYearMonth(userId, year, time.Month(i))
+		if rs != nil {
+			months = append(months, int(rs.SubmitDate.Month()))
 		}
 	}
+	for i := 0; i <= len(months)-1; i++ {
+		d := time.Now()
+		dd := "27"
+		dmn := converseMonthtoThaiName(months[i])
+		dy := setDy((int(d.Year()) + 543), months[i])
 
-	positionX := 590.75
-	positionY := 147.25
+		// utf8, erro := tis620.ToUTF8("สวัสดีครับ")
 
-	for j, r := range strArrayPosition {
-		if j == 0 {
-			pdf.SetX(positionX)
-			pdf.SetY(positionY)
-			pdf.Text(r)
-		} else if j == 1 || j == 5 || j == 10 || j == 12 {
-			positionX += 29
-			pdf.SetX(positionX)
-			pdf.SetY(positionY)
-			pdf.Text(r)
-		} else {
-			positionX += 19
-			pdf.SetX(positionX)
-			pdf.SetY(positionY)
-			pdf.Text(r)
+		pdf := gopdf.GoPdf{}
+		pdf.Start(gopdf.Config{PageSize: gopdf.Rect{W: 930, H: 1350}}) //595.28, 841.89 = A4
+		pdf.AddPage()
+		var err error
+
+		err = pdf.AddTTFFont("THSarabunBold", "font/THSarabun-Bold.ttf")
+		if err != nil {
+			log.Print(err.Error())
+			return "", err
+		}
+
+		err = pdf.SetFont("THSarabunBold", "", 18)
+		if err != nil {
+			log.Print(err.Error())
+			return "", err
+		}
+
+		pdf.Image("image/tavi50.png", 0, 0, nil) //print image
+
+		pdf.SetX(97.5)
+		pdf.SetY(173.25)
+		pdf.Text(companyName)
+
+		pdf.SetX(97.5)
+		pdf.SetY(207.25)
+		pdf.Text(companyAddress)
+
+		pdf.SetX(97.5)
+		pdf.SetY(287.5)
+		pdf.Text(employeeName)
+
+		pdf.SetX(97.5)
+		pdf.SetY(327.5)
+		pdf.Text(employeeAddress)
+
+		pdf.SetX(315)
+		pdf.SetY(1060)
+		pdf.Text(salaryString)
+
+		pdf.SetX(547.25)
+		pdf.SetY(1195)
+		pdf.Text(dd)
+
+		pdf.SetX(590)
+		pdf.SetY(1195)
+		pdf.Text(dmn)
+
+		pdf.SetX(685)
+		pdf.SetY(1195)
+		pdf.Text(dy)
+
+		positionUserX := 590.75
+		positionUserY := 253.75
+
+		for i, r := range strArray {
+			if i == 0 {
+				pdf.SetX(positionUserX)
+				pdf.SetY(positionUserY)
+				pdf.Text(r)
+			} else if i == 1 || i == 5 || i == 10 || i == 12 {
+				positionUserX += 29
+				pdf.SetX(positionUserX)
+				pdf.SetY(positionUserY)
+				pdf.Text(r)
+			} else {
+				positionUserX += 19
+				pdf.SetX(positionUserX)
+				pdf.SetY(positionUserY)
+				pdf.Text(r)
+			}
+		}
+
+		positionX := 590.75
+		positionY := 147.25
+
+		for j, r := range strArrayPosition {
+			if j == 0 {
+				pdf.SetX(positionX)
+				pdf.SetY(positionY)
+				pdf.Text(r)
+			} else if j == 1 || j == 5 || j == 10 || j == 12 {
+				positionX += 29
+				pdf.SetX(positionX)
+				pdf.SetY(positionY)
+				pdf.Text(r)
+			} else {
+				positionX += 19
+				pdf.SetX(positionX)
+				pdf.SetY(positionY)
+				pdf.Text(r)
+			}
+		}
+
+		t := time.Now()
+		tf := fmt.Sprintf("%d_%02d_%02d_%02d_%02d_%02d", t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
+		filename := fmt.Sprintf("files/tavi50/%s_%d_%s.pdf", "tavi50", months[i], tf)
+
+		error := pdf.WritePdf(filename)
+		fileNames = append(fileNames, filename)
+
+		if error != nil {
+			return "", error
 		}
 	}
-
-	t := time.Now()
-	tf := fmt.Sprintf("%d_%02d_%02d_%02d_%02d_%02d", t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
-	filename := fmt.Sprintf("files/tavi50/%s_%s.pdf", "tavi50", tf)
-
-	error := pdf.WritePdf(filename)
-
-	if error != nil {
-		return "", error
+	if err := ZipFiles("tavi50.zip", fileNames); err != nil {
+		panic(err)
 	}
-
-	return filename, nil
+	return "tavi50.zip", nil
 }
 
 func converseMonthtoThaiName(dm int) string {
@@ -170,9 +176,9 @@ func converseMonthtoThaiName(dm int) string {
 	monthThaiName := ""
 	for i, v := range dmt {
 		if dm == 1 {
-			monthThaiName = dmt[len(dmt)-1]
+			monthThaiName = dmt[len(dmt)-12]
 		}
-		if i+1 == dm-1 {
+		if i+1 == dm {
 			monthThaiName = v
 		}
 	}
@@ -204,4 +210,58 @@ func getImageBytes() []byte {
 		panic(err)
 	}
 	return b
+}
+func AddFileToZip(zipWriter *zip.Writer, filename string) error {
+
+	fileToZip, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer fileToZip.Close()
+
+	// Get the file information
+	info, err := fileToZip.Stat()
+	if err != nil {
+		return err
+	}
+
+	header, err := zip.FileInfoHeader(info)
+	if err != nil {
+		return err
+	}
+
+	// Using FileInfoHeader() above only uses the basename of the file. If we want
+	// to preserve the folder structure we can overwrite this with the full path.
+	header.Name = filename
+
+	// Change to deflate to gain better compression
+	// see http://golang.org/pkg/archive/zip/#pkg-constants
+	header.Method = zip.Deflate
+
+	writer, err := zipWriter.CreateHeader(header)
+	if err != nil {
+		return err
+	}
+	_, err = io.Copy(writer, fileToZip)
+	return err
+}
+
+func ZipFiles(filename string, files []string) error {
+
+	newZipFile, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer newZipFile.Close()
+
+	zipWriter := zip.NewWriter(newZipFile)
+	defer zipWriter.Close()
+
+	// Add files to zip
+	for _, file := range files {
+		if err = AddFileToZip(zipWriter, file); err != nil {
+			return err
+		}
+	}
+	return nil
 }

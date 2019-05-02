@@ -166,7 +166,11 @@ func (h *HttpHandler) GetExportPdf(c echo.Context) error {
 	if !isAdmin {
 		return c.JSON(http.StatusUnauthorized, message)
 	}
-	filename, err := h.Usecase.ExportPdf()
+	id := c.Param("id")
+	if id == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	filename, err := h.Usecase.ExportPdf(id)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -295,5 +299,5 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
 	r.GET("/export/corporate/different", handler.GetExportDifferentCorporate)
 	r.GET("/export/individual/different", handler.GetExportDifferentIndividuals)
-	r.GET("/export/pdf", handler.GetExportPdf)
+	r.GET("/export/pdf/:id", handler.GetExportPdf)
 }
