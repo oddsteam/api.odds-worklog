@@ -320,7 +320,7 @@ func (fs MockInComeUsecase) ExportIncome(role string, beforeMonth string) (strin
 	return "", nil
 }
 
-func (fs MockInComeUsecase) ExportPdf() (string, error) {
+func (fs MockInComeUsecase) ExportPdf(id string) (string, error) {
 	return "", nil
 }
 

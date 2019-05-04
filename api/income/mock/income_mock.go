@@ -212,16 +212,16 @@ func (mr *MockUsecaseMockRecorder) ExportIncomeNotExport(role interface{}) *gomo
 }
 
 // ExportPdf mocks base method
-func (m *MockUsecase) ExportPdf() (string, error) {
-	ret := m.ctrl.Call(m, "ExportPdf")
+func (m *MockUsecase) ExportPdf(id string) (string, error) {
+	ret := m.ctrl.Call(m, "ExportPdf", id)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ExportPdf indicates an expected call of ExportPdf
-func (mr *MockUsecaseMockRecorder) ExportPdf() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportPdf", reflect.TypeOf((*MockUsecase)(nil).ExportPdf))
+func (mr *MockUsecaseMockRecorder) ExportPdf(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportPdf", reflect.TypeOf((*MockUsecase)(nil).ExportPdf), id)
 }
 
 // UpdateExportStatus mocks base method
