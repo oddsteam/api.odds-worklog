@@ -45,41 +45,39 @@ func calWHT(income string) (string, float64, error) {
 	return utils.FloatToString(wht), utils.RealFloat(wht), nil
 }
 
-func calIncomeSum(workDate string, vattype string, dailyIncome string, specialIncome string) (*incomeSum, error) {
+func calIncomeSum(workAmount string, vattype string, incomes string) (*incomeSum, error) {
 	var vat, wht string
 	var vatf, whtf float64
 	var ins = new(incomeSum)
 
-	date, _ := utils.StringToFloat64(workDate)
-	daily, _ := utils.StringToFloat64(dailyIncome)
-	specialincome, _ := utils.StringToFloat64(specialIncome)
-	sumIncome := (date * daily) + specialincome
-	income := utils.FloatToString(sumIncome)
-	total, err := utils.StringToFloat64(income)
+	amount, _ := utils.StringToFloat64(workAmount)
+	income, _ := utils.StringToFloat64(incomes)
+	totalIncomeStr := utils.FloatToString(amount * income)
+	totalIncome, err := utils.StringToFloat64(totalIncomeStr)
 	if err != nil {
 		return nil, err
 	}
-	wht, whtf, err = calWHT(income)
+	wht, whtf, err = calWHT(totalIncomeStr)
 	if err != nil {
 		return nil, err
 	}
 
 	ins.WHT = wht
-	ins.TotalIncome = income
+	ins.TotalIncome = totalIncomeStr
 
 	if vattype == "Y" {
-		vat, vatf, err = calVAT(income)
+		vat, vatf, err = calVAT(totalIncomeStr)
 		if err != nil {
 			return nil, err
 		}
 
-		net := total + vatf - whtf
+		net := totalIncome + vatf - whtf
 
 		ins.Net = utils.FloatToString(net)
 		ins.VAT = vat
 		return ins, nil
 	}
-	net := total - whtf
+	net := totalIncome - whtf
 	ins.Net = utils.FloatToString(net)
 	return ins, nil
 }

@@ -14,27 +14,38 @@ func (u *usecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.I
 	if err == nil {
 		return nil, errors.New("Sorry, has income data of user " + userDetail.GetName())
 	}
-	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome, req.SpecialIncome)
+	calNetIncome, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome)
 	if err != nil {
 		return nil, err
 	}
-	netIncome, err := utils.StringToFloat64(ins.Net)
+	netIncome, err := utils.StringToFloat64(calNetIncome.Net)
+	if err != nil {
+		return nil, err
+	}
+	calNetSpecialIncome, err := calIncomeSum(req.WorkingHours, userDetail.Vat, req.SpecialIncome)
+	if err != nil {
+		return nil, err
+	}
+	netSpecialIncome, err := utils.StringToFloat64(calNetSpecialIncome.Net)
 	if err != nil {
 		return nil, err
 	}
 
-	summaryIncome := utils.FloatToString(netIncome)
+	netIncomeStr := utils.FloatToString(netIncome)
+	netSpecialIncomeStr := utils.FloatToString(netSpecialIncome)
+	summaryIncome := utils.FloatToString(netIncome + netSpecialIncome)
 
 	income := models.Income{
-		UserID:        user.ID.Hex(),
-		TotalIncome:   ins.TotalIncome,
-		NetIncome:     summaryIncome,
-		Note:          req.Note,
-		VAT:           ins.VAT,
-		WHT:           ins.WHT,
-		WorkDate:      req.WorkDate,
-		SpecialIncome: req.SpecialIncome,
-		WorkingHour:   req.WorkingHour,
+		UserID:           user.ID.Hex(),
+		TotalIncome:      summaryIncome,
+		NetIncome:        netIncomeStr,
+		Note:             req.Note,
+		VAT:              calNetIncome.VAT,
+		WHT:              calNetIncome.WHT,
+		WorkDate:         req.WorkDate,
+		SpecialIncome:    req.SpecialIncome,
+		NetSpecialIncome: netSpecialIncomeStr,
+		WorkingHours:     req.WorkingHours,
 	}
 	err = u.repo.AddIncome(&income)
 	if err != nil {
