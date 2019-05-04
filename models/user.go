@@ -28,6 +28,7 @@ type User struct {
 	LastUpdate        time.Time     `bson:"lastUpdate" json:"lastUpdate"`
 	DailyIncome       string        `bson:"dailyIncome" json:"dailyIncome,omitempty"`
 	Address           string        `bson:"address" json:"address,omitempty"`
+	StatusTavi        bool          `bson:"statusTavi" json:"statusTavi"`
 }
 
 const (
@@ -53,6 +54,17 @@ func (u *User) GetName() string {
 		return u.CorporateName
 	}
 	return u.GetFullname()
+}
+func (u *User) GetThaiCitizenID() string {
+	return u.ThaiCitizenID
+}
+
+func (u *User) GetAddress() string {
+	return u.Address
+}
+
+func (u *User) GetStatusTavi() bool {
+	return u.StatusTavi
 }
 
 func (u *User) IsFullnameEmpty() bool {

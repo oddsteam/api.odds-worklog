@@ -162,8 +162,8 @@ func (h *HttpHandler) GetIncomeCurrentMonthByUserId(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/pdf [get]
 func (h *HttpHandler) GetExportPdf(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
+	isStatusTavi, message := IsStatusTavi(c)
+	if !isStatusTavi {
 		return c.JSON(http.StatusUnauthorized, message)
 	}
 	id := c.Param("id")
@@ -272,6 +272,14 @@ func (h *HttpHandler) GetExportDifferentIndividuals(c echo.Context) error {
 func IsUserAdmin(c echo.Context) (bool, string) {
 	u := getUserFromToken(c)
 	if u.IsAdmin() {
+		return true, ""
+	}
+	return false, "ไม่มีสิทธิในการใช้งาน"
+}
+
+func IsStatusTavi(c echo.Context) (bool, string) {
+	u := getUserFromToken(c)
+	if u.GetStatusTavi() {
 		return true, ""
 	}
 	return false, "ไม่มีสิทธิในการใช้งาน"
