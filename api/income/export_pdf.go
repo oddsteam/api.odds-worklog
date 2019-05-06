@@ -52,22 +52,20 @@ func (u *usecase) ExportPdf(id string) (string, error) {
 
 	for i := 1; i <= int(month); i++ {
 		rs, _ := u.repo.GetIncomeUserByYearMonth(userId, year, time.Month(i))
-		income, _ := u.repo.GetIncomeByUserID(userId)
 		if rs != nil {
 			months = append(months, int(rs.SubmitDate.Month()))
 			days = append(days, fmt.Sprintf("%02d", rs.SubmitDate.Day()))
-		}
-
-		if income != nil {
-			incomes = append(incomes, income.TotalIncome)
-			whts = append(whts, income.WHT)
+			incomes = append(incomes, rs.TotalIncome)
+			whts = append(whts, rs.WHT)
 		}
 	}
 	for i := 0; i <= len(months)-1; i++ {
+		print(whts[i])
+		print(incomes[i])
 		d := time.Now()
 		dd := days[i]
 		dmn := converseMonthtoThaiName(months[i])
-		dy := setDy((int(d.Year()) + 543), months[i])
+		dy := setDy((int(d.Year()) + 543))
 		ti := incomes[i]
 		wht := whts[i]
 		// utf8, erro := tis620.ToUTF8("สวัสดีครับ")
@@ -226,12 +224,12 @@ func converseMonthtoThaiName(dm int) string {
 	return monthThaiName
 }
 
-func setDy(dy int, dm int) string {
+func setDy(dy int) string {
 	year := strconv.Itoa(dy)
 
-	if dm == 1 {
-		year = strconv.Itoa(dy - 1)
-	}
+	// if dm == 1 {
+	// 	year = strconv.Itoa(dy - 1)
+	// }
 
 	return year
 }
@@ -330,7 +328,7 @@ func ConvertIntToThaiBath(txt string) string {
 				if i == (len(intVal)-1) && (n == "1") {
 					bahtTH += "เอ็ด"
 				} else if i == (len(intVal)-2) && (n == "2") {
-					bahtTH += "ยี่"
+					bahtTH += "ยี่สิบ"
 				} else if i == (len(intVal)-2) && (n == "1") {
 					bahtTH += ""
 				} else {
