@@ -233,10 +233,10 @@ func (h *HttpHandler) GetExportDifferentCorporate(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/individual [get]
 func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
+	// isAdmin, message := IsUserAdmin(c)
+	// if !isAdmin {
+	// 	return c.JSON(http.StatusUnauthorized, message)
+	// }
 	month := c.Param("month")
 	if month == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))

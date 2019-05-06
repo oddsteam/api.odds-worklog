@@ -31,6 +31,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/email/:email", handler.GetByEmail)
 	r.GET("/site/:id", handler.GetBySiteID)
 	r.PUT("/:id", handler.Update)
+	r.PUT("/tavi/:id", handler.UpdateStatusTavi)
 	r.DELETE("/:id", handler.Delete)
 }
 
@@ -178,6 +179,33 @@ func (h *HttpHandler) Update(c echo.Context) error {
 	u.ID = bson.ObjectIdHex(id)
 	ut := getUserFromToken(c)
 	user, err := h.Usecase.Update(&u, ut.IsAdmin())
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, user)
+}
+
+// UpdateStatusTavi godoc
+// @Summary UpdateStatusTavi User
+// @Description UpdateStatusTavi User
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Param user body models.User true  "id can empty"
+// @Success 200 {object} models.User
+// @Failure 400 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /users/tavi/{id} [put]
+func (h *HttpHandler) UpdateStatusTavi(c echo.Context) error {
+	var u models.User
+	if err := c.Bind(&u); err != nil {
+		return utils.NewError(c, http.StatusBadRequest, err)
+	}
+	id := c.Param("id")
+	u.ID = bson.ObjectIdHex(id)
+	ut := getUserFromToken(c)
+	user, err := h.Usecase.UpdateStatusTavi(&u, ut.IsAdmin())
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}

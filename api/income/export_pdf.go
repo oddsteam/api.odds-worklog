@@ -55,8 +55,9 @@ func (u *usecase) ExportPdf(id string) (string, error) {
 		income, _ := u.repo.GetIncomeByUserID(userId)
 		if rs != nil {
 			months = append(months, int(rs.SubmitDate.Month()))
-			days = append(days, strconv.FormatInt(int64(rs.SubmitDate.Day()), 16))
+			days = append(days, fmt.Sprintf("%02d", rs.SubmitDate.Day()))
 		}
+
 		if income != nil {
 			incomes = append(incomes, income.TotalIncome)
 			whts = append(whts, income.WHT)
@@ -123,9 +124,13 @@ func (u *usecase) ExportPdf(id string) (string, error) {
 		pdf.SetY(1195)
 		pdf.Text(dy)
 
+		pdf.SetX(830)
+		pdf.SetY(93)
+		pdf.Text(dy)
+
 		pdf.SetX(530)
 		pdf.SetY(500)
-		pdf.Text(dd + "/" + strconv.FormatInt(int64(months[i]), 16) + "/" + dy)
+		pdf.Text(dd + "/" + fmt.Sprintf("%02d", months[i]) + "/" + dy)
 
 		pdf.SetX(650)
 		pdf.SetY(500)
@@ -188,7 +193,7 @@ func (u *usecase) ExportPdf(id string) (string, error) {
 
 		t := time.Now()
 		tf := fmt.Sprintf("%d_%02d_%02d_%02d_%02d_%02d", t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
-		filename := fmt.Sprintf("files/tavi50/%s_%d_%s.pdf", "tavi50", months[i], tf)
+		filename := fmt.Sprintf("tavi50/%s_%d_%s.pdf", "tavi50", months[i], tf)
 
 		error := pdf.WritePdf(filename)
 		fileNames = append(fileNames, filename)
@@ -352,7 +357,10 @@ func ConvertIntToThaiBath(txt string) string {
 				}
 			}
 			bahtTH += "สตางค์"
+			bahtTH += "ถ้วน"
+
 		}
+
 	}
 	return bahtTH
 

@@ -340,6 +340,73 @@ func TestUpdate(t *testing.T) {
 	})
 }
 
+func TestUpdateStatusTavi(t *testing.T) {
+	t.Run("when update status tavi success, then return json models.User with status code 200", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().UpdateStatusTavi(&userMock.User, gomock.Any()).Return(&userMock.User, nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(userMock.UserJson))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.UpdateStatusTavi(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, userMock.UserJson, rec.Body.String())
+	})
+
+	t.Run("when request is invalid, then return json models.HTTPError with status code 400", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(""))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("5bc89e26f37e2f0df54e6fef")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.UpdateStatusTavi(c)
+
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	})
+
+	t.Run("when update status tavi error, then return json models.HTTPError with status code 500", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().UpdateStatusTavi(&userMock.User, gomock.Any()).Return(&userMock.User, errors.New(""))
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(userMock.UserJson))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.UpdateStatusTavi(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+}
+
 func TestDelete(t *testing.T) {
 	t.Run("when delete user success, then return json models.Response with status code 200", func(t *testing.T) {
 		ctrl := gomock.NewController(t)

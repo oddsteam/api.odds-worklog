@@ -133,6 +133,70 @@ func (u *usecase) Update(m *models.User, isAdmin bool) (*models.User, error) {
 	return user, nil
 }
 
+func (u *usecase) UpdateStatusTavi(m *models.User, isAdmin bool) (*models.User, error) {
+	if err := m.ValidateRole(); err != nil {
+		return nil, err
+	}
+	if err := m.ValidateVat(); err != nil {
+		return nil, err
+	}
+	if m.Role == "admin" && !isAdmin {
+		return nil, utils.ErrInvalidUserRole
+	}
+
+	user, err := u.repo.GetByID(m.ID.Hex())
+	if err != nil {
+		return nil, err
+	}
+
+	if m.FirstName != "" {
+		user.FirstName = user.FirstName
+	}
+	if m.LastName != "" {
+		user.LastName = user.LastName
+	}
+	if m.CorporateName != "" {
+		user.CorporateName = user.CorporateName
+	}
+	if m.BankAccountName != "" {
+		user.BankAccountName = user.BankAccountName
+	}
+	if m.BankAccountNumber != "" {
+		user.BankAccountNumber = user.BankAccountNumber
+	}
+	if m.ThaiCitizenID != "" {
+		user.ThaiCitizenID = user.ThaiCitizenID
+	}
+	if m.SlackAccount != "" {
+		if err := utils.ValidateEmail(m.SlackAccount); err != nil {
+			return nil, errors.New("Invalid slack acount.")
+		}
+		user.SlackAccount = user.SlackAccount
+	}
+	if m.SiteID != "" {
+		user.SiteID = user.SiteID
+	}
+	if m.Project != "" {
+		user.Project = user.Project
+	}
+	if m.DailyIncome != "" {
+		user.DailyIncome = user.DailyIncome
+	}
+	if m.Address != "" {
+		user.Address = user.Address
+	}
+
+	user.StatusTavi = m.StatusTavi
+	user.Role = user.Role
+	user.Vat = user.Vat
+
+	user, err = u.repo.Update(user)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 func (u *usecase) Delete(id string) error {
 	return u.repo.Delete(id)
 }
