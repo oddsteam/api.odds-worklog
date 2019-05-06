@@ -198,18 +198,16 @@ func (h *HttpHandler) Update(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /users/tavi/{id} [put]
 func (h *HttpHandler) UpdateStatusTavi(c echo.Context) error {
-	var u models.User
+	var u []*models.StatusTavi
 	if err := c.Bind(&u); err != nil {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
-	id := c.Param("id")
-	u.ID = bson.ObjectIdHex(id)
 	ut := getUserFromToken(c)
-	user, err := h.Usecase.UpdateStatusTavi(&u, ut.IsAdmin())
+	users, err := h.Usecase.UpdateStatusTavi(u, ut.IsAdmin())
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, users)
 }
 
 // Delete godoc
