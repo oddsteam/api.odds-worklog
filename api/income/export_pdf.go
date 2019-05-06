@@ -194,8 +194,10 @@ func (u *usecase) ExportPdf(id string) (string, error) {
 		t := time.Now()
 		tf := fmt.Sprintf("%d_%02d_%02d_%02d_%02d_%02d", t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
 		filename := fmt.Sprintf("tavi50/%s_%d_%s.pdf", "tavi50", months[i], tf)
-
+		file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+		defer file.Close()
 		error := pdf.WritePdf(filename)
+
 		fileNames = append(fileNames, filename)
 
 		if error != nil {
