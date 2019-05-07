@@ -137,6 +137,7 @@ func (u *usecase) GetIncomeStatusList(role string) ([]*models.IncomeStatus, erro
 			incomeList[index].Status = "N"
 		} else {
 			incomeList[index].WorkDate = incomeUser.WorkDate
+			incomeList[index].WorkingHours = incomeUser.WorkingHours
 			incomeList[index].SubmitDate = incomeUser.SubmitDate.Format(time.RFC3339)
 			incomeList[index].Status = "Y"
 		}

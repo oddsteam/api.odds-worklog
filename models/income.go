@@ -24,10 +24,11 @@ type Income struct {
 }
 
 type IncomeStatus struct {
-	User       *User  `bson:"user" json:"user,omitempty"`
-	SubmitDate string `bson:"submitDate" json:"submitDate"`
-	Status     string `bson:"status" json:"status"`
-	WorkDate   string `bson:"workDate" json:"workDate"`
+	User         *User  `bson:"user" json:"user,omitempty"`
+	SubmitDate   string `bson:"submitDate" json:"submitDate"`
+	Status       string `bson:"status" json:"status"`
+	WorkDate     string `bson:"workDate" json:"workDate"`
+	WorkingHours string `bson:"workingHours" json:"workingHours"`
 }
 
 type IncomeReq struct {
