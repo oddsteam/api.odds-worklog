@@ -140,9 +140,9 @@ func (u *usecase) UpdateStatusTavi(m []*models.StatusTavi, isAdmin bool) ([]*mod
 		if err := m[i].User.ValidateRole(); err != nil {
 			return nil, err
 		}
-		if err := m[i].User.ValidateVat(); err != nil {
-			return nil, err
-		}
+		// if err := m[i].User.ValidateVat(); err != nil {
+		// 	return nil, err
+		// }
 		if m[i].User.Role == "admin" && !isAdmin {
 			return nil, utils.ErrInvalidUserRole
 		}

@@ -23,7 +23,6 @@ report/
 !test.pdf
 
 # Image file
-*.jpg
 *.jpeg
 *.png
 *.zip
