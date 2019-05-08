@@ -31,6 +31,63 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.POST("/image", h.UploadImageProfile)
 	r.GET("/image/:id", h.DownloadImageProfile)
 	r.DELETE("/image/:id", h.RemoveImageFile)
+	r.POST("/degreecertificate", h.UploadDegreeCertificate)
+}
+
+// UploadDegreeCertificate godoc
+// @Summary Upload Degree Certificate file
+// @Description Upload Degree Certificate  file
+// @Tags files
+// @Accept multipart/form-data
+// @Produce json
+// @Param file body int true "file"
+// @Success 200 {object} models.Response
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/degreecertificate [post]
+func (h *HttpHandler) UploadDegreeCertificate(c echo.Context) error {
+	file, err := c.FormFile("file")
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	fn := file.Filename
+	t := fn[len(fn)-3:]
+	if strings.ToUpper(t) != "PDF" {
+		return utils.NewError(c, http.StatusInternalServerError, utils.ErrNotPDFFile)
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	defer src.Close()
+
+	u := getUserFromToken(c)
+	user, err := h.usecase.GetUserByID(u.ID.Hex())
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	filename := getDegreeCertificateFilename(user)
+
+	// Destination
+	dst, err := os.Create(filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	defer dst.Close()
+
+	// Copy
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	err = h.usecase.UpdateDegreeCertificate(u.ID.Hex(), filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, models.Response{Message: "Upload degree certificate success."})
 }
 
 // UploadTranscript godoc
@@ -97,6 +154,17 @@ func getUserFromToken(c echo.Context) *models.User {
 
 func getTranscriptFilename(u *models.User) (filename string) {
 	path := "files/transcripts"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.Mkdir(path, os.ModePerm)
+	}
+
+	r := utils.RandStringBytes(12)
+	filename = fmt.Sprintf("%s/%s_%s_%s.pdf", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r)
+	return
+}
+
+func getDegreeCertificateFilename(u *models.User) (filename string) {
+	path := "files/degreecertificate"
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		os.Mkdir(path, os.ModePerm)
 	}

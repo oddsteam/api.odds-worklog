@@ -5,9 +5,10 @@
 package mock_file
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	models "gitlab.odds.team/worklog/api.odds-worklog/models"
-	reflect "reflect"
 )
 
 // MockUsecase is a mock of Usecase interface
@@ -55,6 +56,18 @@ func (m *MockUsecase) UpdateImageProfileUser(id, filename string) error {
 // UpdateImageProfileUser indicates an expected call of UpdateImageProfileUser
 func (mr *MockUsecaseMockRecorder) UpdateImageProfileUser(id, filename interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateImageProfileUser", reflect.TypeOf((*MockUsecase)(nil).UpdateImageProfileUser), id, filename)
+}
+
+// UpdateDegreeCertificate mocks base method
+func (m *MockUsecase) UpdateDegreeCertificate(id, filename string) error {
+	ret := m.ctrl.Call(m, "UpdateDegreeCertificate", id, filename)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateDegreeCertificate indicates an expected call of UpdateDegreeCertificate
+func (mr *MockUsecaseMockRecorder) UpdateDegreeCertificate(id, filename interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDegreeCertificate", reflect.TypeOf((*MockUsecase)(nil).UpdateDegreeCertificate), id, filename)
 }
 
 // GetPathTranscript mocks base method

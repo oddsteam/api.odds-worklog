@@ -83,6 +83,24 @@ func TestUsecase_UpdateImageProfileUser(t *testing.T) {
 	})
 }
 
+func TestUsecase_UpdateDegreeCertificate(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	filename := "test.pdf"
+	user := userMock.User
+	mockUserRepo := userMock.NewMockRepository(ctrl)
+	mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+
+	user.Transcript = filename
+	mockUserRepo.EXPECT().Update(&user).Return(&user, nil)
+
+	usecase := NewUsecase(mockUserRepo)
+	err := usecase.UpdateDegreeCertificate(user.ID.Hex(), filename)
+
+	assert.NoError(t, err)
+}
+
 func TestUsecase_GetPathTranscript(t *testing.T) {
 	t.Run("get path transcript success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
