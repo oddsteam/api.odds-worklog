@@ -32,6 +32,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/image/:id", h.DownloadImageProfile)
 	r.DELETE("/image/:id", h.RemoveImageFile)
 	r.POST("/degreecertificate", h.UploadDegreeCertificate)
+	r.GET("/degreecertificate/:id", h.DownloadDegreeCertificate)
 }
 
 // UploadDegreeCertificate godoc
@@ -192,6 +193,30 @@ func (h *HttpHandler) DownloadTranscript(c echo.Context) error {
 	}
 
 	filename, err := h.usecase.GetPathTranscript(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.Attachment(filename, filename)
+}
+
+// DownloadTranscript godoc
+// @Summary Download degree certificate file
+// @Description Download degree certificate file
+// @Tags files
+// @Produce json
+// @Param id path string true "user id"
+// @Success 200 {array} string
+// @Failure 403 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/degreecertificate/{id} [get]
+func (h *HttpHandler) DownloadDegreeCertificate(c echo.Context) error {
+	id := c.Param("id")
+	user := getUserFromToken(c)
+	if user.ID.Hex() != id && !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
+	filename, err := h.usecase.GetPathDegreeCertificate(id)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}

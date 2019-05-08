@@ -188,3 +188,56 @@ func TestUsecase_GetPathImageProfile(t *testing.T) {
 			assert.Empty(t, filename)
 		})
 }
+
+func TestUsecase_GetPathDegreeCertificate(t *testing.T) {
+	t.Run("get path degree certificate success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		user := userMock.User
+		user.DegreeCertificate = "test.pdf"
+		mockUserRepo := userMock.NewMockRepository(ctrl)
+		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+
+		usecase := NewUsecase(mockUserRepo)
+		filename, err := usecase.GetPathDegreeCertificate(user.ID.Hex())
+
+		assert.NoError(t, err)
+		assert.NotEmpty(t, filename)
+	})
+
+	t.Run("when degree certificate empty then return '', ErrNoDegreeCertificateFile", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		user := userMock.User
+		mockUserRepo := userMock.NewMockRepository(ctrl)
+		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+
+		usecase := NewUsecase(mockUserRepo)
+		filename, err := usecase.GetPathDegreeCertificate(user.ID.Hex())
+
+		assert.EqualError(t, err, utils.ErrNoDegreeCertificateFile.Error())
+		assert.Empty(t, filename)
+	})
+
+	t.Run(`when can't open degree certificate file
+			then update user with empty degree certificate
+			and return '', ErrNoDegreeCertificateFile`,
+		func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			user := userMock.User
+			user.DegreeCertificate = "no.pdf"
+			mockUserRepo := userMock.NewMockRepository(ctrl)
+			mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+			mockUserRepo.EXPECT().Update(gomock.Any())
+
+			usecase := NewUsecase(mockUserRepo)
+			filename, err := usecase.GetPathDegreeCertificate(user.ID.Hex())
+
+			assert.EqualError(t, err, utils.ErrNoDegreeCertificateFile.Error())
+			assert.Empty(t, filename)
+		})
+}

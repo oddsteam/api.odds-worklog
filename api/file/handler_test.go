@@ -41,19 +41,6 @@ func Test_getImageFilename(t *testing.T) {
 	assert.Equal(t, len(filenameExp)+16, len(filename))
 }
 
-func Test_getDegreeCertificateFilename(t *testing.T) {
-	u := userMock.User
-
-	filename := getImageFilename(&u, "test.jpg")
-	assert.NotEmpty(t, filename)
-
-	path := "files/images"
-	filenameExp := fmt.Sprintf("%s/%s_%s_", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName))
-	assert.Contains(t, filename, filenameExp)
-	assert.Contains(t, filename, ".jpg")
-	assert.Equal(t, len(filenameExp)+16, len(filename))
-}
-
 func TestDownloadTranscript(t *testing.T) {
 	t.Run("download transcript file success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -185,6 +172,30 @@ func TestDownloadImageProfile(t *testing.T) {
 		handler.DownloadImageProfile(c)
 
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+}
+
+func TestDownloadDegreeCertificate(t *testing.T) {
+	t.Run("download degree certificate file success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.Admin
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathDegreeCertificate(u.ID.Hex()).Return("test.pdf", nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.DownloadDegreeCertificate(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 }
 

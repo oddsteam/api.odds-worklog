@@ -96,6 +96,24 @@ func (u *usercasse) GetPathImageProfile(id string) (string, error) {
 	return user.ImageProfile, nil
 }
 
+func (u *usercasse) GetPathDegreeCertificate(id string) (string, error) {
+	user, err := u.repo.GetByID(id)
+	if err != nil {
+		return "", err
+	}
+	if user.DegreeCertificate == "" {
+		return "", utils.ErrNoDegreeCertificateFile
+	}
+
+	_, err = os.Open(user.DegreeCertificate)
+	if err != nil {
+		user.DegreeCertificate = ""
+		u.repo.Update(user)
+		return "", utils.ErrNoDegreeCertificateFile
+	}
+	return user.DegreeCertificate, nil
+}
+
 func (u *usercasse) RemoveTranscript(filename string) error {
 	err := os.Remove(filename)
 	if err != nil {
