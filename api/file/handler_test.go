@@ -197,6 +197,49 @@ func TestDownloadDegreeCertificate(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
+
+	t.Run("when not owner degree certificate file and not admin then return status code 403", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues("1234")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.DownloadDegreeCertificate(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
+		assert.Equal(t, `{"code":403,"message":"Permission denied."}`, rec.Body.String())
+	})
+
+	t.Run("when degree certificate file error then return status code 500", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.User
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathDegreeCertificate(u.ID.Hex()).Return("", errors.New(""))
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.DownloadDegreeCertificate(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
 }
 
 func TestRemoveTranscript(t *testing.T) {
