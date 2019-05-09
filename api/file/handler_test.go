@@ -57,7 +57,7 @@ func Test_getDegreeCertificateFilename(t *testing.T) {
 func Test_getIdCardFilename(t *testing.T) {
 	u := userMock.User
 
-	filename := getIdCardFilename(&u)
+	filename := getIDCardFilename(&u)
 	assert.NotEmpty(t, filename)
 
 	path := "files/idcard"

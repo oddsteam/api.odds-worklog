@@ -24,6 +24,7 @@ type User struct {
 	Project           string        `bson:"project" json:"project,omitempty"`
 	ImageProfile      string        `bson:"imageProfile" json:"imageProfile,omitempty"`
 	DegreeCertificate string        `bson:"degreeCertificate" json:"degreeCertificate,omitempty"`
+	IDCard            string        `bson:"idCard" json:"idCard,omitempty"`
 	Site              *Site         `bson:"-" json:"site,omitempty"`
 	Create            time.Time     `bson:"create" json:"create"`
 	LastUpdate        time.Time     `bson:"lastUpdate" json:"lastUpdate"`

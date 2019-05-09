@@ -34,6 +34,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.POST("/degreecertificate", h.UploadDegreeCertificate)
 	r.GET("/degreecertificate/:id", h.DownloadDegreeCertificate)
 	r.DELETE("/degreecertificate/:id", h.RemoveDegreeCertificate)
+	r.POST("/idcard", h.UploadIDCard)
 }
 
 // UploadDegreeCertificate godoc
@@ -103,7 +104,7 @@ func (h *HttpHandler) UploadDegreeCertificate(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /files/idcard [post]
 
-func (h *HttpHandler) UploadIdCard(c echo.Context) error {
+func (h *HttpHandler) UploadIDCard(c echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
@@ -126,7 +127,7 @@ func (h *HttpHandler) UploadIdCard(c echo.Context) error {
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	filename := getIdCardFilename(user)
+	filename := getIDCardFilename(user)
 
 	// Destination
 	dst, err := os.Create(filename)
@@ -141,10 +142,10 @@ func (h *HttpHandler) UploadIdCard(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
-	// err = h.usecase.UpdateIdCard(u.ID.Hex(), filename)
-	// if err != nil {
-	// 	return utils.NewError(c, http.StatusInternalServerError, err)
-	// }
+	err = h.usecase.UpdateIDCard(u.ID.Hex(), filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
 
 	return c.JSON(http.StatusOK, models.Response{Message: "Upload id card success."})
 }
@@ -474,7 +475,7 @@ func getDegreeCertificateFilename(u *models.User) (filename string) {
 	return
 }
 
-func getIdCardFilename(u *models.User) (filename string) {
+func getIDCardFilename(u *models.User) (filename string) {
 	path := "files/idcard"
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		os.Mkdir(path, os.ModePerm)

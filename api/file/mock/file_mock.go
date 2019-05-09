@@ -70,6 +70,18 @@ func (mr *MockUsecaseMockRecorder) UpdateDegreeCertificate(id, filename interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDegreeCertificate", reflect.TypeOf((*MockUsecase)(nil).UpdateDegreeCertificate), id, filename)
 }
 
+// UpdateIDCard indicates an expected call of UpdateIDCard
+func (mr *MockUsecaseMockRecorder) UpdateIDCard(id, filename interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateIDCard", reflect.TypeOf((*MockUsecase)(nil).UpdateIDCard), id, filename)
+}
+
+// UpdateIDCard mocks base method
+func (m *MockUsecase) UpdateIDCard(id, filename string) error {
+	ret := m.ctrl.Call(m, "UpdateIDCard", id, filename)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
 // GetPathTranscript mocks base method
 func (m *MockUsecase) GetPathTranscript(id string) (string, error) {
 	ret := m.ctrl.Call(m, "GetPathTranscript", id)
@@ -94,6 +106,19 @@ func (m *MockUsecase) GetPathDegreeCertificate(id string) (string, error) {
 // GetPathDegreeCertificate indicates an expected call of GetPathDegreeCertificate
 func (mr *MockUsecaseMockRecorder) GetPathDegreeCertificate(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPathDegreeCertificate", reflect.TypeOf((*MockUsecase)(nil).GetPathDegreeCertificate), id)
+}
+
+// GetPathIdCard indicates an expected call of GetPathIDCard
+func (mr *MockUsecaseMockRecorder) GetPathIDCard(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPathIDCard", reflect.TypeOf((*MockUsecase)(nil).GetPathIDCard), id)
+}
+
+// GetPathIDCard mocks base method
+func (m *MockUsecase) GetPathIDCard(id string) (string, error) {
+	ret := m.ctrl.Call(m, "GetPathIDCard", id)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // GetPathImageProfile mocks base method

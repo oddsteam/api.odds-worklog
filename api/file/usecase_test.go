@@ -92,11 +92,29 @@ func TestUsecase_UpdateDegreeCertificate(t *testing.T) {
 	mockUserRepo := userMock.NewMockRepository(ctrl)
 	mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
 
-	user.Transcript = filename
+	user.DegreeCertificate = filename
 	mockUserRepo.EXPECT().Update(&user).Return(&user, nil)
 
 	usecase := NewUsecase(mockUserRepo)
 	err := usecase.UpdateDegreeCertificate(user.ID.Hex(), filename)
+
+	assert.NoError(t, err)
+}
+
+func TestUsecase_UpdateIDCard(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	filename := "test.pdf"
+	user := userMock.User
+	mockUserRepo := userMock.NewMockRepository(ctrl)
+	mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+
+	user.IDCard = filename
+	mockUserRepo.EXPECT().Update(&user).Return(&user, nil)
+
+	usecase := NewUsecase(mockUserRepo)
+	err := usecase.UpdateIDCard(user.ID.Hex(), filename)
 
 	assert.NoError(t, err)
 }

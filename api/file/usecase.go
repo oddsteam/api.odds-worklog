@@ -60,6 +60,20 @@ func (u *usercasse) UpdateDegreeCertificate(id, filename string) error {
 	return nil
 }
 
+func (u *usercasse) UpdateIDCard(id, filename string) error {
+	user, err := u.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+	user.IDCard = filename
+	user, err = u.repo.Update(user)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (u *usercasse) GetPathTranscript(id string) (string, error) {
 	user, err := u.repo.GetByID(id)
 	if err != nil {
