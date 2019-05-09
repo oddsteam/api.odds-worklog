@@ -35,6 +35,8 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/degreecertificate/:id", h.DownloadDegreeCertificate)
 	r.DELETE("/degreecertificate/:id", h.RemoveDegreeCertificate)
 	r.POST("/idcard", h.UploadIDCard)
+	r.GET("/idcard/:id", h.DownloadIDCard)
+	r.DELETE("/idcard/:id", h.DownloadIDCard)
 }
 
 // UploadDegreeCertificate godoc
@@ -439,7 +441,7 @@ func (h *HttpHandler) RemoveDegreeCertificate(c echo.Context) error {
 
 	filename, err := h.usecase.GetPathDegreeCertificate(id)
 	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, utils.ErrNoTranscriptFile)
+		return utils.NewError(c, http.StatusInternalServerError, utils.ErrNoDegreeCertificateFile)
 	}
 
 	err = h.usecase.RemoveDegreeCertificate(filename)
@@ -452,7 +454,42 @@ func (h *HttpHandler) RemoveDegreeCertificate(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, models.Response{Message: "Remove transcript success"})
+	return c.JSON(http.StatusOK, models.Response{Message: "Remove degree certificate success"})
+}
+
+// RemoveIDCard godoc
+// @Summary Remove idcard file
+// @Description remove idcard file
+// @Tags files
+// @Produce json
+// @Param id path string true "user id"
+// @Success 200 {array} models.Response
+// @Failure 403 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/idcard/{id} [delete]
+func (h *HttpHandler) RemoveIDCard(c echo.Context) error {
+	id := c.Param("id")
+	user := getUserFromToken(c)
+	if user.ID.Hex() != id && !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
+	filename, err := h.usecase.GetPathIDCard(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, utils.ErrNoIDCardFile)
+	}
+
+	err = h.usecase.RemoveIDCard(filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	err = h.usecase.UpdateIDCard(id, "")
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, models.Response{Message: "Remove idcard success"})
 }
 
 func getImageFilename(u *models.User, oldName string) (filename string) {

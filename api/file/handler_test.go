@@ -453,7 +453,7 @@ func TestRemoveDegreeCertificate(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 
-	t.Run("when user no have transcript status code should be internal server error", func(t *testing.T) {
+	t.Run("when user no have degree certificate status code should be internal server error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
@@ -473,10 +473,10 @@ func TestRemoveDegreeCertificate(t *testing.T) {
 		handler.RemoveDegreeCertificate(c)
 
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-		assert.Equal(t, `{"code":500,"message":"No transcript file."}`, rec.Body.String())
+		assert.Equal(t, `{"code":500,"message":"No degree certificate file."}`, rec.Body.String())
 	})
 
-	t.Run("when remove transcript is not success status code should be internal server error", func(t *testing.T) {
+	t.Run("when remove degree certificate is not success status code should be internal server error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
@@ -515,6 +515,99 @@ func TestRemoveDegreeCertificate(t *testing.T) {
 
 		handler := &HttpHandler{mockUsecase}
 		handler.RemoveDegreeCertificate(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
+		assert.Equal(t, `{"code":403,"message":"Permission denied."}`, rec.Body.String())
+	})
+}
+
+func TestRemoveIDCard(t *testing.T) {
+	t.Run("when remove idcard success status code should be ok", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.User
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathIDCard(u.ID.Hex()).Return("test.pdf", nil)
+		mockUsecase.EXPECT().RemoveIDCard("test.pdf").Return(nil)
+		mockUsecase.EXPECT().UpdateIDCard(u.ID.Hex(), "").Return(nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.RemoveIDCard(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+
+	t.Run("when user no have idcard status code should be internal server error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.User
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathIDCard(u.ID.Hex()).Return("test.pdf", errors.New(""))
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.RemoveIDCard(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+		assert.Equal(t, `{"code":500,"message":"No idcard file."}`, rec.Body.String())
+	})
+
+	t.Run("when remove idcard is not success status code should be internal server error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.User
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathIDCard(u.ID.Hex()).Return("test.pdf", nil)
+		mockUsecase.EXPECT().RemoveIDCard("test.pdf").Return(errors.New(""))
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.RemoveIDCard(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+
+	t.Run("when user send request to method but no have token status code should be unauthorized", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues("1234")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.RemoveIDCard(c)
 
 		assert.Equal(t, http.StatusForbidden, rec.Code)
 		assert.Equal(t, `{"code":403,"message":"Permission denied."}`, rec.Body.String())
