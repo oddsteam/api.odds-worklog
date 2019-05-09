@@ -36,7 +36,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.DELETE("/degreecertificate/:id", h.RemoveDegreeCertificate)
 	r.POST("/idcard", h.UploadIDCard)
 	r.GET("/idcard/:id", h.DownloadIDCard)
-	r.DELETE("/idcard/:id", h.DownloadIDCard)
+	r.DELETE("/idcard/:id", h.RemoveIDCard)
 }
 
 // UploadDegreeCertificate godoc
