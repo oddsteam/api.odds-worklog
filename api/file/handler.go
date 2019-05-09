@@ -33,6 +33,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.DELETE("/image/:id", h.RemoveImageFile)
 	r.POST("/degreecertificate", h.UploadDegreeCertificate)
 	r.GET("/degreecertificate/:id", h.DownloadDegreeCertificate)
+	r.DELETE("/degreecertificate/:id", h.RemoveDegreeCertificate)
 }
 
 // UploadDegreeCertificate godoc
@@ -147,34 +148,6 @@ func (h *HttpHandler) UploadTranscript(c echo.Context) error {
 	return c.JSON(http.StatusOK, models.Response{Message: "Upload transcript success."})
 }
 
-func getUserFromToken(c echo.Context) *models.User {
-	t := c.Get("user").(*jwt.Token)
-	claims := t.Claims.(*models.JwtCustomClaims)
-	return claims.User
-}
-
-func getTranscriptFilename(u *models.User) (filename string) {
-	path := "files/transcripts"
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		os.Mkdir(path, os.ModePerm)
-	}
-
-	r := utils.RandStringBytes(12)
-	filename = fmt.Sprintf("%s/%s_%s_%s.pdf", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r)
-	return
-}
-
-func getDegreeCertificateFilename(u *models.User) (filename string) {
-	path := "files/degreecertificate"
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		os.Mkdir(path, os.ModePerm)
-	}
-
-	r := utils.RandStringBytes(12)
-	filename = fmt.Sprintf("%s/%s_%s_%s.pdf", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r)
-	return
-}
-
 // DownloadTranscript godoc
 // @Summary Download transcript file
 // @Description Download transcript file
@@ -270,22 +243,6 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 	return c.JSON(http.StatusOK, models.Response{Message: "Upload image profile success."})
 }
 
-func getImageFilename(u *models.User, oldName string) (filename string) {
-	path := "files/images"
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		os.Mkdir(path, os.ModePerm)
-	}
-
-	t := ".png"
-	arr := strings.Split(oldName, ".")
-	if len(arr) == 2 {
-		t = arr[1]
-	}
-	r := utils.RandStringBytes(12)
-	filename = fmt.Sprintf("%s/%s_%s_%s.%s", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r, t)
-	return
-}
-
 // DownloadImageProfile godoc
 // @Summary Download image file
 // @Description Download image file
@@ -378,4 +335,83 @@ func (h *HttpHandler) RemoveImageFile(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, models.Response{Message: "Remove image success"})
+}
+
+// RemoveDegreeCertificate godoc
+// @Summary Remove degree certificate file
+// @Description remove degree certificate file
+// @Tags files
+// @Produce json
+// @Param id path string true "user id"
+// @Success 200 {array} models.Response
+// @Failure 403 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/degreecertificate/{id} [delete]
+func (h *HttpHandler) RemoveDegreeCertificate(c echo.Context) error {
+	id := c.Param("id")
+	user := getUserFromToken(c)
+	if user.ID.Hex() != id && !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
+	filename, err := h.usecase.GetPathDegreeCertificate(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, utils.ErrNoTranscriptFile)
+	}
+
+	err = h.usecase.RemoveDegreeCertificate(filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	err = h.usecase.UpdateDegreeCertificate(id, "")
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, models.Response{Message: "Remove transcript success"})
+}
+
+func getImageFilename(u *models.User, oldName string) (filename string) {
+	path := "files/images"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.Mkdir(path, os.ModePerm)
+	}
+
+	t := ".png"
+	arr := strings.Split(oldName, ".")
+	if len(arr) == 2 {
+		t = arr[1]
+	}
+	r := utils.RandStringBytes(12)
+	filename = fmt.Sprintf("%s/%s_%s_%s.%s", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r, t)
+	return
+}
+
+func getUserFromToken(c echo.Context) *models.User {
+	t := c.Get("user").(*jwt.Token)
+	claims := t.Claims.(*models.JwtCustomClaims)
+	return claims.User
+}
+
+func getTranscriptFilename(u *models.User) (filename string) {
+	path := "files/transcripts"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.Mkdir(path, os.ModePerm)
+	}
+
+	r := utils.RandStringBytes(12)
+	filename = fmt.Sprintf("%s/%s_%s_%s.pdf", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r)
+	return
+}
+
+func getDegreeCertificateFilename(u *models.User) (filename string) {
+	path := "files/degreecertificate"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.Mkdir(path, os.ModePerm)
+	}
+
+	r := utils.RandStringBytes(12)
+	filename = fmt.Sprintf("%s/%s_%s_%s.pdf", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r)
+	return
 }

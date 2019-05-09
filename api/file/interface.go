@@ -10,6 +10,7 @@ type Usecase interface {
 	GetPathImageProfile(id string) (string, error)
 	GetPathDegreeCertificate(id string) (string, error)
 	RemoveTranscript(filename string) error
+	RemoveDegreeCertificate(filename string) error
 	RemoveImage(filename string) error
 	GetUserByID(id string) (*models.User, error)
 }

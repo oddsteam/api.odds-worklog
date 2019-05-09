@@ -121,6 +121,18 @@ func (mr *MockUsecaseMockRecorder) RemoveTranscript(filename interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveTranscript", reflect.TypeOf((*MockUsecase)(nil).RemoveTranscript), filename)
 }
 
+// RemoveDegreeCertificate mocks base method
+func (m *MockUsecase) RemoveDegreeCertificate(filename string) error {
+	ret := m.ctrl.Call(m, "RemoveDegreeCertificate", filename)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveDegreeCertificate indicates an expected call of RemoveDegreeCertificate
+func (mr *MockUsecaseMockRecorder) RemoveDegreeCertificate(filename interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveDegreeCertificate", reflect.TypeOf((*MockUsecase)(nil).RemoveDegreeCertificate), filename)
+}
+
 // RemoveImage mocks base method
 func (m *MockUsecase) RemoveImage(filename string) error {
 	ret := m.ctrl.Call(m, "RemoveImage", filename)
