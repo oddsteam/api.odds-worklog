@@ -268,6 +268,73 @@ func TestDownloadDegreeCertificate(t *testing.T) {
 	})
 }
 
+func TestDownloadIDCard(t *testing.T) {
+	t.Run("download idcard file success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.Admin
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathIDCard(u.ID.Hex()).Return("test.pdf", nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.DownloadIDCard(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+
+	t.Run("when not owner idcard file and not admin then return status code 403", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues("1234")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.DownloadIDCard(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
+		assert.Equal(t, `{"code":403,"message":"Permission denied."}`, rec.Body.String())
+	})
+
+	t.Run("when idcard file error then return status code 500", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.User
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathIDCard(u.ID.Hex()).Return("", errors.New(""))
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.DownloadIDCard(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+}
+
 func TestRemoveTranscript(t *testing.T) {
 	t.Run("when remove transcript success status code should be ok", func(t *testing.T) {
 		ctrl := gomock.NewController(t)

@@ -23,6 +23,7 @@ var (
 	ErrNoTranscriptFile        = errors.New("No transcript file.")
 	ErrNoImageProfileFile      = errors.New("No image profile.")
 	ErrNoDegreeCertificateFile = errors.New("No degree certificate file.")
+	ErrNoIDCardFile            = errors.New("No idcard file.")
 	ErrPermissionDenied        = errors.New("Permission denied.")
 	ErrInvalidUserVat          = errors.New("Invalid user vat.")
 	ErrCustomerNotFound        = errors.New("Customer is not found.")

@@ -278,7 +278,7 @@ func (h *HttpHandler) DownloadTranscript(c echo.Context) error {
 	return c.Attachment(filename, filename)
 }
 
-// DownloadTranscript godoc
+// DownloadDegreeCertificate godoc
 // @Summary Download degree certificate file
 // @Description Download degree certificate file
 // @Tags files
@@ -296,6 +296,30 @@ func (h *HttpHandler) DownloadDegreeCertificate(c echo.Context) error {
 	}
 
 	filename, err := h.usecase.GetPathDegreeCertificate(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.Attachment(filename, filename)
+}
+
+// DownloadIDCard godoc
+// @Summary Download idcard file
+// @Description Download idcard file
+// @Tags files
+// @Produce json
+// @Param id path string true "user id"
+// @Success 200 {array} string
+// @Failure 403 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/idcard/{id} [get]
+func (h *HttpHandler) DownloadIDCard(c echo.Context) error {
+	id := c.Param("id")
+	user := getUserFromToken(c)
+	if user.ID.Hex() != id && !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
+	filename, err := h.usecase.GetPathIDCard(id)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}

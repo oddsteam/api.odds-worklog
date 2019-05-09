@@ -10,6 +10,7 @@ type Usecase interface {
 	GetPathTranscript(id string) (string, error)
 	GetPathImageProfile(id string) (string, error)
 	GetPathDegreeCertificate(id string) (string, error)
+	GetPathIDCard(id string) (string, error)
 	RemoveTranscript(filename string) error
 	RemoveDegreeCertificate(filename string) error
 	RemoveImage(filename string) error

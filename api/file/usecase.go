@@ -128,6 +128,24 @@ func (u *usercasse) GetPathDegreeCertificate(id string) (string, error) {
 	return user.DegreeCertificate, nil
 }
 
+func (u *usercasse) GetPathIDCard(id string) (string, error) {
+	user, err := u.repo.GetByID(id)
+	if err != nil {
+		return "", err
+	}
+	if user.IDCard == "" {
+		return "", utils.ErrNoIDCardFile
+	}
+
+	_, err = os.Open(user.IDCard)
+	if err != nil {
+		user.IDCard = ""
+		u.repo.Update(user)
+		return "", utils.ErrNoIDCardFile
+	}
+	return user.IDCard, nil
+}
+
 func (u *usercasse) RemoveTranscript(filename string) error {
 	err := os.Remove(filename)
 	if err != nil {
