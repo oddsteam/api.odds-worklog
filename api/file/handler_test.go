@@ -41,6 +41,32 @@ func Test_getImageFilename(t *testing.T) {
 	assert.Equal(t, len(filenameExp)+16, len(filename))
 }
 
+func Test_getDegreeCertificateFilename(t *testing.T) {
+	u := userMock.User
+
+	filename := getDegreeCertificateFilename(&u)
+	assert.NotEmpty(t, filename)
+
+	path := "files/degreecertificate"
+	filenameExp := fmt.Sprintf("%s/%s_%s_", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName))
+	assert.Contains(t, filename, filenameExp)
+	assert.Contains(t, filename, ".pdf")
+	assert.Equal(t, len(filenameExp)+16, len(filename))
+}
+
+func Test_getIdCardFilename(t *testing.T) {
+	u := userMock.User
+
+	filename := getIdCardFilename(&u)
+	assert.NotEmpty(t, filename)
+
+	path := "files/idcard"
+	filenameExp := fmt.Sprintf("%s/%s_%s_", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName))
+	assert.Contains(t, filename, filenameExp)
+	assert.Contains(t, filename, ".pdf")
+	assert.Equal(t, len(filenameExp)+16, len(filename))
+}
+
 func TestDownloadTranscript(t *testing.T) {
 	t.Run("download transcript file success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)

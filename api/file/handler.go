@@ -92,8 +92,65 @@ func (h *HttpHandler) UploadDegreeCertificate(c echo.Context) error {
 	return c.JSON(http.StatusOK, models.Response{Message: "Upload degree certificate success."})
 }
 
+// UploadIdCard godoc
+// @Summary Upload Idcard file
+// @Description Upload idcard file
+// @Tags files
+// @Accept multipart/form-data
+// @Produce json
+// @Param file body int true "file"
+// @Success 200 {object} models.Response
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/idcard [post]
+
+func (h *HttpHandler) UploadIdCard(c echo.Context) error {
+	file, err := c.FormFile("file")
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	fn := file.Filename
+	t := fn[len(fn)-3:]
+	if strings.ToUpper(t) != "PDF" {
+		return utils.NewError(c, http.StatusInternalServerError, utils.ErrNotPDFFile)
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	defer src.Close()
+
+	u := getUserFromToken(c)
+	user, err := h.usecase.GetUserByID(u.ID.Hex())
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	filename := getIdCardFilename(user)
+
+	// Destination
+	dst, err := os.Create(filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	defer dst.Close()
+
+	// Copy
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	// err = h.usecase.UpdateIdCard(u.ID.Hex(), filename)
+	// if err != nil {
+	// 	return utils.NewError(c, http.StatusInternalServerError, err)
+	// }
+
+	return c.JSON(http.StatusOK, models.Response{Message: "Upload id card success."})
+}
+
 // UploadTranscript godoc
-// @Summary Upload transcript file
+// @Summary Upload Transcrip file
 // @Description Upload transcript file
 // @Tags files
 // @Accept multipart/form-data
@@ -102,6 +159,7 @@ func (h *HttpHandler) UploadDegreeCertificate(c echo.Context) error {
 // @Success 200 {object} models.Response
 // @Failure 500 {object} utils.HTTPError
 // @Router /files/transcript [post]
+
 func (h *HttpHandler) UploadTranscript(c echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
@@ -146,6 +204,53 @@ func (h *HttpHandler) UploadTranscript(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, models.Response{Message: "Upload transcript success."})
+}
+
+// UploadImageProfile godoc
+// @Summary Upload image profile
+// @Description Upload image profile
+// @Tags files
+// @Accept image/png,image/gif,image/jpeg
+// @Produce json
+// @Param image-profile body int true "file"
+// @Success 200 {object} models.Response
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/image [post]
+func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
+	file, err := c.FormFile("image-profile")
+	if err != nil {
+		return utils.NewError(c, http.StatusBadRequest, err)
+	}
+	src, err := file.Open()
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	defer src.Close()
+
+	u := getUserFromToken(c)
+	user, err := h.usecase.GetUserByID(u.ID.Hex())
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	filename := getImageFilename(user, file.Filename)
+
+	dst, err := os.Create(filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	err = h.usecase.UpdateImageProfileUser(u.ID.Hex(), filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, models.Response{Message: "Upload image profile success."})
 }
 
 // DownloadTranscript godoc
@@ -194,53 +299,6 @@ func (h *HttpHandler) DownloadDegreeCertificate(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.Attachment(filename, filename)
-}
-
-// UploadImageProfile godoc
-// @Summary Upload image profile
-// @Description Upload image profile
-// @Tags files
-// @Accept image/png,image/gif,image/jpeg
-// @Produce json
-// @Param image-profile body int true "file"
-// @Success 200 {object} models.Response
-// @Failure 500 {object} utils.HTTPError
-// @Router /files/image [post]
-func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
-	file, err := c.FormFile("image-profile")
-	if err != nil {
-		return utils.NewError(c, http.StatusBadRequest, err)
-	}
-	src, err := file.Open()
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	defer src.Close()
-
-	u := getUserFromToken(c)
-	user, err := h.usecase.GetUserByID(u.ID.Hex())
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	filename := getImageFilename(user, file.Filename)
-
-	dst, err := os.Create(filename)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	defer dst.Close()
-
-	_, err = io.Copy(dst, src)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-
-	err = h.usecase.UpdateImageProfileUser(u.ID.Hex(), filename)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-
-	return c.JSON(http.StatusOK, models.Response{Message: "Upload image profile success."})
 }
 
 // DownloadImageProfile godoc
@@ -407,6 +465,17 @@ func getTranscriptFilename(u *models.User) (filename string) {
 
 func getDegreeCertificateFilename(u *models.User) (filename string) {
 	path := "files/degreecertificate"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.Mkdir(path, os.ModePerm)
+	}
+
+	r := utils.RandStringBytes(12)
+	filename = fmt.Sprintf("%s/%s_%s_%s.pdf", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r)
+	return
+}
+
+func getIdCardFilename(u *models.User) (filename string) {
+	path := "files/idcard"
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		os.Mkdir(path, os.ModePerm)
 	}
