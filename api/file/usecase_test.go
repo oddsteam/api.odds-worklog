@@ -259,3 +259,55 @@ func TestUsecase_GetPathDegreeCertificate(t *testing.T) {
 			assert.Empty(t, filename)
 		})
 }
+func TestUsecase_GetPathIDCard(t *testing.T) {
+	t.Run("get path idcard success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		user := userMock.User
+		user.IDCard = "test.pdf"
+		mockUserRepo := userMock.NewMockRepository(ctrl)
+		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+
+		usecase := NewUsecase(mockUserRepo)
+		filename, err := usecase.GetPathIDCard(user.ID.Hex())
+
+		assert.NoError(t, err)
+		assert.NotEmpty(t, filename)
+	})
+
+	t.Run("when idcard empty then return '', ErrNoIDCardFile", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		user := userMock.User
+		mockUserRepo := userMock.NewMockRepository(ctrl)
+		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+
+		usecase := NewUsecase(mockUserRepo)
+		filename, err := usecase.GetPathIDCard(user.ID.Hex())
+
+		assert.EqualError(t, err, utils.ErrNoIDCardFile.Error())
+		assert.Empty(t, filename)
+	})
+
+	t.Run(`when can't open idcard file
+			then update user with empty idcard
+			and return '', ErrNoIDCardFile`,
+		func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			user := userMock.User
+			user.IDCard = "no.pdf"
+			mockUserRepo := userMock.NewMockRepository(ctrl)
+			mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+			mockUserRepo.EXPECT().Update(gomock.Any())
+
+			usecase := NewUsecase(mockUserRepo)
+			filename, err := usecase.GetPathIDCard(user.ID.Hex())
+
+			assert.EqualError(t, err, utils.ErrNoIDCardFile.Error())
+			assert.Empty(t, filename)
+		})
+}
