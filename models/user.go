@@ -57,6 +57,11 @@ func (u *User) GetName() string {
 	}
 	return u.GetFullname()
 }
+
+func (u *User) GetBankAccountName() string {
+	return u.BankAccountName
+}
+
 func (u *User) GetThaiCitizenID() string {
 	return u.ThaiCitizenID
 }

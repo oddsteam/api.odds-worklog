@@ -45,7 +45,7 @@ func (u *usecase) ExportPdf(id string) (string, error) {
 
 	companyName := "บริษัท ออด-อี (ประเทศไทย) จํากัด"
 	companyAddress := "2549/41-43 พหลโยธิน ลาดยาว จตุจักร กรุงเทพ 10900"
-	employeeName := sd.GetName()
+	employeeName := sd.GetBankAccountName()
 	employeeAddress := sd.GetAddress()
 
 	fmt.Sprintf("%s", companyName)
@@ -63,7 +63,7 @@ func (u *usecase) ExportPdf(id string) (string, error) {
 		print(whts[i])
 		print(incomes[i])
 		d := time.Now()
-		dd := days[i]
+		dd := "25"
 		dmn := converseMonthtoThaiName(months[i])
 		dy := setDy((int(d.Year()) + 543))
 		ti := incomes[i]
