@@ -230,51 +230,39 @@ func TestUsecase_Update(t *testing.T) {
 	})
 }
 
-// func TestUsecase_UpdateStatusTavi(t *testing.T) {
-// 	t.Run("update status tavi success", func(t *testing.T) {
-// 		ctrl := gomock.NewController(t)
-// 		defer ctrl.Finish()
+func TestUsecase_UpdateStatusTavi(t *testing.T) {
+	t.Run("update status tavi success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-// 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
-// 		mockRepo := userMock.NewMockRepository(ctrl)
-// 		mockRepo.EXPECT().GetByID(gomock.Any()).Return(&userMock.User, nil)
-// 		mockRepo.EXPECT().Update(gomock.Any()).Return(&userMock.User, nil)
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetByID(gomock.Any()).Return(&userMock.User, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).Return(&userMock.User, nil)
 
-// 		uc := NewUsecase(mockRepo, mockSiteRepo)
-// 		u, err := uc.Update(&userMock.User, userMock.User.IsAdmin())
+		uc := NewUsecase(mockRepo, mockSiteRepo)
+		u, err := uc.UpdateStatusTavi(userMock.ListUser, userMock.User.IsAdmin())
 
-// 		assert.NoError(t, err)
-// 		assert.NotNil(t, u)
-// 		assert.Equal(t, userMock.User.GetFullname(), u.GetFullname())
-// 	})
+		assert.NoError(t, err)
+		assert.NotNil(t, u)
+		assert.Equal(t, userMock.User.GetFullname(), u[0].GetFullname())
+	})
 
-// 	t.Run("when update status tavi invalid role, then retuen erro nil, ErrInvalidUserRole", func(t *testing.T) {
-// 		ctrl := gomock.NewController(t)
-// 		defer ctrl.Finish()
+	t.Run("when update status tavi invalid role, then retuen erro nil, ErrInvalidUserRole", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-// 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
-// 		mockRepo := userMock.NewMockRepository(ctrl)
-// 		uc := NewUsecase(mockRepo, mockSiteRepo)
-// 		mu := userMock.User
-// 		mu.Role = ""
-// 		u, err := uc.Update(&mu, mu.IsAdmin())
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
 
-// 		assert.Nil(t, u)
-// 		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
-// 	})
+		uc := NewUsecase(mockRepo, mockSiteRepo)
+		mu := userMock.ListUser
+		mu[0].User.Role = ""
 
-// 	t.Run("when update status tavi invalid vat, then retuen erro nil, ErrInvalidUserVat", func(t *testing.T) {
-// 		ctrl := gomock.NewController(t)
-// 		defer ctrl.Finish()
+		u, err := uc.UpdateStatusTavi(mu, mu[0].User.IsAdmin())
 
-// 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
-// 		mockRepo := userMock.NewMockRepository(ctrl)
-// 		uc := NewUsecase(mockRepo, mockSiteRepo)
-// 		mu := userMock.User
-// 		mu.Vat = ""
-// 		u, err := uc.Update(&mu, mu.IsAdmin())
+		assert.Nil(t, u)
+		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
+	})
 
-// 		assert.Nil(t, u)
-// 		assert.EqualError(t, err, utils.ErrInvalidUserVat.Error())
-// 	})
-// }
+}

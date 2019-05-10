@@ -100,7 +100,9 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/status/corporate [get]
 func (h *HttpHandler) GetCorporateIncomeStatus(c echo.Context) error {
-	status, err := h.Usecase.GetIncomeStatusList("corporate")
+	isAdmin, _ := IsUserAdmin(c)
+
+	status, err := h.Usecase.GetIncomeStatusList("corporate", isAdmin)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -119,7 +121,9 @@ func (h *HttpHandler) GetCorporateIncomeStatus(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/status/individual [get]
 func (h *HttpHandler) GetIndividualIncomeStatus(c echo.Context) error {
-	status, err := h.Usecase.GetIncomeStatusList("individual")
+	isAdmin, _ := IsUserAdmin(c)
+
+	status, err := h.Usecase.GetIncomeStatusList("individual", isAdmin)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}

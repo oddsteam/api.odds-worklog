@@ -197,6 +197,8 @@ func (u *usecase) UpdateStatusTavi(m []*models.StatusTavi, isAdmin bool) ([]*mod
 		if err != nil {
 			return nil, err
 		}
+		user.DailyIncome = ""
+		user.ThaiCitizenID = ""
 
 		users = append(users, user)
 

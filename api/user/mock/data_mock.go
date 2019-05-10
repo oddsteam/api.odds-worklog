@@ -21,6 +21,8 @@ var (
 		ThaiCitizenID:     "1234567890123",
 		Vat:               "Y",
 		SlackAccount:      "test@abc.com",
+		DailyIncome:       "2000",
+		StatusTavi:        true,
 		Address:           "every Where",
 	}
 
@@ -35,7 +37,18 @@ var (
 		ThaiCitizenID:     "1234567890123",
 		Vat:               "Y",
 		SlackAccount:      "test@abc.com",
+		DailyIncome:       "2000",
+		StatusTavi:        true,
 		Address:           "every Where",
+	}
+
+	StatusTavi = models.StatusTavi{
+		ID:   bson.ObjectIdHex("5bbcf2f90fd2df527bc39539"),
+		User: &User,
+	}
+	StatusTavi2 = models.StatusTavi{
+		ID:   bson.ObjectIdHex("5bbcf2f90fd2df527bc39535"),
+		User: &User2,
 	}
 
 	Admin = models.User{
@@ -49,6 +62,8 @@ var (
 		ThaiCitizenID:     "1234567890123",
 		Vat:               "Y",
 		SlackAccount:      "test@abc.com",
+		DailyIncome:       "2000",
+		StatusTavi:        true,
 		Address:           "every Where",
 	}
 
@@ -63,6 +78,7 @@ var (
 	UserJson    = string(userByte)
 
 	Users        = []*models.User{&User, &User2}
+	ListUser     = []*models.StatusTavi{&StatusTavi}
 	usersByte, _ = json.Marshal(Users)
 	UsersJson    = string(usersByte)
 

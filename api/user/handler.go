@@ -31,7 +31,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/email/:email", handler.GetByEmail)
 	r.GET("/site/:id", handler.GetBySiteID)
 	r.PUT("/:id", handler.Update)
-	r.PUT("/tavi/:id", handler.UpdateStatusTavi)
+	r.PUT("/tavi", handler.UpdateStatusTavi)
 	r.DELETE("/:id", handler.Delete)
 }
 

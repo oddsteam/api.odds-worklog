@@ -299,7 +299,7 @@ func (fs MockInComeUsecase) UpdateIncome(id string, req *models.IncomeReq, user 
 	return nil, nil
 }
 
-func (fs MockInComeUsecase) GetIncomeStatusList(role string) ([]*models.IncomeStatus, error) {
+func (fs MockInComeUsecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
 	mockIncomeStatus := new(models.IncomeStatus)
 
 	if role == "individual" {

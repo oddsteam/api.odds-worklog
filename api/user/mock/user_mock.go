@@ -254,9 +254,8 @@ func (mr *MockUsecaseMockRecorder) Update(u, isAdmin interface{}) *gomock.Call {
 // UpdateStatusTavi mocks base method
 func (m *MockUsecase) UpdateStatusTavi(u []*models.StatusTavi, isAdmin bool) ([]*models.User, error) {
 	ret := m.ctrl.Call(m, "UpdateStatusTavi", u, isAdmin)
-	ret0, _ := ret[0].([]*models.User)
 	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	return nil, ret1
 }
 
 // UpdateStatusTavi indicates an expected call of UpdateStatusTavi

@@ -196,7 +196,7 @@ func TestUsecaseGetListIncome(t *testing.T) {
 		mockUserRepo.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
 
 		uc := NewUsecase(mockRepoIncome, mockUserRepo)
-		res, err := uc.GetIncomeStatusList("corporate")
+		res, err := uc.GetIncomeStatusList("corporate", false)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, incomeMock.MockIncomeStatusList[0].Status, res[0].Status)

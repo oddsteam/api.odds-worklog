@@ -160,16 +160,16 @@ func (mr *MockUsecaseMockRecorder) UpdateIncome(id, req, user interface{}) *gomo
 }
 
 // GetIncomeStatusList mocks base method
-func (m *MockUsecase) GetIncomeStatusList(role string) ([]*models.IncomeStatus, error) {
-	ret := m.ctrl.Call(m, "GetIncomeStatusList", role)
+func (m *MockUsecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
+	ret := m.ctrl.Call(m, "GetIncomeStatusList", role, isAdmin)
 	ret0, _ := ret[0].([]*models.IncomeStatus)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetIncomeStatusList indicates an expected call of GetIncomeStatusList
-func (mr *MockUsecaseMockRecorder) GetIncomeStatusList(role interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeStatusList", reflect.TypeOf((*MockUsecase)(nil).GetIncomeStatusList), role)
+func (mr *MockUsecaseMockRecorder) GetIncomeStatusList(role interface{}, isAdmin interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeStatusList", reflect.TypeOf((*MockUsecase)(nil).GetIncomeStatusList), role, isAdmin)
 }
 
 // GetIncomeByUserIdAndCurrentMonth mocks base method

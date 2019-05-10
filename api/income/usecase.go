@@ -119,7 +119,7 @@ func calIncomeSum(workAmount string, vattype string, incomes string) (*incomeSum
 	return ins, nil
 }
 
-func (u *usecase) GetIncomeStatusList(role string) ([]*models.IncomeStatus, error) {
+func (u *usecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
 	var incomeList []*models.IncomeStatus
 	users, err := u.userRepo.GetByRole(role)
 	if err != nil {
@@ -130,9 +130,13 @@ func (u *usecase) GetIncomeStatusList(role string) ([]*models.IncomeStatus, erro
 	for index, element := range users {
 		element.ThaiCitizenID = ""
 		element.DailyIncome = ""
+
 		incomeUser, err := u.repo.GetIncomeUserByYearMonth(element.ID.Hex(), year, month)
 		income := models.IncomeStatus{User: element}
 		incomeList = append(incomeList, &income)
+		if !isAdmin {
+			element.ID = ""
+		}
 		if err != nil {
 			incomeList[index].Status = "N"
 		} else {

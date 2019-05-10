@@ -85,11 +85,11 @@ func GetReminder(c echo.Context, reminderRepo Repository) error {
 
 func ListEmailUserIncomeStatusIsNo(incomeUsecase income.Usecase) ([]string, error) {
 	emails := []string{}
-	incomeIndividualStatusList, err := incomeUsecase.GetIncomeStatusList("individual")
+	incomeIndividualStatusList, err := incomeUsecase.GetIncomeStatusList("individual", false)
 	if err != nil {
 		return nil, err
 	}
-	incomeCorpStatusList, err := incomeUsecase.GetIncomeStatusList("corporate")
+	incomeCorpStatusList, err := incomeUsecase.GetIncomeStatusList("corporate", false)
 	if err != nil {
 		return nil, err
 	}
