@@ -187,9 +187,10 @@ func (h *HttpHandler) GetExportPdf(c echo.Context) error {
 // @Tags incomes
 // @Accept  json
 // @Produce  json
+// @Param month path string true "Month"
 // @Success 200 {array} string
 // @Failure 500 {object} utils.HTTPError
-// @Router /incomes/export/corporate [get]
+// @Router /incomes/export/corporate/{month} [get]
 func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
 	isAdmin, message := IsUserAdmin(c)
 	if !isAdmin {
@@ -233,14 +234,15 @@ func (h *HttpHandler) GetExportDifferentCorporate(c echo.Context) error {
 // @Tags incomes
 // @Accept  json
 // @Produce  json
+// @Param month path string true "Month"
 // @Success 200 {array} string
 // @Failure 500 {object} utils.HTTPError
-// @Router /incomes/export/individual [get]
+// @Router /incomes/export/individual/{month} [get]
 func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
-	// isAdmin, message := IsUserAdmin(c)
-	// if !isAdmin {
-	// 	return c.JSON(http.StatusUnauthorized, message)
-	// }
+	isAdmin, message := IsUserAdmin(c)
+	if !isAdmin {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
 	month := c.Param("month")
 	if month == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
