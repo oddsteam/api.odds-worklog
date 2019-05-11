@@ -170,8 +170,9 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 	if err != nil {
 		return "", err
 	}
+
 	strWrite := make([][]string, 0)
-	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินที่ต้องโอน", "จำนวนรายได้พิเศษที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
+	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 	strWrite = append(strWrite, d)
 	for _, user := range users {
 		income, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month-time.Month(beforemonth))
@@ -180,9 +181,10 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 				u.repo.UpdateExportStatus(income.UserID)
 			}
 			t := income.SubmitDate
+			summaryIncome, _ := calTotalIncome(income.NetIncome, income.NetSpecialIncome)
 			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
-			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), setValueCSV(utils.FormatCommas(income.NetSpecialIncome)), income.Note, tf}
+			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), setValueCSV(utils.FormatCommas(income.NetSpecialIncome)), setValueCSV(utils.FormatCommas(summaryIncome)), income.Note, tf}
 			strWrite = append(strWrite, d)
 		}
 	}
@@ -223,16 +225,17 @@ func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 		return "", err
 	}
 	strWrite := make([][]string, 0)
-	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินที่ต้องโอน", "วันที่กรอก"}
+	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 	strWrite = append(strWrite, d)
 	for _, user := range users {
 		income, err := u.repo.GetIncomeByUserID(user.ID.Hex())
 		if err == nil {
 			u.repo.UpdateExportStatus(income.UserID)
 			t := income.SubmitDate
+			summaryIncome, _ := calTotalIncome(income.NetIncome, income.NetSpecialIncome)
 			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
-			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), tf}
+			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), setValueCSV(utils.FormatCommas(income.NetSpecialIncome)), setValueCSV(utils.FormatCommas(summaryIncome)), income.Note, tf}
 			strWrite = append(strWrite, d)
 		}
 	}
