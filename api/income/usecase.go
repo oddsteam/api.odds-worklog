@@ -27,41 +27,17 @@ func NewUsecase(r Repository, ur user.Repository) Usecase {
 	return &usecase{r, ur}
 }
 
-func calSummaryWht(whtIncome string, whtSpecialIncome string) (string, error) {
-	wht, err := utils.StringToFloat64(whtIncome)
+func calSummary(main string, special string) (string, error) {
+	ma, err := utils.StringToFloat64(main)
 	if err != nil {
 		return "", err
 	}
-	whtSpecial, err := utils.StringToFloat64(whtSpecialIncome)
+	sp, err := utils.StringToFloat64(special)
 	if err != nil {
 		return "", err
 	}
-	return utils.FloatToString(wht + whtSpecial), nil
+	return utils.FloatToString(ma + sp), nil
 
-}
-func calSummaryVat(vatIncome string, vatSpecialIncome string) (string, error) {
-	vat, err := utils.StringToFloat64(vatIncome)
-	if err != nil {
-		return "", err
-	}
-	vatSpecial, err := utils.StringToFloat64(vatSpecialIncome)
-	if err != nil {
-		return "", err
-	}
-	return utils.FloatToString(vat + vatSpecial), nil
-
-}
-
-func calTotalIncome(income string, specialIncome string) (string, error) {
-	in, err := utils.StringToFloat64(income)
-	if err != nil {
-		return "", err
-	}
-	ins, err := utils.StringToFloat64(specialIncome)
-	if err != nil {
-		return "", err
-	}
-	return utils.FloatToString(in + ins), nil
 }
 
 func calVAT(income string) (string, float64, error) {
@@ -181,7 +157,7 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 				u.repo.UpdateExportStatus(income.UserID)
 			}
 			t := income.SubmitDate
-			summaryIncome, _ := calTotalIncome(income.NetIncome, income.NetSpecialIncome)
+			summaryIncome, _ := calSummary(income.NetIncome, income.NetSpecialIncome)
 			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
 			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), setValueCSV(utils.FormatCommas(income.NetSpecialIncome)), setValueCSV(utils.FormatCommas(summaryIncome)), income.Note, tf}
@@ -232,7 +208,7 @@ func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 		if err == nil {
 			u.repo.UpdateExportStatus(income.UserID)
 			t := income.SubmitDate
-			summaryIncome, _ := calTotalIncome(income.NetIncome, income.NetSpecialIncome)
+			summaryIncome, _ := calSummary(income.NetIncome, income.NetSpecialIncome)
 			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
 			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), setValueCSV(utils.FormatCommas(income.NetSpecialIncome)), setValueCSV(utils.FormatCommas(summaryIncome)), income.Note, tf}
