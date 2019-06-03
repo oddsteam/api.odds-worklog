@@ -612,4 +612,119 @@ func TestRemoveIDCard(t *testing.T) {
 		assert.Equal(t, http.StatusForbidden, rec.Code)
 		assert.Equal(t, `{"code":403,"message":"Permission denied."}`, rec.Body.String())
 	})
+
+	t.Run("when user send request to remove image file but no have token", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues("1234")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.RemoveImageFile(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
+	})
+
+	t.Run("when user send request to remove image file but get path image profile not found", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.User
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathImageProfile(u.ID.Hex()).Return("", errors.New("path not found"))
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.RemoveImageFile(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+
+	t.Run("when user send request to remove image file but remove fail ", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.User
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathImageProfile(u.ID.Hex()).Return("/test.pdf", nil)
+		mockUsecase.EXPECT().RemoveImage("/test.pdf").Return(errors.New("remove image fail"))
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.RemoveImageFile(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+
+	})
+
+	t.Run("when user send request to remove image file but update image profile fail", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.User
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathImageProfile(u.ID.Hex()).Return("/test.pdf", nil)
+		mockUsecase.EXPECT().RemoveImage("/test.pdf").Return(nil)
+		mockUsecase.EXPECT().UpdateImageProfileUser(u.ID.Hex(), "").Return(errors.New("update fail"))
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.RemoveImageFile(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+
+	t.Run("happy case when user send remove image file", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		u := userMock.User
+		mockUsecase := fileMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetPathImageProfile(u.ID.Hex()).Return("/test.pdf", nil)
+		mockUsecase.EXPECT().RemoveImage("/test.pdf").Return(nil)
+		mockUsecase.EXPECT().UpdateImageProfileUser(u.ID.Hex(), "").Return(nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues(u.ID.Hex())
+
+		handler := &HttpHandler{mockUsecase}
+		handler.RemoveImageFile(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, `{"message":"Remove image success"}`, rec.Body.String())
+	})
 }
