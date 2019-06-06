@@ -27,6 +27,19 @@ func NewUsecase(r Repository, ur user.Repository) Usecase {
 	return &usecase{r, ur}
 }
 
+func calSummary(main string, special string) (string, error) {
+	ma, err := utils.StringToFloat64(main)
+	if err != nil {
+		return "", err
+	}
+	sp, err := utils.StringToFloat64(special)
+	if err != nil {
+		return "", err
+	}
+	return utils.FloatToString(ma + sp), nil
+
+}
+
 func calVAT(income string) (string, float64, error) {
 	num, err := utils.StringToFloat64(income)
 	if err != nil {
@@ -45,46 +58,44 @@ func calWHT(income string) (string, float64, error) {
 	return utils.FloatToString(wht), utils.RealFloat(wht), nil
 }
 
-func calIncomeSum(workDate string, vattype string, dailyIncome string, specialIncome string) (*incomeSum, error) {
+func calIncomeSum(workAmount string, vattype string, incomes string) (*incomeSum, error) {
 	var vat, wht string
 	var vatf, whtf float64
 	var ins = new(incomeSum)
 
-	date, _ := utils.StringToFloat64(workDate)
-	daily, _ := utils.StringToFloat64(dailyIncome)
-	specialincome, _ := utils.StringToFloat64(specialIncome)
-	sumIncome := (date * daily) + specialincome
-	income := utils.FloatToString(sumIncome)
-	total, err := utils.StringToFloat64(income)
+	amount, _ := utils.StringToFloat64(workAmount)
+	income, _ := utils.StringToFloat64(incomes)
+	totalIncomeStr := utils.FloatToString(amount * income)
+	totalIncome, err := utils.StringToFloat64(totalIncomeStr)
 	if err != nil {
 		return nil, err
 	}
-	wht, whtf, err = calWHT(income)
+	wht, whtf, err = calWHT(totalIncomeStr)
 	if err != nil {
 		return nil, err
 	}
 
 	ins.WHT = wht
-	ins.TotalIncome = income
+	ins.TotalIncome = totalIncomeStr
 
 	if vattype == "Y" {
-		vat, vatf, err = calVAT(income)
+		vat, vatf, err = calVAT(totalIncomeStr)
 		if err != nil {
 			return nil, err
 		}
 
-		net := total + vatf - whtf
+		net := totalIncome + vatf - whtf
 
 		ins.Net = utils.FloatToString(net)
 		ins.VAT = vat
 		return ins, nil
 	}
-	net := total - whtf
+	net := totalIncome - whtf
 	ins.Net = utils.FloatToString(net)
 	return ins, nil
 }
 
-func (u *usecase) GetIncomeStatusList(role string) ([]*models.IncomeStatus, error) {
+func (u *usecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
 	var incomeList []*models.IncomeStatus
 	users, err := u.userRepo.GetByRole(role)
 	if err != nil {
@@ -95,13 +106,18 @@ func (u *usecase) GetIncomeStatusList(role string) ([]*models.IncomeStatus, erro
 	for index, element := range users {
 		element.ThaiCitizenID = ""
 		element.DailyIncome = ""
+
 		incomeUser, err := u.repo.GetIncomeUserByYearMonth(element.ID.Hex(), year, month)
 		income := models.IncomeStatus{User: element}
 		incomeList = append(incomeList, &income)
+		if !isAdmin {
+			element.ID = ""
+		}
 		if err != nil {
 			incomeList[index].Status = "N"
 		} else {
 			incomeList[index].WorkDate = incomeUser.WorkDate
+			incomeList[index].WorkingHours = incomeUser.WorkingHours
 			incomeList[index].SubmitDate = incomeUser.SubmitDate.Format(time.RFC3339)
 			incomeList[index].Status = "Y"
 		}
@@ -130,8 +146,9 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 	if err != nil {
 		return "", err
 	}
+
 	strWrite := make([][]string, 0)
-	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินที่ต้องโอน", "วันที่กรอก"}
+	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 	strWrite = append(strWrite, d)
 	for _, user := range users {
 		income, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month-time.Month(beforemonth))
@@ -140,9 +157,10 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 				u.repo.UpdateExportStatus(income.UserID)
 			}
 			t := income.SubmitDate
+			summaryIncome, _ := calSummary(income.NetIncome, income.NetSpecialIncome)
 			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
-			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), tf}
+			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), setValueCSV(utils.FormatCommas(income.NetSpecialIncome)), setValueCSV(utils.FormatCommas(summaryIncome)), income.Note, tf}
 			strWrite = append(strWrite, d)
 		}
 	}
@@ -183,16 +201,17 @@ func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 		return "", err
 	}
 	strWrite := make([][]string, 0)
-	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินที่ต้องโอน", "วันที่กรอก"}
+	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 	strWrite = append(strWrite, d)
 	for _, user := range users {
 		income, err := u.repo.GetIncomeByUserID(user.ID.Hex())
 		if err == nil {
 			u.repo.UpdateExportStatus(income.UserID)
 			t := income.SubmitDate
+			summaryIncome, _ := calSummary(income.NetIncome, income.NetSpecialIncome)
 			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
-			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), tf}
+			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), setValueCSV(utils.FormatCommas(income.NetIncome)), setValueCSV(utils.FormatCommas(income.NetSpecialIncome)), setValueCSV(utils.FormatCommas(summaryIncome)), income.Note, tf}
 			strWrite = append(strWrite, d)
 		}
 	}

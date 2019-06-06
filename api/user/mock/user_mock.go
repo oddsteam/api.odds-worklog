@@ -251,6 +251,18 @@ func (mr *MockUsecaseMockRecorder) Update(u, isAdmin interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsecase)(nil).Update), u, isAdmin)
 }
 
+// UpdateStatusTavi mocks base method
+func (m *MockUsecase) UpdateStatusTavi(u []*models.StatusTavi, isAdmin bool) ([]*models.User, error) {
+	ret := m.ctrl.Call(m, "UpdateStatusTavi", u, isAdmin)
+	ret1, _ := ret[1].(error)
+	return nil, ret1
+}
+
+// UpdateStatusTavi indicates an expected call of UpdateStatusTavi
+func (mr *MockUsecaseMockRecorder) UpdateStatusTavi(u, isAdmin interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatusTavi", reflect.TypeOf((*MockUsecase)(nil).UpdateStatusTavi), u, isAdmin)
+}
+
 // Delete mocks base method
 func (m *MockUsecase) Delete(id string) error {
 	ret := m.ctrl.Call(m, "Delete", id)

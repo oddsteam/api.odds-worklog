@@ -19,9 +19,9 @@ type Repository interface {
 type Usecase interface {
 	AddIncome(req *models.IncomeReq, user *models.User) (*models.Income, error)
 	UpdateIncome(id string, req *models.IncomeReq, user *models.User) (*models.Income, error)
-	GetIncomeStatusList(role string) ([]*models.IncomeStatus, error)
+	GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error)
 	GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error)
 	ExportIncome(role string, beforeMonth string) (string, error)
-	ExportPdf() (string, error)
+	ExportPdf(id string) (string, error)
 	ExportIncomeNotExport(role string) (string, error)
 }

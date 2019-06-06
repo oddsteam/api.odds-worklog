@@ -8,7 +8,7 @@ import (
 )
 
 type User struct {
-	ID                bson.ObjectId `bson:"_id" json:"id"`
+	ID                bson.ObjectId `bson:"_id" json:"id,omitempty"`
 	Role              string        `bson:"role" json:"role"`
 	FirstName         string        `bson:"firstName" json:"firstName"`
 	LastName          string        `bson:"lastName" json:"lastName"`
@@ -23,10 +23,14 @@ type User struct {
 	SiteID            string        `bson:"siteId" json:"siteId,omitempty"`
 	Project           string        `bson:"project" json:"project,omitempty"`
 	ImageProfile      string        `bson:"imageProfile" json:"imageProfile,omitempty"`
+	DegreeCertificate string        `bson:"degreeCertificate" json:"degreeCertificate,omitempty"`
+	IDCard            string        `bson:"idCard" json:"idCard,omitempty"`
 	Site              *Site         `bson:"-" json:"site,omitempty"`
 	Create            time.Time     `bson:"create" json:"create"`
 	LastUpdate        time.Time     `bson:"lastUpdate" json:"lastUpdate"`
 	DailyIncome       string        `bson:"dailyIncome" json:"dailyIncome,omitempty"`
+	Address           string        `bson:"address" json:"address,omitempty"`
+	StatusTavi        bool          `bson:"statusTavi" json:"statusTavi"`
 }
 
 const (
@@ -52,6 +56,22 @@ func (u *User) GetName() string {
 		return u.CorporateName
 	}
 	return u.GetFullname()
+}
+
+func (u *User) GetBankAccountName() string {
+	return u.BankAccountName
+}
+
+func (u *User) GetThaiCitizenID() string {
+	return u.ThaiCitizenID
+}
+
+func (u *User) GetAddress() string {
+	return u.Address
+}
+
+func (u *User) GetStatusTavi() bool {
+	return u.StatusTavi
 }
 
 func (u *User) IsFullnameEmpty() bool {

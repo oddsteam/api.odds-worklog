@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, user *models.User) (*models.Income, error) {
@@ -14,25 +13,42 @@ func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, user *models.Us
 		return nil, err
 	}
 
-	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome, req.SpecialIncome)
+	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome)
 	if err != nil {
 		return nil, err
 	}
-	netIncome, err := utils.StringToFloat64(ins.Net)
+	insSpecial, err := calIncomeSum(req.WorkingHours, userDetail.Vat, req.SpecialIncome)
 	if err != nil {
 		return nil, err
 	}
-	summaryIncome := utils.FloatToString(netIncome)
+	summaryIncome, err := calSummary(ins.TotalIncome, insSpecial.TotalIncome)
+	if err != nil {
+		return nil, err
+	}
+	summaryWht, err := calSummary(ins.WHT, insSpecial.WHT)
+	if err != nil {
+		return nil, err
+	}
+	var summaryVat string
+	if userDetail.Vat != "N" {
+		summaryVat, err = calSummary(ins.VAT, insSpecial.VAT)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		summaryVat = ""
+	}
 
 	income.SubmitDate = time.Now()
-	income.TotalIncome = ins.TotalIncome
-	income.NetIncome = summaryIncome
-	income.VAT = ins.VAT
-	income.WHT = ins.WHT
+	income.TotalIncome = summaryIncome
+	income.NetIncome = ins.Net
+	income.NetSpecialIncome = insSpecial.Net
+	income.VAT = summaryVat
+	income.WHT = summaryWht
 	income.Note = req.Note
 	income.WorkDate = req.WorkDate
 	income.SpecialIncome = req.SpecialIncome
+	income.WorkingHours = req.WorkingHours
 	u.repo.UpdateIncome(income)
-
 	return income, nil
 }

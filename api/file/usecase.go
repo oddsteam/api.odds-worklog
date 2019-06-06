@@ -46,6 +46,34 @@ func (u *usercasse) UpdateImageProfileUser(id, filename string) error {
 	return nil
 }
 
+func (u *usercasse) UpdateDegreeCertificate(id, filename string) error {
+	user, err := u.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+	user.DegreeCertificate = filename
+	user, err = u.repo.Update(user)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *usercasse) UpdateIDCard(id, filename string) error {
+	user, err := u.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+	user.IDCard = filename
+	user, err = u.repo.Update(user)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (u *usercasse) GetPathTranscript(id string) (string, error) {
 	user, err := u.repo.GetByID(id)
 	if err != nil {
@@ -82,6 +110,42 @@ func (u *usercasse) GetPathImageProfile(id string) (string, error) {
 	return user.ImageProfile, nil
 }
 
+func (u *usercasse) GetPathDegreeCertificate(id string) (string, error) {
+	user, err := u.repo.GetByID(id)
+	if err != nil {
+		return "", err
+	}
+	if user.DegreeCertificate == "" {
+		return "", utils.ErrNoDegreeCertificateFile
+	}
+
+	_, err = os.Open(user.DegreeCertificate)
+	if err != nil {
+		user.DegreeCertificate = ""
+		u.repo.Update(user)
+		return "", utils.ErrNoDegreeCertificateFile
+	}
+	return user.DegreeCertificate, nil
+}
+
+func (u *usercasse) GetPathIDCard(id string) (string, error) {
+	user, err := u.repo.GetByID(id)
+	if err != nil {
+		return "", err
+	}
+	if user.IDCard == "" {
+		return "", utils.ErrNoIDCardFile
+	}
+
+	_, err = os.Open(user.IDCard)
+	if err != nil {
+		user.IDCard = ""
+		u.repo.Update(user)
+		return "", utils.ErrNoIDCardFile
+	}
+	return user.IDCard, nil
+}
+
 func (u *usercasse) RemoveTranscript(filename string) error {
 	err := os.Remove(filename)
 	if err != nil {
@@ -91,6 +155,22 @@ func (u *usercasse) RemoveTranscript(filename string) error {
 }
 
 func (u *usercasse) RemoveImage(filename string) error {
+	err := os.Remove(filename)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u *usercasse) RemoveDegreeCertificate(filename string) error {
+	err := os.Remove(filename)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u *usercasse) RemoveIDCard(filename string) error {
 	err := os.Remove(filename)
 	if err != nil {
 		return err
