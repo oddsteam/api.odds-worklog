@@ -330,7 +330,7 @@ func ConvertIntToThaiBath(txt string) string {
 				} else if i == (len(intVal)-2) && (n == "2") {
 					bahtTH += "ยี่สิบ"
 				} else if i == (len(intVal)-2) && (n == "1") {
-					bahtTH += ""
+					bahtTH += "สิบ"
 				} else {
 					position, _ := strconv.Atoi(n)
 					bahtTH += num[position]
