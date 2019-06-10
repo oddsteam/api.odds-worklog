@@ -67,10 +67,21 @@ func (r *repository) GetIncomeByID(incID, uID string) (*models.Income, error) {
 	return income, nil
 }
 
-func (r *repository) GetIncomeByUserID(uID string) (*models.Income, error) {
+func (r *repository) GetIncomeByUserID(uID string, fromYear int, fromMonth time.Month) (*models.Income, error) {
 	income := new(models.Income)
 	coll := r.session.GetCollection(incomeColl)
-	err := coll.Find(bson.M{"userId": uID, "exportStatus": false}).One(&income)
+
+	fromDate := time.Date(fromYear, fromMonth, 1, 0, 0, 0, 0, time.UTC)
+	toDate := fromDate.AddDate(0, 1, 0)
+
+	err := coll.Find(bson.M{
+		"userId": uID,
+		"submitDate": bson.M{
+			"$gt": fromDate,
+			"$lt": toDate,
+		},
+		"exportStatus": false,
+	}).One(&income)
 	if err != nil {
 		return nil, err
 	}
