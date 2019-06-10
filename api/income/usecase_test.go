@@ -69,9 +69,10 @@ func TestUseCaseExportIncomeNotExport(t *testing.T) {
 		mockRepoUser := userMock.NewMockRepository(ctrl)
 		mockRepoUser.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
 
+		year, month := utils.GetYearMonthNow()
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
-		mockRepoIncome.EXPECT().GetIncomeByUserID(userMock.User.ID.Hex()).Return(&incomeMock.MockIncome, nil)
-		mockRepoIncome.EXPECT().GetIncomeByUserID(userMock.User2.ID.Hex()).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeByUserID(userMock.User.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeByUserID(userMock.User2.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
 		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
