@@ -10,7 +10,7 @@ type Repository interface {
 	AddIncome(u *models.Income) error
 	GetIncomeUserByYearMonth(id string, fromYear int, fromMonth time.Month) (*models.Income, error)
 	GetIncomeByID(incID, uID string) (*models.Income, error)
-	GetIncomeByUserID(uID string) (*models.Income, error)
+	GetIncomeByUserID(uID string, fromYear int, fromMonth time.Month) (*models.Income, error)
 	UpdateIncome(income *models.Income) error
 	AddExport(ep *models.Export) error
 	UpdateExportStatus(id string) error

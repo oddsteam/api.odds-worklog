@@ -200,11 +200,17 @@ func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	year, month := utils.GetYearMonthNow()
+	if err != nil {
+		return "", err
+	}
+
 	strWrite := make([][]string, 0)
 	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 	strWrite = append(strWrite, d)
 	for _, user := range users {
-		income, err := u.repo.GetIncomeByUserID(user.ID.Hex())
+		income, err := u.repo.GetIncomeByUserID(user.ID.Hex(), year, month)
 		if err == nil {
 			u.repo.UpdateExportStatus(income.UserID)
 			t := income.SubmitDate

@@ -69,8 +69,8 @@ func (m *MockRepository) GetIncomeByID(incID, uID string) (*models.Income, error
 }
 
 // GetIncomeByUserID mocks base method
-func (m *MockRepository) GetIncomeByUserID(uID string) (*models.Income, error) {
-	ret := m.ctrl.Call(m, "GetIncomeByUserID", uID)
+func (m *MockRepository) GetIncomeByUserID(uID string, fromYear int, fromMonth time.Month) (*models.Income, error) {
+	ret := m.ctrl.Call(m, "GetIncomeByUserID", uID, fromYear, fromMonth)
 	ret0, _ := ret[0].(*models.Income)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -82,8 +82,8 @@ func (mr *MockRepositoryMockRecorder) GetIncomeByID(incID, uID interface{}) *gom
 }
 
 // GetIncomeByUserID indicates an expected call of GetIncomeByUserID
-func (mr *MockRepositoryMockRecorder) GetIncomeByUserID(uID interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByUserID", reflect.TypeOf((*MockRepository)(nil).GetIncomeByUserID), uID)
+func (mr *MockRepositoryMockRecorder) GetIncomeByUserID(uID, fromYear, fromMonth interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByUserID", reflect.TypeOf((*MockRepository)(nil).GetIncomeByUserID), uID, fromYear, fromMonth)
 }
 
 // UpdateIncome mocks base method
