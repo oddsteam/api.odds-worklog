@@ -154,7 +154,7 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 		income, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month-time.Month(beforemonth))
 		if err == nil {
 			if beforeMonth == "0" {
-				u.repo.UpdateExportStatus(income.UserID)
+				u.repo.UpdateExportStatus(income.ID.Hex())
 			}
 			t := income.SubmitDate
 			summaryIncome, _ := calSummary(income.NetIncome, income.NetSpecialIncome)
@@ -212,7 +212,7 @@ func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 	for _, user := range users {
 		income, err := u.repo.GetIncomeByUserID(user.ID.Hex(), year, month)
 		if err == nil {
-			u.repo.UpdateExportStatus(income.UserID)
+			u.repo.UpdateExportStatus(income.ID.Hex())
 			t := income.SubmitDate
 			summaryIncome, _ := calSummary(income.NetIncome, income.NetSpecialIncome)
 			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
