@@ -60,8 +60,8 @@ func isOddsTeam(email string) bool {
 		return false
 	}
 
-	host := email[len(email)-9:]
-	return host == "odds.team"
+	host := email[len(email)-10:]
+	return host == "@odds.team"
 }
 
 func verifyAudience(aud string) bool {
