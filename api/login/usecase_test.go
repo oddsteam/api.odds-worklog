@@ -84,6 +84,7 @@ func TestCreateUser(t *testing.T) {
 
 func TestUsecase_isOddsTeam(t *testing.T) {
 	assert.True(t, isOddsTeam("a@odds.team"))
+	assert.False(t, isOddsTeam("a@xyzodds.team"))
 	assert.False(t, isOddsTeam(""))
 	assert.False(t, isOddsTeam("a@gmail.com"))
 }

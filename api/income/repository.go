@@ -111,7 +111,7 @@ func (r *repository) DropIncome() error {
 
 func (r *repository) UpdateExportStatus(id string) error {
 	coll := r.session.GetCollection(incomeColl)
-	err := coll.Update(bson.M{"userId": id}, bson.M{"$set": bson.M{"exportStatus": true}})
+	err := coll.Update(bson.M{"_id": bson.ObjectIdHex(id)}, bson.M{"$set": bson.M{"exportStatus": true}})
 	if err != nil {
 		return err
 	}
