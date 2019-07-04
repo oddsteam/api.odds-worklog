@@ -56,6 +56,16 @@ func (r *repository) GetIncomeUserByYearMonth(id string, fromYear int, fromMonth
 	}
 	return income, nil
 }
+func (r *repository) GetIncomeByUserIdAllMonth(id string) ([]*models.Income, error) {
+	income := make([]*models.Income, 0)
+
+	coll := r.session.GetCollection(incomeColl)
+	err := coll.Find(bson.M{"userId": id}).All(&income)
+	if err != nil {
+		return nil, err
+	}
+	return income, nil
+}
 
 func (r *repository) GetIncomeByID(incID, uID string) (*models.Income, error) {
 	income := new(models.Income)

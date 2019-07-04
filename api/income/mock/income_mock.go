@@ -60,6 +60,19 @@ func (mr *MockRepositoryMockRecorder) GetIncomeUserByYearMonth(id, fromYear, fro
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeUserByYearMonth", reflect.TypeOf((*MockRepository)(nil).GetIncomeUserByYearMonth), id, fromYear, fromMonth)
 }
 
+// GetIncomeByUserIdAllMonth mocks base method
+func (m *MockRepository) GetIncomeByUserIdAllMonth(id string) ([]*models.Income, error) {
+	ret := m.ctrl.Call(m, "GetIncomeByUserIdAllMonth", id)
+	ret0, _ := ret[0].([]*models.Income)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetIncomeByUserIdAllMonth indicates an expected call of GetIncomeByUserIdAllMonth
+func (mr *MockRepositoryMockRecorder) GetIncomeByUserIdAllMonth(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByUserIdAllMonth", reflect.TypeOf((*MockRepository)(nil).GetIncomeByUserIdAllMonth), id)
+}
+
 // GetIncomeByID mocks base method
 func (m *MockRepository) GetIncomeByID(incID, uID string) (*models.Income, error) {
 	ret := m.ctrl.Call(m, "GetIncomeByID", incID, uID)
@@ -68,17 +81,17 @@ func (m *MockRepository) GetIncomeByID(incID, uID string) (*models.Income, error
 	return ret0, ret1
 }
 
+// GetIncomeByID indicates an expected call of GetIncomeByID
+func (mr *MockRepositoryMockRecorder) GetIncomeByID(incID, uID interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByID", reflect.TypeOf((*MockRepository)(nil).GetIncomeByID), incID, uID)
+}
+
 // GetIncomeByUserID mocks base method
 func (m *MockRepository) GetIncomeByUserID(uID string, fromYear int, fromMonth time.Month) (*models.Income, error) {
 	ret := m.ctrl.Call(m, "GetIncomeByUserID", uID, fromYear, fromMonth)
 	ret0, _ := ret[0].(*models.Income)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
-}
-
-// GetIncomeByID indicates an expected call of GetIncomeByID
-func (mr *MockRepositoryMockRecorder) GetIncomeByID(incID, uID interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByID", reflect.TypeOf((*MockRepository)(nil).GetIncomeByID), incID, uID)
 }
 
 // GetIncomeByUserID indicates an expected call of GetIncomeByUserID
@@ -222,6 +235,19 @@ func (m *MockUsecase) ExportPdf(id string) (string, error) {
 // ExportPdf indicates an expected call of ExportPdf
 func (mr *MockUsecaseMockRecorder) ExportPdf(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportPdf", reflect.TypeOf((*MockUsecase)(nil).ExportPdf), id)
+}
+
+// GetIncomeByUserIdAllMonth mocks base method
+func (m *MockUsecase) GetIncomeByUserIdAllMonth(id string) ([]*models.Income, error) {
+	ret := m.ctrl.Call(m, "GetIncomeByUserIdAllMonth", id)
+	ret0, _ := ret[0].([]*models.Income)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetIncomeByUserIdAllMonth indicates an expected call of GetIncomeByUserIdAllMonth
+func (mr *MockUsecaseMockRecorder) GetIncomeByUserIdAllMonth(id interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByUserIdAllMonth", reflect.TypeOf((*MockUsecase)(nil).GetIncomeByUserIdAllMonth), id)
 }
 
 // UpdateExportStatus mocks base method

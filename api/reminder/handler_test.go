@@ -315,6 +315,9 @@ func (fs MockInComeUsecase) GetIncomeStatusList(role string, isAdmin bool) ([]*m
 func (fs MockInComeUsecase) GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error) {
 	return nil, nil
 }
+func (fs MockInComeUsecase) GetIncomeByUserIdAllMonth(userID string) ([]*models.Income, error) {
+	return nil, nil
+}
 
 func (fs MockInComeUsecase) ExportIncome(role string, beforeMonth string) (string, error) {
 	return "", nil
