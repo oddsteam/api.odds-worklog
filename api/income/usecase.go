@@ -131,7 +131,14 @@ func (u *usecase) GetIncomeByUserIdAndCurrentMonth(userId string) (*models.Incom
 }
 
 func (u *usecase) GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, error) {
-	return u.repo.GetIncomeByUserIdAllMonth(userId)
+	listIncome, err := u.repo.GetIncomeByUserIdAllMonth(userId)
+	if err != nil {
+		return nil, err
+	}
+	if len(listIncome) == 0 {
+		return nil, nil
+	}
+	return listIncome, nil
 }
 
 func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) {
