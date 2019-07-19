@@ -56,6 +56,16 @@ func (r *repository) GetIncomeUserByYearMonth(id string, fromYear int, fromMonth
 	}
 	return income, nil
 }
+func (r *repository) GetIncomeByUserIdAllMonth(id string) ([]*models.Income, error) {
+	income := make([]*models.Income, 0)
+
+	coll := r.session.GetCollection(incomeColl)
+	err := coll.Find(bson.M{"userId": id}).All(&income)
+	if err != nil {
+		return nil, err
+	}
+	return income, nil
+}
 
 func (r *repository) GetIncomeByID(incID, uID string) (*models.Income, error) {
 	income := new(models.Income)
@@ -110,8 +120,15 @@ func (r *repository) DropIncome() error {
 }
 
 func (r *repository) UpdateExportStatus(id string) error {
+	income := new(models.Income)
 	coll := r.session.GetCollection(incomeColl)
-	err := coll.Update(bson.M{"_id": bson.ObjectIdHex(id)}, bson.M{"$set": bson.M{"exportStatus": true}})
+	err := coll.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&income)
+
+	if err != nil {
+		return err
+	}
+
+	err = coll.Update(bson.M{"_id": income.ID}, bson.M{"$set": bson.M{"exportStatus": true}})
 	if err != nil {
 		return err
 	}

@@ -130,6 +130,17 @@ func (u *usecase) GetIncomeByUserIdAndCurrentMonth(userId string) (*models.Incom
 	return u.repo.GetIncomeUserByYearMonth(userId, year, month)
 }
 
+func (u *usecase) GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, error) {
+	listIncome, err := u.repo.GetIncomeByUserIdAllMonth(userId)
+	if err != nil {
+		return nil, err
+	}
+	if len(listIncome) == 0 {
+		return nil, nil
+	}
+	return listIncome, nil
+}
+
 func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) {
 	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()

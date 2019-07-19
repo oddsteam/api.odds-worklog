@@ -45,6 +45,7 @@ var (
 		User:   &userMock.User,
 		Status: "N",
 	}
+	MockIncomeList       = []*models.Income{&MockIncome}
 	MockIncomeStatusList = []*models.IncomeStatus{&MockIncomeStatus}
 	IncomeByte, _        = json.Marshal(MockIncome)
 	MockIncomeJson       = string(IncomeByte)

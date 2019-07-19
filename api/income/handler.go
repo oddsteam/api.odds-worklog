@@ -130,6 +130,32 @@ func (h *HttpHandler) GetIndividualIncomeStatus(c echo.Context) error {
 	return c.JSON(http.StatusOK, status)
 }
 
+// GetIncomeAllMonthByUserId godoc
+// @Summary Get Income Of All Month By User Id
+// @Description Get Income Of All Month By User Id
+// @Tags incomes
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} models.Income
+// @Failure 400 {object} utils.HTTPError
+// @Router /incomes/all-month/{id} [get]
+func (h *HttpHandler) GetIncomeAllMonthByUserId(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	user := getUserFromToken(c)
+	if id != user.ID.Hex() {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	income, _ := h.Usecase.GetIncomeByUserIdAllMonth(id)
+	if income == nil {
+		return c.JSON(http.StatusOK, nil)
+	}
+	return c.JSON(http.StatusOK, income)
+}
+
 // GetIncomeCurrentMonthByUserId godoc
 // @Summary Get Income Of Current Month By User Id
 // @Description Get Income Of Current Month By User Id
@@ -309,6 +335,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/status/corporate", handler.GetCorporateIncomeStatus)
 	r.GET("/status/individual", handler.GetIndividualIncomeStatus)
 	r.GET("/current-month/:id", handler.GetIncomeCurrentMonthByUserId)
+	r.GET("/all-month/:id", handler.GetIncomeAllMonthByUserId)
 	r.GET("/export/corporate/:month", handler.GetExportCorporate)
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
 	r.GET("/export/corporate/different", handler.GetExportDifferentCorporate)

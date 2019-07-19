@@ -255,6 +255,31 @@ func TestGetIncomeGetIncomeCurrentMonthByUserId(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 	})
 }
+func TestGetIncomeGetIncomeAllMonthByUserId(t *testing.T) {
+	t.Run("when get income by user id in all month success it should be return status OK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().GetIncomeByUserIdAllMonth(incomeMock.MockIncome.UserID).Return(incomeMock.MockIncomeList, nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.GetIncomeAllMonthByUserId(c)
+
+		incomeByte, _ := json.Marshal(incomeMock.MockIncomeList)
+		incomeJson := string(incomeByte)
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, incomeJson, rec.Body.String())
+	})
+}
 
 // func TestGetExportPdf(t *testing.T) {
 // 	t.Run("when export pdf success it should be return status OK", func(t *testing.T) {
