@@ -67,8 +67,14 @@ var (
 		Address:           "every Where",
 	}
 
-	adminByte, _ = json.Marshal(Admin)
-	AdminJson    = string(adminByte)
+	adminByte, _ = json.Marshal(
+		models.UserClaims{
+			ID:         Admin.ID.Hex(),
+			Role:       Admin.Role,
+			StatusTavi: Admin.StatusTavi,
+		},
+	)
+	AdminJson = string(adminByte)
 
 	Token = models.Token{
 		Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NjE5NTcxMzZ9.RB3arc4-OyzASAaUhC2W3ReWaXAt_z2Fd3BN4aWTgEY",
@@ -83,7 +89,11 @@ var (
 	UsersJson    = string(usersByte)
 
 	claimsUser = &models.JwtCustomClaims{
-		&User,
+		&models.UserClaims{
+			ID:         User.ID.Hex(),
+			Role:       User.Role,
+			StatusTavi: User.StatusTavi,
+		},
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 		},
@@ -91,7 +101,11 @@ var (
 	TokenUser = jwt.NewWithClaims(jwt.SigningMethodHS256, claimsUser)
 
 	claimsAdmin = &models.JwtCustomClaims{
-		&Admin,
+		&models.UserClaims{
+			ID:         Admin.ID.Hex(),
+			Role:       Admin.Role,
+			StatusTavi: Admin.StatusTavi,
+		},
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 		},

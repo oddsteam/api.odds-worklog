@@ -22,7 +22,7 @@ func TestAddIncome(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().AddIncome(&incomeMock.MockIncomeReq, &userMock.User).Return(&incomeMock.MockIncome, nil)
+		mockUsecase.EXPECT().AddIncome(&incomeMock.MockIncomeReq, userMock.User.ID.Hex()).Return(&incomeMock.MockIncome, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(incomeMock.MockIncomeReqJson))
@@ -64,7 +64,7 @@ func TestUpdateIncome(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().UpdateIncome(incomeMock.MockIncome.ID.Hex(), &incomeMock.MockIncomeReq, &userMock.User).Return(&incomeMock.MockIncome, nil)
+		mockUsecase.EXPECT().UpdateIncome(incomeMock.MockIncome.ID.Hex(), &incomeMock.MockIncomeReq, userMock.User.ID.Hex()).Return(&incomeMock.MockIncome, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(incomeMock.MockIncomeReqJson))

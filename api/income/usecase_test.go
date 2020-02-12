@@ -154,7 +154,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(incomeMock.MockIncome.UserID, year, month).Return(&incomeMock.MockIncome, errors.New(""))
 
 		uc := NewUsecase(mockRepoIncome, mockUserRepo)
-		res, err := uc.AddIncome(&incomeMock.MockIncomeReq, &userMock.User)
+		res, err := uc.AddIncome(&incomeMock.MockIncomeReq, userMock.User.ID.Hex())
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
@@ -175,7 +175,7 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		incomeMockRepo.EXPECT().GetIncomeByID(incomeMock.MockIncome.ID.Hex(), userMock.User.ID.Hex()).Return(&incomeMock.MockIncome, nil)
 
 		uc := NewUsecase(incomeMockRepo, mockRepoUser)
-		res, err := uc.UpdateIncome(incomeMock.MockIncome.ID.Hex(), &incomeMock.MockIncomeReq, &userMock.User)
+		res, err := uc.UpdateIncome(incomeMock.MockIncome.ID.Hex(), &incomeMock.MockIncomeReq, userMock.User.ID.Hex())
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)

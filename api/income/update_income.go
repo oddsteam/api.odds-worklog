@@ -6,9 +6,9 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
-func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, user *models.User) (*models.Income, error) {
-	userDetail, _ := u.userRepo.GetByID(user.ID.Hex())
-	income, err := u.repo.GetIncomeByID(id, user.ID.Hex())
+func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
+	userDetail, _ := u.userRepo.GetByID(uid)
+	income, err := u.repo.GetIncomeByID(id, uid)
 	if err != nil {
 		return nil, err
 	}
