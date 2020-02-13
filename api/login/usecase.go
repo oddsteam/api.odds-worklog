@@ -69,11 +69,13 @@ func verifyAudience(aud string) bool {
 }
 
 func handleToken(user *models.User) (*models.Token, error) {
-	user.BankAccountName = ""
-	user.BankAccountNumber = ""
-	user.ThaiCitizenID = ""
-
-	tok, err := genToken(user)
+	tok, err := genToken(
+		&models.UserClaims{
+			ID:         user.ID.Hex(),
+			Role:       user.Role,
+			StatusTavi: user.StatusTavi,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +94,7 @@ func handleToken(user *models.User) (*models.Token, error) {
 	return token, nil
 }
 
-func genToken(user *models.User) (string, error) {
+func genToken(user *models.UserClaims) (string, error) {
 	claims := &models.JwtCustomClaims{
 		user,
 		jwt.StandardClaims{

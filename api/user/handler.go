@@ -35,7 +35,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.DELETE("/:id", handler.Delete)
 }
 
-func getUserFromToken(c echo.Context) *models.User {
+func getUserFromToken(c echo.Context) *models.UserClaims {
 	t := c.Get("user").(*jwt.Token)
 	claims := t.Claims.(*models.JwtCustomClaims)
 	return claims.User
@@ -64,11 +64,11 @@ func (h *HttpHandler) Create(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 
-	user, err := h.Usecase.Create(&u)
+	nu, err := h.Usecase.Create(&u)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusCreated, user)
+	return c.JSON(http.StatusCreated, nu)
 }
 
 // Get godoc

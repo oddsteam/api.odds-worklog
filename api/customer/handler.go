@@ -29,7 +29,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.DELETE("/:id", handler.Delete)
 }
 
-func getUserFromToken(c echo.Context) *models.User {
+func getUserFromToken(c echo.Context) *models.UserClaims {
 	t := c.Get("user").(*jwt.Token)
 	claims := t.Claims.(*models.JwtCustomClaims)
 	return claims.User

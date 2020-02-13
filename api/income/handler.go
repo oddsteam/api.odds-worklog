@@ -46,7 +46,7 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 	user := getUserFromToken(c)
-	res, err := h.Usecase.AddIncome(&income, user)
+	res, err := h.Usecase.AddIncome(&income, user.ID)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -81,7 +81,7 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 	user := getUserFromToken(c)
-	res, err := h.Usecase.UpdateIncome(id, &req, user)
+	res, err := h.Usecase.UpdateIncome(id, &req, user.ID)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -146,7 +146,7 @@ func (h *HttpHandler) GetIncomeAllMonthByUserId(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 	user := getUserFromToken(c)
-	if id != user.ID.Hex() {
+	if id != user.ID {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 	income, _ := h.Usecase.GetIncomeByUserIdAllMonth(id)
@@ -172,7 +172,7 @@ func (h *HttpHandler) GetIncomeCurrentMonthByUserId(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 	user := getUserFromToken(c)
-	if id != user.ID.Hex() {
+	if id != user.ID {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 	income, _ := h.Usecase.GetIncomeByUserIdAndCurrentMonth(id)
@@ -317,7 +317,7 @@ func IsStatusTavi(c echo.Context) (bool, string) {
 	return false, "ไม่มีสิทธิในการใช้งาน"
 }
 
-func getUserFromToken(c echo.Context) *models.User {
+func getUserFromToken(c echo.Context) *models.UserClaims {
 	t := c.Get("user").(*jwt.Token)
 	claims := t.Claims.(*models.JwtCustomClaims)
 	return claims.User
