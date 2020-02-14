@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/globalsign/mgo/bson"
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/customer"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
-	"github.com/globalsign/mgo/bson"
 )
 
 type HttpHandler struct {
@@ -31,7 +31,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.DELETE("/:id", handler.Delete)
 }
 
-func getUserFromToken(c echo.Context) *models.User {
+func getUserFromToken(c echo.Context) *models.UserClaims {
 	t := c.Get("user").(*jwt.Token)
 	claims := t.Claims.(*models.JwtCustomClaims)
 	return claims.User

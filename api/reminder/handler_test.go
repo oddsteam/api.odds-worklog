@@ -291,11 +291,11 @@ func NewMockInComeUsecase() income.Usecase {
 	return MockInComeUsecase{}
 }
 
-func (fs MockInComeUsecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.Income, error) {
+func (fs MockInComeUsecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
 	return nil, nil
 }
 
-func (fs MockInComeUsecase) UpdateIncome(id string, req *models.IncomeReq, user *models.User) (*models.Income, error) {
+func (fs MockInComeUsecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
 	return nil, nil
 }
 

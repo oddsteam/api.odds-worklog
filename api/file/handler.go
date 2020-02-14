@@ -68,7 +68,7 @@ func (h *HttpHandler) UploadDegreeCertificate(c echo.Context) error {
 	defer src.Close()
 
 	u := getUserFromToken(c)
-	user, err := h.usecase.GetUserByID(u.ID.Hex())
+	user, err := h.usecase.GetUserByID(u.ID)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -87,7 +87,7 @@ func (h *HttpHandler) UploadDegreeCertificate(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
-	err = h.usecase.UpdateDegreeCertificate(u.ID.Hex(), filename)
+	err = h.usecase.UpdateDegreeCertificate(u.ID, filename)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -125,7 +125,7 @@ func (h *HttpHandler) UploadIDCard(c echo.Context) error {
 	defer src.Close()
 
 	u := getUserFromToken(c)
-	user, err := h.usecase.GetUserByID(u.ID.Hex())
+	user, err := h.usecase.GetUserByID(u.ID)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -144,7 +144,7 @@ func (h *HttpHandler) UploadIDCard(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
-	err = h.usecase.UpdateIDCard(u.ID.Hex(), filename)
+	err = h.usecase.UpdateIDCard(u.ID, filename)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -182,7 +182,7 @@ func (h *HttpHandler) UploadTranscript(c echo.Context) error {
 	defer src.Close()
 
 	u := getUserFromToken(c)
-	user, err := h.usecase.GetUserByID(u.ID.Hex())
+	user, err := h.usecase.GetUserByID(u.ID)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -201,7 +201,7 @@ func (h *HttpHandler) UploadTranscript(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
-	err = h.usecase.UpdateUser(u.ID.Hex(), filename)
+	err = h.usecase.UpdateUser(u.ID, filename)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -231,7 +231,7 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 	defer src.Close()
 
 	u := getUserFromToken(c)
-	user, err := h.usecase.GetUserByID(u.ID.Hex())
+	user, err := h.usecase.GetUserByID(u.ID)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -248,7 +248,7 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
-	err = h.usecase.UpdateImageProfileUser(u.ID.Hex(), filename)
+	err = h.usecase.UpdateImageProfileUser(u.ID, filename)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -269,7 +269,7 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 func (h *HttpHandler) DownloadTranscript(c echo.Context) error {
 	id := c.Param("id")
 	user := getUserFromToken(c)
-	if user.ID.Hex() != id && !user.IsAdmin() {
+	if user.ID != id && !user.IsAdmin() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
@@ -293,7 +293,7 @@ func (h *HttpHandler) DownloadTranscript(c echo.Context) error {
 func (h *HttpHandler) DownloadDegreeCertificate(c echo.Context) error {
 	id := c.Param("id")
 	user := getUserFromToken(c)
-	if user.ID.Hex() != id && !user.IsAdmin() {
+	if user.ID != id && !user.IsAdmin() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
@@ -317,7 +317,7 @@ func (h *HttpHandler) DownloadDegreeCertificate(c echo.Context) error {
 func (h *HttpHandler) DownloadIDCard(c echo.Context) error {
 	id := c.Param("id")
 	user := getUserFromToken(c)
-	if user.ID.Hex() != id && !user.IsAdmin() {
+	if user.ID != id && !user.IsAdmin() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
@@ -341,7 +341,7 @@ func (h *HttpHandler) DownloadIDCard(c echo.Context) error {
 func (h *HttpHandler) DownloadImageProfile(c echo.Context) error {
 	id := c.Param("id")
 	user := getUserFromToken(c)
-	if user.ID.Hex() != id && !user.IsAdmin() {
+	if user.ID != id && !user.IsAdmin() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
@@ -365,7 +365,7 @@ func (h *HttpHandler) DownloadImageProfile(c echo.Context) error {
 func (h *HttpHandler) RemoveTranscript(c echo.Context) error {
 	id := c.Param("id")
 	user := getUserFromToken(c)
-	if user.ID.Hex() != id && !user.IsAdmin() {
+	if user.ID != id && !user.IsAdmin() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
@@ -400,7 +400,7 @@ func (h *HttpHandler) RemoveTranscript(c echo.Context) error {
 func (h *HttpHandler) RemoveImageFile(c echo.Context) error {
 	id := c.Param("id")
 	user := getUserFromToken(c)
-	if user.ID.Hex() != id && !user.IsAdmin() {
+	if user.ID != id && !user.IsAdmin() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
@@ -435,7 +435,7 @@ func (h *HttpHandler) RemoveImageFile(c echo.Context) error {
 func (h *HttpHandler) RemoveDegreeCertificate(c echo.Context) error {
 	id := c.Param("id")
 	user := getUserFromToken(c)
-	if user.ID.Hex() != id && !user.IsAdmin() {
+	if user.ID != id && !user.IsAdmin() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
@@ -470,7 +470,7 @@ func (h *HttpHandler) RemoveDegreeCertificate(c echo.Context) error {
 func (h *HttpHandler) RemoveIDCard(c echo.Context) error {
 	id := c.Param("id")
 	user := getUserFromToken(c)
-	if user.ID.Hex() != id && !user.IsAdmin() {
+	if user.ID != id && !user.IsAdmin() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
@@ -508,7 +508,7 @@ func getImageFilename(u *models.User, oldName string) (filename string) {
 	return
 }
 
-func getUserFromToken(c echo.Context) *models.User {
+func getUserFromToken(c echo.Context) *models.UserClaims {
 	t := c.Get("user").(*jwt.Token)
 	claims := t.Claims.(*models.JwtCustomClaims)
 	return claims.User
