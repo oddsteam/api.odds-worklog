@@ -24,4 +24,5 @@ type Usecase interface {
 	Update(u *models.User, isAdmin bool) (*models.User, error)
 	Delete(id string) error
 	GetByEmail(email string) (*models.User, error)
+	UpdateStatusTavi(m []*models.StatusTavi, isAdmin bool) ([]*models.User, error)
 }

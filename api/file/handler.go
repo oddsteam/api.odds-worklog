@@ -31,10 +31,129 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.POST("/image", h.UploadImageProfile)
 	r.GET("/image/:id", h.DownloadImageProfile)
 	r.DELETE("/image/:id", h.RemoveImageFile)
+	r.POST("/degreecertificate", h.UploadDegreeCertificate)
+	r.GET("/degreecertificate/:id", h.DownloadDegreeCertificate)
+	r.DELETE("/degreecertificate/:id", h.RemoveDegreeCertificate)
+	r.POST("/idcard", h.UploadIDCard)
+	r.GET("/idcard/:id", h.DownloadIDCard)
+	r.DELETE("/idcard/:id", h.RemoveIDCard)
+}
+
+// UploadDegreeCertificate godoc
+// @Summary Upload Degree Certificate file
+// @Description Upload Degree Certificate  file
+// @Tags files
+// @Accept multipart/form-data
+// @Produce json
+// @Param file body int true "file"
+// @Success 200 {object} models.Response
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/degreecertificate [post]
+func (h *HttpHandler) UploadDegreeCertificate(c echo.Context) error {
+	file, err := c.FormFile("file")
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	fn := file.Filename
+	t := fn[len(fn)-3:]
+	if strings.ToUpper(t) != "PDF" {
+		return utils.NewError(c, http.StatusInternalServerError, utils.ErrNotPDFFile)
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	defer src.Close()
+
+	u := getUserFromToken(c)
+	user, err := h.usecase.GetUserByID(u.ID)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	filename := getDegreeCertificateFilename(user)
+
+	// Destination
+	dst, err := os.Create(filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	defer dst.Close()
+
+	// Copy
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	err = h.usecase.UpdateDegreeCertificate(u.ID, filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, models.Response{Message: "Upload degree certificate success."})
+}
+
+// UploadIdCard godoc
+// @Summary Upload Idcard file
+// @Description Upload idcard file
+// @Tags files
+// @Accept multipart/form-data
+// @Produce json
+// @Param file body int true "file"
+// @Success 200 {object} models.Response
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/idcard [post]
+
+func (h *HttpHandler) UploadIDCard(c echo.Context) error {
+	file, err := c.FormFile("file")
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	fn := file.Filename
+	t := fn[len(fn)-3:]
+	if strings.ToUpper(t) != "PDF" {
+		return utils.NewError(c, http.StatusInternalServerError, utils.ErrNotPDFFile)
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	defer src.Close()
+
+	u := getUserFromToken(c)
+	user, err := h.usecase.GetUserByID(u.ID)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	filename := getIDCardFilename(user)
+
+	// Destination
+	dst, err := os.Create(filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	defer dst.Close()
+
+	// Copy
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	err = h.usecase.UpdateIDCard(u.ID, filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, models.Response{Message: "Upload id card success."})
 }
 
 // UploadTranscript godoc
-// @Summary Upload transcript file
+// @Summary Upload Transcrip file
 // @Description Upload transcript file
 // @Tags files
 // @Accept multipart/form-data
@@ -43,6 +162,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 // @Success 200 {object} models.Response
 // @Failure 500 {object} utils.HTTPError
 // @Router /files/transcript [post]
+
 func (h *HttpHandler) UploadTranscript(c echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
@@ -62,7 +182,7 @@ func (h *HttpHandler) UploadTranscript(c echo.Context) error {
 	defer src.Close()
 
 	u := getUserFromToken(c)
-	user, err := h.usecase.GetUserByID(u.ID.Hex())
+	user, err := h.usecase.GetUserByID(u.ID)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -81,53 +201,12 @@ func (h *HttpHandler) UploadTranscript(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
-	err = h.usecase.UpdateUser(u.ID.Hex(), filename)
+	err = h.usecase.UpdateUser(u.ID, filename)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
 	return c.JSON(http.StatusOK, models.Response{Message: "Upload transcript success."})
-}
-
-func getUserFromToken(c echo.Context) *models.User {
-	t := c.Get("user").(*jwt.Token)
-	claims := t.Claims.(*models.JwtCustomClaims)
-	return claims.User
-}
-
-func getTranscriptFilename(u *models.User) (filename string) {
-	path := "files/transcripts"
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		os.Mkdir(path, os.ModePerm)
-	}
-
-	r := utils.RandStringBytes(12)
-	filename = fmt.Sprintf("%s/%s_%s_%s.pdf", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r)
-	return
-}
-
-// DownloadTranscript godoc
-// @Summary Download transcript file
-// @Description Download transcript file
-// @Tags files
-// @Produce json
-// @Param id path string true "user id"
-// @Success 200 {array} string
-// @Failure 403 {object} utils.HTTPError
-// @Failure 500 {object} utils.HTTPError
-// @Router /files/transcript/{id} [get]
-func (h *HttpHandler) DownloadTranscript(c echo.Context) error {
-	id := c.Param("id")
-	user := getUserFromToken(c)
-	if user.ID.Hex() != id && !user.IsAdmin() {
-		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
-	}
-
-	filename, err := h.usecase.GetPathTranscript(id)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.Attachment(filename, filename)
 }
 
 // UploadImageProfile godoc
@@ -152,7 +231,7 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 	defer src.Close()
 
 	u := getUserFromToken(c)
-	user, err := h.usecase.GetUserByID(u.ID.Hex())
+	user, err := h.usecase.GetUserByID(u.ID)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -169,7 +248,7 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
-	err = h.usecase.UpdateImageProfileUser(u.ID.Hex(), filename)
+	err = h.usecase.UpdateImageProfileUser(u.ID, filename)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -177,20 +256,76 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 	return c.JSON(http.StatusOK, models.Response{Message: "Upload image profile success."})
 }
 
-func getImageFilename(u *models.User, oldName string) (filename string) {
-	path := "files/images"
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		os.Mkdir(path, os.ModePerm)
+// DownloadTranscript godoc
+// @Summary Download transcript file
+// @Description Download transcript file
+// @Tags files
+// @Produce json
+// @Param id path string true "user id"
+// @Success 200 {array} string
+// @Failure 403 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/transcript/{id} [get]
+func (h *HttpHandler) DownloadTranscript(c echo.Context) error {
+	id := c.Param("id")
+	user := getUserFromToken(c)
+	if user.ID != id && !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
-	t := ".png"
-	arr := strings.Split(oldName, ".")
-	if len(arr) == 2 {
-		t = arr[1]
+	filename, err := h.usecase.GetPathTranscript(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	r := utils.RandStringBytes(12)
-	filename = fmt.Sprintf("%s/%s_%s_%s.%s", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r, t)
-	return
+	return c.Attachment(filename, filename)
+}
+
+// DownloadDegreeCertificate godoc
+// @Summary Download degree certificate file
+// @Description Download degree certificate file
+// @Tags files
+// @Produce json
+// @Param id path string true "user id"
+// @Success 200 {array} string
+// @Failure 403 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/degreecertificate/{id} [get]
+func (h *HttpHandler) DownloadDegreeCertificate(c echo.Context) error {
+	id := c.Param("id")
+	user := getUserFromToken(c)
+	if user.ID != id && !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
+	filename, err := h.usecase.GetPathDegreeCertificate(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.Attachment(filename, filename)
+}
+
+// DownloadIDCard godoc
+// @Summary Download idcard file
+// @Description Download idcard file
+// @Tags files
+// @Produce json
+// @Param id path string true "user id"
+// @Success 200 {array} string
+// @Failure 403 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/idcard/{id} [get]
+func (h *HttpHandler) DownloadIDCard(c echo.Context) error {
+	id := c.Param("id")
+	user := getUserFromToken(c)
+	if user.ID != id && !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
+	filename, err := h.usecase.GetPathIDCard(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.Attachment(filename, filename)
 }
 
 // DownloadImageProfile godoc
@@ -206,7 +341,7 @@ func getImageFilename(u *models.User, oldName string) (filename string) {
 func (h *HttpHandler) DownloadImageProfile(c echo.Context) error {
 	id := c.Param("id")
 	user := getUserFromToken(c)
-	if user.ID.Hex() != id && !user.IsAdmin() {
+	if user.ID != id && !user.IsAdmin() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
@@ -230,7 +365,7 @@ func (h *HttpHandler) DownloadImageProfile(c echo.Context) error {
 func (h *HttpHandler) RemoveTranscript(c echo.Context) error {
 	id := c.Param("id")
 	user := getUserFromToken(c)
-	if user.ID.Hex() != id && !user.IsAdmin() {
+	if user.ID != id && !user.IsAdmin() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
@@ -265,7 +400,7 @@ func (h *HttpHandler) RemoveTranscript(c echo.Context) error {
 func (h *HttpHandler) RemoveImageFile(c echo.Context) error {
 	id := c.Param("id")
 	user := getUserFromToken(c)
-	if user.ID.Hex() != id && !user.IsAdmin() {
+	if user.ID != id && !user.IsAdmin() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
@@ -285,4 +420,129 @@ func (h *HttpHandler) RemoveImageFile(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, models.Response{Message: "Remove image success"})
+}
+
+// RemoveDegreeCertificate godoc
+// @Summary Remove degree certificate file
+// @Description remove degree certificate file
+// @Tags files
+// @Produce json
+// @Param id path string true "user id"
+// @Success 200 {array} models.Response
+// @Failure 403 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/degreecertificate/{id} [delete]
+func (h *HttpHandler) RemoveDegreeCertificate(c echo.Context) error {
+	id := c.Param("id")
+	user := getUserFromToken(c)
+	if user.ID != id && !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
+	filename, err := h.usecase.GetPathDegreeCertificate(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, utils.ErrNoDegreeCertificateFile)
+	}
+
+	err = h.usecase.RemoveDegreeCertificate(filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	err = h.usecase.UpdateDegreeCertificate(id, "")
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, models.Response{Message: "Remove degree certificate success"})
+}
+
+// RemoveIDCard godoc
+// @Summary Remove idcard file
+// @Description remove idcard file
+// @Tags files
+// @Produce json
+// @Param id path string true "user id"
+// @Success 200 {array} models.Response
+// @Failure 403 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /files/idcard/{id} [delete]
+func (h *HttpHandler) RemoveIDCard(c echo.Context) error {
+	id := c.Param("id")
+	user := getUserFromToken(c)
+	if user.ID != id && !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
+	filename, err := h.usecase.GetPathIDCard(id)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, utils.ErrNoIDCardFile)
+	}
+
+	err = h.usecase.RemoveIDCard(filename)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	err = h.usecase.UpdateIDCard(id, "")
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, models.Response{Message: "Remove idcard success"})
+}
+
+func getImageFilename(u *models.User, oldName string) (filename string) {
+	path := "files/images"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.Mkdir(path, os.ModePerm)
+	}
+
+	t := ".png"
+	arr := strings.Split(oldName, ".")
+	if len(arr) == 2 {
+		t = arr[1]
+	}
+	r := utils.RandStringBytes(12)
+	filename = fmt.Sprintf("%s/%s_%s_%s.%s", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r, t)
+	return
+}
+
+func getUserFromToken(c echo.Context) *models.UserClaims {
+	t := c.Get("user").(*jwt.Token)
+	claims := t.Claims.(*models.JwtCustomClaims)
+	return claims.User
+}
+
+func getTranscriptFilename(u *models.User) (filename string) {
+	path := "files/transcripts"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.Mkdir(path, os.ModePerm)
+	}
+
+	r := utils.RandStringBytes(12)
+	filename = fmt.Sprintf("%s/%s_%s_%s.pdf", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r)
+	return
+}
+
+func getDegreeCertificateFilename(u *models.User) (filename string) {
+	path := "files/degreecertificate"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.Mkdir(path, os.ModePerm)
+	}
+
+	r := utils.RandStringBytes(12)
+	filename = fmt.Sprintf("%s/%s_%s_%s.pdf", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r)
+	return
+}
+
+func getIDCardFilename(u *models.User) (filename string) {
+	path := "files/idcard"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.Mkdir(path, os.ModePerm)
+	}
+
+	r := utils.RandStringBytes(12)
+	filename = fmt.Sprintf("%s/%s_%s_%s.pdf", path, strings.ToLower(u.FirstName), strings.ToLower(u.LastName), r)
+	return
 }

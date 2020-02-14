@@ -31,10 +31,11 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/email/:email", handler.GetByEmail)
 	r.GET("/site/:id", handler.GetBySiteID)
 	r.PUT("/:id", handler.Update)
+	r.PUT("/tavi", handler.UpdateStatusTavi)
 	r.DELETE("/:id", handler.Delete)
 }
 
-func getUserFromToken(c echo.Context) *models.User {
+func getUserFromToken(c echo.Context) *models.UserClaims {
 	t := c.Get("user").(*jwt.Token)
 	claims := t.Claims.(*models.JwtCustomClaims)
 	return claims.User
@@ -63,11 +64,11 @@ func (h *HttpHandler) Create(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 
-	user, err := h.Usecase.Create(&u)
+	nu, err := h.Usecase.Create(&u)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusCreated, user)
+	return c.JSON(http.StatusCreated, nu)
 }
 
 // Get godoc
@@ -186,6 +187,31 @@ func (h *HttpHandler) Update(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, user)
+}
+
+// UpdateStatusTavi godoc
+// @Summary UpdateStatusTavi User
+// @Description UpdateStatusTavi User
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Param user body models.User true  "id can empty"
+// @Success 200 {object} models.User
+// @Failure 400 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /users/tavi/{id} [put]
+func (h *HttpHandler) UpdateStatusTavi(c echo.Context) error {
+	var u []*models.StatusTavi
+	if err := c.Bind(&u); err != nil {
+		return utils.NewError(c, http.StatusBadRequest, err)
+	}
+	ut := getUserFromToken(c)
+	users, err := h.Usecase.UpdateStatusTavi(u, ut.IsAdmin())
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, users)
 }
 
 // Delete godoc

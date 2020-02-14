@@ -1,0 +1,1966 @@
+basePath: /v1
+definitions:
+  models.Customer:
+    properties:
+      address:
+        type: string
+      create:
+        type: string
+      id:
+        type: string
+      lastUpdate:
+        type: string
+      name:
+        type: string
+    type: object
+  models.Income:
+    properties:
+      exportStatus:
+        type: boolean
+      id:
+        type: string
+      lastUpdate:
+        type: string
+      netIncome:
+        type: string
+      netSpecialIncome:
+        type: string
+      note:
+        type: string
+      specialIncome:
+        type: string
+      submitDate:
+        type: string
+      totalIncome:
+        type: string
+      userId:
+        type: string
+      vat:
+        type: string
+      wht:
+        type: string
+      workDate:
+        type: string
+      workingHours:
+        type: string
+    type: object
+  models.IncomeReq:
+    properties:
+      note:
+        type: string
+      specialIncome:
+        type: string
+      workDate:
+        type: string
+      workingHours:
+        type: string
+    type: object
+  models.IncomeStatus:
+    properties:
+      status:
+        type: string
+      submitDate:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+      workDate:
+        type: string
+      workingHours:
+        type: string
+    type: object
+  models.Invoice:
+    properties:
+      amount:
+        type: string
+      create:
+        type: string
+      id:
+        type: string
+      invoiceNo:
+        type: string
+      lastUpdate:
+        type: string
+      poId:
+        type: string
+    type: object
+  models.InvoiceNoRes:
+    properties:
+      invoiceNo:
+        type: string
+    type: object
+  models.Login:
+    properties:
+      token:
+        type: string
+    type: object
+  models.Po:
+    properties:
+      amount:
+        type: string
+      create:
+        type: string
+      customerId:
+        type: string
+      id:
+        type: string
+      lastUpdate:
+        type: string
+      name:
+        type: string
+    type: object
+  models.Reminder:
+    properties:
+      name:
+        type: string
+      setting:
+        $ref: '#/definitions/models.ReminderSetting'
+        type: object
+    type: object
+  models.ReminderSetting:
+    properties:
+      date:
+        type: string
+      facebook:
+        type: boolean
+      line:
+        type: boolean
+      message:
+        type: string
+      slack:
+        type: boolean
+      time:
+        type: string
+    type: object
+  models.Response:
+    properties:
+      message:
+        type: string
+    type: object
+  models.Site:
+    properties:
+      color:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  models.Token:
+    properties:
+      firstLogin:
+        type: string
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+    type: object
+  models.User:
+    properties:
+      address:
+        type: string
+      bankAccountName:
+        type: string
+      bankAccountNumber:
+        type: string
+      corporateName:
+        type: string
+      create:
+        type: string
+      dailyIncome:
+        type: string
+      degreeCertificate:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      idCard:
+        type: string
+      imageProfile:
+        type: string
+      lastName:
+        type: string
+      lastUpdate:
+        type: string
+      project:
+        type: string
+      role:
+        type: string
+      site:
+        $ref: '#/definitions/models.Site'
+        type: object
+      siteId:
+        type: string
+      slackAccount:
+        type: string
+      statusTavi:
+        type: boolean
+      thaiCitizenId:
+        type: string
+      transcript:
+        type: string
+      vat:
+        type: string
+    type: object
+  utils.HTTPError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+host: http://worklog-dev.odds.team/api
+info:
+  contact: {}
+  description: This is a sample server odds-worklog server.
+  license: {}
+  title: Odds-Worklog Example API
+  version: "1.0"
+paths:
+  /customers:
+    get:
+      consumes:
+      - application/json
+      description: get customer list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Customer'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: List customer
+      tags:
+      - customers
+    post:
+      consumes:
+      - application/json
+      description: Create Customer
+      parameters:
+      - description: ' '
+        in: body
+        name: customer
+        required: true
+        schema:
+          $ref: '#/definitions/models.Customer'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Customer'
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Create Customer
+      tags:
+      - customers
+  /customers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Customer
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Delete Customer
+      tags:
+      - customers
+    get:
+      consumes:
+      - application/json
+      description: Get Customer By Id
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Customer'
+            type: object
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Customer By Id
+      tags:
+      - customers
+    put:
+      consumes:
+      - application/json
+      description: Update Customer
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: id can empty
+        in: body
+        name: customer
+        required: true
+        schema:
+          $ref: '#/definitions/models.Customer'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Customer'
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Update Customer
+      tags:
+      - customers
+  /files/degreecertificate:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload Degree Certificate  file
+      parameters:
+      - description: file
+        in: body
+        name: file
+        required: true
+        schema:
+          $ref: '#/definitions/int'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Upload Degree Certificate file
+      tags:
+      - files
+  /files/degreecertificate/{id}:
+    delete:
+      description: remove degree certificate file
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Response'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Remove degree certificate file
+      tags:
+      - files
+    get:
+      description: Download degree certificate file
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Download degree certificate file
+      tags:
+      - files
+  /files/idcard/{id}:
+    delete:
+      description: remove idcard file
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Response'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Remove idcard file
+      tags:
+      - files
+    get:
+      description: Download idcard file
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Download idcard file
+      tags:
+      - files
+  /files/image:
+    post:
+      consumes:
+      - image/png
+      - image/gif
+      - image/jpeg
+      description: Upload image profile
+      parameters:
+      - description: file
+        in: body
+        name: image-profile
+        required: true
+        schema:
+          $ref: '#/definitions/int'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Upload image profile
+      tags:
+      - files
+  /files/image/{id}:
+    delete:
+      description: remove image file
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Remove image file
+      tags:
+      - files
+    get:
+      description: Download image file
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Download image file
+      tags:
+      - files
+  /files/transcript/{id}:
+    delete:
+      description: remove transcript file
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Response'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Remove transcript file
+      tags:
+      - files
+    get:
+      description: Download transcript file
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Download transcript file
+      tags:
+      - files
+  /incomes:
+    post:
+      consumes:
+      - application/json
+      description: Add Income
+      parameters:
+      - description: ' '
+        in: body
+        name: income
+        required: true
+        schema:
+          $ref: '#/definitions/models.IncomeReq'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Income'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Add Income
+      tags:
+      - incomes
+  /incomes/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update Income
+      parameters:
+      - description: ' '
+        in: body
+        name: income
+        required: true
+        schema:
+          $ref: '#/definitions/models.IncomeReq'
+          type: object
+      - description: Income ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Income'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Update Income
+      tags:
+      - incomes
+  /incomes/current-month/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get Income Of Current Month By User Id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Income'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Income Of Current Month By User Id
+      tags:
+      - incomes
+  /incomes/export/corporate/{month}:
+    get:
+      consumes:
+      - application/json
+      description: Get Corporate Export Income to csv file.
+      parameters:
+      - description: Month
+        in: path
+        name: month
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Corporate Export Income
+      tags:
+      - incomes
+  /incomes/export/corporate/different:
+    get:
+      consumes:
+      - application/json
+      description: Get Different Corporate Export Income to csv file.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Corporate Export Income
+      tags:
+      - incomes
+  /incomes/export/individual/{month}:
+    get:
+      consumes:
+      - application/json
+      description: Get Individual Export Income to csv file.
+      parameters:
+      - description: Month
+        in: path
+        name: month
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Individual Export Income
+      tags:
+      - incomes
+  /incomes/export/individual/different:
+    get:
+      consumes:
+      - application/json
+      description: Get Different Corporate Export Income to csv file.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Corporate Export Income
+      tags:
+      - incomes
+  /incomes/export/pdf:
+    get:
+      consumes:
+      - application/json
+      description: Get Export to Pdf file.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Export Pdf
+      tags:
+      - incomes
+  /incomes/status/corporate:
+    get:
+      consumes:
+      - application/json
+      description: Get Income Status List
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.IncomeStatus'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Corporate Income Status List
+      tags:
+      - incomes
+  /incomes/status/individual:
+    get:
+      consumes:
+      - application/json
+      description: Get Individual Income Status List
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.IncomeStatus'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Individual Income Status List
+      tags:
+      - incomes
+  /invoices:
+    get:
+      description: Get Invoice List
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Invoice'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Invoice List
+      tags:
+      - invoices
+    post:
+      consumes:
+      - application/json
+      description: Create New Invoice
+      parameters:
+      - description: id can be empty
+        in: body
+        name: invoice
+        required: true
+        schema:
+          $ref: '#/definitions/models.Invoice'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Invoice'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Create New Invoice
+      tags:
+      - invoices
+  /invoices/{id}:
+    delete:
+      description: Delete invoice
+      parameters:
+      - description: id is invoice id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Delete invoice
+      tags:
+      - invoices
+    get:
+      description: Get Invoice by id
+      parameters:
+      - description: id is invoice id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Invoice'
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Invoice by id
+      tags:
+      - invoices
+    put:
+      consumes:
+      - application/json
+      description: Update Invoice
+      parameters:
+      - description: id is invoice id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: require only 'amount'
+        in: body
+        name: invoice
+        required: true
+        schema:
+          $ref: '#/definitions/models.Invoice'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Invoice'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Update Invoice
+      tags:
+      - invoices
+  /invoices/po/{id}:
+    get:
+      description: Get Invoice List by PO
+      parameters:
+      - description: id is poId
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Invoice'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Invoice List by PO
+      tags:
+      - invoices
+  /invoices/po/{id}/next-no:
+    get:
+      consumes:
+      - application/json
+      description: Get next invoice no
+      parameters:
+      - description: id is PO id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.InvoiceNoRes'
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get next invoice no
+      tags:
+      - invoices
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login get token
+      parameters:
+      - description: id is userId
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/models.Login'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Token'
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Login
+      tags:
+      - login
+  /login-google:
+    post:
+      consumes:
+      - application/json
+      description: Login with google account only odds.team
+      parameters:
+      - description: id is token from google login in font-end
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/models.Login'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Token'
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Login with google account
+      tags:
+      - login
+  /poes:
+    get:
+      consumes:
+      - application/json
+      description: Get Po List
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Po'
+            type: array
+        "203":
+          description: Non-Authoritative Information
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Po List
+      tags:
+      - po
+    post:
+      consumes:
+      - application/json
+      description: Create PO
+      parameters:
+      - description: customer id is require
+        in: body
+        name: po
+        required: true
+        schema:
+          $ref: '#/definitions/models.Po'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Po'
+            type: object
+        "203":
+          description: Non-Authoritative Information
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Create PO
+      tags:
+      - po
+  /poes/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Po
+      parameters:
+      - description: Po ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Delete Po
+      tags:
+      - po
+    get:
+      consumes:
+      - application/json
+      description: Get Po By Id
+      parameters:
+      - description: Po ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Po'
+            type: object
+        "203":
+          description: Non-Authoritative Information
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Po
+      tags:
+      - po
+    put:
+      consumes:
+      - application/json
+      description: Update PO
+      parameters:
+      - description: id is Po ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: customer id is require
+        in: body
+        name: po
+        required: true
+        schema:
+          $ref: '#/definitions/models.Po'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Po'
+            type: object
+        "203":
+          description: Non-Authoritative Information
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Update PO
+      tags:
+      - po
+  /poes/customer/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get Get Poes By Customer Id
+      parameters:
+      - description: Poes ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Po'
+            type: object
+        "203":
+          description: Non-Authoritative Information
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Poes By Customer Id
+      tags:
+      - po
+  /setting/reminder:
+    get:
+      description: Get Reminder Setting
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Reminder'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Reminder Setting
+      tags:
+      - reminder
+    post:
+      consumes:
+      - application/json
+      description: Save Reminder Setting
+      parameters:
+      - description: line, slack, facebook can empty
+        in: body
+        name: reminder
+        required: true
+        schema:
+          $ref: '#/definitions/models.Reminder'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Reminder'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Save Reminder Setting
+      tags:
+      - reminder
+  /sites:
+    get:
+      consumes:
+      - application/json
+      description: get site list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Site'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: List Site
+      tags:
+      - sites
+    post:
+      consumes:
+      - application/json
+      description: Create Site Group
+      parameters:
+      - description: id can empty
+        in: body
+        name: site
+        required: true
+        schema:
+          $ref: '#/definitions/models.Site'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Site'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Create Site Group
+      tags:
+      - sites
+  /sites/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Site By Id
+      parameters:
+      - description: Site ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/models.Site'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Delete Site
+      tags:
+      - sites
+    get:
+      consumes:
+      - application/json
+      description: Get Site By Id
+      parameters:
+      - description: Site ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Site'
+            type: object
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get Site By Id
+      tags:
+      - sites
+    put:
+      consumes:
+      - application/json
+      description: Update Site By Id
+      parameters:
+      - description: Site ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: id can empty
+        in: body
+        name: sites
+        required: true
+        schema:
+          $ref: '#/definitions/models.Site'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Site'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Update Site By Id
+      tags:
+      - sites
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: get user list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: List user
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Create User
+      parameters:
+      - description: id can empty
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Create User
+      tags:
+      - users
+  /users/{email}:
+    get:
+      consumes:
+      - application/json
+      description: Get User By Email
+      parameters:
+      - description: Email
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get User By Email
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete User
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Delete User
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Get User By Id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+            type: object
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get User By Id
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update User
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: id can empty
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Update User
+      tags:
+      - users
+  /users/site/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get User By Site Id
+      parameters:
+      - description: Site id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: Get User By Site Id
+      tags:
+      - users
+  /users/tavi/{id}:
+    put:
+      consumes:
+      - application/json
+      description: UpdateStatusTavi User
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: id can empty
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+            type: object
+      summary: UpdateStatusTavi User
+      tags:
+      - users
+swagger: "2.0"

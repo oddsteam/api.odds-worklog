@@ -291,15 +291,15 @@ func NewMockInComeUsecase() income.Usecase {
 	return MockInComeUsecase{}
 }
 
-func (fs MockInComeUsecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.Income, error) {
+func (fs MockInComeUsecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
 	return nil, nil
 }
 
-func (fs MockInComeUsecase) UpdateIncome(id string, req *models.IncomeReq, user *models.User) (*models.Income, error) {
+func (fs MockInComeUsecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
 	return nil, nil
 }
 
-func (fs MockInComeUsecase) GetIncomeStatusList(role string) ([]*models.IncomeStatus, error) {
+func (fs MockInComeUsecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
 	mockIncomeStatus := new(models.IncomeStatus)
 
 	if role == "individual" {
@@ -315,12 +315,15 @@ func (fs MockInComeUsecase) GetIncomeStatusList(role string) ([]*models.IncomeSt
 func (fs MockInComeUsecase) GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error) {
 	return nil, nil
 }
+func (fs MockInComeUsecase) GetIncomeByUserIdAllMonth(userID string) ([]*models.Income, error) {
+	return nil, nil
+}
 
 func (fs MockInComeUsecase) ExportIncome(role string, beforeMonth string) (string, error) {
 	return "", nil
 }
 
-func (fs MockInComeUsecase) ExportPdf() (string, error) {
+func (fs MockInComeUsecase) ExportPdf(id string) (string, error) {
 	return "", nil
 }
 

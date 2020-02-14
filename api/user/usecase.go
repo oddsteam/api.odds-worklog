@@ -118,6 +118,11 @@ func (u *usecase) Update(m *models.User, isAdmin bool) (*models.User, error) {
 	if m.DailyIncome != "" {
 		user.DailyIncome = m.DailyIncome
 	}
+	if m.Address != "" {
+		user.Address = m.Address
+	}
+
+	user.StatusTavi = m.StatusTavi
 	user.Role = m.Role
 	user.Vat = m.Vat
 
@@ -126,6 +131,79 @@ func (u *usecase) Update(m *models.User, isAdmin bool) (*models.User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+func (u *usecase) UpdateStatusTavi(m []*models.StatusTavi, isAdmin bool) ([]*models.User, error) {
+	var users []*models.User
+
+	for i := 0; i < len(m); i++ {
+		if err := m[i].User.ValidateRole(); err != nil {
+			return nil, err
+		}
+		// if err := m[i].User.ValidateVat(); err != nil {
+		// 	return nil, err
+		// }
+		if m[i].User.Role == "admin" && !isAdmin {
+			return nil, utils.ErrInvalidUserRole
+		}
+
+		user, err := u.repo.GetByID(m[i].User.ID.Hex())
+		if err != nil {
+			return nil, err
+		}
+
+		if m[i].User.FirstName != "" {
+			user.FirstName = user.FirstName
+		}
+		if m[i].User.LastName != "" {
+			user.LastName = user.LastName
+		}
+		if m[i].User.CorporateName != "" {
+			user.CorporateName = user.CorporateName
+		}
+		if m[i].User.BankAccountName != "" {
+			user.BankAccountName = user.BankAccountName
+		}
+		if m[i].User.BankAccountNumber != "" {
+			user.BankAccountNumber = user.BankAccountNumber
+		}
+		if m[i].User.ThaiCitizenID != "" {
+			user.ThaiCitizenID = user.ThaiCitizenID
+		}
+		if m[i].User.SlackAccount != "" {
+			if err := utils.ValidateEmail(m[i].User.SlackAccount); err != nil {
+				return nil, errors.New("Invalid slack acount.")
+			}
+			user.SlackAccount = user.SlackAccount
+		}
+		if m[i].User.SiteID != "" {
+			user.SiteID = user.SiteID
+		}
+		if m[i].User.Project != "" {
+			user.Project = user.Project
+		}
+		if m[i].User.DailyIncome != "" {
+			user.DailyIncome = user.DailyIncome
+		}
+		if m[i].User.Address != "" {
+			user.Address = user.Address
+		}
+
+		user.StatusTavi = m[i].User.StatusTavi
+		user.Role = user.Role
+		user.Vat = user.Vat
+
+		user, err = u.repo.Update(user)
+		if err != nil {
+			return nil, err
+		}
+		user.DailyIncome = ""
+		user.ThaiCitizenID = ""
+
+		users = append(users, user)
+
+	}
+	return users, nil
 }
 
 func (u *usecase) Delete(id string) error {

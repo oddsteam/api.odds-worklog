@@ -39,7 +39,13 @@ func TestHandleToken(t *testing.T) {
 
 func TestGenToken(t *testing.T) {
 	t.Run("generate token success", func(t *testing.T) {
-		token, err := genToken(&userMock.User)
+		token, err := genToken(
+			&models.UserClaims{
+				ID:         userMock.User.ID.Hex(),
+				Role:       userMock.User.Role,
+				StatusTavi: userMock.User.StatusTavi,
+			},
+		)
 
 		assert.NoError(t, err)
 		assert.NotEmpty(t, token)
@@ -84,6 +90,7 @@ func TestCreateUser(t *testing.T) {
 
 func TestUsecase_isOddsTeam(t *testing.T) {
 	assert.True(t, isOddsTeam("a@odds.team"))
+	assert.False(t, isOddsTeam("a@xyzodds.team"))
 	assert.False(t, isOddsTeam(""))
 	assert.False(t, isOddsTeam("a@gmail.com"))
 }

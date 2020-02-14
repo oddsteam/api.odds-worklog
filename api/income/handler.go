@@ -46,7 +46,7 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 	user := getUserFromToken(c)
-	res, err := h.Usecase.AddIncome(&income, user)
+	res, err := h.Usecase.AddIncome(&income, user.ID)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -81,7 +81,7 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 	user := getUserFromToken(c)
-	res, err := h.Usecase.UpdateIncome(id, &req, user)
+	res, err := h.Usecase.UpdateIncome(id, &req, user.ID)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -100,7 +100,9 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/status/corporate [get]
 func (h *HttpHandler) GetCorporateIncomeStatus(c echo.Context) error {
-	status, err := h.Usecase.GetIncomeStatusList("corporate")
+	isAdmin, _ := IsUserAdmin(c)
+
+	status, err := h.Usecase.GetIncomeStatusList("corporate", isAdmin)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -119,11 +121,39 @@ func (h *HttpHandler) GetCorporateIncomeStatus(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/status/individual [get]
 func (h *HttpHandler) GetIndividualIncomeStatus(c echo.Context) error {
-	status, err := h.Usecase.GetIncomeStatusList("individual")
+	isAdmin, _ := IsUserAdmin(c)
+
+	status, err := h.Usecase.GetIncomeStatusList("individual", isAdmin)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, status)
+}
+
+// GetIncomeAllMonthByUserId godoc
+// @Summary Get Income Of All Month By User Id
+// @Description Get Income Of All Month By User Id
+// @Tags incomes
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} models.Income
+// @Failure 400 {object} utils.HTTPError
+// @Router /incomes/all-month/{id} [get]
+func (h *HttpHandler) GetIncomeAllMonthByUserId(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	user := getUserFromToken(c)
+	if id != user.ID {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	income, _ := h.Usecase.GetIncomeByUserIdAllMonth(id)
+	if income == nil {
+		return c.JSON(http.StatusOK, nil)
+	}
+	return c.JSON(http.StatusOK, income)
 }
 
 // GetIncomeCurrentMonthByUserId godoc
@@ -142,7 +172,7 @@ func (h *HttpHandler) GetIncomeCurrentMonthByUserId(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 	user := getUserFromToken(c)
-	if id != user.ID.Hex() {
+	if id != user.ID {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 	income, _ := h.Usecase.GetIncomeByUserIdAndCurrentMonth(id)
@@ -162,11 +192,15 @@ func (h *HttpHandler) GetIncomeCurrentMonthByUserId(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/pdf [get]
 func (h *HttpHandler) GetExportPdf(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
+	isStatusTavi, message := IsStatusTavi(c)
+	if !isStatusTavi {
 		return c.JSON(http.StatusUnauthorized, message)
 	}
-	filename, err := h.Usecase.ExportPdf()
+	id := c.Param("id")
+	if id == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	filename, err := h.Usecase.ExportPdf(id)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -179,9 +213,10 @@ func (h *HttpHandler) GetExportPdf(c echo.Context) error {
 // @Tags incomes
 // @Accept  json
 // @Produce  json
+// @Param month path string true "Month"
 // @Success 200 {array} string
 // @Failure 500 {object} utils.HTTPError
-// @Router /incomes/export/corporate [get]
+// @Router /incomes/export/corporate/{month} [get]
 func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
 	isAdmin, message := IsUserAdmin(c)
 	if !isAdmin {
@@ -225,9 +260,10 @@ func (h *HttpHandler) GetExportDifferentCorporate(c echo.Context) error {
 // @Tags incomes
 // @Accept  json
 // @Produce  json
+// @Param month path string true "Month"
 // @Success 200 {array} string
 // @Failure 500 {object} utils.HTTPError
-// @Router /incomes/export/individual [get]
+// @Router /incomes/export/individual/{month} [get]
 func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	isAdmin, message := IsUserAdmin(c)
 	if !isAdmin {
@@ -273,7 +309,15 @@ func IsUserAdmin(c echo.Context) (bool, string) {
 	return false, "ไม่มีสิทธิในการใช้งาน"
 }
 
-func getUserFromToken(c echo.Context) *models.User {
+func IsStatusTavi(c echo.Context) (bool, string) {
+	u := getUserFromToken(c)
+	if u.GetStatusTavi() {
+		return true, ""
+	}
+	return false, "ไม่มีสิทธิในการใช้งาน"
+}
+
+func getUserFromToken(c echo.Context) *models.UserClaims {
 	t := c.Get("user").(*jwt.Token)
 	claims := t.Claims.(*models.JwtCustomClaims)
 	return claims.User
@@ -291,9 +335,10 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/status/corporate", handler.GetCorporateIncomeStatus)
 	r.GET("/status/individual", handler.GetIndividualIncomeStatus)
 	r.GET("/current-month/:id", handler.GetIncomeCurrentMonthByUserId)
+	r.GET("/all-month/:id", handler.GetIncomeAllMonthByUserId)
 	r.GET("/export/corporate/:month", handler.GetExportCorporate)
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
 	r.GET("/export/corporate/different", handler.GetExportDifferentCorporate)
 	r.GET("/export/individual/different", handler.GetExportDifferentIndividuals)
-	r.GET("/export/pdf", handler.GetExportPdf)
+	r.GET("/export/pdf/:id", handler.GetExportPdf)
 }

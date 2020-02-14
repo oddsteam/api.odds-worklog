@@ -7,33 +7,50 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
-func (u *usecase) AddIncome(req *models.IncomeReq, user *models.User) (*models.Income, error) {
-	userDetail, _ := u.userRepo.GetByID(user.ID.Hex())
+func (u *usecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
+	userDetail, _ := u.userRepo.GetByID(uid)
 	year, month := utils.GetYearMonthNow()
-	_, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month)
+	_, err := u.repo.GetIncomeUserByYearMonth(uid, year, month)
 	if err == nil {
 		return nil, errors.New("Sorry, has income data of user " + userDetail.GetName())
 	}
-	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome, req.SpecialIncome)
+	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome)
 	if err != nil {
 		return nil, err
 	}
-	netIncome, err := utils.StringToFloat64(ins.Net)
+	insSpecial, err := calIncomeSum(req.WorkingHours, userDetail.Vat, req.SpecialIncome)
 	if err != nil {
 		return nil, err
 	}
-
-	summaryIncome := utils.FloatToString(netIncome)
+	summaryIncome, err := calSummary(ins.TotalIncome, insSpecial.TotalIncome)
+	if err != nil {
+		return nil, err
+	}
+	summaryWht, err := calSummary(ins.WHT, insSpecial.WHT)
+	if err != nil {
+		return nil, err
+	}
+	var summaryVat string
+	if userDetail.Vat != "N" {
+		summaryVat, err = calSummary(ins.VAT, insSpecial.VAT)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		summaryVat = ""
+	}
 
 	income := models.Income{
-		UserID:        user.ID.Hex(),
-		TotalIncome:   ins.TotalIncome,
-		NetIncome:     summaryIncome,
-		Note:          req.Note,
-		VAT:           ins.VAT,
-		WHT:           ins.WHT,
-		WorkDate:      req.WorkDate,
-		SpecialIncome: req.SpecialIncome,
+		UserID:           uid,
+		TotalIncome:      summaryIncome,
+		NetIncome:        ins.Net,
+		NetSpecialIncome: insSpecial.Net,
+		Note:             req.Note,
+		VAT:              summaryVat,
+		WHT:              summaryWht,
+		WorkDate:         req.WorkDate,
+		SpecialIncome:    req.SpecialIncome,
+		WorkingHours:     req.WorkingHours,
 	}
 	err = u.repo.AddIncome(&income)
 	if err != nil {
