@@ -6,20 +6,20 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/consumer"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 	oauth2 "google.golang.org/api/oauth2/v2"
 )
 
-const clientID = "956316396976-mhb092ad69gn2olis0mtmc1fpe8blgn8.apps.googleusercontent.com"
-
 type usecase struct {
-	UserUsecase user.Usecase
+	UserUsecase     user.Usecase
+	ConsumerUsecase consumer.Usecase
 }
 
-func NewUsecase(uu user.Usecase) Usecase {
-	return &usecase{uu}
+func NewUsecase(uu user.Usecase, cu consumer.Usecase) Usecase {
+	return &usecase{uu, cu}
 }
 
 func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
@@ -30,13 +30,12 @@ func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
 
 	tokenInfoCall := oauth2Service.Tokeninfo()
 	tokenInfo, err := tokenInfoCall.IdToken(idToken).Do()
-
 	if err != nil {
 		return nil, err
 	}
 
-	if !verifyAudience(tokenInfo.Audience) {
-		return nil, utils.ErrTokenIsNotOddsTeam
+	if !u.IsValidConsumerClientID(tokenInfo.Audience) {
+		return nil, utils.ErrInvalidConsumer
 	}
 	return tokenInfo, nil
 }
@@ -64,8 +63,9 @@ func isOddsTeam(email string) bool {
 	return host == "@odds.team"
 }
 
-func verifyAudience(aud string) bool {
-	return aud == clientID
+func (u *usecase) IsValidConsumerClientID(cid string) bool {
+	_, err := u.ConsumerUsecase.GetByClientID(cid)
+	return err == nil
 }
 
 func handleToken(user *models.User) (*models.Token, error) {
