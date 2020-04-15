@@ -29,6 +29,7 @@ var (
 	ErrCustomerNotFound        = errors.New("Customer is not found.")
 	ErrNotImageFile            = errors.New("Not image file")
 	ErrInvalidAmount           = errors.New("Invalid amount.")
+	ErrInvalidConsumer         = errors.New("Permission denied.")
 )
 
 func NewError(ctx echo.Context, status int, err error) error {
