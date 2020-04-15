@@ -7,7 +7,7 @@ package mock_login
 import (
 	gomock "github.com/golang/mock/gomock"
 	models "gitlab.odds.team/worklog/api.odds-worklog/models"
-	v2 "google.golang.org/api/oauth2/v2"
+	oauth2 "google.golang.org/api/oauth2/v2"
 	reflect "reflect"
 )
 
@@ -35,20 +35,23 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 }
 
 // GetTokenInfo mocks base method
-func (m *MockUsecase) GetTokenInfo(idToken string) (*v2.Tokeninfo, error) {
+func (m *MockUsecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTokenInfo", idToken)
-	ret0, _ := ret[0].(*v2.Tokeninfo)
+	ret0, _ := ret[0].(*oauth2.Tokeninfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetTokenInfo indicates an expected call of GetTokenInfo
 func (mr *MockUsecaseMockRecorder) GetTokenInfo(idToken interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTokenInfo", reflect.TypeOf((*MockUsecase)(nil).GetTokenInfo), idToken)
 }
 
 // CreateUser mocks base method
 func (m *MockUsecase) CreateUser(email string) (*models.User, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateUser", email)
 	ret0, _ := ret[0].(*models.User)
 	ret1, _ := ret[1].(error)
@@ -57,5 +60,20 @@ func (m *MockUsecase) CreateUser(email string) (*models.User, error) {
 
 // CreateUser indicates an expected call of CreateUser
 func (mr *MockUsecaseMockRecorder) CreateUser(email interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockUsecase)(nil).CreateUser), email)
+}
+
+// IsValidConsumerClientID mocks base method
+func (m *MockUsecase) IsValidConsumerClientID(cid string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsValidConsumerClientID", cid)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsValidConsumerClientID indicates an expected call of IsValidConsumerClientID
+func (mr *MockUsecaseMockRecorder) IsValidConsumerClientID(cid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsValidConsumerClientID", reflect.TypeOf((*MockUsecase)(nil).IsValidConsumerClientID), cid)
 }
