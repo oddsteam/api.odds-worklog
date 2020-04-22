@@ -13,11 +13,11 @@ func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*m
 		return nil, err
 	}
 
-	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome)
+	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome,userDetail.GetRole())
 	if err != nil {
 		return nil, err
 	}
-	insSpecial, err := calIncomeSum(req.WorkingHours, userDetail.Vat, req.SpecialIncome)
+	insSpecial, err := calIncomeSum(req.WorkingHours, userDetail.Vat, req.SpecialIncome,userDetail.GetRole())
 	if err != nil {
 		return nil, err
 	}

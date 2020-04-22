@@ -58,7 +58,16 @@ func calWHT(income string) (string, float64, error) {
 	return utils.FloatToString(wht), utils.RealFloat(wht), nil
 }
 
-func calIncomeSum(workAmount string, vattype string, incomes string) (*incomeSum, error) {
+func calWHTCorporate(income string) (string, float64, error) {
+	num, err := utils.StringToFloat64(income)
+	if err != nil {
+		return "", 0.0, err
+	}
+	wht := num * 0.015
+	return utils.FloatToString(wht), utils.RealFloat(wht), nil
+}
+
+func calIncomeSum(workAmount string, vattype string, incomes string, role string) (*incomeSum, error) {
 	var vat, wht string
 	var vatf, whtf float64
 	var ins = new(incomeSum)
@@ -70,11 +79,18 @@ func calIncomeSum(workAmount string, vattype string, incomes string) (*incomeSum
 	if err != nil {
 		return nil, err
 	}
-	wht, whtf, err = calWHT(totalIncomeStr)
-	if err != nil {
-		return nil, err
+	if role == "corporate" {
+		wht, whtf, err = calWHTCorporate(totalIncomeStr)
+		if err != nil {
+			return nil, err
+		}
 	}
-
+	if role == "individual" {
+		wht, whtf, err = calWHT(totalIncomeStr)
+		if err != nil {
+			return nil, err
+		}
+	}
 	ins.WHT = wht
 	ins.TotalIncome = totalIncomeStr
 
