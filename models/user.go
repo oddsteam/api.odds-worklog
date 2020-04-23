@@ -69,6 +69,9 @@ func (u *User) GetThaiCitizenID() string {
 func (u *User) GetAddress() string {
 	return u.Address
 }
+func (u *User) GetRole() string {
+	return u.Role
+}
 
 func (u *User) GetStatusTavi() bool {
 	return u.StatusTavi
