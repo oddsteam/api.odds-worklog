@@ -23,7 +23,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o /go/bin/api
 FROM alpine
 RUN apk update && apk upgrade
 RUN apk add curl
-RUN apk add python
+RUN /bin/sh -c apk add python
 WORKDIR /app
 RUN mkdir -p files/tavi50 && mkdir image && mkdir font
 ADD image /app/image
