@@ -12,7 +12,7 @@ pipeline {
             } else if (env.BRANCH_NAME == "master") {
                 shortenv = "prod"
             }
-            withDockerRegistry(credentialsId: 'ecr:ap-southeast-1:sapanboon-aws', url: 'https://844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog') {
+            withDockerRegistry(credentialsId: 'ecr:ap-southeast-1:registry-aws', url: 'https://844772501268.dkr.ecr.ap-southeast-1.amazonaws.com') {
                         def worklogAPI = docker.build("844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev")
                         
                         //push image
