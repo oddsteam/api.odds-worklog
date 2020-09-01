@@ -13,7 +13,7 @@ pipeline {
                 shortenv = "prod"
             }
             withDockerRegistry(credentialsId: 'ecr:ap-southeast-1:sapanboon-aws', url: 'https://844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog') {
-                        docker.image("844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog").push()
+                        docker.image("844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev").push()
             }
         }
       }
