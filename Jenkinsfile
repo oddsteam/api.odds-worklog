@@ -5,15 +5,15 @@ pipeline {
     stage('registry') {
       steps {
         script {
-            sh "echo $env.BRANCH_NAME" 
+            sh "echo $GIT_BRANCH" 
             def shortenv = "dev"
-            if (env.BRANCH_NAME == "develop") {
-                shortenv = "dev"
-            } else if (env.BRANCH_NAME == "master") {
-                shortenv = "prod"
+            if (GIT_BRANCH == "origin/new-develop") {
+                shortenv = 'dev'
+            } else if (GIT_BRANCH == "origin/master"){
+                shortenv = 'prod'
             }
             withDockerRegistry(credentialsId: 'ecr:ap-southeast-1:registry-aws', url: 'https://844772501268.dkr.ecr.ap-southeast-1.amazonaws.com') {
-                        def worklogAPI = docker.build("844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev")
+                        def worklogAPI = docker.build("844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:$shortenv")
                         
                         //push image
                         worklogAPI.push()
