@@ -124,27 +124,27 @@ func TestCalWHT(t *testing.T) {
 func TestCalWHTCorporate(t *testing.T) {
 	wht, whtf, err := calWHTCorporate("100000")
 	assert.NoError(t, err)
-	assert.Equal(t, "1500.00", wht)
-	assert.Equal(t, 1500.00, whtf)
+	assert.Equal(t, "3000.00", wht)
+	assert.Equal(t, 3000.00, whtf)
 
 	wht, whtf, err = calWHTCorporate("123456")
 	assert.NoError(t, err)
-	assert.Equal(t, "1851.84", wht)
-	assert.Equal(t, 1851.84, whtf)
+	assert.Equal(t, "3703.68", wht)
+	assert.Equal(t, 3703.68, whtf)
 
 	wht, whtf, err = calWHTCorporate("99999")
 	assert.NoError(t, err)
-	assert.Equal(t, "1499.98", wht)
-	assert.Equal(t, 1499.99, whtf)
+	assert.Equal(t, "2999.97", wht)
+	assert.Equal(t, 2999.97, whtf)
 }
 func TestCalCorporateIncomeSum(t *testing.T) {
 	sum, err := calIncomeSum("20", "Y", "5000","corporate")
 	assert.NoError(t, err)
-	assert.Equal(t, "105500.00", sum.Net)
+	assert.Equal(t, "104000.00", sum.Net)
 
 	sum, err = calIncomeSum("20", "Y", "2000","corporate")
 	assert.NoError(t, err)
-	assert.Equal(t, "42200.00", sum.Net)
+	assert.Equal(t, "41600.00", sum.Net)
 }
 
 func TestCalPersonIncomeSum(t *testing.T) {
