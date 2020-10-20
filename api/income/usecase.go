@@ -63,7 +63,7 @@ func calWHTCorporate(income string) (string, float64, error) {
 	if err != nil {
 		return "", 0.0, err
 	}
-	wht := num * 0.015
+	wht := num * 0.03
 	return utils.FloatToString(wht), utils.RealFloat(wht), nil
 }
 
