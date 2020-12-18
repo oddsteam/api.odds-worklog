@@ -12,22 +12,26 @@ import (
 
 var (
 	MockIncome = models.Income{
-		ID:            bson.ObjectIdHex("5bd1fda30fd2df2a3e41e569"),
-		UserID:        "5bbcf2f90fd2df527bc39539",
-		TotalIncome:   "100000",
-		NetIncome:     "100000",
-		SubmitDate:    time.Now(),
-		Note:          "ข้อมูลที่อยากบอก",
-		VAT:           "7000",
-		WHT:           "3000",
-		WorkDate:      "20",
-		SpecialIncome: "2000",
-		ExportStatus:  false,
+		ID:               bson.ObjectIdHex("5bd1fda30fd2df2a3e41e569"),
+		UserID:           "5bbcf2f90fd2df527bc39539",
+		TotalIncome:      "100000",
+		NetIncome:        "116400.00",
+		NetDailyIncome:   "97000.00",
+		NetSpecialIncome: "19400.00",
+		SubmitDate:       time.Now(),
+		Note:             "ข้อมูลที่อยากบอก",
+		VAT:              "0",
+		WHT:              "3600.00",
+		WorkDate:         "20",
+		SpecialIncome:    "2000",
+		WorkingHours:     "10",
+		ExportStatus:     false,
 	}
 	MockIncomeReq = models.IncomeReq{
-		WorkDate:      "100000",
+		WorkDate:      "20",
 		Note:          "ข้อมูลที่อยากบอก",
-		SpecialIncome: "5000",
+		SpecialIncome: "2000",
+		WorkingHours:  "10",
 	}
 
 	MockIncomeStatus = models.IncomeStatus{

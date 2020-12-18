@@ -13,15 +13,19 @@ func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*m
 		return nil, err
 	}
 
-	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome,userDetail.GetRole())
+	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome, userDetail.GetRole())
 	if err != nil {
 		return nil, err
 	}
-	insSpecial, err := calIncomeSum(req.WorkingHours, userDetail.Vat, req.SpecialIncome,userDetail.GetRole())
+	insSpecial, err := calIncomeSum(req.WorkingHours, userDetail.Vat, req.SpecialIncome, userDetail.GetRole())
 	if err != nil {
 		return nil, err
 	}
 	summaryIncome, err := calSummary(ins.TotalIncome, insSpecial.TotalIncome)
+	if err != nil {
+		return nil, err
+	}
+	summaryNetIncome, err := calSummary(ins.Net, insSpecial.Net)
 	if err != nil {
 		return nil, err
 	}
@@ -41,8 +45,9 @@ func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*m
 
 	income.SubmitDate = time.Now()
 	income.TotalIncome = summaryIncome
-	income.NetIncome = ins.Net
+	income.NetIncome = summaryNetIncome
 	income.NetSpecialIncome = insSpecial.Net
+	income.NetDailyIncome = ins.Net
 	income.VAT = summaryVat
 	income.WHT = summaryWht
 	income.Note = req.Note

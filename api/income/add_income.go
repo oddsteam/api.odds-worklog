@@ -14,11 +14,11 @@ func (u *usecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, 
 	if err == nil {
 		return nil, errors.New("Sorry, has income data of user " + userDetail.GetName())
 	}
-	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome,userDetail.GetRole())
+	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome, userDetail.GetRole())
 	if err != nil {
 		return nil, err
 	}
-	insSpecial, err := calIncomeSum(req.WorkingHours, userDetail.Vat, req.SpecialIncome,userDetail.GetRole())
+	insSpecial, err := calIncomeSum(req.WorkingHours, userDetail.Vat, req.SpecialIncome, userDetail.GetRole())
 	if err != nil {
 		return nil, err
 	}
@@ -27,6 +27,10 @@ func (u *usecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, 
 		return nil, err
 	}
 	summaryWht, err := calSummary(ins.WHT, insSpecial.WHT)
+	if err != nil {
+		return nil, err
+	}
+	summaryNetIncome, err := calSummary(ins.Net, insSpecial.Net)
 	if err != nil {
 		return nil, err
 	}
@@ -43,8 +47,9 @@ func (u *usecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, 
 	income := models.Income{
 		UserID:           uid,
 		TotalIncome:      summaryIncome,
-		NetIncome:        ins.Net,
+		NetIncome:        summaryNetIncome,
 		NetSpecialIncome: insSpecial.Net,
+		NetDailyIncome:   ins.Net,
 		Note:             req.Note,
 		VAT:              summaryVat,
 		WHT:              summaryWht,
