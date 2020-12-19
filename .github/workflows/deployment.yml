@@ -43,7 +43,5 @@ jobs:
       id: build-image
       run: |
         # Build a docker container and push it to ECR 
-        docker build -t 844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev .
-        echo "Pushing image to ECR..."
-        docker tag 844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev 844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev
-        docker push 844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev
+         ls -a 
+         echo TEST
