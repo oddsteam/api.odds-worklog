@@ -32,8 +32,8 @@ jobs:
     - name: AWS ECR
       uses: appleboy/docker-ecr-action@master
       with:
-        access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        access_key: ASIA4JMC5M4KHUYG4ZHF
+        secret_key: 4OSf/BB5H4y6JNrsjFlGPPZGjoOrP7kNXaJHCdNu
         repo: api-worklog
         region: ap-southeast-1
         tags: dev 
