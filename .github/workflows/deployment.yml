@@ -36,7 +36,6 @@ jobs:
         secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         repo: api-worklog
         region: ap-southeast-1
-        registry: 844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog
         tags: dev 
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
