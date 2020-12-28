@@ -254,6 +254,7 @@ func TestUsecaseGetIncomeByUserIdAndAllMonth(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, incomeMock.MockIncome.SubmitDate, res[0].SubmitDate)
+		assert.Equal(t, "50440.00", res[1].NetIncome)
 	})
 }
 
