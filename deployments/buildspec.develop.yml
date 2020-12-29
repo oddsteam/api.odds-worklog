@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+  pre_build:
+    commands:
+      - $(aws ecr get-login --no-include-email --region ap-northeast-1)
+  build:
+    commands:
+      - export COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-6)
+      - docker build -t 844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev .
+      - docker tag 844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev 844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev
+  post_build:
+    commands:
+      - docker push 844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev
+artifacts:
+  files: imagedefinitions.json
