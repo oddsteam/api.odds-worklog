@@ -149,7 +149,10 @@ func (h *HttpHandler) GetIncomeAllMonthByUserId(c echo.Context) error {
 	if id != user.ID {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
-	income, _ := h.Usecase.GetIncomeByUserIdAllMonth(id)
+	income, err := h.Usecase.GetIncomeByUserIdAllMonth(id)
+	if err != nil {
+		return err
+	}
 	if income == nil {
 		return c.JSON(http.StatusOK, nil)
 	}
