@@ -276,7 +276,7 @@ func TestUsecaseGetIncomeByUserIdAndAllMonthCaseNoNetSpecialIncome(t *testing.T)
 		res, err := uc.GetIncomeByUserIdAllMonth(incomeMock.MockIncome.UserID)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, "1000", res[0].NetIncome)
+		assert.Equal(t, "00.00", res[0].NetIncome)
 		assert.Equal(t, "50440.00", res[1].NetIncome)
 	})
 }
