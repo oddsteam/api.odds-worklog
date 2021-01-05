@@ -43,6 +43,21 @@ var (
 		WorkingHours:     "10",
 		ExportStatus:     false,
 	}
+	MockIncomeNoNetSpecialIncome = models.Income{
+		ID:             bson.ObjectIdHex("5bd1fda30fd2df2a3e41e569"),
+		UserID:         "5bbcf2f90fd2df527bc39539",
+		TotalIncome:    "100000",
+		NetIncome:      "00.00",
+		NetDailyIncome: "48500.00",
+		SubmitDate:     time.Now(),
+		Note:           "ข้อมูลที่อยากบอก",
+		VAT:            "0",
+		WHT:            "1560.00",
+		WorkDate:       "20",
+		SpecialIncome:  "200",
+		WorkingHours:   "10",
+		ExportStatus:   false,
+	}
 	MockIncomeReq = models.IncomeReq{
 		WorkDate:      "20",
 		Note:          "ข้อมูลที่อยากบอก",
@@ -65,10 +80,11 @@ var (
 		User:   &userMock.User,
 		Status: "N",
 	}
-	MockIncomeList       = []*models.Income{&MockIncome, &MockIncome2}
-	MockIncomeStatusList = []*models.IncomeStatus{&MockIncomeStatus}
-	IncomeByte, _        = json.Marshal(MockIncome)
-	MockIncomeJson       = string(IncomeByte)
+	MockIncomeList                   = []*models.Income{&MockIncome, &MockIncome2}
+	MockIncomeListNoNetSpecialIncome = []*models.Income{&MockIncomeNoNetSpecialIncome, &MockIncome2}
+	MockIncomeStatusList             = []*models.IncomeStatus{&MockIncomeStatus}
+	IncomeByte, _                    = json.Marshal(MockIncome)
+	MockIncomeJson                   = string(IncomeByte)
 
 	IncomeReqByte, _  = json.Marshal(MockIncomeReq)
 	MockIncomeReqJson = string(IncomeReqByte)

@@ -155,9 +155,11 @@ func (u *usecase) GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, er
 		return nil, nil
 	}
 	for index := range listIncome {
-		listIncome[index].NetIncome, err = calSummary(listIncome[index].NetDailyIncome, listIncome[index].NetSpecialIncome)
-		if err != nil {
-			return nil, err
+		if listIncome[index].NetSpecialIncome != "" && listIncome[index].NetDailyIncome != "" {
+			listIncome[index].NetIncome, err = calSummary(listIncome[index].NetDailyIncome, listIncome[index].NetSpecialIncome)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return listIncome, nil

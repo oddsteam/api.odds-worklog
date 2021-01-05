@@ -262,3 +262,21 @@ func TestSetValueCSV(t *testing.T) {
 	assert.Equal(t, `="1"`, setValueCSV("1"))
 	assert.Equal(t, `="01"`, setValueCSV("01"))
 }
+
+func TestUsecaseGetIncomeByUserIdAndAllMonthCaseNoNetSpecialIncome(t *testing.T) {
+	t.Run("when get income by user id all month success it should be return income model", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockRepoIncome.EXPECT().GetIncomeByUserIdAllMonth(incomeMock.MockIncome.UserID).Return(incomeMock.MockIncomeListNoNetSpecialIncome, nil)
+		mockUserRepo := userMock.NewMockRepository(ctrl)
+
+		uc := NewUsecase(mockRepoIncome, mockUserRepo)
+		res, err := uc.GetIncomeByUserIdAllMonth(incomeMock.MockIncome.UserID)
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.Equal(t, "1000", res[0].NetIncome)
+		assert.Equal(t, "50440.00", res[1].NetIncome)
+	})
+}
