@@ -138,21 +138,21 @@ func TestCalWHTCorporate(t *testing.T) {
 	assert.Equal(t, 2999.97, whtf)
 }
 func TestCalCorporateIncomeSum(t *testing.T) {
-	sum, err := calIncomeSum("20", "Y", "5000","corporate")
+	sum, err := calIncomeSum("20", "Y", "5000", "corporate")
 	assert.NoError(t, err)
 	assert.Equal(t, "104000.00", sum.Net)
 
-	sum, err = calIncomeSum("20", "Y", "2000","corporate")
+	sum, err = calIncomeSum("20", "Y", "2000", "corporate")
 	assert.NoError(t, err)
 	assert.Equal(t, "41600.00", sum.Net)
 }
 
 func TestCalPersonIncomeSum(t *testing.T) {
-	sum, err := calIncomeSum("20", "N", "5000","individual")
+	sum, err := calIncomeSum("20", "N", "5000", "individual")
 	assert.NoError(t, err)
 	assert.Equal(t, "97000.00", sum.Net)
 
-	sum, err = calIncomeSum("20", "N", "2000","individual")
+	sum, err = calIncomeSum("20", "N", "2000", "individual")
 	assert.NoError(t, err)
 	assert.Equal(t, "38800.00", sum.Net)
 }
@@ -175,6 +175,9 @@ func TestUsecaseAddIncome(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, incomeMock.MockIncome.UserID, res.UserID)
+		assert.Equal(t, "116400.00", res.NetIncome)
+		assert.Equal(t, "97000.00", res.NetDailyIncome)
+		assert.Equal(t, "19400.00", res.NetSpecialIncome)
 	})
 }
 
@@ -251,6 +254,7 @@ func TestUsecaseGetIncomeByUserIdAndAllMonth(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, incomeMock.MockIncome.SubmitDate, res[0].SubmitDate)
+		assert.Equal(t, "50440.00", res[1].NetIncome)
 	})
 }
 

@@ -83,6 +83,12 @@ At project path<br>
     mongoimport --host localhost --port 27017 --db odds_worklog_db --collection customer --type json --file data/customer.json --maintainInsertionOrder --jsonArray
 ```
 
+* **Import consumer data** <br>
+At project path<br>
+```bash 
+    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection consumer --type json --file data/consumer.json --maintainInsertionOrder --jsonArray
+```
+
 * **Import po data** <br>
 At project path<br>
 ```bash 

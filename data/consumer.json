@@ -1,0 +1,16 @@
+[
+    {
+        "_id": {
+            "$oid": "5e96bbcbb0b5ba000139c8f7"
+        },
+        "clientId": "956316396976-mhb092ad69gn2olis0mtmc1fpe8blgn8.apps.googleusercontent.com",
+        "clientName": "worklog-web"
+    },
+    {
+        "_id": {
+            "$oid": "5f72bbbd4c92344aa1d40cda"
+        },
+        "clientId": "105222474411-ojj3hjphh4egspol48hc92hghll7a6kp.apps.googleusercontent.com",
+        "clientName": "worklog-ios"
+    }
+]

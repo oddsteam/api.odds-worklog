@@ -63,6 +63,7 @@ func main() {
 	po.NewHttpHandler(r, session)
 	invoice.NewHttpHandler(r, session)
 	customer.NewHttpHandler(r, session)
+
 	reminderRepo := reminder.NewRepository(session)
 	s, err := reminderRepo.GetReminder()
 	if err != nil {
