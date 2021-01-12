@@ -39,8 +39,6 @@ func (r *repository) Get() ([]*models.UserIncome, error) {
 
 	// Run the queries and capture the results
 	err := pipe.All(&users)
-
-	// err := coll.Find(bson.M{}).All(&users)
 	if err != nil {
 		return nil, err
 	}
