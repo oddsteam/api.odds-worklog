@@ -8,6 +8,8 @@ import (
 
 const userColl = "user"
 
+const backofficeColl = "backoffice"
+
 type repository struct {
 	session *mongo.Session
 }
@@ -43,4 +45,16 @@ func (r *repository) Get() ([]*models.UserIncome, error) {
 		return nil, err
 	}
 	return users, nil
+}
+
+func (r *repository) GetKey() (*models.BackOfficeKey, error) {
+
+	key := new(models.BackOfficeKey)
+
+	coll := r.session.GetCollection(backofficeColl)
+	err := coll.Find(bson.M{"key" : bson.M{ "$ne" : nil}}).One(&key)
+	if err != nil {
+		return nil, err
+	}
+	return key, nil
 }

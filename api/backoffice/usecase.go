@@ -36,3 +36,12 @@ func (u *usecase) Get() ([]*models.UserIncome, error) {
 	}
 	return users, nil
 }
+
+func (u *usecase) GetKey() (*models.BackOfficeKey, error) {
+
+	key, err := u.repo.GetKey()
+	if err != nil {
+		return nil, err
+	}
+	return key, nil
+}

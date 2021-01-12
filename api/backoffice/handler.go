@@ -1,6 +1,7 @@
 package backoffice
 
 import (
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"net/http"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
@@ -8,7 +9,6 @@ import (
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
-	"fmt"
 	"crypto/sha256"
     "encoding/hex"
 )
@@ -39,14 +39,22 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 // @Failure 500 {object} utils.HTTPError
 // @Router /backoffice [get]
 func (h *HttpHandler) GetAllUserIncome(c echo.Context) error {
-	token := c.QueryParam("token");
-	s := "backoffice"
-    hasher := sha256.New()
-    hasher.Write([]byte(s))
-    sha1_hash := hex.EncodeToString(hasher.Sum(nil))
-	fmt.Println(s, sha1_hash)
 	
-	if token == sha1_hash {
+	var k models.BackOfficeKey
+	if err := c.Bind(&k); err != nil {
+		return utils.NewError(c, http.StatusBadRequest, err)
+	}
+
+	key, err := h.Usecase.GetKey()
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	hasher := sha256.New()
+    hasher.Write([]byte(key.Key))
+    sha1_hash := hex.EncodeToString(hasher.Sum(nil))
+
+	if k.Key == sha1_hash {
 		users, err := h.Usecase.Get()
 		if err != nil {
 			return utils.NewError(c, http.StatusInternalServerError, err)
@@ -55,4 +63,5 @@ func (h *HttpHandler) GetAllUserIncome(c echo.Context) error {
 	}else{
 		return c.JSON(http.StatusOK, "invalid token")
 	}
+
 }
