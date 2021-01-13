@@ -15,7 +15,7 @@ func NewUsecase(r Repository, sr site.Repository) Usecase {
 }
 
 func (u *usecase) Get() ([]*models.UserIncome, error) {
-	users, err := u.repo.Get()
+	userIncomes, err := u.repo.Get()
 	if err != nil {
 		return nil, err
 	}
@@ -26,15 +26,15 @@ func (u *usecase) Get() ([]*models.UserIncome, error) {
 	}
 
 	for _, s := range sites {
-		for i, us := range users {
+		for i, us := range userIncomes {
 			if s.ID.Hex() == us.SiteID {
-				users[i].Site = s
-				users[i].SiteID = ""
+				userIncomes[i].Site = s
+				userIncomes[i].SiteID = ""
 				break
 			}
 		}
 	}
-	return users, nil
+	return userIncomes, nil
 }
 
 func (u *usecase) GetKey() (*models.BackOfficeKey, error) {

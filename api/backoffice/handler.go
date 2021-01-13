@@ -61,7 +61,7 @@ func (h *HttpHandler) GetAllUserIncome(c echo.Context) error {
 		}
 		return c.JSON(http.StatusOK, users)
 	}else{
-		return c.JSON(http.StatusOK, "invalid token")
+		return c.JSON(http.StatusBadRequest, "invalid token")
 	}
 
 }
