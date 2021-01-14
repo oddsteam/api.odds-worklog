@@ -11,6 +11,7 @@ type Income struct {
 	UserID           string        `bson:"userId" json:"userId"`
 	TotalIncome      string        `bson:"totalIncome" json:"totalIncome"`
 	NetIncome        string        `bson:"netIncome" json:"netIncome"`
+	NetDailyIncome   string        `bson:"netDailyIncome" json:"netDailyIncome"`
 	WorkDate         string        `bson:"workDate" json:"workDate"`
 	SubmitDate       time.Time     `bson:"submitDate" json:"submitDate"`
 	LastUpdate       time.Time     `bson:"lastUpdate" json:"lastUpdate"`

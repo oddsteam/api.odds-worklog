@@ -1,7 +1,6 @@
 package main
 
 import (
-	"gitlab.odds.team/worklog/api.odds-worklog/api/backoffice"
 	"log"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/customer"
@@ -56,7 +55,6 @@ func main() {
 	r := e.Group("/v1")
 	r.GET("/swagger/*", echoSwagger.WrapHandler)
 	login.NewHttpHandler(r, session)
-	backoffice.NewHttpHandler(r, session)
 	r.Use(middleware.JWTWithConfig(m))
 
 	// Handler
