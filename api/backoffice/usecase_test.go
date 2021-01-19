@@ -34,7 +34,7 @@ func TestUsecaseGetUserIncome(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockRepoBackoffice := backofficeMock.NewMockRepository(ctrl)
-		mockRepoBackoffice.EXPECT().Get().Return(nil,utils.ErrNotFound)
+		mockRepoBackoffice.EXPECT().Get().Return(nil, utils.ErrNotFound)
 
 		mockRepoSite := siteMock.NewMockRepository(ctrl)
 
@@ -54,7 +54,7 @@ func TestUsecaseGetUserIncome(t *testing.T) {
 		mockRepoBackoffice.EXPECT().Get().Return(backofficeMock.MockUserIncomeList, nil)
 
 		mockRepoSite := siteMock.NewMockRepository(ctrl)
-		mockRepoSite.EXPECT().GetSiteGroup().Return(nil,utils.ErrNotFound)
+		mockRepoSite.EXPECT().GetSiteGroup().Return(nil, utils.ErrNotFound)
 
 		usecase := NewUsecase(mockRepoBackoffice, mockRepoSite)
 		userIncomeRes, err := usecase.Get()

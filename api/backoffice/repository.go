@@ -1,9 +1,9 @@
 package backoffice
 
 import (
+	"github.com/globalsign/mgo/bson"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
-	"github.com/globalsign/mgo/bson"
 )
 
 const userColl = "user"
@@ -24,18 +24,18 @@ func (r *repository) Get() ([]*models.UserIncome, error) {
 	coll := r.session.GetCollection(userColl)
 
 	o1 := bson.M{
-		"$addFields" :bson.M { "_userId" :bson.M { "$toString": "$_id" } },
+		"$addFields": bson.M{"_userId": bson.M{"$toString": "$_id"}},
 	}
 
 	o2 := bson.M{
-		"$lookup" :bson.M { 
-			"from": "income",
-			"localField": "_userId",
+		"$lookup": bson.M{
+			"from":         "income",
+			"localField":   "_userId",
 			"foreignField": "userId",
-			"as": "incomes",
-			}, 
+			"as":           "incomes",
+		},
 	}
-	operations := []bson.M{o1,o2}
+	operations := []bson.M{o1, o2}
 
 	pipe := coll.Pipe(operations)
 
@@ -52,7 +52,7 @@ func (r *repository) GetKey() (*models.BackOfficeKey, error) {
 	key := new(models.BackOfficeKey)
 
 	coll := r.session.GetCollection(backofficeColl)
-	err := coll.Find(bson.M{"key" : bson.M{ "$ne" : nil}}).One(&key)
+	err := coll.Find(bson.M{"key": bson.M{"$ne": nil}}).One(&key)
 	if err != nil {
 		return nil, err
 	}

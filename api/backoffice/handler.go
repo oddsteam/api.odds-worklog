@@ -6,11 +6,11 @@ import (
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 
+	"crypto/sha256"
+	"encoding/hex"
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
-	"crypto/sha256"
-    "encoding/hex"
 )
 
 type HttpHandler struct {
@@ -27,7 +27,6 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.POST("", handler.GetAllUserIncome)
 }
 
-
 // Get godoc
 // @Summary List user
 // @Description get user list
@@ -39,7 +38,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 // @Failure 500 {object} utils.HTTPError
 // @Router /backoffice [get]
 func (h *HttpHandler) GetAllUserIncome(c echo.Context) error {
-	
+
 	var k models.BackOfficeKey
 	if err := c.Bind(&k); err != nil {
 		return utils.NewError(c, http.StatusBadRequest, err)
@@ -51,8 +50,8 @@ func (h *HttpHandler) GetAllUserIncome(c echo.Context) error {
 	}
 
 	hasher := sha256.New()
-    hasher.Write([]byte(key.Key))
-    sha1_hash := hex.EncodeToString(hasher.Sum(nil))
+	hasher.Write([]byte(key.Key))
+	sha1_hash := hex.EncodeToString(hasher.Sum(nil))
 
 	if k.Key == sha1_hash {
 		users, err := h.Usecase.Get()
@@ -60,7 +59,7 @@ func (h *HttpHandler) GetAllUserIncome(c echo.Context) error {
 			return utils.NewError(c, http.StatusInternalServerError, err)
 		}
 		return c.JSON(http.StatusOK, users)
-	}else{
+	} else {
 		return c.JSON(http.StatusBadRequest, "invalid token")
 	}
 
