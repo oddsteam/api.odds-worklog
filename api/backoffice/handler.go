@@ -1,15 +1,16 @@
 package backoffice
 
 import (
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"net/http"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"crypto/sha256"
+	"encoding/hex"
 	"github.com/labstack/echo"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 type HttpHandler struct {
@@ -23,13 +24,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	handler := &HttpHandler{uc}
 
 	r = r.Group("/backoffice")
-	r.GET("", handler.Get)
-}
-
-func getUserFromToken(c echo.Context) *models.UserClaims {
-	t := c.Get("user").(*jwt.Token)
-	claims := t.Claims.(*models.JwtCustomClaims)
-	return claims.User
+	r.POST("", handler.GetAllUserIncome)
 }
 
 // Get godoc
@@ -42,14 +37,30 @@ func getUserFromToken(c echo.Context) *models.UserClaims {
 // @Failure 403 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /backoffice [get]
-func (h *HttpHandler) Get(c echo.Context) error {
-	// user := getUserFromToken(c)
-	// if !user.IsAdmin() {
-	// 	return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
-	// }
-	users, err := h.Usecase.Get()
+func (h *HttpHandler) GetAllUserIncome(c echo.Context) error {
+
+	var k models.BackOfficeKey
+	if err := c.Bind(&k); err != nil {
+		return utils.NewError(c, http.StatusBadRequest, err)
+	}
+
+	key, err := h.Usecase.GetKey()
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, users)
+
+	hasher := sha256.New()
+	hasher.Write([]byte(key.Key))
+	sha1_hash := hex.EncodeToString(hasher.Sum(nil))
+
+	if k.Key == sha1_hash {
+		users, err := h.Usecase.Get()
+		if err != nil {
+			return utils.NewError(c, http.StatusInternalServerError, err)
+		}
+		return c.JSON(http.StatusOK, users)
+	} else {
+		return c.JSON(http.StatusBadRequest, "invalid token")
+	}
+
 }

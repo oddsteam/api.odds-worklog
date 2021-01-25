@@ -30,5 +30,5 @@ type UserIncome struct {
 	DailyIncome       string        `bson:"dailyIncome" json:"dailyIncome,omitempty"`
 	Address           string        `bson:"address" json:"address,omitempty"`
 	StatusTavi        bool          `bson:"statusTavi" json:"statusTavi"`
-	Incomes           []Income		`bson:"incomes" json:"incomes"`
+	Incomes           []*Income		`bson:"incomes" json:"incomes"`
 }

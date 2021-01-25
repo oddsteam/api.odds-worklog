@@ -6,8 +6,10 @@ import (
 
 type Repository interface {
 	Get() ([]*models.UserIncome, error)
+	GetKey() (*models.BackOfficeKey, error)
 }
 
 type Usecase interface {
 	Get() ([]*models.UserIncome, error)
+	GetKey() (*models.BackOfficeKey, error)
 }
