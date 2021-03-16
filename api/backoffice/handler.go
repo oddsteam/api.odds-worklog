@@ -6,8 +6,6 @@ import (
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 
-	"crypto/sha256"
-	"encoding/hex"
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -49,11 +47,7 @@ func (h *HttpHandler) GetAllUserIncome(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 
-	hasher := sha256.New()
-	hasher.Write([]byte(key.Key))
-	sha1_hash := hex.EncodeToString(hasher.Sum(nil))
-
-	if k.Key == sha1_hash {
+	if k.Key == key.Key {
 		users, err := h.Usecase.Get()
 		if err != nil {
 			return utils.NewError(c, http.StatusInternalServerError, err)
