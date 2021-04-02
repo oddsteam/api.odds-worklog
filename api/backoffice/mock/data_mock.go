@@ -47,12 +47,12 @@ var (
 
 	MockBackOfficeKeyReq = models.BackOfficeKey{
 		ID:  bson.ObjectIdHex("5bd1fda30fd2df2a3e41e533"),
-		Key: "9f3b2fc5de528b8eaabcd5632bd5dea4620b71123da8b05bca77e1d6f6432545",
+		Key: "TESTKEY",
 	}
 
 	MockInvalideBackOfficeKeyReq = models.BackOfficeKey{
 		ID:  bson.ObjectIdHex("5bd1fda30fd2df2a3e41e533"),
-		Key: "9f3b2fc5de528b8eaabcd5632bd5dea4620b71123da8b05bca77e1d6f6432ss5",
+		Key: "TESTKEY1",
 	}
 
 	MockUserIncomeList = []*models.UserIncome{&MockUserIncome, &MockUserIncome}
