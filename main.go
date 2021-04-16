@@ -19,6 +19,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/worker"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/backoffice"
 )
 
 // @title Odds-Worklog Example API
@@ -52,6 +53,7 @@ func main() {
 
 	r := e.Group("/v1")
 	login.NewHttpHandler(r, session)
+	backoffice.NewHttpHandler(r, session)
 	r.Use(middleware.JWTWithConfig(m))
 
 	// Handler

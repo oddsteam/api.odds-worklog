@@ -23,10 +23,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o /go/bin/api
 FROM alpine
 RUN apk update && apk upgrade
 RUN apk add curl
-RUN apk add --update --no-cache build-base python3-dev python3 libffi-dev libressl-dev bash git gettext curl \
- && curl -O https://bootstrap.pypa.io/get-pip.py \
- && python3 get-pip.py \
- && pip install --upgrade six awscli awsebcli
+RUN apk add python3
 WORKDIR /app
 RUN mkdir -p files/tavi50 && mkdir image && mkdir font
 ADD image /app/image
