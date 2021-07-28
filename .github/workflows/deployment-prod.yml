@@ -56,5 +56,5 @@ jobs:
           cd ~/app/ 
           ./deploy_prod.sh
         host: 110.238.117.64
-        user: nc-user
+        user: root
         key: ${{ secrets.PRIVATE_KEY}}
