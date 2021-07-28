@@ -57,6 +57,6 @@ jobs:
         command: |
           cd ~/app/ 
           ./deploy_dev.sh
-        host: 139.5.147.149
+        host: 110.238.117.64
         user: nc-user
         key: ${{ secrets.PRIVATE_KEY}}
