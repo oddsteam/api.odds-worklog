@@ -56,6 +56,6 @@ jobs:
         command: |
           cd ~/app/ 
           ./deploy_dev.sh
-        host: ${{ secert.HOST }}
+        host: ${{ secrets.HOST }}
         user: root
         key: ${{ secrets.PRIVATE_KEY}}
