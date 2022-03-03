@@ -9,7 +9,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/smtp"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -142,7 +141,7 @@ func SendMail(c echo.Context, userRepo user.Repository, usecaseFile file.Usecase
 }
 
 func New() *Sender {
-	auth := smtp.PlainAuth("", "oddsnotify@gmail.com", os.Getenv("EMAIL_PASSWORD"), "smtp.gmail.com")
+	auth := smtp.PlainAuth("", "oddsnotify@gmail.com", "@abcd12345", "smtp.gmail.com")
 	return &Sender{auth}
 }
 
