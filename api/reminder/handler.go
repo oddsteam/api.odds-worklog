@@ -124,7 +124,7 @@ func SendMail(c echo.Context, userRepo user.Repository, usecaseFile file.Usecase
 	// if err != nil {
 	// 	return err
 	// }
-	receive := []string{"juacompe@odds.team"}
+	receive := []string{"juacompe+worklog@odds.team"}
 	// for i := 0; i < len(admins); i++ {
 	// 	receive = append(receive, admins[i].Email)
 	// }
