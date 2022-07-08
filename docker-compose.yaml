@@ -1,34 +1,34 @@
-version: '3'
+version: "3"
+
 services:
   api:
-    container_name: 'odds-worklog-api'
+    container_name: "odds-worklog-api"
     build: .
-    command: /app/api 
+    command: /app/api
     ports:
       - 8080:8080
     env_file:
       - dev.env
     depends_on:
-      - 'mongodb'
-    networks: 
-      - odds_worklog_db
-      - odds_worklog_rabbitmq
+      - "mongodb"
+    networks:
+      - odds_worklog_api
+    restart: always
+
   mongodb:
-    container_name: 'odds-worklog-mongo'
-    image: 'mongo'
+    container_name: "odds-worklog-mongo"
+    image: "mongo:4.0.3"
     volumes:
       - mongodbdata_odds_worklog:/data/db
     env_file:
       - dev.env
     expose:
-      - '27017' 
-    networks: 
-      - odds_worklog_db
+      - "27017"
+    networks:
+      - odds_worklog_api
+
 volumes:
   mongodbdata_odds_worklog:
-networks: 
+
+networks:
   odds_worklog_api:
-  odds_worklog_db:
-  odds_worklog_rabbitmq:
-    external:
-      name: odds_worklog_rabbitmq

@@ -1,27 +1,44 @@
-# API Odds-Worklog 
+# ODDS Worklog API
 
-## Go version 1.11
+ODDS Worklog API written in Go
 
-## Run by docker-compose API+Mongodb
+**Table of contents**
 
-Run `docker-compose up --build -d`
+- [Requirements](#requirements)
+- [Getting started](#getting-started)
+- [Contributing](#contributing)
 
-If error is `The container name "/odds-worklog-mongo" is already.`
+## Requirements
 
-Run `docker stop odds-worklog-mongo` to stop container or
+ODDS Worklog API is tested with:
 
-Run `docker rm odds-worklog-mongo` to remove old container
+|         | Main version |
+|---------|--------------|
+| Go      | 1.13         |
+| MongoDB | 4.0.3        |
 
-Then run `docker-compose up --build -d` again
+## Getting started
 
-If api not start because `Authentication failed` you can setup authen mongodb below.
+### Running in Docker
 
+Install [Docker Community Edition (CE)](https://docs.docker.com/engine/install/) on your machine. 
 
-## Setup authen mongodb
+```sh
+docker-compose up --build -d
+```
+
+If you found the error "The container name "/odds-worklog-mongo" is already.", please follow the steps below.
+
+1. Run `docker stop odds-worklog-mongo` to stop container or `docker rm odds-worklog-mongo` to remove old container
+1. Run `docker-compose up --build -d` again
+
+If the API does not start due to the error "Authentication failed", please see the section below.
+
+### Setup authen mongodb
 
 If first time, you must Run `docker volume create mongodbdata_odds_worklog` for create mongodb docker volume.
 
-1. Start mongodb container <br> 
+1. Start mongodb container <br>
 If container mongo name `odds-worklog-mongo` is not running <br>
 Run `docker run -it --rm --name odds-worklog-mongo -d -p 27017:27017 -v mongodbdata_odds_worklog:/data/db mongo` <br>
 If docker: Error response from daemon: Conflict. Run `docker rm odds-worklog-mongo` to remove old container <br>
@@ -47,12 +64,10 @@ Run `db.createUser({user:"admin",pwd:"admin",roles:[{role:"readWrite",db:"odds_w
 Exit mongo in container, run `exit` <br>
 Exit container, run `exit`
 
-
-## Run by `go run main.go` <br>
+### Run by `go run main.go` <br>
 Run `go run main.go` (at project path)
 
-
-## API
+### API
 
 local: http://localhost:8080/v1/
 
@@ -60,48 +75,48 @@ develop cloud: https://worklog-dev.odds.team/api/v1/
 
 production cloud: https://worklog.odds.team/api/v1/
 
-## Import mock data to mongodb
+### Import mock data to mongodb
 
 If you use to import data mock, data should be alive. <br>
 Importion is optional.
 
 * **Import user data** <br>
 At project path<br>
-```bash 
+```bash
     mongoimport --host localhost --port 27017 --db odds_worklog_db --collection user --type json --file data/user.json --maintainInsertionOrder --jsonArray
 ```
 
 * **Import site data** <br>
 At project path<br>
-```bash 
+```bash
     mongoimport --host localhost --port 27017 --db odds_worklog_db --collection site --type json --file data/site.json --maintainInsertionOrder --jsonArray
 ```
 
 * **Import customer data** <br>
 At project path<br>
-```bash 
+```bash
     mongoimport --host localhost --port 27017 --db odds_worklog_db --collection customer --type json --file data/customer.json --maintainInsertionOrder --jsonArray
 ```
 
 * **Import consumer data** <br>
 At project path<br>
-```bash 
+```bash
     mongoimport --host localhost --port 27017 --db odds_worklog_db --collection consumer --type json --file data/consumer.json --maintainInsertionOrder --jsonArray
 ```
 
 * **Import po data** <br>
 At project path<br>
-```bash 
+```bash
     mongoimport --host localhost --port 27017 --db odds_worklog_db --collection po --type json --file data/po.json --maintainInsertionOrder --jsonArray
 ```
 
 * **Import invoice data** <br>
 At project path<br>
-```bash 
+```bash
     mongoimport --host localhost --port 27017 --db odds_worklog_db --collection invoice --type json --file data/invoice.json --maintainInsertionOrder --jsonArray
 ```
 
-## Command go mockgen
+### Command go mockgen
 
 GoMock is a mocking framework for the Go programming language.
 
@@ -146,3 +161,13 @@ Run all test coverage by package `go test ./... -cover`
 Run all test caoverage and view with html <br>
 `go test -coverprofile=cover.out` <br>
 `go test ./... -coverprofile=cover.out && go tool cover -html=cover.out`
+
+## Contributing
+
+Want to help build ODDS Worklog API? 
+
+1. Fork it (https://github.com/oddsteam/api.odds-worklog/fork)
+2. Create your feature branch (`git checkout -b feature/fooBar`)
+3. Commit your changes (`git commit -am 'Add some fooBar'`)
+4. Push to the branch (`git push origin feature/fooBar`)
+5. Create a new Pull Request

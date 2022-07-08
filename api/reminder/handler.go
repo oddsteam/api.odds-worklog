@@ -141,7 +141,7 @@ func SendMail(c echo.Context, userRepo user.Repository, usecaseFile file.Usecase
 }
 
 func New() *Sender {
-	auth := smtp.PlainAuth("", "oddsnotify@gmail.com", "@abcd12345", "smtp.gmail.com")
+	auth := smtp.PlainAuth("", "oddsnotify@gmail.com", "wvquzrqfmiuckurw", "smtp.gmail.com")
 	return &Sender{auth}
 }
 
