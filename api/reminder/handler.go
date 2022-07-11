@@ -120,14 +120,7 @@ func SendMail(c echo.Context, userRepo user.Repository, usecaseFile file.Usecase
 	if err != nil {
 		return err
 	}
-	// admins, err := userRepo.GetByRole("admin")
-	// if err != nil {
-	// 	return err
-	// }
 	receive := []string{"juacompe+worklog@odds.team"}
-	// for i := 0; i < len(admins); i++ {
-	// 	receive = append(receive, admins[i].Email)
-	// }
 	fileName, err := usecaseFile.GetPathIDCard(id)
 	if err != nil {
 		return err
