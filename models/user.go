@@ -31,6 +31,7 @@ type User struct {
 	DailyIncome       string        `bson:"dailyIncome" json:"dailyIncome,omitempty"`
 	Address           string        `bson:"address" json:"address,omitempty"`
 	StatusTavi        bool          `bson:"statusTavi" json:"statusTavi"`
+	Phone             string        `bson:"phone" json:"phone"`
 }
 
 const (

@@ -125,7 +125,7 @@ func (u *usecase) Update(m *models.User, isAdmin bool) (*models.User, error) {
 	user.StatusTavi = m.StatusTavi
 	user.Role = m.Role
 	user.Vat = m.Vat
-
+	user.Phone = m.Phone
 	user, err = u.repo.Update(user)
 	if err != nil {
 		return nil, err
