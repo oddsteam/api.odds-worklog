@@ -166,13 +166,15 @@ func TestUsecase_GetBySiteID(t *testing.T) {
 	assert.Equal(t, userMock.Users, users)
 }
 
-func TestUsecase_Delete(t *testing.T) {
+func TestUsecase_Delete_Should_Move_To_Archived_User(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockSiteRepo := siteMock.NewMockRepository(ctrl)
 	mockRepo := userMock.NewMockRepository(ctrl)
 	mockRepo.EXPECT().Delete(userMock.User.ID.Hex()).Return(nil)
+	mockRepo.EXPECT().CreateArchivedUser(userMock.User).Return(nil, nil)
+	mockRepo.EXPECT().GetByID(userMock.User.ID.Hex()).Return(&userMock.User, nil)
 
 	uc := NewUsecase(mockRepo, mockSiteRepo)
 	u := uc.Delete(userMock.User.ID.Hex())

@@ -11,266 +11,316 @@ import (
 	models "gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
-// MockRepository is a mock of Repository interface
+// MockRepository is a mock of Repository interface.
 type MockRepository struct {
 	ctrl     *gomock.Controller
 	recorder *MockRepositoryMockRecorder
 }
 
-// MockRepositoryMockRecorder is the mock recorder for MockRepository
+// MockRepositoryMockRecorder is the mock recorder for MockRepository.
 type MockRepositoryMockRecorder struct {
 	mock *MockRepository
 }
 
-// NewMockRepository creates a new mock instance
+// NewMockRepository creates a new mock instance.
 func NewMockRepository(ctrl *gomock.Controller) *MockRepository {
 	mock := &MockRepository{ctrl: ctrl}
 	mock.recorder = &MockRepositoryMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// Create mocks base method
+// Create mocks base method.
 func (m *MockRepository) Create(u *models.User) (*models.User, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", u)
 	ret0, _ := ret[0].(*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Create indicates an expected call of Create
+// Create indicates an expected call of Create.
 func (mr *MockRepositoryMockRecorder) Create(u interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), u)
 }
 
-// Get mocks base method
+// CreateArchivedUser mocks base method.
+func (m *MockRepository) CreateArchivedUser(a models.User) (*models.ArchivedUser, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateArchivedUser", a)
+	ret0, _ := ret[0].(*models.ArchivedUser)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateArchivedUser indicates an expected call of CreateArchivedUser.
+func (mr *MockRepositoryMockRecorder) CreateArchivedUser(a interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateArchivedUser", reflect.TypeOf((*MockRepository)(nil).CreateArchivedUser), a)
+}
+
+// Delete mocks base method.
+func (m *MockRepository) Delete(id string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockRepositoryMockRecorder) Delete(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepository)(nil).Delete), id)
+}
+
+// Get mocks base method.
 func (m *MockRepository) Get() ([]*models.User, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get")
 	ret0, _ := ret[0].([]*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Get indicates an expected call of Get
+// Get indicates an expected call of Get.
 func (mr *MockRepositoryMockRecorder) Get() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockRepository)(nil).Get))
 }
 
-// GetByRole mocks base method
-func (m *MockRepository) GetByRole(role string) ([]*models.User, error) {
-	ret := m.ctrl.Call(m, "GetByRole", role)
-	ret0, _ := ret[0].([]*models.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetByRole indicates an expected call of GetByRole
-func (mr *MockRepositoryMockRecorder) GetByRole(role interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByRole", reflect.TypeOf((*MockRepository)(nil).GetByRole), role)
-}
-
-// GetByID mocks base method
-func (m *MockRepository) GetByID(id string) (*models.User, error) {
-	ret := m.ctrl.Call(m, "GetByID", id)
-	ret0, _ := ret[0].(*models.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetByID indicates an expected call of GetByID
-func (mr *MockRepositoryMockRecorder) GetByID(id interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockRepository)(nil).GetByID), id)
-}
-
-// GetBySiteID mocks base method
-func (m *MockRepository) GetBySiteID(id string) ([]*models.User, error) {
-	ret := m.ctrl.Call(m, "GetBySiteID", id)
-	ret0, _ := ret[0].([]*models.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetBySiteID indicates an expected call of GetBySiteID
-func (mr *MockRepositoryMockRecorder) GetBySiteID(id interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBySiteID", reflect.TypeOf((*MockRepository)(nil).GetBySiteID), id)
-}
-
-// GetByEmail mocks base method
+// GetByEmail mocks base method.
 func (m *MockRepository) GetByEmail(email string) (*models.User, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByEmail", email)
 	ret0, _ := ret[0].(*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetByEmail indicates an expected call of GetByEmail
+// GetByEmail indicates an expected call of GetByEmail.
 func (mr *MockRepositoryMockRecorder) GetByEmail(email interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByEmail", reflect.TypeOf((*MockRepository)(nil).GetByEmail), email)
 }
 
-// Update mocks base method
+// GetByID mocks base method.
+func (m *MockRepository) GetByID(id string) (*models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByID", id)
+	ret0, _ := ret[0].(*models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByID indicates an expected call of GetByID.
+func (mr *MockRepositoryMockRecorder) GetByID(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockRepository)(nil).GetByID), id)
+}
+
+// GetByRole mocks base method.
+func (m *MockRepository) GetByRole(role string) ([]*models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByRole", role)
+	ret0, _ := ret[0].([]*models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByRole indicates an expected call of GetByRole.
+func (mr *MockRepositoryMockRecorder) GetByRole(role interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByRole", reflect.TypeOf((*MockRepository)(nil).GetByRole), role)
+}
+
+// GetBySiteID mocks base method.
+func (m *MockRepository) GetBySiteID(id string) ([]*models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBySiteID", id)
+	ret0, _ := ret[0].([]*models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBySiteID indicates an expected call of GetBySiteID.
+func (mr *MockRepositoryMockRecorder) GetBySiteID(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBySiteID", reflect.TypeOf((*MockRepository)(nil).GetBySiteID), id)
+}
+
+// Update mocks base method.
 func (m *MockRepository) Update(u *models.User) (*models.User, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", u)
 	ret0, _ := ret[0].(*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Update indicates an expected call of Update
+// Update indicates an expected call of Update.
 func (mr *MockRepositoryMockRecorder) Update(u interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), u)
 }
 
-// Delete mocks base method
-func (m *MockRepository) Delete(id string) error {
-	ret := m.ctrl.Call(m, "Delete", id)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Delete indicates an expected call of Delete
-func (mr *MockRepositoryMockRecorder) Delete(id interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepository)(nil).Delete), id)
-}
-
-// MockUsecase is a mock of Usecase interface
+// MockUsecase is a mock of Usecase interface.
 type MockUsecase struct {
 	ctrl     *gomock.Controller
 	recorder *MockUsecaseMockRecorder
 }
 
-// MockUsecaseMockRecorder is the mock recorder for MockUsecase
+// MockUsecaseMockRecorder is the mock recorder for MockUsecase.
 type MockUsecaseMockRecorder struct {
 	mock *MockUsecase
 }
 
-// NewMockUsecase creates a new mock instance
+// NewMockUsecase creates a new mock instance.
 func NewMockUsecase(ctrl *gomock.Controller) *MockUsecase {
 	mock := &MockUsecase{ctrl: ctrl}
 	mock.recorder = &MockUsecaseMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
-// Create mocks base method
+// Create mocks base method.
 func (m *MockUsecase) Create(u *models.User) (*models.User, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", u)
 	ret0, _ := ret[0].(*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Create indicates an expected call of Create
+// Create indicates an expected call of Create.
 func (mr *MockUsecaseMockRecorder) Create(u interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUsecase)(nil).Create), u)
 }
 
-// Get mocks base method
+// Delete mocks base method.
+func (m *MockUsecase) Delete(id string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockUsecaseMockRecorder) Delete(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUsecase)(nil).Delete), id)
+}
+
+// Get mocks base method.
 func (m *MockUsecase) Get() ([]*models.User, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get")
 	ret0, _ := ret[0].([]*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Get indicates an expected call of Get
+// Get indicates an expected call of Get.
 func (mr *MockUsecaseMockRecorder) Get() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockUsecase)(nil).Get))
 }
 
-// GetByRole mocks base method
-func (m *MockUsecase) GetByRole(role string) ([]*models.User, error) {
-	ret := m.ctrl.Call(m, "GetByRole", role)
-	ret0, _ := ret[0].([]*models.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetByRole indicates an expected call of GetByRole
-func (mr *MockUsecaseMockRecorder) GetByRole(role interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByRole", reflect.TypeOf((*MockUsecase)(nil).GetByRole), role)
-}
-
-// GetByID mocks base method
-func (m *MockUsecase) GetByID(id string) (*models.User, error) {
-	ret := m.ctrl.Call(m, "GetByID", id)
-	ret0, _ := ret[0].(*models.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetByID indicates an expected call of GetByID
-func (mr *MockUsecaseMockRecorder) GetByID(id interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUsecase)(nil).GetByID), id)
-}
-
-// GetByEmail mocks base method
+// GetByEmail mocks base method.
 func (m *MockUsecase) GetByEmail(email string) (*models.User, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByEmail", email)
 	ret0, _ := ret[0].(*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetByEmail indicates an expected call of GetByEmail
+// GetByEmail indicates an expected call of GetByEmail.
 func (mr *MockUsecaseMockRecorder) GetByEmail(email interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByEmail", reflect.TypeOf((*MockUsecase)(nil).GetByEmail), email)
 }
 
-// GetBySiteID mocks base method
+// GetByID mocks base method.
+func (m *MockUsecase) GetByID(id string) (*models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByID", id)
+	ret0, _ := ret[0].(*models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByID indicates an expected call of GetByID.
+func (mr *MockUsecaseMockRecorder) GetByID(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUsecase)(nil).GetByID), id)
+}
+
+// GetByRole mocks base method.
+func (m *MockUsecase) GetByRole(role string) ([]*models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByRole", role)
+	ret0, _ := ret[0].([]*models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByRole indicates an expected call of GetByRole.
+func (mr *MockUsecaseMockRecorder) GetByRole(role interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByRole", reflect.TypeOf((*MockUsecase)(nil).GetByRole), role)
+}
+
+// GetBySiteID mocks base method.
 func (m *MockUsecase) GetBySiteID(id string) ([]*models.User, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBySiteID", id)
 	ret0, _ := ret[0].([]*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetBySiteID indicates an expected call of GetBySiteID
+// GetBySiteID indicates an expected call of GetBySiteID.
 func (mr *MockUsecaseMockRecorder) GetBySiteID(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBySiteID", reflect.TypeOf((*MockUsecase)(nil).GetBySiteID), id)
 }
 
-// Update mocks base method
+// Update mocks base method.
 func (m *MockUsecase) Update(u *models.User, isAdmin bool) (*models.User, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", u, isAdmin)
 	ret0, _ := ret[0].(*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Update indicates an expected call of Update
+// Update indicates an expected call of Update.
 func (mr *MockUsecaseMockRecorder) Update(u, isAdmin interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsecase)(nil).Update), u, isAdmin)
 }
 
-// UpdateStatusTavi mocks base method
-func (m *MockUsecase) UpdateStatusTavi(u []*models.StatusTavi, isAdmin bool) ([]*models.User, error) {
-	ret := m.ctrl.Call(m, "UpdateStatusTavi", u, isAdmin)
+// UpdateStatusTavi mocks base method.
+func (m_2 *MockUsecase) UpdateStatusTavi(m []*models.StatusTavi, isAdmin bool) ([]*models.User, error) {
+	m_2.ctrl.T.Helper()
+	ret := m_2.ctrl.Call(m_2, "UpdateStatusTavi", m, isAdmin)
+	ret0, _ := ret[0].([]*models.User)
 	ret1, _ := ret[1].(error)
-	return nil, ret1
+	return ret0, ret1
 }
 
-// UpdateStatusTavi indicates an expected call of UpdateStatusTavi
-func (mr *MockUsecaseMockRecorder) UpdateStatusTavi(u, isAdmin interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatusTavi", reflect.TypeOf((*MockUsecase)(nil).UpdateStatusTavi), u, isAdmin)
-}
-
-// Delete mocks base method
-func (m *MockUsecase) Delete(id string) error {
-	ret := m.ctrl.Call(m, "Delete", id)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Delete indicates an expected call of Delete
-func (mr *MockUsecaseMockRecorder) Delete(id interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUsecase)(nil).Delete), id)
+// UpdateStatusTavi indicates an expected call of UpdateStatusTavi.
+func (mr *MockUsecaseMockRecorder) UpdateStatusTavi(m, isAdmin interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatusTavi", reflect.TypeOf((*MockUsecase)(nil).UpdateStatusTavi), m, isAdmin)
 }

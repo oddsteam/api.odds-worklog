@@ -3,12 +3,13 @@ package user
 import (
 	"time"
 
+	"github.com/globalsign/mgo/bson"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
-	"github.com/globalsign/mgo/bson"
 )
 
 const userColl = "user"
+const archivedColl = "archived_user"
 
 type repository struct {
 	session *mongo.Session
@@ -98,4 +99,20 @@ func (r *repository) Update(user *models.User) (*models.User, error) {
 func (r *repository) Delete(id string) error {
 	coll := r.session.GetCollection(userColl)
 	return coll.Remove(bson.M{"_id": bson.ObjectIdHex(id)})
+}
+
+func (r *repository) CreateArchivedUser(user models.User) (*models.ArchivedUser, error) {
+	t := time.Now()
+	a := models.ArchivedUser{
+		ArchivedDate: t,
+		User:         user,
+	}
+	a.ID = bson.NewObjectId()
+
+	coll := r.session.GetCollection(archivedColl)
+	err := coll.Insert(a)
+	if err != nil {
+		return nil, err
+	}
+	return &a, nil
 }

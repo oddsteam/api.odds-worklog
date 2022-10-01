@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  mongodb:
+    container_name: "odds-worklog-mongo"
+    image: "mongo:4.0.3"
+    volumes:
+      - mongodbdata_odds_worklog:/data/db
+      - ./data/:/fixture/data/
+    env_file:
+      - dev.env
+    ports:
+      - "27017:27017"
+    networks:
+      - odds_worklog_api
+
+volumes:
+  mongodbdata_odds_worklog:
+
+networks:
+  odds_worklog_api:

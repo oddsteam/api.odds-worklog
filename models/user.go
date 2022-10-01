@@ -34,6 +34,11 @@ type User struct {
 	Phone             string        `bson:"phone" json:"phone"`
 }
 
+type ArchivedUser struct {
+	ArchivedDate time.Time `bson:"archivedDate" json:"archivedDate"`
+	User
+}
+
 const (
 	admin      = "admin"
 	individual = "individual"

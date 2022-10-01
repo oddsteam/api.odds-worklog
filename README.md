@@ -40,7 +40,7 @@ If first time, you must Run `docker volume create mongodbdata_odds_worklog` for 
 
 1. Start mongodb container <br>
 If container mongo name `odds-worklog-mongo` is not running <br>
-Run `docker run -it --rm --name odds-worklog-mongo -d -p 27017:27017 -v mongodbdata_odds_worklog:/data/db mongo` <br>
+Run `docker-compose -f docker-compose.local.yaml up -d mongodb` <br>
 If docker: Error response from daemon: Conflict. Run `docker rm odds-worklog-mongo` to remove old container <br>
 If you have container using port `27017` you must be stop it and run command again.
 
@@ -80,40 +80,9 @@ production cloud: https://worklog.odds.team/api/v1/
 If you use to import data mock, data should be alive. <br>
 Importion is optional.
 
-* **Import user data** <br>
 At project path<br>
 ```bash
-    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection user --type json --file data/user.json --maintainInsertionOrder --jsonArray
-```
-
-* **Import site data** <br>
-At project path<br>
-```bash
-    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection site --type json --file data/site.json --maintainInsertionOrder --jsonArray
-```
-
-* **Import customer data** <br>
-At project path<br>
-```bash
-    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection customer --type json --file data/customer.json --maintainInsertionOrder --jsonArray
-```
-
-* **Import consumer data** <br>
-At project path<br>
-```bash
-    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection consumer --type json --file data/consumer.json --maintainInsertionOrder --jsonArray
-```
-
-* **Import po data** <br>
-At project path<br>
-```bash
-    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection po --type json --file data/po.json --maintainInsertionOrder --jsonArray
-```
-
-* **Import invoice data** <br>
-At project path<br>
-```bash
-    mongoimport --host localhost --port 27017 --db odds_worklog_db --collection invoice --type json --file data/invoice.json --maintainInsertionOrder --jsonArray
+    ./scripts/import_all_data
 ```
 
 ### Command go mockgen
