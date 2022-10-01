@@ -207,5 +207,13 @@ func (u *usecase) UpdateStatusTavi(m []*models.StatusTavi, isAdmin bool) ([]*mod
 }
 
 func (u *usecase) Delete(id string) error {
+	user, err := u.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+	_, err = u.repo.CreateArchivedUser(*user)
+	if err != nil {
+		return err
+	}
 	return u.repo.Delete(id)
 }

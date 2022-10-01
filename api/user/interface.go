@@ -6,6 +6,7 @@ import (
 
 type Repository interface {
 	Create(u *models.User) (*models.User, error)
+	CreateArchivedUser(a models.User) (*models.ArchivedUser, error)
 	Get() ([]*models.User, error)
 	GetByRole(role string) ([]*models.User, error)
 	GetByID(id string) (*models.User, error)
