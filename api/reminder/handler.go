@@ -126,7 +126,7 @@ func SendMail(c echo.Context, userRepo user.Repository, usecaseFile file.Usecase
 		return err
 	}
 	sender := New()
-	m := NewMessage("[ODDS] แจ้ง User ใหม่เข้าใช้งานระบบ Worklog", "File PDF ID Card ของคุณ "+user.FirstName+" "+user.LastName+" เป็น User ใหม่ที่เข้าใช้งานในระบบ worklog.odds.team \n สามารถติดต่อได้ที่ Email : "+user.Email)
+	m := NewMessage("[ODDS] แจ้ง User ใหม่เข้าใช้งานระบบ Worklog", "File PDF ID Card ของคุณ "+user.BankAccountName+" ("+user.FirstName+" "+user.LastName+") เป็น User ใหม่ที่เข้าใช้งานในระบบ worklog.odds.team \n สามารถติดต่อได้ที่ Email : "+user.Email)
 	m.To = receive
 	m.AttachFile(fileName)
 	fmt.Println(sender.Send(m))
