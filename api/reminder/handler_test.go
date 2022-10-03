@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
@@ -282,6 +283,21 @@ func TestSaveReminderShouldBadRequest_WhenRequestSettingDateIs1(t *testing.T) {
 	if status := rec.Code; status != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusBadRequest)
+	}
+}
+
+func TestMailMessageShouldContainsBankAccountNameSoWeCanFindTheOldMailInMailboxUsingUserThaiName(t *testing.T) {
+	u := models.User{
+		FirstName:       "FirstName",
+		LastName:        "LastName",
+		BankAccountName: "นาย ชื่อไทย นามสกุล",
+		Email:           "mail@odds.team",
+	}
+
+	m := reminder.CreateMailMessage(u, "id_copy_file_path.pdf")
+
+	if !strings.Contains(m.Body, u.BankAccountName) {
+		t.Errorf("Should contains %v but not (%v)", u.BankAccountName, m.Body)
 	}
 }
 

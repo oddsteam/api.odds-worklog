@@ -120,17 +120,22 @@ func SendMail(c echo.Context, userRepo user.Repository, usecaseFile file.Usecase
 	if err != nil {
 		return err
 	}
-	m := NewMessage("[ODDS] แจ้ง User ใหม่เข้าใช้งานระบบ Worklog", "File PDF ID Card ของคุณ "+user.BankAccountName+" ("+user.FirstName+" "+user.LastName+") เป็น User ใหม่ที่เข้าใช้งานในระบบ worklog.odds.team \n สามารถติดต่อได้ที่ Email : "+user.Email)
-	receive := []string{"juacompe+worklog@odds.team"}
-	m.To = receive
 	fileName, err := usecaseFile.GetPathIDCard(id)
 	if err != nil {
 		return err
 	}
-	m.AttachFile(fileName)
+	m := CreateMailMessage(*user, fileName)
 	sender := New()
 	fmt.Println(sender.Send(m))
 	return c.JSON(http.StatusOK, "Send Mail Success ")
+}
+
+func CreateMailMessage(user models.User, fileName string) *Message {
+	m := NewMessage("[ODDS] แจ้ง User ใหม่เข้าใช้งานระบบ Worklog", "File PDF ID Card ของคุณ "+user.BankAccountName+" ("+user.FirstName+" "+user.LastName+") เป็น User ใหม่ที่เข้าใช้งานในระบบ worklog.odds.team \n สามารถติดต่อได้ที่ Email : "+user.Email)
+	receive := []string{"juacompe+worklog@odds.team"}
+	m.To = receive
+	m.AttachFile(fileName)
+	return m
 }
 
 func New() *Sender {
