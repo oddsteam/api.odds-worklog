@@ -287,17 +287,40 @@ func TestSaveReminderShouldBadRequest_WhenRequestSettingDateIs1(t *testing.T) {
 }
 
 func TestMailMessageShouldContainsBankAccountNameSoWeCanFindTheOldMailInMailboxUsingUserThaiName(t *testing.T) {
-	u := models.User{
-		FirstName:       "FirstName",
-		LastName:        "LastName",
-		BankAccountName: "นาย ชื่อไทย นามสกุล",
-		Email:           "mail@odds.team",
-	}
-
+	u := createMockUser()
 	m := reminder.CreateMailMessage(u, "id_copy_file_path.pdf")
 
 	if !strings.Contains(m.Body, u.BankAccountName) {
 		t.Errorf("Should contains %v but not (%v)", u.BankAccountName, m.Body)
+	}
+}
+
+func TestMailIsSentToFinance(t *testing.T) {
+	u := createMockUser()
+	m := reminder.CreateMailMessage(u, "id_copy_file_path.pdf")
+	expected := "nalada@odds.team"
+
+	if m.To[1] != expected {
+		t.Errorf("expected %v but got %v", expected, m.To[0])
+	}
+}
+
+func TestMailIsAlsoSentToJuaToMonitor(t *testing.T) {
+	u := createMockUser()
+	m := reminder.CreateMailMessage(u, "id_copy_file_path.pdf")
+	expected := "juacompe+worklog@odds.team"
+
+	if m.To[0] != expected {
+		t.Errorf("expected %v but got %v", expected, m.To[0])
+	}
+}
+
+func createMockUser() models.User {
+	return models.User{
+		FirstName:       "FirstName",
+		LastName:        "LastName",
+		BankAccountName: "นาย ชื่อไทย นามสกุล",
+		Email:           "mail@odds.team",
 	}
 }
 

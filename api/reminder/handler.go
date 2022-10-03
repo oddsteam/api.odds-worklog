@@ -132,7 +132,7 @@ func SendMail(c echo.Context, userRepo user.Repository, usecaseFile file.Usecase
 
 func CreateMailMessage(user models.User, fileName string) *Message {
 	m := NewMessage("[ODDS] แจ้ง User ใหม่เข้าใช้งานระบบ Worklog", "File PDF ID Card ของคุณ "+user.BankAccountName+" ("+user.FirstName+" "+user.LastName+") เป็น User ใหม่ที่เข้าใช้งานในระบบ worklog.odds.team \n สามารถติดต่อได้ที่ Email : "+user.Email)
-	receive := []string{"juacompe+worklog@odds.team"}
+	receive := []string{"juacompe+worklog@odds.team", "nalada@odds.team"}
 	m.To = receive
 	m.AttachFile(fileName)
 	return m
