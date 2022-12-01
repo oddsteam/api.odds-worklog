@@ -252,11 +252,7 @@ func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 		income, err := u.repo.GetIncomeByUserID(user.ID.Hex(), year, month)
 		if err == nil {
 			u.repo.UpdateExportStatus(income.ID.Hex())
-			t := income.SubmitDate
-			summaryIncome, _ := calSummary(income.NetDailyIncome, income.NetSpecialIncome)
-			tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
-			// ชื่อ, ชื่อบัญชี, เลขบัญชี, จำนวนเงินที่ต้องโอน, วันที่กรอก
-			d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), user.Email, setValueCSV(utils.FormatCommas(income.NetDailyIncome)), setValueCSV(utils.FormatCommas(income.NetSpecialIncome)), setValueCSV(utils.FormatCommas(summaryIncome)), income.Note, tf}
+			d := createRow(*income, *user)
 			strWrite = append(strWrite, d)
 		}
 	}
