@@ -85,6 +85,19 @@ func TestUsecaseExportIncome(t *testing.T) {
 	})
 }
 
+func TestCSVHeaders(t *testing.T) {
+	actual := createHeaders()
+	assert.Equal(t, "ชื่อ", actual[0])
+	assert.Equal(t, "ชื่อบัญชี", actual[1])
+	assert.Equal(t, "เลขบัญชี", actual[2])
+	assert.Equal(t, "อีเมล", actual[3])
+	assert.Equal(t, "จำนวนเงินรายได้หลัก", actual[4])
+	assert.Equal(t, "จำนวนรายได้พิเศษ", actual[5])
+	assert.Equal(t, "รวมจำนวนที่ต้องโอน", actual[6])
+	assert.Equal(t, "บันทึกรายการ", actual[7])
+	assert.Equal(t, "วันที่กรอก", actual[8])
+}
+
 func TestCSVContentForIndividual(t *testing.T) {
 	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1)
 	expectedAccountNo := `="0531231231"`
