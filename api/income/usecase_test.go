@@ -59,6 +59,30 @@ func TestUsecaseExportIncome(t *testing.T) {
 		// remove file after test
 		os.Remove(filename)
 	})
+	t.Run("export individual income current month success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		year, month := utils.GetYearMonthNow()
+		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+
+		mockRepoUser := userMock.NewMockRepository(ctrl)
+		mockRepoUser.EXPECT().GetByRole("individual").Return(userMock.Users, nil)
+
+		usecase := NewUsecase(mockRepoIncome, mockRepoUser)
+		filename, err := usecase.ExportIncome("individual", "0")
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
 }
 
 func TestUseCaseExportIncomeNotExport(t *testing.T) {
