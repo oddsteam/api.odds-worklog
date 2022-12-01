@@ -43,6 +43,22 @@ var (
 		WorkingHours:     "10",
 		ExportStatus:     false,
 	}
+	MockIndividualIncome = models.Income{
+		ID:               bson.ObjectIdHex("5bd1fda30fd2df2a3e41e568"),
+		UserID:           string(userMock.IndividualUser1.ID),
+		TotalIncome:      "110.00",
+		NetIncome:        "106.70",
+		NetDailyIncome:   "97.00",
+		NetSpecialIncome: "9.70",
+		SubmitDate:       time.Date(2022, time.Month(12), 1, 13, 30, 0, 0, time.UTC),
+		Note:             "note",
+		VAT:              "",
+		WHT:              "3.30",
+		WorkDate:         "1",
+		SpecialIncome:    "10",
+		WorkingHours:     "1",
+		ExportStatus:     false,
+	}
 	MockIncomeNoNetSpecialIncome = models.Income{
 		ID:             bson.ObjectIdHex("5bd1fda30fd2df2a3e41e569"),
 		UserID:         "5bbcf2f90fd2df527bc39539",

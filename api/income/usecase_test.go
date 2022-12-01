@@ -85,6 +85,23 @@ func TestUsecaseExportIncome(t *testing.T) {
 	})
 }
 
+func TestCSVContentForIndividual(t *testing.T) {
+	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1)
+	expectedAccountNo := `="0531231231"`
+	expectedNetDailyIncome := `="97.00"`
+	expectedNetSpecialIncome := `="9.70"`
+	expectedSummaryIncome := `="106.70"`
+	assert.Equal(t, "first last", actual[0])
+	assert.Equal(t, "account name", actual[1])
+	assert.Equal(t, expectedAccountNo, actual[2])
+	assert.Equal(t, "email@example.com", actual[3])
+	assert.Equal(t, expectedNetDailyIncome, actual[4])
+	assert.Equal(t, expectedNetSpecialIncome, actual[5])
+	assert.Equal(t, expectedSummaryIncome, actual[6])
+	assert.Equal(t, "note", actual[7])
+	assert.Equal(t, "01/12/2022 20:30:00", actual[8])
+}
+
 func TestUseCaseExportIncomeNotExport(t *testing.T) {
 	t.Run("export corporate income not export success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)

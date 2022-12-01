@@ -42,6 +42,22 @@ var (
 		Address:           "every Where",
 	}
 
+	IndividualUser1 = models.User{
+		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39531"),
+		Role:              "individual",
+		FirstName:         "first",
+		LastName:          "last",
+		Email:             "email@example.com",
+		BankAccountName:   "account name",
+		BankAccountNumber: "0531231231",
+		ThaiCitizenID:     "1234567890123",
+		Vat:               "Y",
+		SlackAccount:      "test@example.com",
+		DailyIncome:       "2000",
+		StatusTavi:        true,
+		Address:           "address",
+	}
+
 	StatusTavi = models.StatusTavi{
 		ID:   bson.ObjectIdHex("5bbcf2f90fd2df527bc39539"),
 		User: &User,
