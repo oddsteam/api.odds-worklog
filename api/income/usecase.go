@@ -183,8 +183,7 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 	}
 
 	strWrite := make([][]string, 0)
-	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
-	strWrite = append(strWrite, d)
+	strWrite = append(strWrite, createHeaders())
 	for _, user := range users {
 		income, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month-time.Month(beforemonth))
 		if err == nil {
@@ -246,8 +245,7 @@ func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 	}
 
 	strWrite := make([][]string, 0)
-	d := []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
-	strWrite = append(strWrite, d)
+	strWrite = append(strWrite, createHeaders())
 	for _, user := range users {
 		income, err := u.repo.GetIncomeByUserID(user.ID.Hex(), year, month)
 		if err == nil {
@@ -275,4 +273,8 @@ func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 	}
 
 	return filename, nil
+}
+
+func createHeaders() []string {
+	return []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 }
