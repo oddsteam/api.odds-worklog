@@ -150,6 +150,7 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 	beforemonth, err := utils.StringToInt(beforeMonth)
 	year, month := utils.GetYearMonthNow()
 	getIncome := u.createFunctionGetIncomeByUserWithPeriod(year, month-time.Month(beforemonth))
+	shouldUpdateExportStatus := beforeMonth == "0"
 
 	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()
@@ -167,7 +168,7 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 	for _, user := range users {
 		income, err := getIncome(*user)
 		if err == nil {
-			if beforeMonth == "0" {
+			if shouldUpdateExportStatus {
 				u.repo.UpdateExportStatus(income.ID.Hex())
 			}
 			d := createRow(*income, *user)
@@ -198,6 +199,7 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 	year, month := utils.GetYearMonthNow()
 	getIncome := u.createFunctionGetUnexportedIncomeByUserWithPeriod(year, month)
+	shouldUpdateExportStatus := true
 
 	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()
@@ -215,7 +217,9 @@ func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 	for _, user := range users {
 		income, err := getIncome(*user)
 		if err == nil {
-			u.repo.UpdateExportStatus(income.ID.Hex())
+			if shouldUpdateExportStatus {
+				u.repo.UpdateExportStatus(income.ID.Hex())
+			}
 			d := createRow(*income, *user)
 			strWrite = append(strWrite, d)
 		}
