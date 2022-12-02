@@ -27,46 +27,6 @@ func NewUsecase(r Repository, ur user.Repository) Usecase {
 	return &usecase{r, ur}
 }
 
-func calSummary(main string, special string) (string, error) {
-	ma, err := utils.StringToFloat64(main)
-	if err != nil {
-		return "", err
-	}
-	sp, err := utils.StringToFloat64(special)
-	if err != nil {
-		return "", err
-	}
-	return utils.FloatToString(ma + sp), nil
-
-}
-
-func calVAT(income string) (string, float64, error) {
-	num, err := utils.StringToFloat64(income)
-	if err != nil {
-		return "", 0.0, err
-	}
-	vat := num * 0.07
-	return utils.FloatToString(vat), utils.RealFloat(vat), nil
-}
-
-func calWHT(income string) (string, float64, error) {
-	num, err := utils.StringToFloat64(income)
-	if err != nil {
-		return "", 0.0, err
-	}
-	wht := num * 0.03
-	return utils.FloatToString(wht), utils.RealFloat(wht), nil
-}
-
-func calWHTCorporate(income string) (string, float64, error) {
-	num, err := utils.StringToFloat64(income)
-	if err != nil {
-		return "", 0.0, err
-	}
-	wht := num * 0.03
-	return utils.FloatToString(wht), utils.RealFloat(wht), nil
-}
-
 func calIncomeSum(workAmount string, vattype string, incomes string, role string) (*incomeSum, error) {
 	var vat, wht string
 	var vatf, whtf float64
@@ -109,6 +69,33 @@ func calIncomeSum(workAmount string, vattype string, incomes string, role string
 	net := totalIncome - whtf
 	ins.Net = utils.FloatToString(net)
 	return ins, nil
+}
+
+func calWHTCorporate(income string) (string, float64, error) {
+	num, err := utils.StringToFloat64(income)
+	if err != nil {
+		return "", 0.0, err
+	}
+	wht := num * 0.03
+	return utils.FloatToString(wht), utils.RealFloat(wht), nil
+}
+
+func calWHT(income string) (string, float64, error) {
+	num, err := utils.StringToFloat64(income)
+	if err != nil {
+		return "", 0.0, err
+	}
+	wht := num * 0.03
+	return utils.FloatToString(wht), utils.RealFloat(wht), nil
+}
+
+func calVAT(income string) (string, float64, error) {
+	num, err := utils.StringToFloat64(income)
+	if err != nil {
+		return "", 0.0, err
+	}
+	vat := num * 0.07
+	return utils.FloatToString(vat), utils.RealFloat(vat), nil
 }
 
 func (u *usecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
@@ -215,18 +202,6 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 	return filename, nil
 }
 
-func createRow(income models.Income, user models.User) []string {
-	t := income.SubmitDate
-	summaryIncome, _ := calSummary(income.NetDailyIncome, income.NetSpecialIncome)
-	tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
-	d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), user.Email, setValueCSV(utils.FormatCommas(income.NetDailyIncome)), setValueCSV(utils.FormatCommas(income.NetSpecialIncome)), setValueCSV(utils.FormatCommas(summaryIncome)), income.Note, tf}
-	return d
-}
-
-func setValueCSV(s string) string {
-	return `="` + s + `"`
-}
-
 func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()
@@ -273,6 +248,31 @@ func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 	}
 
 	return filename, nil
+}
+
+func createRow(income models.Income, user models.User) []string {
+	t := income.SubmitDate
+	summaryIncome, _ := calSummary(income.NetDailyIncome, income.NetSpecialIncome)
+	tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
+	d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), user.Email, setValueCSV(utils.FormatCommas(income.NetDailyIncome)), setValueCSV(utils.FormatCommas(income.NetSpecialIncome)), setValueCSV(utils.FormatCommas(summaryIncome)), income.Note, tf}
+	return d
+}
+
+func calSummary(main string, special string) (string, error) {
+	ma, err := utils.StringToFloat64(main)
+	if err != nil {
+		return "", err
+	}
+	sp, err := utils.StringToFloat64(special)
+	if err != nil {
+		return "", err
+	}
+	return utils.FloatToString(ma + sp), nil
+
+}
+
+func setValueCSV(s string) string {
+	return `="` + s + `"`
 }
 
 func createHeaders() []string {
