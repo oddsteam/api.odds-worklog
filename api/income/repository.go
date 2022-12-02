@@ -37,16 +37,7 @@ func (r *repository) AddIncome(income *models.Income) error {
 }
 
 func (r *repository) GetIncomeUserByYearMonth(id string, fromYear int, fromMonth time.Month) (*models.Income, error) {
-	fromDate := time.Date(fromYear, fromMonth, 1, 0, 0, 0, 0, time.UTC)
-	toDate := fromDate.AddDate(0, 1, 0)
-
-	query := bson.M{
-		"userId": id,
-		"submitDate": bson.M{
-			"$gt": fromDate,
-			"$lt": toDate,
-		},
-	}
+	query := createQueryByIdAndPeriod(fromYear, fromMonth, id)
 	return getIncomeByUserIDWithQuery(r, id, fromYear, fromMonth, query)
 }
 func (r *repository) GetIncomeByUserIdAllMonth(id string) ([]*models.Income, error) {
@@ -71,6 +62,12 @@ func (r *repository) GetIncomeByID(incID, uID string) (*models.Income, error) {
 }
 
 func (r *repository) GetIncomeByUserID(uID string, fromYear int, fromMonth time.Month) (*models.Income, error) {
+	query := createQueryByIdAndPeriod(fromYear, fromMonth, uID)
+	query["exportStatus"] = false
+	return getIncomeByUserIDWithQuery(r, uID, fromYear, fromMonth, query)
+}
+
+func createQueryByIdAndPeriod(fromYear int, fromMonth time.Month, uID string) bson.M {
 	fromDate := time.Date(fromYear, fromMonth, 1, 0, 0, 0, 0, time.UTC)
 	toDate := fromDate.AddDate(0, 1, 0)
 
@@ -80,9 +77,8 @@ func (r *repository) GetIncomeByUserID(uID string, fromYear int, fromMonth time.
 			"$gt": fromDate,
 			"$lt": toDate,
 		},
-		"exportStatus": false,
 	}
-	return getIncomeByUserIDWithQuery(r, uID, fromYear, fromMonth, query)
+	return query
 }
 
 func getIncomeByUserIDWithQuery(r *repository, uID string, fromYear int, fromMonth time.Month, query bson.M) (*models.Income, error) {
