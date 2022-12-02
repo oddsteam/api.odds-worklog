@@ -43,14 +43,14 @@ func (r *repository) GetIncomeUserByYearMonth(id string, fromYear int, fromMonth
 	fromDate := time.Date(fromYear, fromMonth, 1, 0, 0, 0, 0, time.UTC)
 	toDate := fromDate.AddDate(0, 1, 0)
 
-	err := coll.Find(
-		bson.M{
-			"userId": id,
-			"submitDate": bson.M{
-				"$gt": fromDate,
-				"$lt": toDate,
-			},
-		}).One(&income)
+	query := bson.M{
+		"userId": id,
+		"submitDate": bson.M{
+			"$gt": fromDate,
+			"$lt": toDate,
+		},
+	}
+	err := coll.Find(query).One(&income)
 	if err != nil {
 		return nil, err
 	}
@@ -84,14 +84,15 @@ func (r *repository) GetIncomeByUserID(uID string, fromYear int, fromMonth time.
 	fromDate := time.Date(fromYear, fromMonth, 1, 0, 0, 0, 0, time.UTC)
 	toDate := fromDate.AddDate(0, 1, 0)
 
-	err := coll.Find(bson.M{
+	query := bson.M{
 		"userId": uID,
 		"submitDate": bson.M{
 			"$gt": fromDate,
 			"$lt": toDate,
 		},
 		"exportStatus": false,
-	}).One(&income)
+	}
+	err := coll.Find(query).One(&income)
 	if err != nil {
 		return nil, err
 	}
