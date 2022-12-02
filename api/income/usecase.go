@@ -72,29 +72,23 @@ func calIncomeSum(workAmount string, vattype string, incomes string, role string
 }
 
 func calWHTCorporate(income string) (string, float64, error) {
-	num, err := utils.StringToFloat64(income)
-	if err != nil {
-		return "", 0.0, err
-	}
-	wht := num * 0.03
-	return utils.FloatToString(wht), utils.RealFloat(wht), nil
+	return calWHT(income)
 }
 
 func calWHT(income string) (string, float64, error) {
-	num, err := utils.StringToFloat64(income)
-	if err != nil {
-		return "", 0.0, err
-	}
-	wht := num * 0.03
-	return utils.FloatToString(wht), utils.RealFloat(wht), nil
+	return multiply(income, 0.03)
 }
 
 func calVAT(income string) (string, float64, error) {
-	num, err := utils.StringToFloat64(income)
+	return multiply(income, 0.07)
+}
+
+func multiply(a string, b float64) (string, float64, error) {
+	num, err := utils.StringToFloat64(a)
 	if err != nil {
 		return "", 0.0, err
 	}
-	vat := num * 0.07
+	vat := num * b
 	return utils.FloatToString(vat), utils.RealFloat(vat), nil
 }
 
