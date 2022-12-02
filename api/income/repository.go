@@ -37,9 +37,6 @@ func (r *repository) AddIncome(income *models.Income) error {
 }
 
 func (r *repository) GetIncomeUserByYearMonth(id string, fromYear int, fromMonth time.Month) (*models.Income, error) {
-	income := new(models.Income)
-	coll := r.session.GetCollection(incomeColl)
-
 	fromDate := time.Date(fromYear, fromMonth, 1, 0, 0, 0, 0, time.UTC)
 	toDate := fromDate.AddDate(0, 1, 0)
 
@@ -50,11 +47,7 @@ func (r *repository) GetIncomeUserByYearMonth(id string, fromYear int, fromMonth
 			"$lt": toDate,
 		},
 	}
-	err := coll.Find(query).One(&income)
-	if err != nil {
-		return nil, err
-	}
-	return income, nil
+	return getIncomeByUserIDWithQuery(r, id, fromYear, fromMonth, query)
 }
 func (r *repository) GetIncomeByUserIdAllMonth(id string) ([]*models.Income, error) {
 	income := make([]*models.Income, 0)
@@ -78,9 +71,6 @@ func (r *repository) GetIncomeByID(incID, uID string) (*models.Income, error) {
 }
 
 func (r *repository) GetIncomeByUserID(uID string, fromYear int, fromMonth time.Month) (*models.Income, error) {
-	income := new(models.Income)
-	coll := r.session.GetCollection(incomeColl)
-
 	fromDate := time.Date(fromYear, fromMonth, 1, 0, 0, 0, 0, time.UTC)
 	toDate := fromDate.AddDate(0, 1, 0)
 
@@ -92,6 +82,12 @@ func (r *repository) GetIncomeByUserID(uID string, fromYear int, fromMonth time.
 		},
 		"exportStatus": false,
 	}
+	return getIncomeByUserIDWithQuery(r, uID, fromYear, fromMonth, query)
+}
+
+func getIncomeByUserIDWithQuery(r *repository, uID string, fromYear int, fromMonth time.Month, query bson.M) (*models.Income, error) {
+	income := new(models.Income)
+	coll := r.session.GetCollection(incomeColl)
 	err := coll.Find(query).One(&income)
 	if err != nil {
 		return nil, err
