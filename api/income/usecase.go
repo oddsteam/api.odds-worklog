@@ -147,6 +147,10 @@ func (u *usecase) GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, er
 }
 
 func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) {
+	beforemonth, err := utils.StringToInt(beforeMonth)
+	year, month := utils.GetYearMonthNow()
+	getIncome := u.createFunctionGetIncomeByUserWithPeriod(year, month-time.Month(beforemonth))
+
 	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()
 
@@ -157,16 +161,11 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 	if err != nil {
 		return "", err
 	}
-	year, month := utils.GetYearMonthNow()
-	beforemonth, err := utils.StringToInt(beforeMonth)
-	if err != nil {
-		return "", err
-	}
 
 	strWrite := make([][]string, 0)
 	strWrite = append(strWrite, createHeaders())
 	for _, user := range users {
-		income, err := u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month-time.Month(beforemonth))
+		income, err := getIncome(*user)
 		if err == nil {
 			if beforeMonth == "0" {
 				u.repo.UpdateExportStatus(income.ID.Hex())
@@ -197,6 +196,9 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 }
 
 func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
+	year, month := utils.GetYearMonthNow()
+	getIncome := u.createFunctionGetUnexportedIncomeByUserWithPeriod(year, month)
+
 	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()
 
@@ -208,15 +210,10 @@ func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 		return "", err
 	}
 
-	year, month := utils.GetYearMonthNow()
-	if err != nil {
-		return "", err
-	}
-
 	strWrite := make([][]string, 0)
 	strWrite = append(strWrite, createHeaders())
 	for _, user := range users {
-		income, err := u.repo.GetIncomeByUserID(user.ID.Hex(), year, month)
+		income, err := getIncome(*user)
 		if err == nil {
 			u.repo.UpdateExportStatus(income.ID.Hex())
 			d := createRow(*income, *user)
@@ -242,6 +239,20 @@ func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 	}
 
 	return filename, nil
+}
+
+type getIncomeFn = func(user models.User) (*models.Income, error)
+
+func (u *usecase) createFunctionGetUnexportedIncomeByUserWithPeriod(year int, month time.Month) getIncomeFn {
+	return func(user models.User) (*models.Income, error) {
+		return u.repo.GetIncomeByUserID(user.ID.Hex(), year, month)
+	}
+}
+
+func (u *usecase) createFunctionGetIncomeByUserWithPeriod(year int, month time.Month) getIncomeFn {
+	return func(user models.User) (*models.Income, error) {
+		return u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month)
+	}
 }
 
 func createRow(income models.Income, user models.User) []string {
