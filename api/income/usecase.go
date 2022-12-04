@@ -228,7 +228,17 @@ func createRow(income models.Income, user models.User) []string {
 	t := income.SubmitDate
 	summaryIncome, _ := calSummary(income.NetDailyIncome, income.NetSpecialIncome)
 	tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
-	d := []string{user.GetName(), user.BankAccountName, setValueCSV(user.BankAccountNumber), user.Email, setValueCSV(utils.FormatCommas(income.NetDailyIncome)), setValueCSV(utils.FormatCommas(income.NetSpecialIncome)), setValueCSV(utils.FormatCommas(summaryIncome)), income.Note, tf}
+	d := []string{
+		user.GetName(),
+		user.BankAccountName,
+		setValueCSV(user.BankAccountNumber),
+		user.Email,
+		setValueCSV(utils.FormatCommas(income.NetDailyIncome)),
+		setValueCSV(utils.FormatCommas(income.NetSpecialIncome)),
+		setValueCSV(utils.FormatCommas(summaryIncome)),
+		income.Note,
+		tf,
+	}
 	return d
 }
 
