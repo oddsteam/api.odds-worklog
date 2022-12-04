@@ -93,9 +93,10 @@ func TestCSVHeaders(t *testing.T) {
 	assert.Equal(t, "อีเมล", actual[3])
 	assert.Equal(t, "จำนวนเงินรายได้หลัก", actual[4])
 	assert.Equal(t, "จำนวนรายได้พิเศษ", actual[5])
-	assert.Equal(t, "รวมจำนวนที่ต้องโอน", actual[6])
-	assert.Equal(t, "บันทึกรายการ", actual[7])
-	assert.Equal(t, "วันที่กรอก", actual[8])
+	assert.Equal(t, "กยศและอื่น ๆ", actual[6])
+	assert.Equal(t, "รวมจำนวนที่ต้องโอน", actual[7])
+	assert.Equal(t, "บันทึกรายการ", actual[8])
+	assert.Equal(t, "วันที่กรอก", actual[9])
 }
 
 func TestCSVContentForIndividual(t *testing.T) {
@@ -110,9 +111,14 @@ func TestCSVContentForIndividual(t *testing.T) {
 	assert.Equal(t, "email@example.com", actual[3])
 	assert.Equal(t, expectedNetDailyIncome, actual[4])
 	assert.Equal(t, expectedNetSpecialIncome, actual[5])
-	assert.Equal(t, expectedSummaryIncome, actual[6])
-	assert.Equal(t, "note", actual[7])
-	assert.Equal(t, "01/12/2022 20:30:00", actual[8])
+	assert.Equal(t, expectedSummaryIncome, actual[7])
+	assert.Equal(t, "note", actual[8])
+	assert.Equal(t, "01/12/2022 20:30:00", actual[9])
+}
+
+func TestStudentLoanInCSVContent(t *testing.T) {
+	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1)
+	assert.Equal(t, `="0"`, actual[6])
 }
 
 func TestUseCaseExportIncomeNotExport(t *testing.T) {

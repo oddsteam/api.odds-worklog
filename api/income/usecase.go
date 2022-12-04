@@ -235,6 +235,7 @@ func createRow(income models.Income, user models.User) []string {
 		user.Email,
 		setValueCSV(utils.FormatCommas(income.NetDailyIncome)),
 		setValueCSV(utils.FormatCommas(income.NetSpecialIncome)),
+		setValueCSV("0"),
 		setValueCSV(utils.FormatCommas(summaryIncome)),
 		income.Note,
 		tf,
@@ -260,5 +261,5 @@ func setValueCSV(s string) string {
 }
 
 func createHeaders() []string {
-	return []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
+	return []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 }
