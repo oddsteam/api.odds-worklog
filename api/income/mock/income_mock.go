@@ -19,8 +19,8 @@ type MockRepository struct {
 }
 
 // GetStudentLoans implements income.Repository
-func (*MockRepository) GetStudentLoans() []models.StudentLoan {
-	return nil
+func (*MockRepository) GetStudentLoans() models.StudentLoanList {
+	return models.StudentLoanList{} 
 }
 
 // MockRepositoryMockRecorder is the mock recorder for MockRepository

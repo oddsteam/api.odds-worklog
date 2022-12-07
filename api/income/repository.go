@@ -129,13 +129,13 @@ func (r *repository) UpdateExportStatus(id string) error {
 	return nil
 }
 
-func (r *repository) GetStudentLoans() []models.StudentLoan {
+func (r *repository) GetStudentLoans() models.StudentLoanList {
 	loans := new(models.StudentLoanList)
 	coll := r.session.GetCollection(studentLoanColl)
 	if err := coll.Find(loanQuery(time.Now())).One(loans); err != nil {
 		panic(err.Error())
 	}
-	return loans.List
+	return *loans
 }
 
 func loanQuery(now time.Time) bson.M {
