@@ -16,3 +16,8 @@ func TestToFirstUpper(t *testing.T) {
 	s = ToFirstUpper("")
 	assert.Equal(t, "", s)
 }
+
+func TestSetValueCSV(t *testing.T) {
+	assert.Equal(t, `="1"`, SetValueCSV("1"))
+	assert.Equal(t, `="01"`, SetValueCSV("01"))
+}

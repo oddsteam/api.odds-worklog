@@ -322,11 +322,6 @@ func TestUsecaseGetIncomeByUserIdAndAllMonth(t *testing.T) {
 	})
 }
 
-func TestSetValueCSV(t *testing.T) {
-	assert.Equal(t, `="1"`, setValueCSV("1"))
-	assert.Equal(t, `="01"`, setValueCSV("01"))
-}
-
 func TestUsecaseGetIncomeByUserIdAndAllMonthCaseNoNetSpecialIncome(t *testing.T) {
 	t.Run("when get income by user id all month success it should be return income model", func(t *testing.T) {
 		ctrl := gomock.NewController(t)

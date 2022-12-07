@@ -234,12 +234,12 @@ func createRow(income models.Income, user models.User) []string {
 	d := []string{
 		user.GetName(),
 		user.BankAccountName,
-		setValueCSV(user.BankAccountNumber),
+		utils.SetValueCSV(user.BankAccountNumber),
 		user.Email,
-		setValueCSV(utils.FormatCommas(income.NetDailyIncome)),
-		setValueCSV(utils.FormatCommas(income.NetSpecialIncome)),
-		setValueCSV("0"),
-		setValueCSV(utils.FormatCommas(summaryIncome)),
+		utils.SetValueCSV(utils.FormatCommas(income.NetDailyIncome)),
+		utils.SetValueCSV(utils.FormatCommas(income.NetSpecialIncome)),
+		utils.SetValueCSV("0"),
+		utils.SetValueCSV(utils.FormatCommas(summaryIncome)),
 		income.Note,
 		tf,
 	}
@@ -256,11 +256,6 @@ func calSummary(main string, special string) (string, error) {
 		return "", err
 	}
 	return utils.FloatToString(ma + sp), nil
-
-}
-
-func setValueCSV(s string) string {
-	return utils.SetValueCSV(s)
 }
 
 func createHeaders() []string {
