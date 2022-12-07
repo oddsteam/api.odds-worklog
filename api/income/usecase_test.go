@@ -131,6 +131,17 @@ func TestStudentLoanInCSVContent(t *testing.T) {
 	assert.Equal(t, expectedSummaryIncome, actual[7])
 }
 
+func TestForeignStudentDoesNotRequireSocialSecuritySoWeUseNegativeStudentLoanToAdjust(t *testing.T) {
+	loan := models.StudentLoan{
+		Fullname: userMock.Admin.BankAccountName,
+		Amount:   -270,
+	}
+	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1, loan)
+	expectedSummaryIncome := `="376.70"`
+	assert.Equal(t, `="-270.00"`, actual[6])
+	assert.Equal(t, expectedSummaryIncome, actual[7])
+}
+
 func TestUseCaseExportIncomeNotExport(t *testing.T) {
 	t.Run("export corporate income not export success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
