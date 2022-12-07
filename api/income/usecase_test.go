@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
@@ -103,7 +104,7 @@ func TestCSVHeaders(t *testing.T) {
 }
 
 func TestCSVContentForIndividual(t *testing.T) {
-	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1)
+	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1, models.StudentLoan{})
 	expectedAccountNo := `="0531231231"`
 	expectedNetDailyIncome := `="97.00"`
 	expectedNetSpecialIncome := `="9.70"`
@@ -120,8 +121,14 @@ func TestCSVContentForIndividual(t *testing.T) {
 }
 
 func TestStudentLoanInCSVContent(t *testing.T) {
-	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1)
-	assert.Equal(t, `="0"`, actual[6])
+	loan := models.StudentLoan{
+		Fullname: userMock.Admin.BankAccountName,
+		Amount:   10,
+	}
+	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1, loan)
+	expectedSummaryIncome := `="96.70"`
+	assert.Equal(t, `="10.00"`, actual[6])
+	assert.Equal(t, expectedSummaryIncome, actual[7])
 }
 
 func TestUseCaseExportIncomeNotExport(t *testing.T) {

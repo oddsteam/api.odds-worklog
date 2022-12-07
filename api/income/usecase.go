@@ -184,11 +184,12 @@ func (u *usecase) exportIncome(role string, getIncome getIncomeFn, shouldUpdateE
 	strWrite = append(strWrite, createHeaders())
 	for _, user := range users {
 		income, err := getIncome(*user)
+		loan := studentLoanList.FindLoan(*user)
 		if err == nil {
 			if shouldUpdateExportStatus {
 				u.repo.UpdateExportStatus(income.ID.Hex())
 			}
-			d := createRow(*income, *user)
+			d := createRow(*income, *user, loan)
 			strWrite = append(strWrite, d)
 		}
 	}
@@ -227,9 +228,10 @@ func (u *usecase) createFunctionGetIncomeByUserWithPeriod(year int, month time.M
 	}
 }
 
-func createRow(income models.Income, user models.User) []string {
+func createRow(income models.Income, user models.User, loan models.StudentLoan) []string {
 	t := income.SubmitDate
 	summaryIncome, _ := calSummary(income.NetDailyIncome, income.NetSpecialIncome)
+	summaryIncome = calSummaryWithLoan(summaryIncome, loan)
 	tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 	d := []string{
 		user.GetName(),
@@ -238,12 +240,19 @@ func createRow(income models.Income, user models.User) []string {
 		user.Email,
 		utils.SetValueCSV(utils.FormatCommas(income.NetDailyIncome)),
 		utils.SetValueCSV(utils.FormatCommas(income.NetSpecialIncome)),
-		utils.SetValueCSV("0"),
+		loan.CSVAmount(),
 		utils.SetValueCSV(utils.FormatCommas(summaryIncome)),
 		income.Note,
 		tf,
 	}
 	return d
+}
+
+func calSummaryWithLoan(summaryIncome string, loan models.StudentLoan) string {
+	summary, _ := utils.StringToFloat64(summaryIncome)
+	summary = summary - float64(loan.Amount)
+	summaryIncome = utils.FloatToString(summary)
+	return summaryIncome
 }
 
 func calSummary(main string, special string) (string, error) {
