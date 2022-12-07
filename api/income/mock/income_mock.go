@@ -18,6 +18,11 @@ type MockRepository struct {
 	recorder *MockRepositoryMockRecorder
 }
 
+// GetStudentLoans implements income.Repository
+func (*MockRepository) GetStudentLoans() []models.StudentLoan {
+	return nil
+}
+
 // MockRepositoryMockRecorder is the mock recorder for MockRepository
 type MockRepositoryMockRecorder struct {
 	mock *MockRepository

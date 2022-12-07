@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	incomeColl = "income"
-	exportColl = "export"
+	incomeColl      = "income"
+	exportColl      = "export"
+	studentLoanColl = "studentloan"
 )
 
 type repository struct {
@@ -125,4 +126,17 @@ func (r *repository) UpdateExportStatus(id string) error {
 		return err
 	}
 	return nil
+}
+
+func (r *repository) GetStudentLoans() []models.StudentLoan {
+	loans := new(models.StudentLoanList)
+	coll := r.session.GetCollection(studentLoanColl)
+	if err := coll.Find(loanQuery()).One(loans); err != nil {
+		panic(err.Error())
+	}
+	return loans.List
+}
+
+func loanQuery() bson.M {
+	return bson.M{"list.monthYear": "12/2565"}
 }
