@@ -48,7 +48,7 @@ var (
 		FirstName:         "first",
 		LastName:          "last",
 		Email:             "email@example.com",
-		BankAccountName:   "account name",
+		BankAccountName:   "ชื่อ นามสกุล",
 		BankAccountNumber: "0531231231",
 		ThaiCitizenID:     "1234567890123",
 		Vat:               "Y",
