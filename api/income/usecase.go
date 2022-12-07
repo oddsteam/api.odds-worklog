@@ -260,7 +260,7 @@ func calSummary(main string, special string) (string, error) {
 }
 
 func setValueCSV(s string) string {
-	return `="` + s + `"`
+	return utils.SetValueCSV(s)
 }
 
 func createHeaders() []string {
