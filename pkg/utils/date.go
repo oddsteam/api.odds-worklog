@@ -6,12 +6,26 @@ import (
 )
 
 func GetNow() string {
-	return time.Now().Format(time.RFC3339)
+	return getNow(time.Now())
+}
+
+func getNow(now time.Time) string {
+	return now.Format(time.RFC3339)
 }
 
 func GetCurrentMonth() string {
-	y, m, _ := time.Now().Date()
+	return getCurrentMonth(time.Now())
+}
+
+func getCurrentMonth(now time.Time) string {
+	y, m, _ := now.Date()
 	cm := fmt.Sprintf("%d-%d", y, int(m))
+	return cm
+}
+
+func GetCurrentMonthInBuddistEra(now time.Time) string {
+	y, m, _ := now.Date()
+	cm := fmt.Sprintf("%d/%d", int(m), y+543)
 	return cm
 }
 

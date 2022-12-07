@@ -14,10 +14,28 @@ func TestGetNow(t *testing.T) {
 	assert.True(t, r.MatchString(n))
 }
 
+func TestGetNowAgain(t *testing.T) {
+	n := time.Date(2022, time.Month(12), 1, 13, 30, 29, 0, time.UTC)
+	actual := getNow(n)
+	assert.Equal(t, "2022-12-01T13:30:29Z", actual)
+}
+
 func TestGetCurrentMonth(t *testing.T) {
 	r := regexp.MustCompile("\\d{4}-\\d{0,2}")
 	cm := GetCurrentMonth()
 	assert.True(t, r.MatchString(cm))
+}
+
+func TestGetCurrentMonthAgain(t *testing.T) {
+	n := time.Date(2022, time.Month(12), 1, 13, 30, 29, 0, time.UTC)
+	actual := getCurrentMonth(n)
+	assert.Equal(t, "2022-12", actual)
+}
+
+func TestGetCurrentMonthInBuddistEra(t *testing.T) {
+	n := time.Date(2022, time.Month(12), 1, 13, 30, 29, 0, time.UTC)
+	actual := GetCurrentMonthInBuddistEra(n)
+	assert.Equal(t, "12/2565", actual)
 }
 
 func TestGetYearMonthNow(t *testing.T) {

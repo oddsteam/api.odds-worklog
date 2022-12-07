@@ -6,6 +6,7 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 const (
@@ -131,12 +132,12 @@ func (r *repository) UpdateExportStatus(id string) error {
 func (r *repository) GetStudentLoans() []models.StudentLoan {
 	loans := new(models.StudentLoanList)
 	coll := r.session.GetCollection(studentLoanColl)
-	if err := coll.Find(loanQuery()).One(loans); err != nil {
+	if err := coll.Find(loanQuery(time.Now())).One(loans); err != nil {
 		panic(err.Error())
 	}
 	return loans.List
 }
 
-func loanQuery() bson.M {
-	return bson.M{"list.monthYear": "12/2565"}
+func loanQuery(now time.Time) bson.M {
+	return bson.M{"list.monthYear": utils.GetCurrentMonthInBuddistEra(now)}
 }
