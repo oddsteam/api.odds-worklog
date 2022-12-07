@@ -177,6 +177,9 @@ func (u *usecase) exportIncome(role string, getIncome getIncomeFn, shouldUpdateE
 		return "", err
 	}
 
+	studentLoanList := u.repo.GetStudentLoans()
+	fmt.Printf("%#v", studentLoanList)
+
 	strWrite := make([][]string, 0)
 	strWrite = append(strWrite, createHeaders())
 	for _, user := range users {

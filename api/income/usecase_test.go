@@ -24,6 +24,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().GetStudentLoans()
 
 		mockRepoUser := userMock.NewMockRepository(ctrl)
 		mockRepoUser.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
@@ -46,6 +47,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month-1).Return(&incomeMock.MockIncome, nil)
 		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month-1).Return(&incomeMock.MockIncome, nil)
 		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().GetStudentLoans()
 
 		mockRepoUser := userMock.NewMockRepository(ctrl)
 		mockRepoUser.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
@@ -70,6 +72,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().GetStudentLoans()
 
 		mockRepoUser := userMock.NewMockRepository(ctrl)
 		mockRepoUser.EXPECT().GetByRole("individual").Return(userMock.Users, nil)
@@ -136,6 +139,7 @@ func TestUseCaseExportIncomeNotExport(t *testing.T) {
 		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().GetStudentLoans()
 
 		usecase := NewUsecase(mockRepoIncome, mockRepoUser)
 		filename, err := usecase.ExportIncomeNotExport("corporate")

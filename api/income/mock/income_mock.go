@@ -12,257 +12,298 @@ import (
 	models "gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
-// MockRepository is a mock of Repository interface
+// MockRepository is a mock of Repository interface.
 type MockRepository struct {
 	ctrl     *gomock.Controller
 	recorder *MockRepositoryMockRecorder
 }
 
-// GetStudentLoans implements income.Repository
-func (*MockRepository) GetStudentLoans() models.StudentLoanList {
-	return models.StudentLoanList{} 
-}
-
-// MockRepositoryMockRecorder is the mock recorder for MockRepository
+// MockRepositoryMockRecorder is the mock recorder for MockRepository.
 type MockRepositoryMockRecorder struct {
 	mock *MockRepository
 }
 
-// NewMockRepository creates a new mock instance
+// NewMockRepository creates a new mock instance.
 func NewMockRepository(ctrl *gomock.Controller) *MockRepository {
 	mock := &MockRepository{ctrl: ctrl}
 	mock.recorder = &MockRepositoryMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// AddIncome mocks base method
+// AddExport mocks base method.
+func (m *MockRepository) AddExport(ep *models.Export) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddExport", ep)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddExport indicates an expected call of AddExport.
+func (mr *MockRepositoryMockRecorder) AddExport(ep interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddExport", reflect.TypeOf((*MockRepository)(nil).AddExport), ep)
+}
+
+// AddIncome mocks base method.
 func (m *MockRepository) AddIncome(u *models.Income) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddIncome", u)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// AddIncome indicates an expected call of AddIncome
+// AddIncome indicates an expected call of AddIncome.
 func (mr *MockRepositoryMockRecorder) AddIncome(u interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddIncome", reflect.TypeOf((*MockRepository)(nil).AddIncome), u)
 }
 
-// GetIncomeUserByYearMonth mocks base method
-func (m *MockRepository) GetIncomeUserByYearMonth(id string, fromYear int, fromMonth time.Month) (*models.Income, error) {
-	ret := m.ctrl.Call(m, "GetIncomeUserByYearMonth", id, fromYear, fromMonth)
-	ret0, _ := ret[0].(*models.Income)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetIncomeUserByYearMonth indicates an expected call of GetIncomeUserByYearMonth
-func (mr *MockRepositoryMockRecorder) GetIncomeUserByYearMonth(id, fromYear, fromMonth interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeUserByYearMonth", reflect.TypeOf((*MockRepository)(nil).GetIncomeUserByYearMonth), id, fromYear, fromMonth)
-}
-
-// GetIncomeByUserIdAllMonth mocks base method
-func (m *MockRepository) GetIncomeByUserIdAllMonth(id string) ([]*models.Income, error) {
-	ret := m.ctrl.Call(m, "GetIncomeByUserIdAllMonth", id)
-	ret0, _ := ret[0].([]*models.Income)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetIncomeByUserIdAllMonth indicates an expected call of GetIncomeByUserIdAllMonth
-func (mr *MockRepositoryMockRecorder) GetIncomeByUserIdAllMonth(id interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByUserIdAllMonth", reflect.TypeOf((*MockRepository)(nil).GetIncomeByUserIdAllMonth), id)
-}
-
-// GetIncomeByID mocks base method
+// GetIncomeByID mocks base method.
 func (m *MockRepository) GetIncomeByID(incID, uID string) (*models.Income, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetIncomeByID", incID, uID)
 	ret0, _ := ret[0].(*models.Income)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetIncomeByID indicates an expected call of GetIncomeByID
+// GetIncomeByID indicates an expected call of GetIncomeByID.
 func (mr *MockRepositoryMockRecorder) GetIncomeByID(incID, uID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByID", reflect.TypeOf((*MockRepository)(nil).GetIncomeByID), incID, uID)
 }
 
-// GetIncomeByUserID mocks base method
+// GetIncomeByUserID mocks base method.
 func (m *MockRepository) GetIncomeByUserID(uID string, fromYear int, fromMonth time.Month) (*models.Income, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetIncomeByUserID", uID, fromYear, fromMonth)
 	ret0, _ := ret[0].(*models.Income)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetIncomeByUserID indicates an expected call of GetIncomeByUserID
+// GetIncomeByUserID indicates an expected call of GetIncomeByUserID.
 func (mr *MockRepositoryMockRecorder) GetIncomeByUserID(uID, fromYear, fromMonth interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByUserID", reflect.TypeOf((*MockRepository)(nil).GetIncomeByUserID), uID, fromYear, fromMonth)
 }
 
-// UpdateIncome mocks base method
+// GetIncomeByUserIdAllMonth mocks base method.
+func (m *MockRepository) GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetIncomeByUserIdAllMonth", userId)
+	ret0, _ := ret[0].([]*models.Income)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetIncomeByUserIdAllMonth indicates an expected call of GetIncomeByUserIdAllMonth.
+func (mr *MockRepositoryMockRecorder) GetIncomeByUserIdAllMonth(userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByUserIdAllMonth", reflect.TypeOf((*MockRepository)(nil).GetIncomeByUserIdAllMonth), userId)
+}
+
+// GetIncomeUserByYearMonth mocks base method.
+func (m *MockRepository) GetIncomeUserByYearMonth(id string, fromYear int, fromMonth time.Month) (*models.Income, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetIncomeUserByYearMonth", id, fromYear, fromMonth)
+	ret0, _ := ret[0].(*models.Income)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetIncomeUserByYearMonth indicates an expected call of GetIncomeUserByYearMonth.
+func (mr *MockRepositoryMockRecorder) GetIncomeUserByYearMonth(id, fromYear, fromMonth interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeUserByYearMonth", reflect.TypeOf((*MockRepository)(nil).GetIncomeUserByYearMonth), id, fromYear, fromMonth)
+}
+
+// GetStudentLoans mocks base method.
+func (m *MockRepository) GetStudentLoans() models.StudentLoanList {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetStudentLoans")
+	ret0, _ := ret[0].(models.StudentLoanList)
+	return ret0
+}
+
+// GetStudentLoans indicates an expected call of GetStudentLoans.
+func (mr *MockRepositoryMockRecorder) GetStudentLoans() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStudentLoans", reflect.TypeOf((*MockRepository)(nil).GetStudentLoans))
+}
+
+// UpdateExportStatus mocks base method.
+func (m *MockRepository) UpdateExportStatus(id string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateExportStatus", id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateExportStatus indicates an expected call of UpdateExportStatus.
+func (mr *MockRepositoryMockRecorder) UpdateExportStatus(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateExportStatus", reflect.TypeOf((*MockRepository)(nil).UpdateExportStatus), id)
+}
+
+// UpdateIncome mocks base method.
 func (m *MockRepository) UpdateIncome(income *models.Income) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateIncome", income)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateIncome indicates an expected call of UpdateIncome
+// UpdateIncome indicates an expected call of UpdateIncome.
 func (mr *MockRepositoryMockRecorder) UpdateIncome(income interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateIncome", reflect.TypeOf((*MockRepository)(nil).UpdateIncome), income)
 }
 
-// AddExport mocks base method
-func (m *MockRepository) AddExport(ep *models.Export) error {
-	ret := m.ctrl.Call(m, "AddExport", ep)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// AddExport indicates an expected call of AddExport
-func (mr *MockRepositoryMockRecorder) AddExport(ep interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddExport", reflect.TypeOf((*MockRepository)(nil).AddExport), ep)
-}
-
-// MockUsecase is a mock of Usecase interface
+// MockUsecase is a mock of Usecase interface.
 type MockUsecase struct {
 	ctrl     *gomock.Controller
 	recorder *MockUsecaseMockRecorder
 }
 
-// MockUsecaseMockRecorder is the mock recorder for MockUsecase
+// MockUsecaseMockRecorder is the mock recorder for MockUsecase.
 type MockUsecaseMockRecorder struct {
 	mock *MockUsecase
 }
 
-// NewMockUsecase creates a new mock instance
+// NewMockUsecase creates a new mock instance.
 func NewMockUsecase(ctrl *gomock.Controller) *MockUsecase {
 	mock := &MockUsecase{ctrl: ctrl}
 	mock.recorder = &MockUsecaseMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
-// AddIncome mocks base method
+// AddIncome mocks base method.
 func (m *MockUsecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddIncome", req, uid)
 	ret0, _ := ret[0].(*models.Income)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// AddIncome indicates an expected call of AddIncome
+// AddIncome indicates an expected call of AddIncome.
 func (mr *MockUsecaseMockRecorder) AddIncome(req, uid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddIncome", reflect.TypeOf((*MockUsecase)(nil).AddIncome), req, uid)
 }
 
-// UpdateIncome mocks base method
-func (m *MockUsecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
-	ret := m.ctrl.Call(m, "UpdateIncome", id, req, uid)
-	ret0, _ := ret[0].(*models.Income)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// UpdateIncome indicates an expected call of UpdateIncome
-func (mr *MockUsecaseMockRecorder) UpdateIncome(id, req, uid interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateIncome", reflect.TypeOf((*MockUsecase)(nil).UpdateIncome), id, req, uid)
-}
-
-// GetIncomeStatusList mocks base method
-func (m *MockUsecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
-	ret := m.ctrl.Call(m, "GetIncomeStatusList", role, isAdmin)
-	ret0, _ := ret[0].([]*models.IncomeStatus)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetIncomeStatusList indicates an expected call of GetIncomeStatusList
-func (mr *MockUsecaseMockRecorder) GetIncomeStatusList(role interface{}, isAdmin interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeStatusList", reflect.TypeOf((*MockUsecase)(nil).GetIncomeStatusList), role, isAdmin)
-}
-
-// GetIncomeByUserIdAndCurrentMonth mocks base method
-func (m *MockUsecase) GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error) {
-	ret := m.ctrl.Call(m, "GetIncomeByUserIdAndCurrentMonth", userID)
-	ret0, _ := ret[0].(*models.Income)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetIncomeByUserIdAndCurrentMonth indicates an expected call of GetIncomeByUserIdAndCurrentMonth
-func (mr *MockUsecaseMockRecorder) GetIncomeByUserIdAndCurrentMonth(userID interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByUserIdAndCurrentMonth", reflect.TypeOf((*MockUsecase)(nil).GetIncomeByUserIdAndCurrentMonth), userID)
-}
-
-// ExportIncome mocks base method
-func (m *MockUsecase) ExportIncome(role string, beforeMonth string) (string, error) {
+// ExportIncome mocks base method.
+func (m *MockUsecase) ExportIncome(role, beforeMonth string) (string, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ExportIncome", role, beforeMonth)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ExportIncomeNotExport mocks base method
+// ExportIncome indicates an expected call of ExportIncome.
+func (mr *MockUsecaseMockRecorder) ExportIncome(role, beforeMonth interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncome", reflect.TypeOf((*MockUsecase)(nil).ExportIncome), role, beforeMonth)
+}
+
+// ExportIncomeNotExport mocks base method.
 func (m *MockUsecase) ExportIncomeNotExport(role string) (string, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ExportIncomeNotExport", role)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ExportIncome indicates an expected call of ExportIncome
-func (mr *MockUsecaseMockRecorder) ExportIncome(role interface{}, beforeMonth interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncome", reflect.TypeOf((*MockUsecase)(nil).ExportIncome), role, beforeMonth)
-}
-
-// ExportIncomeNotExport indicates an expected call of ExportIncome
+// ExportIncomeNotExport indicates an expected call of ExportIncomeNotExport.
 func (mr *MockUsecaseMockRecorder) ExportIncomeNotExport(role interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncomeNotExport", reflect.TypeOf((*MockUsecase)(nil).ExportIncome), role)
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncomeNotExport", reflect.TypeOf((*MockUsecase)(nil).ExportIncomeNotExport), role)
 }
 
-// ExportPdf mocks base method
+// ExportPdf mocks base method.
 func (m *MockUsecase) ExportPdf(id string) (string, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ExportPdf", id)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ExportPdf indicates an expected call of ExportPdf
+// ExportPdf indicates an expected call of ExportPdf.
 func (mr *MockUsecaseMockRecorder) ExportPdf(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportPdf", reflect.TypeOf((*MockUsecase)(nil).ExportPdf), id)
 }
 
-// GetIncomeByUserIdAllMonth mocks base method
-func (m *MockUsecase) GetIncomeByUserIdAllMonth(id string) ([]*models.Income, error) {
-	ret := m.ctrl.Call(m, "GetIncomeByUserIdAllMonth", id)
+// GetIncomeByUserIdAllMonth mocks base method.
+func (m *MockUsecase) GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetIncomeByUserIdAllMonth", userId)
 	ret0, _ := ret[0].([]*models.Income)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetIncomeByUserIdAllMonth indicates an expected call of GetIncomeByUserIdAllMonth
-func (mr *MockUsecaseMockRecorder) GetIncomeByUserIdAllMonth(id interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByUserIdAllMonth", reflect.TypeOf((*MockUsecase)(nil).GetIncomeByUserIdAllMonth), id)
+// GetIncomeByUserIdAllMonth indicates an expected call of GetIncomeByUserIdAllMonth.
+func (mr *MockUsecaseMockRecorder) GetIncomeByUserIdAllMonth(userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByUserIdAllMonth", reflect.TypeOf((*MockUsecase)(nil).GetIncomeByUserIdAllMonth), userId)
 }
 
-// UpdateExportStatus mocks base method
-func (m *MockRepository) UpdateExportStatus(id string) error {
-	ret := m.ctrl.Call(m, "UpdateExportStatus", id)
-	ret0, _ := ret[0].(error)
-	return ret0
+// GetIncomeByUserIdAndCurrentMonth mocks base method.
+func (m *MockUsecase) GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetIncomeByUserIdAndCurrentMonth", userID)
+	ret0, _ := ret[0].(*models.Income)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-// UpdateExportStatus indicates an expected call of UpdateExportStatus
-func (mr *MockRepositoryMockRecorder) UpdateExportStatus(id interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateExportStatus", reflect.TypeOf((*MockRepository)(nil).UpdateExportStatus), id)
+// GetIncomeByUserIdAndCurrentMonth indicates an expected call of GetIncomeByUserIdAndCurrentMonth.
+func (mr *MockUsecaseMockRecorder) GetIncomeByUserIdAndCurrentMonth(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByUserIdAndCurrentMonth", reflect.TypeOf((*MockUsecase)(nil).GetIncomeByUserIdAndCurrentMonth), userID)
+}
+
+// GetIncomeStatusList mocks base method.
+func (m *MockUsecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetIncomeStatusList", role, isAdmin)
+	ret0, _ := ret[0].([]*models.IncomeStatus)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetIncomeStatusList indicates an expected call of GetIncomeStatusList.
+func (mr *MockUsecaseMockRecorder) GetIncomeStatusList(role, isAdmin interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeStatusList", reflect.TypeOf((*MockUsecase)(nil).GetIncomeStatusList), role, isAdmin)
+}
+
+// UpdateIncome mocks base method.
+func (m *MockUsecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateIncome", id, req, uid)
+	ret0, _ := ret[0].(*models.Income)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateIncome indicates an expected call of UpdateIncome.
+func (mr *MockUsecaseMockRecorder) UpdateIncome(id, req, uid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateIncome", reflect.TypeOf((*MockUsecase)(nil).UpdateIncome), id, req, uid)
 }
