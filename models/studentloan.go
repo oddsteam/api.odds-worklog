@@ -12,9 +12,10 @@ type StudentLoanList struct {
 }
 
 type StudentLoan struct {
-	ID       bson.ObjectId `bson:"_id"`
-	Fullname string        `bson:"customerName"`
-	Amount   int           `bson:"paidAmount"`
+	ID        bson.ObjectId `bson:"_id" json:"id,omitempty"`
+	Fullname  string        `bson:"customerName" json:"customerName"`
+	Amount    int           `bson:"paidAmount" json:"paidAmount"`
+	MonthYear string        `bson:"monthYear" json:"monthYear"`
 }
 
 func (sll *StudentLoanList) FindLoan(u User) StudentLoan {

@@ -141,3 +141,15 @@ func (r *repository) GetStudentLoans() models.StudentLoanList {
 func loanQuery(now time.Time) bson.M {
 	return bson.M{"list.monthYear": utils.GetCurrentMonthInBuddistEra(now)}
 }
+
+func (r *repository) SaveStudentLoans(loans []models.StudentLoan) int {
+	coll := r.session.GetCollection(studentLoanColl)
+	list := models.StudentLoanList{List: loans}
+	filter := bson.M{"monthYear": utils.GetCurrentMonthInBuddistEra(time.Now())}
+	update := bson.M{"$set": bson.M{"list": list}}
+	changed, err := coll.Upsert(filter, update)
+	if err != nil {
+		panic(err.Error())
+	}
+	return changed.Matched
+}

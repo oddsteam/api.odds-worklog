@@ -137,6 +137,20 @@ func (mr *MockRepositoryMockRecorder) GetStudentLoans() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStudentLoans", reflect.TypeOf((*MockRepository)(nil).GetStudentLoans))
 }
 
+// SaveStudentLoans mocks base method.
+func (m *MockRepository) SaveStudentLoans(loans []models.StudentLoan) int {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveStudentLoans", loans)
+	ret0, _ := ret[0].(int)
+	return ret0
+}
+
+// SaveStudentLoans indicates an expected call of SaveStudentLoans.
+func (mr *MockRepositoryMockRecorder) SaveStudentLoans(loans interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveStudentLoans", reflect.TypeOf((*MockRepository)(nil).SaveStudentLoans), loans)
+}
+
 // UpdateExportStatus mocks base method.
 func (m *MockRepository) UpdateExportStatus(id string) error {
 	m.ctrl.T.Helper()
