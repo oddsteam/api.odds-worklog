@@ -24,9 +24,14 @@ func getCurrentMonth(now time.Time) string {
 }
 
 func GetCurrentMonthInBuddistEra(now time.Time) string {
-	y, m, _ := now.Date()
-	cm := fmt.Sprintf("%d/%d", int(m), y+543)
+	y, m := GetYearMonthInBuddistEra(now)
+	cm := fmt.Sprintf("%d/%d", m, y)
 	return cm
+}
+
+func GetYearMonthInBuddistEra(now time.Time) (int, int) {
+	y, m, _ := now.Date()
+	return y + 543, int(m)
 }
 
 func GetYearMonthNow() (int, time.Month) {
