@@ -136,9 +136,17 @@ Run all test caoverage and view with html <br>
 
 `scripts/get_student_loan.go` requires JSESSIONID and X-CSRF-TOKEN to run. Get it by logging in at the student loan website. (You will know how to do that if you have access to it.)
 
+#### On Local
+
 ```
 SESSION="JSESSIONID=DXpquTUIAivMunzsgHls28n3FBxh-p7ECDeGLijW.node1" CSRF="3cc94f0d-e690-4fe1-89f8-1e6c2a51d5bb" go run scripts/get_student_loan.go
 ```
+
+#### On Dev
+```
+ssh worklog-huawei docker exec -e SESSION="JSESSIONID=dwEi2vEj0qZM5-KNIK5xWfzFABFVKUBF7K8m8T37.node1" -e CSRF="1692a557-2606-4e7e-8911-bf0b0b5e481d" worklog-api-dev ./get_student_loan
+```
+
 ## Contributing
 
 Want to help build ODDS Worklog API? 
