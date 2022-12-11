@@ -137,7 +137,7 @@ Run all test caoverage and view with html <br>
 `scripts/get_student_loan.go` requires JSESSIONID and X-CSRF-TOKEN to run. Get it by logging in at the student loan website. (You will know how to do that if you have access to it.)
 
 ```
-env SESSION="JSESSIONID=DXpquTUIAivMunzsgHls28n3FBxh-p7ECDeGLijW.node1" env CSRF="3cc94f0d-e690-4fe1-89f8-1e6c2a51d5bb" go run scripts/get_student_loan.go
+SESSION="JSESSIONID=DXpquTUIAivMunzsgHls28n3FBxh-p7ECDeGLijW.node1" CSRF="3cc94f0d-e690-4fe1-89f8-1e6c2a51d5bb" go run scripts/get_student_loan.go
 ```
 ## Contributing
 
