@@ -131,16 +131,14 @@ func (r *repository) UpdateExportStatus(id string) error {
 }
 
 func (r *repository) GetStudentLoans() models.StudentLoanList {
-	loans := new(models.StudentLoanList)
-	return getStudentLoans(r.studentLoanCollection().Find(loanQuery(time.Now())).One, loans)
+	return getStudentLoans(r.studentLoanCollection().Find(loanQuery(time.Now())).One)
 }
 
 type getOneFn = func(result interface{}) (err error)
 
-func getStudentLoans(getOneLoan getOneFn, loans *models.StudentLoanList) models.StudentLoanList {
-	if err := getOneLoan(loans); err != nil {
-		panic(err.Error())
-	}
+func getStudentLoans(getOneLoan getOneFn) models.StudentLoanList {
+	loans := new(models.StudentLoanList)
+	getOneLoan(loans)
 	return *loans
 }
 
