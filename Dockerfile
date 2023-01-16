@@ -17,6 +17,7 @@ RUN CGO_ENABLED=0 GOOS=linux go test ./...
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o /go/bin/api
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o /go/bin/get_student_loan scripts/get_student_loan.go
 
 
 # Deploy State
@@ -29,3 +30,4 @@ RUN mkdir -p files/tavi50 && mkdir image && mkdir font
 ADD image /app/image
 ADD font /app/font
 COPY --from=build-state /go/bin/api /app
+COPY --from=build-state /go/bin/get_student_loan /app

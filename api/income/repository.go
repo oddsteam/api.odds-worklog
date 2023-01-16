@@ -3,15 +3,17 @@ package income
 import (
 	"time"
 
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 const (
-	incomeColl = "income"
-	exportColl = "export"
-	userColl   = "user"
+	incomeColl      = "income"
+	exportColl      = "export"
+	studentLoanColl = "studentloan"
 )
 
 type repository struct {
@@ -126,4 +128,35 @@ func (r *repository) UpdateExportStatus(id string) error {
 		return err
 	}
 	return nil
+}
+
+func (r *repository) GetStudentLoans() models.StudentLoanList {
+	return getStudentLoans(r.studentLoanCollection().Find(loanQuery(time.Now())).One)
+}
+
+type getOneFn = func(result interface{}) (err error)
+
+func getStudentLoans(getOneLoan getOneFn) models.StudentLoanList {
+	loans := new(models.StudentLoanList)
+	getOneLoan(loans)
+	return *loans
+}
+
+func loanQuery(now time.Time) bson.M {
+	return bson.M{"list.monthYear": utils.GetCurrentMonthInBuddistEra(now)}
+}
+
+func (r *repository) SaveStudentLoans(loans []models.StudentLoan) int {
+	coll := r.studentLoanCollection()
+	filter := bson.M{"monthYear": utils.GetCurrentMonthInBuddistEra(time.Now())}
+	update := bson.M{"$set": bson.M{"list": loans}}
+	changed, err := coll.Upsert(filter, update)
+	if err != nil {
+		panic(err.Error())
+	}
+	return changed.Matched
+}
+
+func (r *repository) studentLoanCollection() *mgo.Collection {
+	return r.session.GetCollection(studentLoanColl)
 }

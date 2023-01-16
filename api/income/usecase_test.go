@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
@@ -24,6 +25,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().GetStudentLoans()
 
 		mockRepoUser := userMock.NewMockRepository(ctrl)
 		mockRepoUser.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
@@ -46,6 +48,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month-1).Return(&incomeMock.MockIncome, nil)
 		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month-1).Return(&incomeMock.MockIncome, nil)
 		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().GetStudentLoans()
 
 		mockRepoUser := userMock.NewMockRepository(ctrl)
 		mockRepoUser.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
@@ -70,6 +73,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().GetStudentLoans()
 
 		mockRepoUser := userMock.NewMockRepository(ctrl)
 		mockRepoUser.EXPECT().GetByRole("individual").Return(userMock.Users, nil)
@@ -93,26 +97,49 @@ func TestCSVHeaders(t *testing.T) {
 	assert.Equal(t, "อีเมล", actual[3])
 	assert.Equal(t, "จำนวนเงินรายได้หลัก", actual[4])
 	assert.Equal(t, "จำนวนรายได้พิเศษ", actual[5])
-	assert.Equal(t, "รวมจำนวนที่ต้องโอน", actual[6])
-	assert.Equal(t, "บันทึกรายการ", actual[7])
-	assert.Equal(t, "วันที่กรอก", actual[8])
+	assert.Equal(t, "กยศและอื่น ๆ", actual[6])
+	assert.Equal(t, "รวมจำนวนที่ต้องโอน", actual[7])
+	assert.Equal(t, "บันทึกรายการ", actual[8])
+	assert.Equal(t, "วันที่กรอก", actual[9])
 }
 
 func TestCSVContentForIndividual(t *testing.T) {
-	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1)
+	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1, models.StudentLoan{})
 	expectedAccountNo := `="0531231231"`
 	expectedNetDailyIncome := `="97.00"`
 	expectedNetSpecialIncome := `="9.70"`
 	expectedSummaryIncome := `="106.70"`
 	assert.Equal(t, "first last", actual[0])
-	assert.Equal(t, "account name", actual[1])
+	assert.Equal(t, "ชื่อ นามสกุล", actual[1])
 	assert.Equal(t, expectedAccountNo, actual[2])
 	assert.Equal(t, "email@example.com", actual[3])
 	assert.Equal(t, expectedNetDailyIncome, actual[4])
 	assert.Equal(t, expectedNetSpecialIncome, actual[5])
-	assert.Equal(t, expectedSummaryIncome, actual[6])
-	assert.Equal(t, "note", actual[7])
-	assert.Equal(t, "01/12/2022 20:30:00", actual[8])
+	assert.Equal(t, expectedSummaryIncome, actual[7])
+	assert.Equal(t, "note", actual[8])
+	assert.Equal(t, "01/12/2022 20:30:00", actual[9])
+}
+
+func TestStudentLoanInCSVContent(t *testing.T) {
+	loan := models.StudentLoan{
+		Fullname: userMock.Admin.BankAccountName,
+		Amount:   10,
+	}
+	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1, loan)
+	expectedSummaryIncome := `="96.70"`
+	assert.Equal(t, `="10.00"`, actual[6])
+	assert.Equal(t, expectedSummaryIncome, actual[7])
+}
+
+func TestForeignStudentDoesNotRequireSocialSecuritySoWeUseNegativeStudentLoanToAdjust(t *testing.T) {
+	loan := models.StudentLoan{
+		Fullname: userMock.Admin.BankAccountName,
+		Amount:   -270,
+	}
+	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1, loan)
+	expectedSummaryIncome := `="376.70"`
+	assert.Equal(t, `="-270.00"`, actual[6])
+	assert.Equal(t, expectedSummaryIncome, actual[7])
 }
 
 func TestUseCaseExportIncomeNotExport(t *testing.T) {
@@ -130,6 +157,7 @@ func TestUseCaseExportIncomeNotExport(t *testing.T) {
 		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
 		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().GetStudentLoans()
 
 		usecase := NewUsecase(mockRepoIncome, mockRepoUser)
 		filename, err := usecase.ExportIncomeNotExport("corporate")
@@ -310,11 +338,6 @@ func TestUsecaseGetIncomeByUserIdAndAllMonth(t *testing.T) {
 		assert.Equal(t, incomeMock.MockIncome.SubmitDate, res[0].SubmitDate)
 		assert.Equal(t, "50440.00", res[1].NetIncome)
 	})
-}
-
-func TestSetValueCSV(t *testing.T) {
-	assert.Equal(t, `="1"`, setValueCSV("1"))
-	assert.Equal(t, `="01"`, setValueCSV("01"))
 }
 
 func TestUsecaseGetIncomeByUserIdAndAllMonthCaseNoNetSpecialIncome(t *testing.T) {
