@@ -34,6 +34,11 @@ func GetYearMonthInBuddistEra(now time.Time) (int, int) {
 	return y + 543, int(m)
 }
 
+func GetYearMonthStringInBuddistEra(now time.Time) (string, string) {
+	y, m, _ := now.Date()
+	return fmt.Sprintf("%d", y+543), fmt.Sprintf("%02d", m)
+}
+
 func GetYearMonthNow() (int, time.Month) {
 	t := time.Now()
 	return t.Year(), t.Month()

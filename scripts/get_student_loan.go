@@ -45,8 +45,8 @@ func getStudentLoans(sessionId string, csrf string) ([]byte, error) {
 	url := "https://slfrd.dsl.studentloan.or.th/SLFRD/EmployeeReport/getDataByPage"
 	method := "POST"
 
-	y, m := utils.GetYearMonthInBuddistEra(time.Now())
-	payload := strings.NewReader(fmt.Sprintf(`deleteFlag=&month=%d&year=%d`, m, y))
+	y, m := utils.GetYearMonthStringInBuddistEra(time.Now())
+	payload := strings.NewReader(fmt.Sprintf(`deleteFlag=&month=%s&year=%s`, m, y))
 
 	req, err := http.NewRequest(method, url, payload)
 
