@@ -31,6 +31,18 @@ func TestAmountIs0WhenCannotFindLoanForUser(t *testing.T) {
 	assert.Equal(t, `="0.00"`, actual.CSVAmount())
 }
 
+func TestSaveStudenLoanWithSucessfully(t *testing.T) {
+	studentLoanResponse := []byte(getMockStudentLoanResponseInJanuary())
+	loanlist, err := models.CreateStudentLoanList(studentLoanResponse)
+	assert.Equal(t, nil, err)
+
+	loanlist.CreateIDForLoans()
+
+	for _, l := range loanlist.List {
+		assert.NotEmpty(t, l.ID)
+	}
+}
+
 func TestSaveStudenLoanWith1DigitMonth(t *testing.T) {
 	studentLoanResponse := []byte(getMockStudentLoanResponseInJanuary())
 	loanlist, err := models.CreateStudentLoanList(studentLoanResponse)

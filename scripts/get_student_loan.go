@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
@@ -37,9 +36,7 @@ func main() {
 	defer session.Close()
 
 	r := income.NewRepository(session)
-	for i := range loanlist.List {
-		loanlist.List[i].ID = bson.NewObjectId()
-	}
+	loanlist.CreateIDForLoans()
 	r.SaveStudentLoans(loanlist)
 }
 

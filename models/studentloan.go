@@ -27,6 +27,12 @@ func CreateStudentLoanList(studentLoanResponse []byte) (StudentLoanList, error) 
 	return loanlist, err
 }
 
+func (sll *StudentLoanList) CreateIDForLoans() {
+	for i := range sll.List {
+		sll.List[i].ID = bson.NewObjectId()
+	}
+}
+
 func (sll *StudentLoanList) FindLoan(u User) StudentLoan {
 	for _, e := range sll.List {
 		if e.Fullname == u.BankAccountName {
