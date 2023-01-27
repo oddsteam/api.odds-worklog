@@ -182,7 +182,6 @@ func (u *usecase) exportIncome(role string, getIncome getIncomeFn, shouldUpdateE
 
 	strWrite := make([][]string, 0)
 	strWrite = append(strWrite, createHeaders())
-	strWrite = append(strWrite, createHeaders())
 	for _, user := range users {
 		income, err := getIncome(*user)
 		loan := studentLoanList.FindLoan(*user)
