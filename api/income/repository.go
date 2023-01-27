@@ -7,7 +7,6 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 const (
@@ -131,7 +130,9 @@ func (r *repository) UpdateExportStatus(id string) error {
 }
 
 func (r *repository) GetStudentLoans() models.StudentLoanList {
-	return getStudentLoans(r.studentLoanCollection().Find(loanQuery(time.Now())).One)
+	sll := models.StudentLoanList{}
+	loanQuery := sll.GetFilterQuery(time.Now())
+	return getStudentLoans(r.studentLoanCollection().Find(loanQuery).One)
 }
 
 type getOneFn = func(result interface{}) (err error)
@@ -142,14 +143,10 @@ func getStudentLoans(getOneLoan getOneFn) models.StudentLoanList {
 	return *loans
 }
 
-func loanQuery(now time.Time) bson.M {
-	return bson.M{"list.monthYear": utils.GetCurrentMonthInBuddistEra(now)}
-}
-
-func (r *repository) SaveStudentLoans(loans []models.StudentLoan) int {
+func (r *repository) SaveStudentLoans(loanlist models.StudentLoanList) int {
 	coll := r.studentLoanCollection()
-	filter := bson.M{"monthYear": utils.GetCurrentMonthInBuddistEra(time.Now())}
-	update := bson.M{"$set": bson.M{"list": loans}}
+	filter := loanlist.GetFilterQuery(time.Now())
+	update := loanlist.GetUpdateQuery()
 	changed, err := coll.Upsert(filter, update)
 	if err != nil {
 		panic(err.Error())

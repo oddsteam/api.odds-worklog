@@ -16,7 +16,7 @@ type Repository interface {
 	GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, error)
 	UpdateExportStatus(id string) error
 	GetStudentLoans() models.StudentLoanList
-	SaveStudentLoans(loans []models.StudentLoan) int
+	SaveStudentLoans(loans models.StudentLoanList) int
 }
 
 type Usecase interface {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -10,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
@@ -28,17 +26,18 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	var loans []models.StudentLoan
-	err = json.Unmarshal(body, &loans)
+	loanlist, err := models.CreateStudentLoanList(body)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	session := setUpMongo()
 	defer session.Close()
 
 	r := income.NewRepository(session)
-	for i := range loans {
-		loans[i].ID = bson.NewObjectId()
-	}
-	r.SaveStudentLoans(loans)
+	loanlist.CreateIDForLoans()
+	r.SaveStudentLoans(loanlist)
 }
 
 func getStudentLoans(sessionId string, csrf string) ([]byte, error) {

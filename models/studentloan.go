@@ -1,7 +1,9 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/globalsign/mgo/bson"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -18,6 +20,19 @@ type StudentLoan struct {
 	MonthYear string        `bson:"monthYear" json:"monthYear"`
 }
 
+func CreateStudentLoanList(studentLoanResponse []byte) (StudentLoanList, error) {
+	var loans []StudentLoan
+	err := json.Unmarshal(studentLoanResponse, &loans)
+	loanlist := StudentLoanList{List: loans}
+	return loanlist, err
+}
+
+func (sll *StudentLoanList) CreateIDForLoans() {
+	for i := range sll.List {
+		sll.List[i].ID = bson.NewObjectId()
+	}
+}
+
 func (sll *StudentLoanList) FindLoan(u User) StudentLoan {
 	for _, e := range sll.List {
 		if e.Fullname == u.BankAccountName {
@@ -25,6 +40,14 @@ func (sll *StudentLoanList) FindLoan(u User) StudentLoan {
 		}
 	}
 	return StudentLoan{}
+}
+
+func (sll *StudentLoanList) GetUpdateQuery() bson.M {
+	return bson.M{"$set": bson.M{"list": sll.List}}
+}
+
+func (sll *StudentLoanList) GetFilterQuery(now time.Time) bson.M {
+	return bson.M{"monthYear": utils.GetCurrentMonthInBuddistEra(now)}
 }
 
 func (sl *StudentLoan) CSVAmount() string {
