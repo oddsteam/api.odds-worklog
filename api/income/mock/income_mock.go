@@ -138,7 +138,7 @@ func (mr *MockRepositoryMockRecorder) GetStudentLoans() *gomock.Call {
 }
 
 // SaveStudentLoans mocks base method.
-func (m *MockRepository) SaveStudentLoans(loans []models.StudentLoan) int {
+func (m *MockRepository) SaveStudentLoans(loans models.StudentLoanList) int {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SaveStudentLoans", loans)
 	ret0, _ := ret[0].(int)

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -28,17 +27,20 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	var loans []models.StudentLoan
-	err = json.Unmarshal(body, &loans)
+	loanlist, err := models.CreateStudentLoanList(body)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	session := setUpMongo()
 	defer session.Close()
 
 	r := income.NewRepository(session)
-	for i := range loans {
-		loans[i].ID = bson.NewObjectId()
+	for i := range loanlist.List {
+		loanlist.List[i].ID = bson.NewObjectId()
 	}
-	r.SaveStudentLoans(loans)
+	r.SaveStudentLoans(loanlist)
 }
 
 func getStudentLoans(sessionId string, csrf string) ([]byte, error) {

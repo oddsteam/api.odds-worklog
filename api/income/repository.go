@@ -146,10 +146,10 @@ func loanQuery(now time.Time) bson.M {
 	return bson.M{"list.monthYear": utils.GetCurrentMonthInBuddistEra(now)}
 }
 
-func (r *repository) SaveStudentLoans(loans []models.StudentLoan) int {
+func (r *repository) SaveStudentLoans(loanlist models.StudentLoanList) int {
 	coll := r.studentLoanCollection()
-	filter := bson.M{"monthYear": utils.GetCurrentMonthInBuddistEra(time.Now())}
-	update := bson.M{"$set": bson.M{"list": loans}}
+	filter := loanlist.GetFilterQuery(time.Now())
+	update := loanlist.GetUpdateQuery()
 	changed, err := coll.Upsert(filter, update)
 	if err != nil {
 		panic(err.Error())
