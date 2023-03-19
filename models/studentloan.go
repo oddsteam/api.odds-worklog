@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -35,7 +36,7 @@ func (sll *StudentLoanList) CreateIDForLoans() {
 
 func (sll *StudentLoanList) FindLoan(u User) StudentLoan {
 	for _, e := range sll.List {
-		if e.Fullname == u.BankAccountName {
+		if strings.Contains(u.BankAccountName, e.Fullname) {
 			return e
 		}
 	}

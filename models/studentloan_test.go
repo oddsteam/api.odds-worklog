@@ -21,6 +21,17 @@ func TestFindLoanForUserUsingBankAccountName(t *testing.T) {
 	assert.Equal(t, `="1,579.00"`, actual.CSVAmount())
 }
 
+func TestFindLoanForUserWhoseBankAccountNameContainsTitle(t *testing.T) {
+	sll := models.StudentLoanList{
+		List: []models.StudentLoan{
+			{ID: "", Fullname: "ชื่อ นามสกุล", Amount: 1579},
+		}}
+	u := mock_user.IndividualUser1
+	u.BankAccountName = "นายชื่อ นามสกุล"
+	actual := sll.FindLoan(u)
+	assert.Equal(t, `="1,579.00"`, actual.CSVAmount())
+}
+
 func TestAmountIs0WhenCannotFindLoanForUser(t *testing.T) {
 	sll := models.StudentLoanList{
 		List: []models.StudentLoan{

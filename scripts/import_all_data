@@ -11,3 +11,5 @@ docker exec -it odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog
 docker exec -it odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection po --type json --file fixture/data/po.json --maintainInsertionOrder --jsonArray
 
 docker exec -it odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection invoice --type json --file fixture/data/invoice.json --maintainInsertionOrder --jsonArray
+
+docker exec -it odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection income --type json --file fixture/data/income.json --maintainInsertionOrder --jsonArray
