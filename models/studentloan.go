@@ -52,5 +52,5 @@ func (sll *StudentLoanList) GetFilterQuery(now time.Time) bson.M {
 }
 
 func (sl *StudentLoan) CSVAmount() string {
-	return utils.SetValueCSV(utils.FormatCommas(fmt.Sprint(sl.Amount)))
+	return utils.FormatCommas(fmt.Sprint(sl.Amount))
 }
