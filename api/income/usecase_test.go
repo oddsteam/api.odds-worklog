@@ -110,7 +110,7 @@ func TestCSVContentForIndividual(t *testing.T) {
 	expectedNetDailyIncome := `="97.00"`
 	expectedNetSpecialIncome := `="9.70"`
 	expectedWHT := "3.30"
-	expectedSummaryIncome := `="106.70"`
+	expectedSummaryIncome := "106.70"
 	assert.Equal(t, "first last", actual[0])
 	assert.Equal(t, "ชื่อ นามสกุล", actual[1])
 	assert.Equal(t, expectedAccountNo, actual[2])
@@ -129,7 +129,7 @@ func TestStudentLoanInCSVContent(t *testing.T) {
 		Amount:   10,
 	}
 	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1, loan)
-	expectedSummaryIncome := `="96.70"`
+	expectedSummaryIncome := "96.70"
 	assert.Equal(t, `="10.00"`, actual[6])
 	assert.Equal(t, expectedSummaryIncome, actual[8])
 }
@@ -140,7 +140,7 @@ func TestForeignStudentDoesNotRequireSocialSecuritySoWeUseNegativeStudentLoanToA
 		Amount:   -270,
 	}
 	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1, loan)
-	expectedSummaryIncome := `="376.70"`
+	expectedSummaryIncome := "376.70"
 	assert.Equal(t, `="-270.00"`, actual[6])
 	assert.Equal(t, expectedSummaryIncome, actual[8])
 }

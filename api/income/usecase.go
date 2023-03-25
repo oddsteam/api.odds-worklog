@@ -242,7 +242,7 @@ func createRow(income models.Income, user models.User, loan models.StudentLoan) 
 		utils.SetValueCSV(utils.FormatCommas(income.NetSpecialIncome)),
 		loan.CSVAmount(),
 		income.WHT,
-		utils.SetValueCSV(utils.FormatCommas(summaryIncome)),
+		utils.FormatCommas(summaryIncome),
 		income.Note,
 		tf,
 	}
