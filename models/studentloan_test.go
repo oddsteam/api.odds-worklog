@@ -18,7 +18,7 @@ func TestFindLoanForUserUsingBankAccountName(t *testing.T) {
 	u := mock_user.IndividualUser1
 	actual := sll.FindLoan(u)
 	assert.Equal(t, u.BankAccountName, actual.Fullname)
-	assert.Equal(t, `="1,579.00"`, actual.CSVAmount())
+	assert.Equal(t, "1,579.00", actual.CSVAmount())
 }
 
 func TestFindLoanForUserWhoseBankAccountNameContainsTitle(t *testing.T) {
@@ -29,7 +29,7 @@ func TestFindLoanForUserWhoseBankAccountNameContainsTitle(t *testing.T) {
 	u := mock_user.IndividualUser1
 	u.BankAccountName = "นายชื่อ นามสกุล"
 	actual := sll.FindLoan(u)
-	assert.Equal(t, `="1,579.00"`, actual.CSVAmount())
+	assert.Equal(t, "1,579.00", actual.CSVAmount())
 }
 
 func TestAmountIs0WhenCannotFindLoanForUser(t *testing.T) {
@@ -39,7 +39,7 @@ func TestAmountIs0WhenCannotFindLoanForUser(t *testing.T) {
 		}}
 	u := mock_user.IndividualUser1
 	actual := sll.FindLoan(u)
-	assert.Equal(t, `="0.00"`, actual.CSVAmount())
+	assert.Equal(t, "0.00", actual.CSVAmount())
 }
 
 func TestSaveStudenLoanWithIDSoItCanBeSavedSucessfully(t *testing.T) {
