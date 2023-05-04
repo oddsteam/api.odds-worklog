@@ -50,7 +50,7 @@ var (
 		Email:             "email@example.com",
 		BankAccountName:   "ชื่อ นามสกุล",
 		BankAccountNumber: "0531231231",
-		ThaiCitizenID:     "1234567890123",
+		ThaiCitizenID:     "ThaiCitizenID",
 		Vat:               "Y",
 		SlackAccount:      "test@example.com",
 		DailyIncome:       "2000",

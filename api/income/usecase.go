@@ -235,6 +235,7 @@ func createRow(income models.Income, user models.User, loan models.StudentLoan) 
 	tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 	d := []string{
 		user.GetName(),
+		user.ThaiCitizenID,
 		user.BankAccountName,
 		utils.SetValueCSV(user.BankAccountNumber),
 		user.Email,
@@ -269,5 +270,5 @@ func calSummary(main string, special string) (string, error) {
 }
 
 func createHeaders() []string {
-	return []string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
+	return []string{"ชื่อ", "เลขบัตรประชาชน", "ชื่อบัญชี", "เลขบัญชี", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 }

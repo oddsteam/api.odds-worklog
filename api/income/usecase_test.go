@@ -91,7 +91,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 
 func TestCSVHeaders(t *testing.T) {
 	actual := createHeaders()
-	expected := [...]string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี",
+	expected := [...]string{"ชื่อ", "เลขบัตรประชาชน", "ชื่อบัญชี", "เลขบัญชี",
 		"อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ",
 		"หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก",
 	}
@@ -107,16 +107,16 @@ func TestCSVContentForIndividual(t *testing.T) {
 	expectedNetSpecialIncome := "9.70"
 	expectedWHT := "3.30"
 	expectedSummaryIncome := "106.70"
-	expected := [...]string{"first last", "ชื่อ นามสกุล", expectedAccountNo,
+	expected := [...]string{"first last", "ThaiCitizenID", "ชื่อ นามสกุล", expectedAccountNo,
 		"email@example.com", expectedNetDailyIncome, expectedNetSpecialIncome,
 	}
 	for i := 0; i < len(expected); i++ {
 		assert.Equal(t, expected[i], actual[i])
 	}
-	assert.Equal(t, expectedWHT, actual[7])
-	assert.Equal(t, expectedSummaryIncome, actual[8])
-	assert.Equal(t, "note", actual[9])
-	assert.Equal(t, "01/12/2022 20:30:00", actual[10])
+	assert.Equal(t, expectedWHT, actual[8])
+	assert.Equal(t, expectedSummaryIncome, actual[9])
+	assert.Equal(t, "note", actual[10])
+	assert.Equal(t, "01/12/2022 20:30:00", actual[11])
 }
 
 func TestStudentLoanInCSVContent(t *testing.T) {
@@ -126,8 +126,8 @@ func TestStudentLoanInCSVContent(t *testing.T) {
 	}
 	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1, loan)
 	expectedSummaryIncome := "96.70"
-	assert.Equal(t, "10.00", actual[6])
-	assert.Equal(t, expectedSummaryIncome, actual[8])
+	assert.Equal(t, "10.00", actual[7])
+	assert.Equal(t, expectedSummaryIncome, actual[9])
 }
 
 func TestForeignStudentDoesNotRequireSocialSecuritySoWeUseNegativeStudentLoanToAdjust(t *testing.T) {
@@ -137,8 +137,8 @@ func TestForeignStudentDoesNotRequireSocialSecuritySoWeUseNegativeStudentLoanToA
 	}
 	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1, loan)
 	expectedSummaryIncome := "376.70"
-	assert.Equal(t, "-270.00", actual[6])
-	assert.Equal(t, expectedSummaryIncome, actual[8])
+	assert.Equal(t, "-270.00", actual[7])
+	assert.Equal(t, expectedSummaryIncome, actual[9])
 }
 
 func TestUseCaseExportIncomeNotExport(t *testing.T) {
