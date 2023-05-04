@@ -91,17 +91,13 @@ func TestUsecaseExportIncome(t *testing.T) {
 
 func TestCSVHeaders(t *testing.T) {
 	actual := createHeaders()
-	assert.Equal(t, "ชื่อ", actual[0])
-	assert.Equal(t, "ชื่อบัญชี", actual[1])
-	assert.Equal(t, "เลขบัญชี", actual[2])
-	assert.Equal(t, "อีเมล", actual[3])
-	assert.Equal(t, "จำนวนเงินรายได้หลัก", actual[4])
-	assert.Equal(t, "จำนวนรายได้พิเศษ", actual[5])
-	assert.Equal(t, "กยศและอื่น ๆ", actual[6])
-	assert.Equal(t, "หัก ณ ที่จ่าย", actual[7])
-	assert.Equal(t, "รวมจำนวนที่ต้องโอน", actual[8])
-	assert.Equal(t, "บันทึกรายการ", actual[9])
-	assert.Equal(t, "วันที่กรอก", actual[10])
+	expected := [...]string{"ชื่อ", "ชื่อบัญชี", "เลขบัญชี",
+		"อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ",
+		"หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก",
+	}
+	for i := 0; i < len(expected); i++ {
+		assert.Equal(t, expected[i], actual[i])
+	}
 }
 
 func TestCSVContentForIndividual(t *testing.T) {
