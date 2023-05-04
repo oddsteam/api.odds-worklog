@@ -107,12 +107,12 @@ func TestCSVContentForIndividual(t *testing.T) {
 	expectedNetSpecialIncome := "9.70"
 	expectedWHT := "3.30"
 	expectedSummaryIncome := "106.70"
-	assert.Equal(t, "first last", actual[0])
-	assert.Equal(t, "ชื่อ นามสกุล", actual[1])
-	assert.Equal(t, expectedAccountNo, actual[2])
-	assert.Equal(t, "email@example.com", actual[3])
-	assert.Equal(t, expectedNetDailyIncome, actual[4])
-	assert.Equal(t, expectedNetSpecialIncome, actual[5])
+	expected := [...]string{"first last", "ชื่อ นามสกุล", expectedAccountNo,
+		"email@example.com", expectedNetDailyIncome, expectedNetSpecialIncome,
+	}
+	for i := 0; i < len(expected); i++ {
+		assert.Equal(t, expected[i], actual[i])
+	}
 	assert.Equal(t, expectedWHT, actual[7])
 	assert.Equal(t, expectedSummaryIncome, actual[8])
 	assert.Equal(t, "note", actual[9])
