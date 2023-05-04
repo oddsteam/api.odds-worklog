@@ -1,0 +1,10 @@
+#!/bin/bash
+
+now="$(date +%Y-%m-%dT%H:%M:%S.255Z)"
+oldDate='ISODate(".*")'
+newDate="ISODate(\"$now\")"
+incomeFile="data/income.json"
+tmpFile=/tmp/income.json
+
+cp $incomeFile $tmpFile 
+sed "s/$oldDate/$newDate/g" $tmpFile > $incomeFile
