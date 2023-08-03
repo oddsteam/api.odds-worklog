@@ -133,6 +133,12 @@ Run all test caoverage and view with html <br>
 `go test -coverprofile=cover.out` <br>
 `go test ./... -coverprofile=cover.out && go tool cover -html=cover.out`
 
+## Cannot login worklog-dev
+
+Use the command below to reset dev database.
+
+`ssh worklog-huawei docker exec -t mongodb-dev  mongorestore -u admin -p admin -d odds_worklog_db  ./data/odds_worklog_db`
+
 ## Running Get Student Loan Script
 
 `scripts/get_student_loan.go` requires JSESSIONID and X-CSRF-TOKEN to run. Get it by logging in at the student loan website. (You will know how to do that if you have access to it.)
