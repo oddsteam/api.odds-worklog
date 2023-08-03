@@ -13,7 +13,7 @@ ODDS Worklog API written in Go
 ODDS Worklog API is tested with:
 
 |         | Main version |
-|---------|--------------|
+| ------- | ------------ |
 | Go      | 1.13         |
 | MongoDB | 4.0.3        |
 
@@ -21,7 +21,7 @@ ODDS Worklog API is tested with:
 
 ### Running in Docker
 
-Install [Docker Community Edition (CE)](https://docs.docker.com/engine/install/) on your machine. 
+Install [Docker Community Edition (CE)](https://docs.docker.com/engine/install/) on your machine.
 
 ```sh
 docker-compose up --build -d
@@ -39,32 +39,33 @@ If the API does not start due to the error "Authentication failed", please see t
 If first time, you must Run `docker volume create mongodbdata_odds_worklog` for create mongodb docker volume.
 
 1. Start mongodb container <br>
-If container mongo name `odds-worklog-mongo` is not running <br>
-Run `docker-compose -f docker-compose.local.yaml up -d mongodb` <br>
-If docker: Error response from daemon: Conflict. Run `docker rm odds-worklog-mongo` to remove old container <br>
-If you have container using port `27017` you must be stop it and run command again.
+   If container mongo name `odds-worklog-mongo` is not running <br>
+   Run `docker-compose -f docker-compose.local.yaml up -d mongodb` <br>
+   If docker: Error response from daemon: Conflict. Run `docker rm odds-worklog-mongo` to remove old container <br>
+   If you have container using port `27017` you must be stop it and run command again.
 
 2. Invoke mongodb container <br>
-Run `docker exec -it odds-worklog-mongo bash`
+   Run `docker exec -it odds-worklog-mongo bash`
 
 3. Invoke mongodb <br>
-Run `mongo`
+   Run `mongo`
 
 4. Create user admin <br>
-Run `use admin` <br>
-If no user admin <br>
-Run `db.createUser({user:"admin",pwd:"admin",roles:["root"]})` <br>
-Else authen, run `db.auth('admin','admin')`
+   Run `use admin` <br>
+   If no user admin <br>
+   Run `db.createUser({user:"admin",pwd:"admin",roles:["root"]})` <br>
+   Else authen, run `db.auth('admin','admin')`
 
 5. Create user for read/write data on `odds_worklog_db` <br>
-Run `use odds_worklog_db` <br>
-Run `db.createUser({user:"admin",pwd:"admin",roles:[{role:"readWrite",db:"odds_worklog_db"}]})`
+   Run `use odds_worklog_db` <br>
+   Run `db.createUser({user:"admin",pwd:"admin",roles:[{role:"readWrite",db:"odds_worklog_db"}]})`
 
 6. Exit mongo and container<br>
-Exit mongo in container, run `exit` <br>
-Exit container, run `exit`
+   Exit mongo in container, run `exit` <br>
+   Exit container, run `exit`
 
 ### Run by `go run main.go` <br>
+
 Run `go run main.go` (at project path)
 
 ### API
@@ -81,6 +82,7 @@ If you use to import data mock, data should be alive. <br>
 Importion is optional.
 
 At project path<br>
+
 ```bash
     ./scripts/import_all_data
 ```
@@ -131,7 +133,6 @@ Run all test caoverage and view with html <br>
 `go test -coverprofile=cover.out` <br>
 `go test ./... -coverprofile=cover.out && go tool cover -html=cover.out`
 
-
 ## Running Get Student Loan Script
 
 `scripts/get_student_loan.go` requires JSESSIONID and X-CSRF-TOKEN to run. Get it by logging in at the student loan website. (You will know how to do that if you have access to it.)
@@ -143,13 +144,14 @@ SESSION="JSESSIONID=DXpquTUIAivMunzsgHls28n3FBxh-p7ECDeGLijW.node1" CSRF="3cc94f
 ```
 
 #### On Dev
+
 ```
 ssh worklog-huawei docker exec -e SESSION="JSESSIONID=dwEi2vEj0qZM5-KNIK5xWfzFABFVKUBF7K8m8T37.node1" -e CSRF="1692a557-2606-4e7e-8911-bf0b0b5e481d" worklog-api-dev ./get_student_loan
 ```
 
 ## Contributing
 
-Want to help build ODDS Worklog API? 
+Want to help build ODDS Worklog API?
 
 1. Fork it (https://github.com/oddsteam/api.odds-worklog/fork)
 2. Create your feature branch (`git checkout -b feature/fooBar`)
