@@ -129,7 +129,7 @@ Run all test `go test ./...`
 
 Run all test coverage by package `go test ./... -cover`
 
-Run all test caoverage and view with html <br>
+Run all test coverage and view with html <br>
 `go test -coverprofile=cover.out` <br>
 `go test ./... -coverprofile=cover.out && go tool cover -html=cover.out`
 
