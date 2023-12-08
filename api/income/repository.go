@@ -1,6 +1,7 @@
 package income
 
 import (
+	"log"
 	"time"
 
 	"github.com/globalsign/mgo"
@@ -41,6 +42,13 @@ func (r *repository) GetIncomeUserByYearMonth(id string, fromYear int, fromMonth
 	query := createQueryByIdAndPeriod(fromYear, fromMonth, id)
 	return getIncomeByUserIDWithQuery(r, id, fromYear, fromMonth, query)
 }
+
+func (r *repository) GetIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) (*models.Income, error) {
+
+	query := createQueryByPeriod(startDate, endDate)
+	return getIncomeByQuery(r, query)
+}
+
 func (r *repository) GetIncomeByUserIdAllMonth(id string) ([]*models.Income, error) {
 	income := make([]*models.Income, 0)
 
@@ -80,6 +88,32 @@ func createQueryByIdAndPeriod(fromYear int, fromMonth time.Month, uID string) bs
 		},
 	}
 	return query
+}
+
+func createQueryByPeriod(startDate time.Time, endDate time.Time) bson.M {
+	query := bson.M{
+		"exportStatus": true,
+		"submitDate": bson.M{
+			"$gt": startDate,
+			"$lt": endDate,
+		},
+	}
+	return query
+}
+
+func getIncomeByQuery(r *repository, query bson.M) (*models.Income, error) {
+	income := new(models.Income)
+	coll := r.session.GetCollection(incomeColl)
+	err := coll.Find(query).One(&income)
+	log.Println("getIncomeByQuery")
+	log.Println(query)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println(income.SubmitDate)
+
+	return income, nil
 }
 
 func getIncomeByUserIDWithQuery(r *repository, uID string, fromYear int, fromMonth time.Month, query bson.M) (*models.Income, error) {

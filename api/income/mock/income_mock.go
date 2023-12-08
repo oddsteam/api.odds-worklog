@@ -18,6 +18,11 @@ type MockRepository struct {
 	recorder *MockRepositoryMockRecorder
 }
 
+func (m *MockRepository) GetIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) (*models.Income, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 // MockRepositoryMockRecorder is the mock recorder for MockRepository.
 type MockRepositoryMockRecorder struct {
 	mock *MockRepository

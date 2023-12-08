@@ -11,6 +11,7 @@ type Repository interface {
 	GetIncomeUserByYearMonth(id string, fromYear int, fromMonth time.Month) (*models.Income, error)
 	GetIncomeByID(incID, uID string) (*models.Income, error)
 	GetIncomeByUserID(uID string, fromYear int, fromMonth time.Month) (*models.Income, error)
+	GetIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) (*models.Income, error)
 	UpdateIncome(income *models.Income) error
 	AddExport(ep *models.Export) error
 	GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, error)
@@ -28,4 +29,5 @@ type Usecase interface {
 	ExportPdf(id string) (string, error)
 	ExportIncomeNotExport(role string) (string, error)
 	GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, error)
+	ExportIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) (string, error)
 }
