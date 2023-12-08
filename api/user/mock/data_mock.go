@@ -24,6 +24,7 @@ var (
 		DailyIncome:       "5000",
 		StatusTavi:        true,
 		Address:           "every Where",
+		StartDate:         "2022-01-01",
 	}
 
 	User2 = models.User{
@@ -40,6 +41,7 @@ var (
 		DailyIncome:       "2000",
 		StatusTavi:        true,
 		Address:           "every Where",
+		StartDate:         "2022-01-01",
 	}
 
 	IndividualUser1 = models.User{
@@ -56,6 +58,7 @@ var (
 		DailyIncome:       "2000",
 		StatusTavi:        true,
 		Address:           "address",
+		StartDate:         "2022-01-01",
 	}
 
 	StatusTavi = models.StatusTavi{

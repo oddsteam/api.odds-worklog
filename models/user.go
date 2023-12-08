@@ -32,6 +32,7 @@ type User struct {
 	Address           string        `bson:"address" json:"address,omitempty"`
 	StatusTavi        bool          `bson:"statusTavi" json:"statusTavi"`
 	Phone             string        `bson:"phone" json:"phone"`
+	StartDate         string        `bson:"startDate" json:"startDate"`
 }
 
 type ArchivedUser struct {

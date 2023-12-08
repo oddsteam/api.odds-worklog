@@ -199,6 +199,7 @@ func TestUsecase_Update(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, u)
 		assert.Equal(t, userMock.User.GetFullname(), u.GetFullname())
+		assert.Equal(t, userMock.User.StartDate, u.StartDate)
 	})
 
 	t.Run("when update user invalid role, then retuen erro nil, ErrInvalidUserRole", func(t *testing.T) {
