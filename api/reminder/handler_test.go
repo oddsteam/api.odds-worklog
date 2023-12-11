@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/reminder"
@@ -371,6 +372,14 @@ func (fs MockInComeUsecase) DropIncome() error {
 }
 
 func (fs MockInComeUsecase) ExportIncomeNotExport(role string) (string, error) {
+	return "", nil
+}
+
+func (fs MockInComeUsecase) GetIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) (*models.Income, error) {
+	return nil, nil
+}
+
+func (fs MockInComeUsecase) ExportIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) (string, error) {
 	return "", nil
 }
 
