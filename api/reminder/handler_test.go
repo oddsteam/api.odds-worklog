@@ -379,8 +379,18 @@ func (fs MockInComeUsecase) GetIncomeByStartDateAndEndDate(role string, startDat
 	return nil, nil
 }
 
-func (fs MockInComeUsecase) ExportIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) (string, error) {
+func (fs MockInComeUsecase) ExportIncomeByStartDateAndEndDate(role string, incomes []*models.Income) (string, error) {
 	return "", nil
+}
+
+func (fs MockInComeUsecase) GetAllInComeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
+
+	return nil, nil
+}
+
+func (fs MockInComeUsecase) GetByRole(role string) ([]*models.User, error) {
+
+	return nil, nil
 }
 
 // func TestListEmailUserIncomeStatusIsNoShouldFail_WhenGetIncomeStatusListWithCorpFlagNIsEmpty(t *testing.T) {
