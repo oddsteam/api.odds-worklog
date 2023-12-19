@@ -333,33 +333,38 @@ func (h *HttpHandler) PostExportPdf(c echo.Context) error {
 
 	startDate, _ := time.Parse("01/2006", t.StartDate)
 	endDate, _ := time.Parse("01/2006", t.EndDate)
+	endDate = endDate.AddDate(0, 1, 0)
 	log.Println(startDate)
 	log.Println(endDate)
 	log.Println(t.Role)
 
-	//h.Usecase.ExportIncomeByStartDateAndEndDate(t.Role, startDate, endDate)
+	users, errorUser := h.Usecase.GetByRole(t.Role)
+	if errorUser != nil {
+		log.Println(errorUser)
+	}
 
-	filename, err := h.Usecase.ExportIncomeByStartDateAndEndDate(t.Role, startDate, endDate)
+	var userIds []string
+	for _, v := range users {
+		userIds = append(userIds, v.ID.Hex())
+	}
+
+	log.Println("users......")
+	log.Println(userIds)
+
+	incomes, errQuery := h.Usecase.GetAllInComeByStartDateAndEndDate(userIds, startDate, endDate)
+	if errQuery != nil {
+		log.Println(errQuery.Error())
+	}
+
+	log.Println(incomes)
+
+	filename, err := h.Usecase.ExportIncomeByStartDateAndEndDate(t.Role, incomes)
 	if err != nil {
 		log.Println(err.Error())
 	}
 
 	log.Println(filename)
 
-	//isStatusTavi, message := IsStatusTavi(c)
-	//if !isStatusTavi {
-	//	return c.JSON(http.StatusUnauthorized, message)
-	//}
-	//id := c.Param("id")
-	//if id == "" {
-	//	return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
-	//}
-	//filename, err := h.Usecase.ExportPdf(id)
-	//if err != nil {
-	//	return utils.NewError(c, http.StatusInternalServerError, err)
-	//}
-
-	//return c.JSON(http.StatusOK, "")
 	return c.Attachment(filename, filename)
 }
 
