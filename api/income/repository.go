@@ -121,7 +121,6 @@ func createQueryIncomeByStartDateAndEndDate(userIds []string, startDate time.Tim
 		"userId": bson.M{
 			"$in": userIds,
 		},
-		"exportStatus": true,
 		"submitDate": bson.M{
 			"$gt": startDate,
 			"$lt": endDate,
