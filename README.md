@@ -125,7 +125,7 @@ online [https://worklog-dev.odds.team/api/v1/swagger/index.html](http://worklog-
 
 ### Run test
 
-Run all test `./runtests.md`
+Run all test `./runtests/README.md`
 
 Run all test coverage by package `go test ./... -cover`
 
