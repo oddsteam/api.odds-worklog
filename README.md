@@ -24,7 +24,7 @@ ODDS Worklog API is tested with:
 Install [Docker Community Edition (CE)](https://docs.docker.com/engine/install/) on your machine.
 
 ```sh
-docker-compose up --build -d
+docker compose up --build -d
 ```
 
 If you found the error "The container name "/odds-worklog-mongo" is already.", please follow the steps below.
