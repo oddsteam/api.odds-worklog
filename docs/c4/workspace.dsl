@@ -23,9 +23,14 @@ workspace {
             }
         }
 
+        google_signin = softwareSystem "Google Sign-In" {
+            description "This helps us easily and securely sign in to our worklog app with our Google Account. It also manages the OAuth 2.0 flow and token lifecycle for us."
+        }
+
         odds_member -> web_app "Uses"
         web_app -> api_app "Calls API from"
         api_app -> database "Read from and writes to"
+        api_app -> google_signin "Integrates with"
     }
 
     views {
