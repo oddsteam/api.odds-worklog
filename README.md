@@ -18,6 +18,10 @@ ODDS Worklog API is tested with:
 | Go      | 1.13         |
 | MongoDB | 4.0.3        |
 
+## Architecture
+
+See our [C4 Model](./docs/c4/).
+
 ## Getting Started
 
 ### Running Worklog API in Docker
