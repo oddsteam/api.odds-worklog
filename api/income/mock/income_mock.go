@@ -78,6 +78,21 @@ func (mr *MockRepositoryMockRecorder) GetIncomeByID(incID, uID interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByID", reflect.TypeOf((*MockRepository)(nil).GetIncomeByID), incID, uID)
 }
 
+// GetIncomeByStartDateAndEndDate mocks base method.
+func (m *MockRepository) GetIncomeByStartDateAndEndDate(role string, startDate, endDate time.Time) (*models.Income, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetIncomeByStartDateAndEndDate", role, startDate, endDate)
+	ret0, _ := ret[0].(*models.Income)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetIncomeByStartDateAndEndDate indicates an expected call of GetIncomeByStartDateAndEndDate.
+func (mr *MockRepositoryMockRecorder) GetIncomeByStartDateAndEndDate(role, startDate, endDate interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByStartDateAndEndDate", reflect.TypeOf((*MockRepository)(nil).GetIncomeByStartDateAndEndDate), role, startDate, endDate)
+}
+
 // GetIncomeByUserID mocks base method.
 func (m *MockRepository) GetIncomeByUserID(uID string, fromYear int, fromMonth time.Month) (*models.Income, error) {
 	m.ctrl.T.Helper()
@@ -102,6 +117,33 @@ func (m *MockRepository) GetIncomeByUserIdAllMonth(userId string) ([]*models.Inc
 	return ret0, ret1
 }
 
+//// GetAllIncomeByStartDateAndEndDate indicates an expected call of GetAllIncomeByStartDateAndEndDate.
+//func (m *MockRepository) GetAllIncomeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
+//	m.ctrl.T.Helper()
+//	ret := m.ctrl.Call(m, "GetAllIncomeByStartDateAndEndDate", userIds,startDate,endDate)
+//	ret0, _ := ret[0].([]*models.Income)
+//	ret1, _ := ret[1].(error)
+//	return ret0, ret1
+//}
+
+/// GetAllInComeByStartDateAndEndDate indicates an expected call of GetAllInComeByStartDateAndEndDate.
+func (m *MockUsecase) GetAllInComeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllInComeByStartDateAndEndDate", userIds,startDate,endDate)
+	ret0, _ := ret[0].([]*models.Income)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+/// GetByRole indicates an expected call of GetByRole.
+func (m *MockUsecase) GetByRole(role string) ([]*models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByRole", role)
+	ret0, _ := ret[0].([]*models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
 // GetIncomeByUserIdAllMonth indicates an expected call of GetIncomeByUserIdAllMonth.
 func (mr *MockRepositoryMockRecorder) GetIncomeByUserIdAllMonth(userId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
@@ -113,6 +155,15 @@ func (m *MockRepository) GetIncomeUserByYearMonth(id string, fromYear int, fromM
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetIncomeUserByYearMonth", id, fromYear, fromMonth)
 	ret0, _ := ret[0].(*models.Income)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllIncomeByStartDateAndEndDate mocks base method.
+func (m *MockRepository) GetAllIncomeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllIncomeByStartDateAndEndDate", userIds, startDate, endDate)
+	ret0, _ := ret[0].([]*models.Income)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -230,6 +281,21 @@ func (m *MockUsecase) ExportIncome(role, beforeMonth string) (string, error) {
 func (mr *MockUsecaseMockRecorder) ExportIncome(role, beforeMonth interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncome", reflect.TypeOf((*MockUsecase)(nil).ExportIncome), role, beforeMonth)
+}
+
+// ExportIncomeByStartDateAndEndDate mocks base method.
+func (m *MockUsecase) ExportIncomeByStartDateAndEndDate(role string,incomes []*models.Income) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExportIncomeByStartDateAndEndDate", role, incomes)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExportIncomeByStartDateAndEndDate indicates an expected call of ExportIncomeByStartDateAndEndDate.
+func (mr *MockUsecaseMockRecorder) ExportIncomeByStartDateAndEndDate(role string,incomes []*models.Income) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncomeByStartDateAndEndDate", reflect.TypeOf((*MockUsecase)(nil).ExportIncomeByStartDateAndEndDate), role,incomes)
 }
 
 // ExportIncomeNotExport mocks base method.

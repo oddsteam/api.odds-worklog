@@ -1,6 +1,7 @@
 package income
 
 import (
+	"log"
 	"time"
 
 	"github.com/globalsign/mgo"
@@ -13,6 +14,7 @@ const (
 	incomeColl      = "income"
 	exportColl      = "export"
 	studentLoanColl = "studentloan"
+	userColl        = "user"
 )
 
 type repository struct {
@@ -41,6 +43,19 @@ func (r *repository) GetIncomeUserByYearMonth(id string, fromYear int, fromMonth
 	query := createQueryByIdAndPeriod(fromYear, fromMonth, id)
 	return getIncomeByUserIDWithQuery(r, id, fromYear, fromMonth, query)
 }
+
+func (r *repository) GetIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) (*models.Income, error) {
+
+	query := createQueryByPeriod(startDate, endDate)
+	return getIncomeByQuery(r, query)
+}
+
+func (r *repository) GetAllIncomeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
+
+	query := createQueryIncomeByStartDateAndEndDate(userIds, startDate, endDate)
+	return getAllInComeByQuery(r, query)
+}
+
 func (r *repository) GetIncomeByUserIdAllMonth(id string) ([]*models.Income, error) {
 	income := make([]*models.Income, 0)
 
@@ -81,6 +96,70 @@ func createQueryByIdAndPeriod(fromYear int, fromMonth time.Month, uID string) bs
 	}
 	return query
 }
+
+func createQueryByPeriod(startDate time.Time, endDate time.Time) bson.M {
+	query := bson.M{
+		"exportStatus": true,
+		"submitDate": bson.M{
+			"$gt": startDate,
+			"$lt": endDate,
+		},
+	}
+	return query
+}
+
+func createQueryGetUserByRole(role string) bson.M {
+
+	query := bson.M{
+		"role": role,
+	}
+	return query
+}
+
+func createQueryIncomeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) bson.M {
+	query := bson.M{
+		"userId": bson.M{
+			"$in": userIds,
+		},
+		"submitDate": bson.M{
+			"$gt": startDate,
+			"$lt": endDate,
+		},
+	}
+	return query
+}
+
+func getIncomeByQuery(r *repository, query bson.M) (*models.Income, error) {
+	income := new(models.Income)
+	coll := r.session.GetCollection(incomeColl)
+	err := coll.Find(query).One(&income)
+	log.Println("getIncomeByQuery")
+	log.Println(query)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println(income.SubmitDate)
+
+	return income, nil
+}
+
+func getAllInComeByQuery(r *repository, query bson.M) ([]*models.Income, error) {
+	incomes := make([]*models.Income, 0)
+
+	coll := r.session.GetCollection(incomeColl)
+	err := coll.Find(query).All(&incomes)
+	if err != nil {
+		return nil, err
+	}
+	return incomes, nil
+}
+
+//func getAllUserByQuery(r *repository, query bson.M) ([]string,error){
+//
+//
+//}
+//GetAllUserIdByRole
 
 func getIncomeByUserIDWithQuery(r *repository, uID string, fromYear int, fromMonth time.Month, query bson.M) (*models.Income, error) {
 	income := new(models.Income)

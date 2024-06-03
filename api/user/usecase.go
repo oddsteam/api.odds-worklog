@@ -121,6 +121,9 @@ func (u *usecase) Update(m *models.User, isAdmin bool) (*models.User, error) {
 	if m.Address != "" {
 		user.Address = m.Address
 	}
+	if m.StartDate != "" {
+		user.StartDate = m.StartDate
+	}
 
 	user.StatusTavi = m.StatusTavi
 	user.Role = m.Role

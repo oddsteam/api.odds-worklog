@@ -165,6 +165,50 @@ func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 	return u.exportIncome(role, getIncome, shouldUpdateExportStatus)
 }
 
+func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (string, error) {
+	file, filename, err := utils.CreateCVSFile(role)
+	defer file.Close()
+
+	if err != nil {
+		return "", err
+	}
+
+	studentLoanList := u.repo.GetStudentLoans()
+	fmt.Printf("%#v", studentLoanList)
+
+	strWrite := make([][]string, 0)
+	strWrite = append(strWrite, createHeaders())
+
+	for _, income := range incomes {
+
+		user, err := u.GetUserByID(income.UserID)
+		loan := studentLoanList.FindLoan(*user)
+		if err == nil {
+			d := createRow(*income, *user, loan)
+			strWrite = append(strWrite, d)
+		}
+	}
+
+	if len(strWrite) == 1 {
+		return "", errors.New("No data for export to CSV file.")
+	}
+
+	csvWriter := csv.NewWriter(file)
+	csvWriter.WriteAll(strWrite)
+	csvWriter.Flush()
+
+	ep := models.Export{
+		Filename: filename,
+		Date:     time.Now(),
+	}
+	err = u.repo.AddExport(&ep)
+	if err != nil {
+		return "", err
+	}
+
+	return filename, nil
+}
+
 func (u *usecase) exportIncome(role string, getIncome getIncomeFn, shouldUpdateExportStatus bool) (string, error) {
 	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()
@@ -228,6 +272,12 @@ func (u *usecase) createFunctionGetIncomeByUserWithPeriod(year int, month time.M
 	}
 }
 
+func (u *usecase) createFunctionGetIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) getIncomeFn {
+	return func(user models.User) (*models.Income, error) {
+		return u.repo.GetIncomeByStartDateAndEndDate(role, startDate, endDate)
+	}
+}
+
 func createRow(income models.Income, user models.User, loan models.StudentLoan) []string {
 	t := income.SubmitDate
 	summaryIncome, _ := calSummary(income.NetDailyIncome, income.NetSpecialIncome)
@@ -255,6 +305,24 @@ func calSummaryWithLoan(summaryIncome string, loan models.StudentLoan) string {
 	summary = summary - float64(loan.Amount)
 	summaryIncome = utils.FloatToString(summary)
 	return summaryIncome
+}
+
+func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, incomes []*models.Income) (string, error) {
+
+	return u.exportCsvByInCome(role, incomes)
+}
+
+func (u *usecase) GetAllInComeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
+
+	return u.repo.GetAllIncomeByStartDateAndEndDate(userIds, startDate, endDate)
+}
+
+func (u *usecase) GetByRole(role string) ([]*models.User, error) {
+	return u.userRepo.GetByRole(role)
+}
+
+func (u *usecase) GetUserByID(userId string) (*models.User, error) {
+	return u.userRepo.GetByID(userId)
 }
 
 func calSummary(main string, special string) (string, error) {

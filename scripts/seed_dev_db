@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ssh worklog-huawei docker exec -t mongodb-dev  mongorestore -u admin -p admin -d odds_worklog_db  ./data/odds_worklog_db

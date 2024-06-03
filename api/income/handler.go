@@ -1,8 +1,12 @@
 package income
 
 import (
+	"encoding/json"
 	"errors"
+	"gitlab.odds.team/worklog/api.odds-worklog/requests"
+	"log"
 	"net/http"
+	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 
@@ -11,6 +15,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+	_ "gitlab.odds.team/worklog/api.odds-worklog/requests"
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
@@ -304,6 +309,65 @@ func (h *HttpHandler) GetExportDifferentIndividuals(c echo.Context) error {
 	return c.Attachment(filename, filename)
 }
 
+// PostExportPdf godoc
+// @Summary Post Export Pdf by start date - end date
+// @Description Post Export to Pdf file.
+// @Tags incomes
+// @Accept json
+// @Produce json
+// @Success 200 {array} string
+// @Failure 500 {object} utils.HTTPError
+// @Router /incomes/export/pdf [post]
+func (h *HttpHandler) PostExportPdf(c echo.Context) error {
+
+	var req = c.Request()
+	defer req.Body.Close()
+	decoder := json.NewDecoder(req.Body)
+
+	var t requests.ExportInComeReq
+	err := decoder.Decode(&t)
+
+	if err != nil {
+		panic(err)
+	}
+
+	startDate, _ := time.Parse("01/2006", t.StartDate)
+	endDate, _ := time.Parse("01/2006", t.EndDate)
+	endDate = endDate.AddDate(0, 1, 0)
+	log.Println(startDate)
+	log.Println(endDate)
+	log.Println(t.Role)
+
+	users, errorUser := h.Usecase.GetByRole(t.Role)
+	if errorUser != nil {
+		log.Println(errorUser)
+	}
+
+	var userIds []string
+	for _, v := range users {
+		userIds = append(userIds, v.ID.Hex())
+	}
+
+	log.Println("users......")
+	log.Println(userIds)
+
+	incomes, errQuery := h.Usecase.GetAllInComeByStartDateAndEndDate(userIds, startDate, endDate)
+	if errQuery != nil {
+		log.Println(errQuery.Error())
+	}
+
+	log.Println(incomes)
+
+	filename, err := h.Usecase.ExportIncomeByStartDateAndEndDate(t.Role, incomes)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	log.Println(filename)
+
+	return c.Attachment(filename, filename)
+}
+
 func IsUserAdmin(c echo.Context) (bool, string) {
 	u := getUserFromToken(c)
 	if u.IsAdmin() {
@@ -344,4 +408,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/export/corporate/different", handler.GetExportDifferentCorporate)
 	r.GET("/export/individual/different", handler.GetExportDifferentIndividuals)
 	r.GET("/export/pdf/:id", handler.GetExportPdf)
+
+	r.POST("/export", handler.PostExportPdf)
+
 }
