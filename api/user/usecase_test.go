@@ -1,8 +1,10 @@
 package user
 
 import (
+	"encoding/json"
 	"testing"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
 	siteMock "gitlab.odds.team/worklog/api.odds-worklog/api/site/mock"
@@ -183,6 +185,23 @@ func TestUsecase_Delete_Should_Move_To_Archived_User(t *testing.T) {
 	assert.Equal(t, nil, u)
 }
 
+func cloneUser(obj models.User) models.User {
+	// Marshal the object into JSON
+	objJSON, err := json.Marshal(obj)
+	if err != nil {
+		panic(err)
+	}
+
+	// Unmarshal the JSON back into a new object
+	var newObj models.User
+	err = json.Unmarshal(objJSON, &newObj)
+	if err != nil {
+		panic(err)
+	}
+
+	return newObj
+}
+
 func TestUsecase_Update(t *testing.T) {
 	t.Run("update user success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -203,21 +222,16 @@ func TestUsecase_Update(t *testing.T) {
 	})
 
 	t.Run("Bank account number with - and special char will create a bad batch file for bank system. This will fail the batch transfer process in the bank, causing the delay for all members to receive income. Therefore, we will remove - and special char from the bank account number!", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
+		userFromRequest := models.User{
+			BankAccountNumber: "้1234-123-999",
+		}
 
-		mockSiteRepo := siteMock.NewMockRepository(ctrl)
-		mockRepo := userMock.NewMockRepository(ctrl)
-		mockRepo.EXPECT().GetByID(gomock.Any()).Return(&userMock.User, nil)
-		mockRepo.EXPECT().Update(gomock.Any()).Return(&userMock.User, nil)
-
-		uc := NewUsecase(mockRepo, mockSiteRepo)
-		userMock.User.BankAccountNumber = "้1234-123-999"
-		u, err := uc.Update(&userMock.User, false)
+		clonedMockUser := cloneUser(userMock.User)
+		user := User{&clonedMockUser}
+		err := user.prepareDataForUpdateFrom(userFromRequest)
 
 		assert.NoError(t, err)
-		assert.NotNil(t, u)
-		assert.Equal(t, u.BankAccountNumber, "1234123999")
+		assert.Equal(t, user.data.BankAccountNumber, "1234123999")
 	})
 
 	t.Run("when update user invalid role, then retuen erro nil, ErrInvalidUserRole", func(t *testing.T) {
