@@ -10,3 +10,5 @@ here. To run the Structurizr Lite:
 ```bash
 make up
 ```
+
+After that, check out http://localhost:8090.
