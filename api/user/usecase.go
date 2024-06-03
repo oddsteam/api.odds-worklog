@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"unicode"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
@@ -98,7 +99,7 @@ func (u *usecase) Update(m *models.User, isAdmin bool) (*models.User, error) {
 		user.BankAccountName = m.BankAccountName
 	}
 	if m.BankAccountNumber != "" {
-		user.BankAccountNumber = m.BankAccountNumber
+		user.BankAccountNumber = extractNumbers(m.BankAccountNumber)
 	}
 	if m.ThaiCitizenID != "" {
 		user.ThaiCitizenID = m.ThaiCitizenID
@@ -134,6 +135,18 @@ func (u *usecase) Update(m *models.User, isAdmin bool) (*models.User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+func extractNumbers(input string) string {
+    var result []rune
+
+    for _, char := range input {
+        if unicode.IsDigit(char) {
+            result = append(result, char)
+        }
+    }
+
+    return string(result)
 }
 
 func (u *usecase) UpdateStatusTavi(m []*models.StatusTavi, isAdmin bool) ([]*models.User, error) {

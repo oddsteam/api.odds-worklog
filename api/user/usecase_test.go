@@ -202,6 +202,24 @@ func TestUsecase_Update(t *testing.T) {
 		assert.Equal(t, userMock.User.StartDate, u.StartDate)
 	})
 
+	t.Run("Bank account number with - and special char will create a bad batch file for bank system. This will fail the batch transfer process in the bank, causing the delay for all members to receive income. Therefore, we will remove - and special char from the bank account number!", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetByID(gomock.Any()).Return(&userMock.User, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).Return(&userMock.User, nil)
+
+		uc := NewUsecase(mockRepo, mockSiteRepo)
+		userMock.User.BankAccountNumber = "้1234-123-999"
+		u, err := uc.Update(&userMock.User, false)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, u)
+		assert.Equal(t, u.BankAccountNumber, "1234123999")
+	})
+
 	t.Run("when update user invalid role, then retuen erro nil, ErrInvalidUserRole", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
