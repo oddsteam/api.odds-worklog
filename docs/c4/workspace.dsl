@@ -4,8 +4,20 @@ workspace {
             description "A member of ODDS-TEAM"
         }
 
+        odds_admin = person "ODDS Admin" {
+            description "A admin of ODDS Worklog"
+        }
+
         worklog = softwareSystem "ODDS-TEAM Worklog" {
             description "The worklog for ODDS members to record their man-day"
+
+            ios_app = container "iOS App" {
+                tags "mobile"
+            }
+
+            android_app = container "Android App" {
+                tags "mobile"
+            }
 
             web_app = container "Web Application" {
                 description "The web application"
@@ -28,7 +40,12 @@ workspace {
         }
 
         odds_member -> web_app "Uses"
+        odds_member -> ios_app "Uses"
+        odds_member -> android_app "Uses"
+        odds_admin -> web_app "Exports income and deletes inactive members from"
         web_app -> api_app "Calls API from"
+        ios_app -> api_app "Calls API from"
+        android_app -> api_app "Calls API from"
         api_app -> database "Read from and writes to"
         api_app -> google_signin "Integrates with"
     }
@@ -49,6 +66,10 @@ workspace {
         styles {
             element "database" {
                 shape Cylinder
+            }
+
+            element "mobile" {
+                shape MobileDevicePortrait
             }
         }
     }
