@@ -15,25 +15,14 @@ func (u *usecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, 
 		return nil, errors.New("Sorry, has income data of user " + userDetail.GetName())
 	}
 	i := NewIncome(uid)
-	i.prepareDataForAddIncome(*req, *userDetail)
-
-	income := models.Income{
-		UserID:           uid,
-		TotalIncome:      i.TotalIncomeStr,
-		NetIncome:        i.NetIncomeStr,
-		NetSpecialIncome: i.NetSpecialIncomeStr,
-		NetDailyIncome:   i.NetDailyIncomeStr,
-		Note:             req.Note,
-		VAT:              i.VATStr,
-		WHT:              i.WHTStr,
-		WorkDate:         req.WorkDate,
-		SpecialIncome:    req.SpecialIncome,
-		WorkingHours:     req.WorkingHours,
+	income, err := i.prepareDataForAddIncome(*req, *userDetail)
+	if err != nil {
+		return nil, err
 	}
-	err = u.repo.AddIncome(&income)
+	err = u.repo.AddIncome(income)
 	if err != nil {
 		return nil, err
 	}
 
-	return &income, nil
+	return income, nil
 }

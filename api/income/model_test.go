@@ -14,15 +14,17 @@ func TestModelAddIncome(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		i := NewIncome(uidFromSession)
 
-		err := i.prepareDataForAddIncome(incomeMock.MockIncomeReq, user)
+		res, err := i.prepareDataForAddIncome(incomeMock.MockIncomeReq, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, uidFromSession, i.UserID)
-		assert.Equal(t, "116400.00", i.NetIncomeStr)
-		assert.Equal(t, "97000.00", i.NetDailyIncomeStr)
-		assert.Equal(t, "19400.00", i.NetSpecialIncomeStr)
-		assert.Equal(t, "", i.VATStr)
-		assert.Equal(t, "3600.00", i.WHTStr)
-		assert.Equal(t, "120000.00", i.TotalIncomeStr)
+		assert.Equal(t, uidFromSession, res.UserID)
+		assert.NotNil(t, res)
+		assert.Equal(t, incomeMock.MockIncome.UserID, res.UserID)
+		assert.Equal(t, "116400.00", res.NetIncome)
+		assert.Equal(t, "97000.00", res.NetDailyIncome)
+		assert.Equal(t, "19400.00", res.NetSpecialIncome)
+		assert.Equal(t, "", res.VAT)
+		assert.Equal(t, "3600.00", res.WHT)
+		assert.Equal(t, "120000.00", res.TotalIncome)
 	})
 }

@@ -20,35 +20,35 @@ func NewIncome(uidFromSession string) *Income {
 	}
 }
 
-func (i *Income) prepareDataForAddIncome(req models.IncomeReq, userDetail models.User) error {
+func (i *Income) prepareDataForAddIncome(req models.IncomeReq, userDetail models.User) (*models.Income, error) {
 	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome, userDetail.GetRole())
 	if err != nil {
-		return err
+		return nil, err
 	}
 	insSpecial, err := calIncomeSum(req.WorkingHours, userDetail.Vat, req.SpecialIncome, userDetail.GetRole())
 	if err != nil {
-		return err
+		return nil, err
 	}
 	summaryNetIncome, err := calSummary(ins.Net, insSpecial.Net)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	var summaryVat string
 	if userDetail.Vat != "N" {
 		summaryVat, err = calSummary(ins.VAT, insSpecial.VAT)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	} else {
 		summaryVat = ""
 	}
 	summaryWht, err := calSummary(ins.WHT, insSpecial.WHT)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	summaryIncome, err := calSummary(ins.TotalIncome, insSpecial.TotalIncome)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	i.NetIncomeStr = summaryNetIncome
 	i.NetDailyIncomeStr = ins.Net
@@ -56,5 +56,20 @@ func (i *Income) prepareDataForAddIncome(req models.IncomeReq, userDetail models
 	i.VATStr = summaryVat
 	i.WHTStr = summaryWht
 	i.TotalIncomeStr = summaryIncome
-	return nil
+
+	income := models.Income{
+		UserID:           i.UserID,
+		TotalIncome:      i.TotalIncomeStr,
+		NetIncome:        i.NetIncomeStr,
+		NetSpecialIncome: i.NetSpecialIncomeStr,
+		NetDailyIncome:   i.NetDailyIncomeStr,
+		Note:             req.Note,
+		VAT:              i.VATStr,
+		WHT:              i.WHTStr,
+		WorkDate:         req.WorkDate,
+		SpecialIncome:    req.SpecialIncome,
+		WorkingHours:     req.WorkingHours,
+	}
+
+	return &income, nil
 }
