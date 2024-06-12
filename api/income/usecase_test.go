@@ -259,6 +259,9 @@ func TestUsecaseAddIncome(t *testing.T) {
 		assert.Equal(t, "116400.00", res.NetIncome)
 		assert.Equal(t, "97000.00", res.NetDailyIncome)
 		assert.Equal(t, "19400.00", res.NetSpecialIncome)
+		assert.Equal(t, "", res.VAT)
+		assert.Equal(t, "3600.00", res.WHT)
+		assert.Equal(t, "120000.00", res.TotalIncome)
 	})
 }
 

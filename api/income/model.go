@@ -9,6 +9,9 @@ type Income struct {
 	NetIncomeStr        string
 	NetDailyIncomeStr   string
 	NetSpecialIncomeStr string
+	VATStr              string
+	WHTStr              string
+	TotalIncomeStr      string
 }
 
 func NewIncome(uidFromSession string) *Income {
@@ -30,8 +33,28 @@ func (i *Income) prepareDataForAddIncome(req models.IncomeReq, userDetail models
 	if err != nil {
 		return err
 	}
+	var summaryVat string
+	if userDetail.Vat != "N" {
+		summaryVat, err = calSummary(ins.VAT, insSpecial.VAT)
+		if err != nil {
+			return err
+		}
+	} else {
+		summaryVat = ""
+	}
+	summaryWht, err := calSummary(ins.WHT, insSpecial.WHT)
+	if err != nil {
+		return err
+	}
+	summaryIncome, err := calSummary(ins.TotalIncome, insSpecial.TotalIncome)
+	if err != nil {
+		return err
+	}
 	i.NetIncomeStr = summaryNetIncome
 	i.NetDailyIncomeStr = ins.Net
 	i.NetSpecialIncomeStr = insSpecial.Net
+	i.VATStr = summaryVat
+	i.WHTStr = summaryWht
+	i.TotalIncomeStr = summaryIncome
 	return nil
 }

@@ -16,41 +16,16 @@ func (u *usecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, 
 	}
 	i := NewIncome(uid)
 	i.prepareDataForAddIncome(*req, *userDetail)
-	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome, userDetail.GetRole())
-	if err != nil {
-		return nil, err
-	}
-	insSpecial, err := calIncomeSum(req.WorkingHours, userDetail.Vat, req.SpecialIncome, userDetail.GetRole())
-	if err != nil {
-		return nil, err
-	}
-	summaryIncome, err := calSummary(ins.TotalIncome, insSpecial.TotalIncome)
-	if err != nil {
-		return nil, err
-	}
-	summaryWht, err := calSummary(ins.WHT, insSpecial.WHT)
-	if err != nil {
-		return nil, err
-	}
-	var summaryVat string
-	if userDetail.Vat != "N" {
-		summaryVat, err = calSummary(ins.VAT, insSpecial.VAT)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		summaryVat = ""
-	}
 
 	income := models.Income{
 		UserID:           uid,
-		TotalIncome:      summaryIncome,
+		TotalIncome:      i.TotalIncomeStr,
 		NetIncome:        i.NetIncomeStr,
 		NetSpecialIncome: i.NetSpecialIncomeStr,
 		NetDailyIncome:   i.NetDailyIncomeStr,
 		Note:             req.Note,
-		VAT:              summaryVat,
-		WHT:              summaryWht,
+		VAT:              i.VATStr,
+		WHT:              i.WHTStr,
 		WorkDate:         req.WorkDate,
 		SpecialIncome:    req.SpecialIncome,
 		WorkingHours:     req.WorkingHours,

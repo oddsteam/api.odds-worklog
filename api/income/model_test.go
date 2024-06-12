@@ -21,5 +21,8 @@ func TestModelAddIncome(t *testing.T) {
 		assert.Equal(t, "116400.00", i.NetIncomeStr)
 		assert.Equal(t, "97000.00", i.NetDailyIncomeStr)
 		assert.Equal(t, "19400.00", i.NetSpecialIncomeStr)
+		assert.Equal(t, "", i.VATStr)
+		assert.Equal(t, "3600.00", i.WHTStr)
+		assert.Equal(t, "120000.00", i.TotalIncomeStr)
 	})
 }
