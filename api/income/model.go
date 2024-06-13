@@ -12,6 +12,7 @@ type Income struct {
 	VATStr              string
 	WHTStr              string
 	TotalIncomeStr      string
+	ThaiCitizenID       string
 }
 
 func NewIncome(uidFromSession string) *Income {
@@ -58,17 +59,23 @@ func (i *Income) prepareDataForAddIncome(req models.IncomeReq, userDetail models
 	i.TotalIncomeStr = summaryIncome
 
 	income := models.Income{
-		UserID:           i.UserID,
-		TotalIncome:      i.TotalIncomeStr,
-		NetIncome:        i.NetIncomeStr,
-		NetSpecialIncome: i.NetSpecialIncomeStr,
-		NetDailyIncome:   i.NetDailyIncomeStr,
-		Note:             req.Note,
-		VAT:              i.VATStr,
-		WHT:              i.WHTStr,
-		WorkDate:         req.WorkDate,
-		SpecialIncome:    req.SpecialIncome,
-		WorkingHours:     req.WorkingHours,
+		UserID:            i.UserID,
+		TotalIncome:       i.TotalIncomeStr,
+		NetIncome:         i.NetIncomeStr,
+		NetSpecialIncome:  i.NetSpecialIncomeStr,
+		NetDailyIncome:    i.NetDailyIncomeStr,
+		Note:              req.Note,
+		VAT:               i.VATStr,
+		WHT:               i.WHTStr,
+		WorkDate:          req.WorkDate,
+		SpecialIncome:     req.SpecialIncome,
+		WorkingHours:      req.WorkingHours,
+		ThaiCitizenID:     userDetail.ThaiCitizenID,
+		Name:              userDetail.GetName(),
+		BankAccountName:   userDetail.BankAccountName,
+		BankAccountNumber: userDetail.BankAccountNumber,
+		Email:             userDetail.Email,
+		Phone:             userDetail.Phone,
 	}
 
 	return &income, nil
