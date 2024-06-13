@@ -14,8 +14,7 @@ func (u *usecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, 
 	if err == nil {
 		return nil, errors.New("Sorry, has income data of user " + userDetail.GetName())
 	}
-	i := NewIncome(uid)
-	income, err := i.prepareDataForAddIncome(*req, *userDetail)
+	income, err := NewIncome(uid).prepareDataForAddIncome(*req, *userDetail)
 	if err != nil {
 		return nil, err
 	}
