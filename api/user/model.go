@@ -8,7 +8,28 @@ import (
 )
 
 type User struct {
-	data *models.User
+	data      *models.User
+	DailyRate float64
+}
+
+func NewUser(data models.User) *User {
+	return &User{data: &data, DailyRate: 0}
+}
+
+func (u *User) Parse() error {
+	var err error
+	u.DailyRate, err = utils.StringToFloat64(u.data.DailyIncome)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (u *User) Role() string {
+	return u.data.Role
+}
+
+func (u *User) IsVATRegistered() bool {
+	return u.data.Vat == "Y"
 }
 
 func (u *User) prepareDataForUpdateFrom(m models.User) error {

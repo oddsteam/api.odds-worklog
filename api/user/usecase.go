@@ -86,7 +86,7 @@ func (u *usecase) Update(userFromRequest *models.User, isAdmin bool) (*models.Us
 		return nil, err
 	}
 
-	user := User{currentUser}
+	user := NewUser(*currentUser)
 	err = user.prepareDataForUpdateFrom(*userFromRequest)
 	if err != nil {
 		return nil, err
@@ -101,15 +101,15 @@ func (u *usecase) Update(userFromRequest *models.User, isAdmin bool) (*models.Us
 }
 
 func extractNumbers(input string) string {
-    var result []rune
+	var result []rune
 
-    for _, char := range input {
-        if unicode.IsDigit(char) {
-            result = append(result, char)
-        }
-    }
+	for _, char := range input {
+		if unicode.IsDigit(char) {
+			result = append(result, char)
+		}
+	}
 
-    return string(result)
+	return string(result)
 }
 
 func (u *usecase) UpdateStatusTavi(m []*models.StatusTavi, isAdmin bool) ([]*models.User, error) {

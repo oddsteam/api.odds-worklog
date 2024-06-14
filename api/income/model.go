@@ -3,11 +3,17 @@ package income
 import (
 	"time"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 type Income struct {
-	UserID string
+	UserID            string
+	workDate          float64
+	specialHours      float64
+	specialIncomeRate float64
+	u                 *user.User
 }
 
 func NewIncome(uidFromSession string) *Income {
@@ -16,102 +22,111 @@ func NewIncome(uidFromSession string) *Income {
 	}
 }
 
+func (i *Income) parseRequest(req models.IncomeReq, userDetail models.User) error {
+	err := i.parse(req)
+	if err != nil {
+		return err
+	}
+	i.u = user.NewUser(userDetail)
+	i.u.Parse()
+	return nil
+}
+
 func (i *Income) prepareDataForAddIncome(req models.IncomeReq, userDetail models.User) (*models.Income, error) {
-	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome, userDetail.GetRole())
+	income := models.Income{}
+	err := i.prepareDataForUpdateIncome(req, userDetail, &income)
 	if err != nil {
 		return nil, err
 	}
-	insSpecial, err := calIncomeSum(req.WorkingHours, userDetail.Vat, req.SpecialIncome, userDetail.GetRole())
-	if err != nil {
-		return nil, err
-	}
-	summaryNetIncome, err := calSummary(ins.Net, insSpecial.Net)
-	if err != nil {
-		return nil, err
-	}
-	var summaryVat string
-	if userDetail.Vat != "N" {
-		summaryVat, err = calSummary(ins.VAT, insSpecial.VAT)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		summaryVat = ""
-	}
-	summaryWht, err := calSummary(ins.WHT, insSpecial.WHT)
-	if err != nil {
-		return nil, err
-	}
-	summaryIncome, err := calSummary(ins.TotalIncome, insSpecial.TotalIncome)
-	if err != nil {
-		return nil, err
-	}
-
-	income := models.Income{
-		UserID:            i.UserID,
-		TotalIncome:       summaryIncome,
-		NetIncome:         summaryNetIncome,
-		NetSpecialIncome:  insSpecial.Net,
-		NetDailyIncome:    ins.Net,
-		Note:              req.Note,
-		VAT:               summaryVat,
-		WHT:               summaryWht,
-		WorkDate:          req.WorkDate,
-		SpecialIncome:     req.SpecialIncome,
-		WorkingHours:      req.WorkingHours,
-		ThaiCitizenID:     userDetail.ThaiCitizenID,
-		Name:              userDetail.GetName(),
-		BankAccountName:   userDetail.BankAccountName,
-		BankAccountNumber: userDetail.BankAccountNumber,
-		Email:             userDetail.Email,
-		Phone:             userDetail.Phone,
-	}
-
 	return &income, nil
 }
 
 func (i *Income) prepareDataForUpdateIncome(req models.IncomeReq, userDetail models.User, income *models.Income) error {
-	ins, err := calIncomeSum(req.WorkDate, userDetail.Vat, userDetail.DailyIncome, userDetail.GetRole())
+	err := i.parseRequest(req, userDetail)
 	if err != nil {
 		return err
-	}
-	insSpecial, err := calIncomeSum(req.WorkingHours, userDetail.Vat, req.SpecialIncome, userDetail.GetRole())
-	if err != nil {
-		return err
-	}
-	summaryIncome, err := calSummary(ins.TotalIncome, insSpecial.TotalIncome)
-	if err != nil {
-		return err
-	}
-	summaryNetIncome, err := calSummary(ins.Net, insSpecial.Net)
-	if err != nil {
-		return err
-	}
-	summaryWht, err := calSummary(ins.WHT, insSpecial.WHT)
-	if err != nil {
-		return err
-	}
-	var summaryVat string
-	if userDetail.Vat != "N" {
-		summaryVat, err = calSummary(ins.VAT, insSpecial.VAT)
-		if err != nil {
-			return err
-		}
-	} else {
-		summaryVat = ""
 	}
 
 	income.SubmitDate = time.Now()
-	income.TotalIncome = summaryIncome
-	income.NetIncome = summaryNetIncome
-	income.NetSpecialIncome = insSpecial.Net
-	income.NetDailyIncome = ins.Net
-	income.VAT = summaryVat
-	income.WHT = summaryWht
+	income.UserID = i.UserID
+	income.ThaiCitizenID = userDetail.ThaiCitizenID
+	income.Name = userDetail.GetName()
+	income.BankAccountName = userDetail.BankAccountName
+	income.BankAccountNumber = userDetail.BankAccountNumber
+	income.Email = userDetail.Email
+	income.Phone = userDetail.Phone
+	income.TotalIncome = utils.FloatToString(i.summaryIncome())
+	income.NetIncome = utils.FloatToString(i.summaryNet())
+	income.NetSpecialIncome = utils.FloatToString(i.Net(i.specialIncome()))
+	income.NetDailyIncome = utils.FloatToString(i.Net(i.totalIncome()))
+	income.VAT = i.summaryVatStr()
+	income.WHT = utils.FloatToString(i.summaryWHT())
 	income.Note = req.Note
 	income.WorkDate = req.WorkDate
 	income.SpecialIncome = req.SpecialIncome
 	income.WorkingHours = req.WorkingHours
 
 	return nil
+}
+
+func (i *Income) parse(req models.IncomeReq) error {
+	var err error
+	i.workDate, err = utils.StringToFloat64(req.WorkDate)
+	if err != nil {
+		return err
+	}
+	i.specialHours, err = utils.StringToFloat64(req.WorkingHours)
+	if err != nil {
+		return err
+	}
+	i.specialIncomeRate, err = utils.StringToFloat64(req.SpecialIncome)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (i *Income) summaryVatStr() string {
+	v := i.summaryVat()
+	if v == 0.0 {
+		return ""
+	}
+	return utils.FloatToString(v)
+}
+func (i *Income) summaryVat() float64 {
+	return i.VAT(i.summaryIncome())
+}
+
+func (i *Income) summaryWHT() float64 {
+	return i.WitholdingTax(i.summaryIncome())
+}
+
+func (i *Income) summaryNet() float64 {
+	return i.Net(i.summaryIncome())
+}
+
+func (i *Income) summaryIncome() float64 {
+	return i.totalIncome() + i.specialIncome()
+}
+
+func (i *Income) totalIncome() float64 {
+	return i.workDate * i.u.DailyRate
+}
+
+func (i *Income) specialIncome() float64 {
+	return i.specialHours * i.specialIncomeRate
+}
+
+func (i *Income) WitholdingTax(totalIncome float64) float64 {
+	return totalIncome * 0.03
+}
+
+func (i *Income) Net(totalIncome float64) float64 {
+	return totalIncome + i.VAT(totalIncome) - i.WitholdingTax(totalIncome)
+}
+func (i *Income) VAT(totalIncome float64) float64 {
+	if !i.u.IsVATRegistered() {
+		return 0
+	}
+	return totalIncome * 0.07
 }

@@ -16,80 +16,8 @@ type usecase struct {
 	userRepo user.Repository
 }
 
-type incomeSum struct {
-	Net         string
-	VAT         string
-	WHT         string
-	TotalIncome string
-}
-
 func NewUsecase(r Repository, ur user.Repository) Usecase {
 	return &usecase{r, ur}
-}
-
-func calIncomeSum(workAmount string, vattype string, incomes string, role string) (*incomeSum, error) {
-	var vat, wht string
-	var vatf, whtf float64
-	var ins = new(incomeSum)
-
-	amount, _ := utils.StringToFloat64(workAmount)
-	income, _ := utils.StringToFloat64(incomes)
-	totalIncomeStr := utils.FloatToString(amount * income)
-	totalIncome, err := utils.StringToFloat64(totalIncomeStr)
-	if err != nil {
-		return nil, err
-	}
-	if role == "corporate" {
-		wht, whtf, err = calWHTCorporate(totalIncomeStr)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if role == "individual" {
-		wht, whtf, err = calWHT(totalIncomeStr)
-		if err != nil {
-			return nil, err
-		}
-	}
-	ins.WHT = wht
-	ins.TotalIncome = totalIncomeStr
-
-	if vattype == "Y" {
-		vat, vatf, err = calVAT(totalIncomeStr)
-		if err != nil {
-			return nil, err
-		}
-
-		net := totalIncome + vatf - whtf
-
-		ins.Net = utils.FloatToString(net)
-		ins.VAT = vat
-		return ins, nil
-	}
-	net := totalIncome - whtf
-	ins.Net = utils.FloatToString(net)
-	return ins, nil
-}
-
-func calWHTCorporate(income string) (string, float64, error) {
-	return calWHT(income)
-}
-
-func calWHT(income string) (string, float64, error) {
-	return multiply(income, 0.03)
-}
-
-func calVAT(income string) (string, float64, error) {
-	return multiply(income, 0.07)
-}
-
-func multiply(a string, b float64) (string, float64, error) {
-	num, err := utils.StringToFloat64(a)
-	if err != nil {
-		return "", 0.0, err
-	}
-	vat := num * b
-	return utils.FloatToString(vat), utils.RealFloat(vat), nil
 }
 
 func (u *usecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
@@ -180,7 +108,6 @@ func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (stri
 	strWrite = append(strWrite, createHeaders())
 
 	for _, income := range incomes {
-
 		user, err := u.GetUserByID(income.UserID)
 		loan := studentLoanList.FindLoan(*user)
 		if err == nil {

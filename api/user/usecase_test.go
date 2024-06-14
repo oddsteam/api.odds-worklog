@@ -1,7 +1,6 @@
 package user
 
 import (
-	"encoding/json"
 	"testing"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
@@ -185,23 +184,6 @@ func TestUsecase_Delete_Should_Move_To_Archived_User(t *testing.T) {
 	assert.Equal(t, nil, u)
 }
 
-func cloneUser(obj models.User) models.User {
-	// Marshal the object into JSON
-	objJSON, err := json.Marshal(obj)
-	if err != nil {
-		panic(err)
-	}
-
-	// Unmarshal the JSON back into a new object
-	var newObj models.User
-	err = json.Unmarshal(objJSON, &newObj)
-	if err != nil {
-		panic(err)
-	}
-
-	return newObj
-}
-
 func TestUsecase_Update(t *testing.T) {
 	t.Run("update user success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -226,8 +208,7 @@ func TestUsecase_Update(t *testing.T) {
 			BankAccountNumber: "้1234-123-999",
 		}
 
-		clonedMockUser := cloneUser(userMock.User)
-		user := User{&clonedMockUser}
+		user := NewUser(userMock.User)
 		err := user.prepareDataForUpdateFrom(userFromRequest)
 
 		assert.NoError(t, err)
