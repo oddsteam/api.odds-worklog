@@ -264,12 +264,10 @@ func calSummaryWithLoan(summaryIncome string, loan models.StudentLoan) string {
 }
 
 func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, incomes []*models.Income) (string, error) {
-
 	return u.exportCsvByInCome(role, incomes)
 }
 
 func (u *usecase) GetAllInComeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
-
 	return u.repo.GetAllIncomeByStartDateAndEndDate(userIds, startDate, endDate)
 }
 
