@@ -110,6 +110,61 @@ func TestModelAddIncome(t *testing.T) {
 		assert.Equal(t, 1000.0+0-30, i.Net(i.specialIncome()))
 	})
 
+	t.Run("calculate individual income โดยไม่ได้กรอก special income", func(t *testing.T) {
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		user := models.User{
+			ID:          bson.ObjectIdHex(uidFromSession),
+			Role:        "individual",
+			Vat:         "N",
+			DailyIncome: "5",
+		}
+		req := models.IncomeReq{
+			WorkDate: "20",
+		}
+		i := NewIncome(uidFromSession)
+
+		err := i.parseRequest(req, user)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 5*20.0, i.totalIncome())
+		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.totalIncome()))
+		assert.Equal(t, 0.0, i.VAT(i.totalIncome()))
+		assert.Equal(t, 100.0+0-3, i.Net(i.totalIncome()))
+	})
+
+	t.Run("calculate individual income สำหรับคนที่มีหนี้ กยศ และบริษัทหักและนำส่งไว้", func(t *testing.T) {
+		// เพื่อแก้ปัญหาที่คนไทยหลายคนไม่ยอมใช้หนี้ กยศ ทาง กยศ เลยมีมาตรการให้บริษัท
+		// ชำระหนี้ กยศ แทนพนักงาน โดยให้ทางบริษัทหักหนี้ กยศ ออกจากรายได้เลย
+		// แต่เพราะชาวออดส์ไม่ใช่พนักงาน คนส่วนใหญ่ก็ยังไปชำระด้วยตัวเอง
+		// ยกเว้นบางคนที่ กยศ เข้าใจว่าเป็นพนักงานของเรา ก็จะส่งรายชื่อมาให้หักในเว็บ
+		// กยศ ด้านล่าง
+		// ref: https://slfrd.dsl.studentloan.or.th/SLFRD/login
+
+		// ใครที่ กยศ ให้หัก เราก็จะหักแล้วไปแจ้งใน basecamp กลุ่ม กยศ ไว้
+
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		user := models.User{
+			ID:          bson.ObjectIdHex(uidFromSession),
+			Role:        "individual",
+			Vat:         "N",
+			DailyIncome: "5",
+		}
+		req := models.IncomeReq{
+			WorkDate: "20",
+		}
+		loan := &models.StudentLoan{Amount: 50}
+		i := NewIncome(uidFromSession)
+		i.SetLoan(loan)
+
+		err := i.parseRequest(req, user)
+
+		assert.NoError(t, err)
+		assert.Equal(t, (5*20.0)-50, i.totalIncome())
+		assert.Equal(t, 50.0*0.03, i.WitholdingTax(i.totalIncome()))
+		assert.Equal(t, 0.0, i.VAT(i.totalIncome()))
+		assert.Equal(t, 50.0+0-1.5, i.Net(i.totalIncome()))
+	})
+
 	t.Run("calculate corporate income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := models.User{

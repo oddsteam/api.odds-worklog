@@ -14,12 +14,18 @@ type Income struct {
 	specialHours      float64
 	specialIncomeRate float64
 	u                 *user.User
+	loan              *models.StudentLoan
 }
 
 func NewIncome(uidFromSession string) *Income {
 	return &Income{
 		UserID: uidFromSession,
+		loan:   &models.StudentLoan{},
 	}
+}
+
+func (i *Income) SetLoan(l *models.StudentLoan) {
+	i.loan = l
 }
 
 func (i *Income) parseRequest(req models.IncomeReq, userDetail models.User) error {
@@ -73,15 +79,15 @@ func (i *Income) parse(req models.IncomeReq) error {
 	var err error
 	i.workDate, err = utils.StringToFloat64(req.WorkDate)
 	if err != nil {
-		return err
+		i.workDate = 0
 	}
 	i.specialHours, err = utils.StringToFloat64(req.WorkingHours)
 	if err != nil {
-		return err
+		i.specialHours = 0
 	}
 	i.specialIncomeRate, err = utils.StringToFloat64(req.SpecialIncome)
 	if err != nil {
-		return err
+		i.specialIncomeRate = 0
 	}
 	return nil
 }
@@ -110,7 +116,7 @@ func (i *Income) summaryIncome() float64 {
 }
 
 func (i *Income) totalIncome() float64 {
-	return i.workDate * i.u.DailyRate
+	return (i.workDate * i.u.DailyRate) - float64(i.loan.Amount)
 }
 
 func (i *Income) specialIncome() float64 {
