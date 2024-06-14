@@ -199,12 +199,6 @@ func (u *usecase) createFunctionGetIncomeByUserWithPeriod(year int, month time.M
 	}
 }
 
-func (u *usecase) createFunctionGetIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) getIncomeFn {
-	return func(user models.User) (*models.Income, error) {
-		return u.repo.GetIncomeByStartDateAndEndDate(role, startDate, endDate)
-	}
-}
-
 func createRow(income models.Income, user models.User, loan models.StudentLoan) []string {
 	t := income.SubmitDate
 	summaryIncome, _ := calSummary(income.NetDailyIncome, income.NetSpecialIncome)
