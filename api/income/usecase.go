@@ -20,6 +20,41 @@ func NewUsecase(r Repository, ur user.Repository) Usecase {
 	return &usecase{r, ur}
 }
 
+func (u *usecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
+	userDetail, _ := u.userRepo.GetByID(uid)
+	year, month := utils.GetYearMonthNow()
+	_, err := u.repo.GetIncomeUserByYearMonth(uid, year, month)
+	if err == nil {
+		return nil, errors.New("Sorry, has income data of user " + userDetail.GetName())
+	}
+	income, err := NewIncome(uid).prepareDataForAddIncome(*req, *userDetail)
+	if err != nil {
+		return nil, err
+	}
+	err = u.repo.AddIncome(income)
+	if err != nil {
+		return nil, err
+	}
+
+	return income, nil
+}
+
+func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
+	userDetail, _ := u.userRepo.GetByID(uid)
+	income, err := u.repo.GetIncomeByID(id, uid)
+	if err != nil {
+		return nil, err
+	}
+
+	err = NewIncome(uid).prepareDataForUpdateIncome(*req, *userDetail, income)
+	if err != nil {
+		return nil, err
+	}
+	u.repo.UpdateIncome(income)
+
+	return income, nil
+}
+
 func (u *usecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
 	var incomeList []*models.IncomeStatus
 	users, err := u.userRepo.GetByRole(role)
