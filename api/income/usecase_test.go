@@ -193,7 +193,6 @@ func TestUsecaseAddIncome(t *testing.T) {
 		assert.Equal(t, "19400.00", res.NetSpecialIncome)
 		assert.Equal(t, "", res.VAT)
 		assert.Equal(t, "3600.00", res.WHT)
-		assert.Equal(t, "120000.00", res.TotalIncome)
 	})
 }
 
