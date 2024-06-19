@@ -1,6 +1,7 @@
 package income
 
 import (
+	"fmt"
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
@@ -15,12 +16,21 @@ type Income struct {
 	specialIncomeRate float64
 	u                 *user.User
 	loan              *models.StudentLoan
+	data              *models.Income
 }
 
 func NewIncome(uidFromSession string) *Income {
 	return &Income{
 		UserID: uidFromSession,
 		loan:   &models.StudentLoan{},
+	}
+}
+
+func NewIncomeFromRecord(data models.Income) *Income {
+	return &Income{
+		UserID: "",
+		loan:   &models.StudentLoan{},
+		data:   &data,
 	}
 }
 
@@ -135,4 +145,28 @@ func (i *Income) VAT(totalIncome float64) float64 {
 		return 0
 	}
 	return totalIncome * 0.07
+}
+
+func (i *Income) export(user models.User) []string {
+	income := *i.data
+	loan := *i.loan
+	t := income.SubmitDate
+	summaryIncome, _ := calSummary(income.NetDailyIncome, income.NetSpecialIncome)
+	summaryIncome = calSummaryWithLoan(summaryIncome, loan)
+	tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
+	d := []string{
+		user.GetName(),
+		user.ThaiCitizenID,
+		user.BankAccountName,
+		utils.SetValueCSV(user.BankAccountNumber),
+		user.Email,
+		utils.FormatCommas(income.NetDailyIncome),
+		utils.FormatCommas(income.NetSpecialIncome),
+		loan.CSVAmount(),
+		income.WHT,
+		utils.FormatCommas(summaryIncome),
+		income.Note,
+		tf,
+	}
+	return d
 }

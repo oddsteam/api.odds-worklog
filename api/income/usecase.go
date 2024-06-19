@@ -172,6 +172,10 @@ func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (stri
 }
 
 func (u *usecase) exportIncome(role string, getIncome getIncomeFn, shouldUpdateExportStatus bool) (string, error) {
+	return u.exportIncome_obsoleted(role, getIncome, shouldUpdateExportStatus)
+}
+
+func (u *usecase) exportIncome_obsoleted(role string, getIncome getIncomeFn, shouldUpdateExportStatus bool) (string, error) {
 	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()
 
@@ -234,26 +238,10 @@ func (u *usecase) createFunctionGetIncomeByUserWithPeriod(year int, month time.M
 	}
 }
 
-func createRow(income models.Income, user models.User, loan models.StudentLoan) []string {
-	t := income.SubmitDate
-	summaryIncome, _ := calSummary(income.NetDailyIncome, income.NetSpecialIncome)
-	summaryIncome = calSummaryWithLoan(summaryIncome, loan)
-	tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
-	d := []string{
-		user.GetName(),
-		user.ThaiCitizenID,
-		user.BankAccountName,
-		utils.SetValueCSV(user.BankAccountNumber),
-		user.Email,
-		utils.FormatCommas(income.NetDailyIncome),
-		utils.FormatCommas(income.NetSpecialIncome),
-		loan.CSVAmount(),
-		income.WHT,
-		utils.FormatCommas(summaryIncome),
-		income.Note,
-		tf,
-	}
-	return d
+func createRow(record models.Income, user models.User, loan models.StudentLoan) []string {
+	i := NewIncomeFromRecord(record)
+	i.SetLoan(&loan)
+	return i.export(user)
 }
 
 func calSummaryWithLoan(summaryIncome string, loan models.StudentLoan) string {
