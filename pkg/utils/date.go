@@ -43,3 +43,18 @@ func GetYearMonthNow() (int, time.Month) {
 	t := time.Now()
 	return t.Year(), t.Month()
 }
+
+func GetStartDateAndEndDate(now time.Time) (time.Time, time.Time) {
+	return getStartDate(now), getEndDate(now)
+}
+
+func getStartDate(now time.Time) time.Time {
+	beginningOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+	return beginningOfMonth
+}
+
+func getEndDate(now time.Time) time.Time {
+	firstOfNextMonth := time.Date(now.Year(), now.Month()+1, 1, 0, 0, 0, 0, now.Location())
+	endOfMonth := firstOfNextMonth.Add(-time.Second)
+	return endOfMonth
+}

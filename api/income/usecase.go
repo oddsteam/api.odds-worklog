@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
@@ -121,6 +122,18 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 	return u.exportIncome(role, getIncome, shouldUpdateExportStatus)
 }
 
+func (u *usecase) ExportIncomeNew(role string, beforeMonth string) (string, error) {
+	beforemonth, err := utils.StringToInt(beforeMonth)
+	if err != nil {
+		return "", err
+	}
+	year, month := utils.GetYearMonthNow()
+	getIncome := u.createFunctionGetIncomeByUserWithPeriod(year, month-time.Month(beforemonth))
+	shouldUpdateExportStatus := beforeMonth == "0"
+
+	return u.exportIncome_new(role, getIncome, shouldUpdateExportStatus)
+}
+
 func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 	year, month := utils.GetYearMonthNow()
 	getIncome := u.createFunctionGetUnexportedIncomeByUserWithPeriod(year, month)
@@ -173,6 +186,68 @@ func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (stri
 
 func (u *usecase) exportIncome(role string, getIncome getIncomeFn, shouldUpdateExportStatus bool) (string, error) {
 	return u.exportIncome_obsoleted(role, getIncome, shouldUpdateExportStatus)
+}
+
+func (u *usecase) exportIncome_new(role string, getIncome getIncomeFn, shouldUpdateExportStatus bool) (string, error) {
+	file, filename, err := utils.CreateCVSFile(role)
+	defer file.Close()
+
+	if err != nil {
+		return "", err
+	}
+	users, err := u.userRepo.GetByRole(role)
+	if err != nil {
+		return "", err
+	}
+
+	var userIds []string
+	for _, v := range users {
+		userIds = append(userIds, v.ID.Hex())
+	}
+
+	startDate, endDate := utils.GetStartDateAndEndDate(time.Now())
+	incomes, err := u.repo.GetAllIncomeByStartDateAndEndDate(userIds, startDate, endDate)
+
+	studentLoanList := u.repo.GetStudentLoans()
+	fmt.Printf("%#v", studentLoanList)
+
+	strWrite := make([][]string, 0)
+	strWrite = append(strWrite, createHeaders())
+	for _, user := range users {
+		income := &models.Income{}
+		for _, e := range incomes {
+			if strings.Contains(user.ID.Hex(), e.UserID) {
+				income = e
+			}
+		}
+		loan := studentLoanList.FindLoan(*user)
+		if err == nil {
+			if shouldUpdateExportStatus {
+				u.repo.UpdateExportStatus(income.ID.Hex())
+			}
+			d := createRow(*income, *user, loan)
+			strWrite = append(strWrite, d)
+		}
+	}
+
+	if len(strWrite) == 1 {
+		return "", errors.New("No data for export to CSV file.")
+	}
+
+	csvWriter := csv.NewWriter(file)
+	csvWriter.WriteAll(strWrite)
+	csvWriter.Flush()
+
+	ep := models.Export{
+		Filename: filename,
+		Date:     time.Now(),
+	}
+	err = u.repo.AddExport(&ep)
+	if err != nil {
+		return "", err
+	}
+
+	return filename, nil
 }
 
 func (u *usecase) exportIncome_obsoleted(role string, getIncome getIncomeFn, shouldUpdateExportStatus bool) (string, error) {
