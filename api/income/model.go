@@ -170,3 +170,10 @@ func (i *Income) export(user models.User) []string {
 	}
 	return d
 }
+
+func calSummaryWithLoan(summaryIncome string, loan models.StudentLoan) string {
+	summary, _ := utils.StringToFloat64(summaryIncome)
+	summary = summary - float64(loan.Amount)
+	summaryIncome = utils.FloatToString(summary)
+	return summaryIncome
+}

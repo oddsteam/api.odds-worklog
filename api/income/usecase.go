@@ -319,13 +319,6 @@ func createRow(record models.Income, user models.User, loan models.StudentLoan) 
 	return i.export(user)
 }
 
-func calSummaryWithLoan(summaryIncome string, loan models.StudentLoan) string {
-	summary, _ := utils.StringToFloat64(summaryIncome)
-	summary = summary - float64(loan.Amount)
-	summaryIncome = utils.FloatToString(summary)
-	return summaryIncome
-}
-
 func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, incomes []*models.Income) (string, error) {
 	return u.exportCsvByInCome(role, incomes)
 }
