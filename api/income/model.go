@@ -74,7 +74,7 @@ func (i *Income) prepareDataForUpdateIncome(req models.IncomeReq, userDetail mod
 	income.TotalIncome = utils.FloatToString(i.summaryIncome())
 	income.NetIncome = utils.FloatToString(i.summaryNet())
 	income.NetSpecialIncome = utils.FloatToString(i.Net(i.specialIncome()))
-	income.NetDailyIncome = utils.FloatToString(i.Net(i.totalIncome()))
+	income.NetDailyIncome = i.netDailyIncomeStr()
 	income.VAT = i.summaryVatStr()
 	income.WHT = utils.FloatToString(i.summaryWHT())
 	income.Note = req.Note
@@ -122,11 +122,19 @@ func (i *Income) summaryNet() float64 {
 }
 
 func (i *Income) summaryIncome() float64 {
-	return i.totalIncome() + i.specialIncome()
+	return i.totalIncome() + i.specialIncome() - float64(i.loan.Amount)
+}
+
+func (i *Income) netDailyIncomeStr() string {
+	return utils.FloatToString(i.netDailyIncome())
+}
+
+func (i *Income) netDailyIncome() float64 {
+	return i.Net(i.totalIncome())
 }
 
 func (i *Income) totalIncome() float64 {
-	return (i.workDate * i.u.DailyRate) - float64(i.loan.Amount)
+	return (i.workDate * i.u.DailyRate)
 }
 
 func (i *Income) specialIncome() float64 {

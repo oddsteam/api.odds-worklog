@@ -10,7 +10,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
-func TestModelAddIncome(t *testing.T) {
+func TestModelIncome(t *testing.T) {
 	t.Run("เวลา Add income ควร save ชื่อบัญชี เลขบัญชี และจำนวนเงินด้วย ตอน export จะได้ไม่ต้องคำนวนแล้ว", func(t *testing.T) {
 		user := userMock.IndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
@@ -110,6 +110,39 @@ func TestModelAddIncome(t *testing.T) {
 		assert.Equal(t, 1000.0+0-30, i.Net(i.specialIncome()))
 	})
 
+	t.Run("export individual income", func(t *testing.T) {
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		user := models.User{
+			ID:                bson.ObjectIdHex(uidFromSession),
+			Role:              "individual",
+			Vat:               "N",
+			DailyIncome:       "5",
+			FirstName:         "first",
+			LastName:          "last",
+			ThaiCitizenID:     "id",
+			BankAccountName:   "account name",
+			BankAccountNumber: "0123456789",
+			Email:             "test@example.com",
+		}
+		req := models.IncomeReq{
+			WorkDate:      "20",
+			SpecialIncome: "100",
+			WorkingHours:  "10",
+		}
+		i := NewIncome(uidFromSession)
+		record, err := i.prepareDataForAddIncome(req, user)
+		assert.NoError(t, err)
+		i = NewIncomeFromRecord(*record)
+
+		csvColumns := i.export(user)
+
+		assert.Equal(t, "first last", csvColumns[0])
+		assert.Equal(t, "id", csvColumns[1])
+		assert.Equal(t, "account name", csvColumns[2])
+		assert.Equal(t, `="0123456789"`, csvColumns[3])
+		assert.Equal(t, "test@example.com", csvColumns[4])
+	})
+
 	t.Run("calculate individual income โดยไม่ได้กรอก special income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := models.User{
@@ -159,10 +192,10 @@ func TestModelAddIncome(t *testing.T) {
 		err := i.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, (5*20.0)-50, i.totalIncome())
-		assert.Equal(t, 50.0*0.03, i.WitholdingTax(i.totalIncome()))
-		assert.Equal(t, 0.0, i.VAT(i.totalIncome()))
-		assert.Equal(t, 50.0+0-1.5, i.Net(i.totalIncome()))
+		assert.Equal(t, (5*20.0)-50, i.summaryIncome())
+		assert.Equal(t, 50.0*0.03, i.WitholdingTax(i.summaryIncome()))
+		assert.Equal(t, 0.0, i.VAT(i.summaryIncome()))
+		assert.Equal(t, 50.0+0-1.5, i.Net(i.summaryIncome()))
 	})
 
 	t.Run("calculate corporate income", func(t *testing.T) {
@@ -194,4 +227,5 @@ func TestModelAddIncome(t *testing.T) {
 		assert.Equal(t, 10*100.0*0.07, i.VAT(i.specialIncome()))
 		assert.Equal(t, 1000.0+70-30, i.Net(i.specialIncome()))
 	})
+
 }
