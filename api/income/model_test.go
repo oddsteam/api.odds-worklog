@@ -162,7 +162,31 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, 5*20.0, i.totalIncome())
 		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.totalIncome()))
 		assert.Equal(t, 0.0, i.VAT(i.totalIncome()))
-		assert.Equal(t, 100.0+0-3, i.Net(i.totalIncome()))
+		assert.Equal(t, 100.0+0-3, i.netDailyIncome())
+		assert.Equal(t, "97.00", i.netDailyIncomeStr())
+	})
+
+	t.Run("calculate individual special income", func(t *testing.T) {
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		user := models.User{
+			ID:   bson.ObjectIdHex(uidFromSession),
+			Role: "individual",
+			Vat:  "N",
+		}
+		req := models.IncomeReq{
+			SpecialIncome: "100",
+			WorkingHours:  "10",
+		}
+		i := NewIncome(uidFromSession)
+
+		err := i.parseRequest(req, user)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 10*100.0, i.specialIncome())
+		assert.Equal(t, 10*100.0*0.03, i.WitholdingTax(i.specialIncome()))
+		assert.Equal(t, 0.0, i.VAT(i.specialIncome()))
+		assert.Equal(t, 1000.0+0-30, i.Net(i.specialIncome()))
+		assert.Equal(t, "970.00", i.netSpecialIncomeStr())
 	})
 
 	t.Run("calculate individual income สำหรับคนที่มีหนี้ กยศ และบริษัทหักและนำส่งไว้", func(t *testing.T) {
