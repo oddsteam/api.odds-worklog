@@ -3,7 +3,6 @@ package income
 import (
 	"encoding/csv"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -123,15 +122,9 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 }
 
 func (u *usecase) ExportIncomeNew(role string, beforeMonth string) (string, error) {
-	beforemonth, err := utils.StringToInt(beforeMonth)
-	if err != nil {
-		return "", err
-	}
-	year, month := utils.GetYearMonthNow()
-	getIncome := u.createFunctionGetIncomeByUserWithPeriod(year, month-time.Month(beforemonth))
 	shouldUpdateExportStatus := beforeMonth == "0"
 
-	return u.exportIncome_new(role, getIncome, shouldUpdateExportStatus)
+	return u.exportIncome_new(role, shouldUpdateExportStatus)
 }
 
 func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
@@ -150,7 +143,6 @@ func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (stri
 	}
 
 	studentLoanList := u.repo.GetStudentLoans()
-	fmt.Printf("%#v", studentLoanList)
 
 	strWrite := make([][]string, 0)
 	strWrite = append(strWrite, createHeaders())
@@ -188,7 +180,7 @@ func (u *usecase) exportIncome(role string, getIncome getIncomeFn, shouldUpdateE
 	return u.exportIncome_obsoleted(role, getIncome, shouldUpdateExportStatus)
 }
 
-func (u *usecase) exportIncome_new(role string, getIncome getIncomeFn, shouldUpdateExportStatus bool) (string, error) {
+func (u *usecase) exportIncome_new(role string, shouldUpdateExportStatus bool) (string, error) {
 	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()
 
@@ -208,8 +200,11 @@ func (u *usecase) exportIncome_new(role string, getIncome getIncomeFn, shouldUpd
 	startDate, endDate := utils.GetStartDateAndEndDate(time.Now())
 	incomes, err := u.repo.GetAllIncomeByStartDateAndEndDate(userIds, startDate, endDate)
 
+	if err != nil {
+		return "", err
+	}
+
 	studentLoanList := u.repo.GetStudentLoans()
-	fmt.Printf("%#v", studentLoanList)
 
 	strWrite := make([][]string, 0)
 	strWrite = append(strWrite, createHeaders())
@@ -221,11 +216,13 @@ func (u *usecase) exportIncome_new(role string, getIncome getIncomeFn, shouldUpd
 			}
 		}
 		loan := studentLoanList.FindLoan(*user)
-		if err == nil {
+		if income.ID.Hex() != "" {
 			if shouldUpdateExportStatus {
-				u.repo.UpdateExportStatus(income.ID.Hex())
+				// u.repo.UpdateExportStatus(income.ID.Hex())
 			}
-			d := createRow(*income, *user, loan)
+			i := NewIncomeFromRecord(*income)
+			i.SetLoan(&loan)
+			d := i.export2()
 			strWrite = append(strWrite, d)
 		}
 	}
@@ -263,7 +260,6 @@ func (u *usecase) exportIncome_obsoleted(role string, getIncome getIncomeFn, sho
 	}
 
 	studentLoanList := u.repo.GetStudentLoans()
-	fmt.Printf("%#v", studentLoanList)
 
 	strWrite := make([][]string, 0)
 	strWrite = append(strWrite, createHeaders())
