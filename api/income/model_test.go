@@ -124,11 +124,7 @@ func TestModelIncome(t *testing.T) {
 			BankAccountNumber: "0123456789",
 			Email:             "test@example.com",
 		}
-		req := models.IncomeReq{
-			WorkDate:      "20",
-			SpecialIncome: "100",
-			WorkingHours:  "10",
-		}
+		req := models.IncomeReq{WorkDate: "20"}
 		i := NewIncome(uidFromSession)
 		record, err := i.prepareDataForAddIncome(req, user)
 		assert.NoError(t, err)
@@ -146,16 +142,10 @@ func TestModelIncome(t *testing.T) {
 	t.Run("export จำนวนเงินที่ต้องโอนสำหรับ individual income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := models.User{
-			ID:                bson.ObjectIdHex(uidFromSession),
-			Role:              "individual",
-			Vat:               "N",
-			DailyIncome:       "5",
-			FirstName:         "first",
-			LastName:          "last",
-			ThaiCitizenID:     "id",
-			BankAccountName:   "account name",
-			BankAccountNumber: "0123456789",
-			Email:             "test@example.com",
+			ID:          bson.ObjectIdHex(uidFromSession),
+			Role:        "individual",
+			Vat:         "N",
+			DailyIncome: "5",
 		}
 		req := models.IncomeReq{
 			WorkDate:      "20",
@@ -208,10 +198,7 @@ func TestModelIncome(t *testing.T) {
 			Role: "individual",
 			Vat:  "N",
 		}
-		req := models.IncomeReq{
-			SpecialIncome: "100",
-			WorkingHours:  "10",
-		}
+		req := models.IncomeReq{SpecialIncome: "100", WorkingHours: "10"}
 		i := NewIncome(uidFromSession)
 
 		err := i.parseRequest(req, user)
@@ -242,7 +229,7 @@ func TestModelIncome(t *testing.T) {
 			DailyIncome: "5",
 		}
 		req := models.IncomeReq{
-			WorkDate: "20",
+			WorkDate:      "20",
 			SpecialIncome: "100",
 			WorkingHours:  "10",
 		}
@@ -252,7 +239,7 @@ func TestModelIncome(t *testing.T) {
 		err := i.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, i.netDailyIncome() + i.netSpecialIncome() - 50, i.transferAmount())
+		assert.Equal(t, i.netDailyIncome()+i.netSpecialIncome()-50, i.transferAmount())
 	})
 
 	t.Run("calculate corporate income", func(t *testing.T) {
@@ -284,5 +271,4 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, 10*100.0*0.07, i.VAT(i.specialIncome()))
 		assert.Equal(t, 1000.0+70-30, i.Net(i.specialIncome()))
 	})
-
 }
