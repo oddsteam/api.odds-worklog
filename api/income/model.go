@@ -11,9 +11,11 @@ import (
 
 type Income struct {
 	UserID            string
+	dailyRate         float64
 	workDate          float64
 	specialHours      float64
 	specialIncomeRate float64
+	isVATRegistered   bool
 	u                 *user.User
 	loan              *models.StudentLoan
 	data              *models.Income
@@ -27,11 +29,19 @@ func NewIncome(uidFromSession string) *Income {
 }
 
 func NewIncomeFromRecord(data models.Income) *Income {
-	return &Income{
-		UserID: "",
-		loan:   &models.StudentLoan{},
-		data:   &data,
+	i := Income{
+		UserID:          "",
+		loan:            &models.StudentLoan{},
+		data:            &data,
+		dailyRate:       data.DailyRate,
+		isVATRegistered: data.IsVATRegistered,
 	}
+	i.parse(models.IncomeReq{
+		SpecialIncome: data.SpecialIncome,
+		WorkDate:      data.WorkDate,
+		WorkingHours:  data.WorkingHours,
+	})
+	return &i
 }
 
 func (i *Income) SetLoan(l *models.StudentLoan) {
@@ -45,6 +55,8 @@ func (i *Income) parseRequest(req models.IncomeReq, userDetail models.User) erro
 	}
 	i.u = user.NewUser(userDetail)
 	i.u.Parse()
+	i.dailyRate = i.u.DailyRate
+	i.isVATRegistered = i.u.IsVATRegistered()
 	return nil
 }
 
@@ -71,7 +83,7 @@ func (i *Income) prepareDataForUpdateIncome(req models.IncomeReq, userDetail mod
 	income.BankAccountNumber = userDetail.BankAccountNumber
 	income.Email = userDetail.Email
 	income.Phone = userDetail.Phone
-	income.NetIncome = utils.FloatToString(i.transferAmount())
+	income.NetIncome = i.transferAmountStr()
 	income.NetSpecialIncome = i.netSpecialIncomeStr()
 	income.NetDailyIncome = i.netDailyIncomeStr()
 	income.VAT = i.summaryVatStr()
@@ -80,6 +92,8 @@ func (i *Income) prepareDataForUpdateIncome(req models.IncomeReq, userDetail mod
 	income.WorkDate = req.WorkDate
 	income.SpecialIncome = req.SpecialIncome
 	income.WorkingHours = req.WorkingHours
+	income.DailyRate = i.u.DailyRate
+	income.IsVATRegistered = i.u.IsVATRegistered()
 
 	return nil
 }
@@ -121,6 +135,10 @@ func (i *Income) summaryIncome() float64 {
 	return i.totalIncome() + i.specialIncome()
 }
 
+func (i *Income) transferAmountStr() string {
+	return utils.FloatToString(i.transferAmount())
+}
+
 func (i *Income) transferAmount() float64 {
 	return i.netDailyIncome() + i.netSpecialIncome() - float64(i.loan.Amount)
 }
@@ -134,7 +152,7 @@ func (i *Income) netDailyIncome() float64 {
 }
 
 func (i *Income) totalIncome() float64 {
-	return (i.workDate * i.u.DailyRate)
+	return (i.workDate * i.dailyRate)
 }
 
 func (i *Income) netSpecialIncomeStr() string {
@@ -156,8 +174,9 @@ func (i *Income) WitholdingTax(totalIncome float64) float64 {
 func (i *Income) Net(totalIncome float64) float64 {
 	return totalIncome + i.VAT(totalIncome) - i.WitholdingTax(totalIncome)
 }
+
 func (i *Income) VAT(totalIncome float64) float64 {
-	if !i.u.IsVATRegistered() {
+	if !i.isVATRegistered {
 		return 0
 	}
 	return totalIncome * 0.07
@@ -187,9 +206,34 @@ func (i *Income) export(user models.User) []string {
 	return d
 }
 
+func (i *Income) export2() []string {
+	income := *i.data
+	loan := *i.loan
+	d := []string{
+		income.Name,
+		income.ThaiCitizenID,
+		income.BankAccountName,
+		utils.SetValueCSV(income.BankAccountNumber),
+		income.Email,
+		utils.FormatCommas(income.NetDailyIncome),
+		utils.FormatCommas(income.NetSpecialIncome),
+		loan.CSVAmount(),
+		income.WHT,
+		utils.FormatCommas(i.transferAmountStr()),
+		income.Note,
+		i.submitDateStr(),
+	}
+	return d
+}
+
 func calSummaryWithLoan(summaryIncome string, loan models.StudentLoan) string {
 	summary, _ := utils.StringToFloat64(summaryIncome)
 	summary = summary - float64(loan.Amount)
 	summaryIncome = utils.FloatToString(summary)
 	return summaryIncome
+}
+
+func (i *Income) submitDateStr() string {
+	t := i.data.SubmitDate
+	return fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 }

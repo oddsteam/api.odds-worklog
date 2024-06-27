@@ -28,6 +28,8 @@ type Income struct {
 	BankAccountNumber string        `bson:"bankAccountNumber" json:"bankAccountNumber"`
 	Email             string        `bson:"email" json:"email"`
 	Phone             string        `bson:"phone" json:"phone"`
+	DailyRate         float64       `bson:"dailyRate"`
+	IsVATRegistered   bool          `bson:"isVATRegistered"`
 }
 
 type IncomeStatus struct {

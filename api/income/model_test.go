@@ -19,16 +19,16 @@ func TestModelIncome(t *testing.T) {
 		res, err := i.prepareDataForAddIncome(incomeMock.MockIncomeReq, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, uidFromSession, res.UserID)
 		assert.NotNil(t, res)
-		assert.Equal(t, incomeMock.MockIncome.UserID, res.UserID)
-		assert.Equal(t, "58200.00", res.NetIncome)
-		assert.Equal(t, "38800.00", res.NetDailyIncome)
-		assert.Equal(t, "19400.00", res.NetSpecialIncome)
-		assert.Equal(t, "", res.VAT)
-		assert.Equal(t, "1800.00", res.WHT)
 		assert.Equal(t, user.BankAccountName, res.BankAccountName)
 		assert.Equal(t, user.BankAccountNumber, res.BankAccountNumber)
+		assert.Equal(t, user.Email, res.Email)
+		assert.Equal(t, 2000.0, res.DailyRate)
+		assert.Equal(t, "38800.00", res.NetDailyIncome)
+		assert.Equal(t, "19400.00", res.NetSpecialIncome)
+		assert.Equal(t, "58200.00", res.NetIncome)
+		assert.Equal(t, "", res.VAT)
+		assert.Equal(t, "1800.00", res.WHT)
 	})
 
 	t.Run("เวลา Add income ควร save ชื่อ นามสกุล เลขบัตรประชาชนเวลา export ให้บัญชี เค้าจะได้รู้ว่าจ่ายเงินให้ใคร", func(t *testing.T) {
@@ -40,8 +40,8 @@ func TestModelIncome(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, user.ThaiCitizenID, res.ThaiCitizenID)
 		assert.Equal(t, "first last", res.Name)
+		assert.Equal(t, user.ThaiCitizenID, res.ThaiCitizenID)
 	})
 
 	t.Run("เวลา Add income ควร save เบอร์โทรกับ อีเมลด้วยเผื่อตกขบวนเพื่อน ๆ จะได้ช่วยกันตามมากรอกเงินจากหน้า web หน้า individual list ได้", func(t *testing.T) {
@@ -104,6 +104,7 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, 1000.0+0-30, i.Net(i.specialIncome()))
 	})
 
+	// begin obsoleted export will be replaced with new export in Aug release
 	t.Run("export individual income information เพื่อให้บัญชีติดต่อได้เวลามีปัญหา", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := givenIndividualUser(uidFromSession, "5")
@@ -146,6 +147,53 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, "970.00", csvColumns[6])
 		assert.Equal(t, "50.00", csvColumns[7])
 		assert.Equal(t, "33.00", csvColumns[8])
+		assert.Equal(t, "1,017.00", csvColumns[9])
+	})
+
+	// end obsoleted export
+
+	t.Run("new export individual income information เพื่อให้บัญชีติดต่อได้เวลามีปัญหา", func(t *testing.T) {
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		user := givenIndividualUser(uidFromSession, "5")
+		user.FirstName = "first"
+		user.LastName = "last"
+		user.ThaiCitizenID = "id"
+		user.BankAccountName = "account name"
+		user.BankAccountNumber = "0123456789"
+		user.Email = "test@example.com"
+		req := models.IncomeReq{WorkDate: "20"}
+		i := NewIncome(uidFromSession)
+		record, _ := i.prepareDataForAddIncome(req, user)
+		i = NewIncomeFromRecord(*record)
+
+		csvColumns := i.export2()
+
+		assert.Equal(t, "first last", csvColumns[0])
+		assert.Equal(t, "id", csvColumns[1])
+		assert.Equal(t, "account name", csvColumns[2])
+		assert.Equal(t, `="0123456789"`, csvColumns[3])
+		assert.Equal(t, "test@example.com", csvColumns[4])
+	})
+
+	t.Run("new export จำนวนเงินที่ต้องโอนสำหรับ individual income", func(t *testing.T) {
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		user := givenIndividualUser(uidFromSession, "5")
+		req := models.IncomeReq{
+			WorkDate:      "20",
+			SpecialIncome: "100",
+			WorkingHours:  "10",
+		}
+		i := NewIncome(uidFromSession)
+		record, _ := i.prepareDataForAddIncome(req, user)
+		i = NewIncomeFromRecord(*record)
+		i.SetLoan(&models.StudentLoan{Amount: 50})
+
+		csvColumns := i.export2()
+
+		assert.Equal(t, "97.00", csvColumns[5])
+		assert.Equal(t, "970.00", csvColumns[6])
+		assert.Equal(t, "33.00", csvColumns[8])
+		assert.Equal(t, "50.00", csvColumns[7])
 		assert.Equal(t, "1,017.00", csvColumns[9])
 	})
 
