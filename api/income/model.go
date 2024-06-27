@@ -109,6 +109,7 @@ func (i *Income) summaryVatStr() string {
 	}
 	return utils.FloatToString(v)
 }
+
 func (i *Income) summaryVat() float64 {
 	return i.VAT(i.summaryIncome())
 }
@@ -122,7 +123,11 @@ func (i *Income) summaryNet() float64 {
 }
 
 func (i *Income) summaryIncome() float64 {
-	return i.totalIncome() + i.specialIncome() - float64(i.loan.Amount)
+	return i.totalIncome() + i.specialIncome()
+}
+
+func (i *Income) transferAmount() float64 {
+	return i.netDailyIncome() + i.netSpecialIncome() - float64(i.loan.Amount)
 }
 
 func (i *Income) netDailyIncomeStr() string {
