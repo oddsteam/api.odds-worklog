@@ -110,7 +110,7 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, 1000.0+0-30, i.Net(i.specialIncome()))
 	})
 
-	t.Run("export individual income", func(t *testing.T) {
+	t.Run("export individual income information เพื่อให้บัญชีติดต่อได้เวลามีปัญหา", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := models.User{
 			ID:                bson.ObjectIdHex(uidFromSession),
@@ -141,6 +141,41 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, "account name", csvColumns[2])
 		assert.Equal(t, `="0123456789"`, csvColumns[3])
 		assert.Equal(t, "test@example.com", csvColumns[4])
+	})
+
+	t.Run("export จำนวนเงินที่ต้องโอนสำหรับ individual income", func(t *testing.T) {
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		user := models.User{
+			ID:                bson.ObjectIdHex(uidFromSession),
+			Role:              "individual",
+			Vat:               "N",
+			DailyIncome:       "5",
+			FirstName:         "first",
+			LastName:          "last",
+			ThaiCitizenID:     "id",
+			BankAccountName:   "account name",
+			BankAccountNumber: "0123456789",
+			Email:             "test@example.com",
+		}
+		req := models.IncomeReq{
+			WorkDate:      "20",
+			SpecialIncome: "100",
+			WorkingHours:  "10",
+		}
+		i := NewIncome(uidFromSession)
+		record, err := i.prepareDataForAddIncome(req, user)
+		assert.NoError(t, err)
+		i = NewIncomeFromRecord(*record)
+		loan := &models.StudentLoan{Amount: 50}
+		i.SetLoan(loan)
+
+		csvColumns := i.export(user)
+
+		assert.Equal(t, "97.00", csvColumns[5])
+		assert.Equal(t, "970.00", csvColumns[6])
+		assert.Equal(t, "50.00", csvColumns[7])
+		assert.Equal(t, "33.00", csvColumns[8])
+		assert.Equal(t, "1,017.00", csvColumns[9])
 	})
 
 	t.Run("calculate individual income โดยไม่ได้กรอก special income", func(t *testing.T) {
@@ -208,18 +243,16 @@ func TestModelIncome(t *testing.T) {
 		}
 		req := models.IncomeReq{
 			WorkDate: "20",
+			SpecialIncome: "100",
+			WorkingHours:  "10",
 		}
-		loan := &models.StudentLoan{Amount: 50}
 		i := NewIncome(uidFromSession)
-		i.SetLoan(loan)
+		i.SetLoan(&models.StudentLoan{Amount: 50})
 
 		err := i.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, (5*20.0)-50, i.summaryIncome())
-		assert.Equal(t, 50.0*0.03, i.WitholdingTax(i.summaryIncome()))
-		assert.Equal(t, 0.0, i.VAT(i.summaryIncome()))
-		assert.Equal(t, 50.0+0-1.5, i.Net(i.summaryIncome()))
+		assert.Equal(t, i.netDailyIncome() + i.netSpecialIncome() - 50, i.transferAmount())
 	})
 
 	t.Run("calculate corporate income", func(t *testing.T) {
