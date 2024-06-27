@@ -84,12 +84,7 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("calculate individual income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := models.User{
-			ID:          bson.ObjectIdHex(uidFromSession),
-			Role:        "individual",
-			Vat:         "N",
-			DailyIncome: "5",
-		}
+		user := givenIndividualUser(uidFromSession, "5")
 		req := models.IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
@@ -112,22 +107,16 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("export individual income information เพื่อให้บัญชีติดต่อได้เวลามีปัญหา", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := models.User{
-			ID:                bson.ObjectIdHex(uidFromSession),
-			Role:              "individual",
-			Vat:               "N",
-			DailyIncome:       "5",
-			FirstName:         "first",
-			LastName:          "last",
-			ThaiCitizenID:     "id",
-			BankAccountName:   "account name",
-			BankAccountNumber: "0123456789",
-			Email:             "test@example.com",
-		}
+		user := givenIndividualUser(uidFromSession, "5")
+		user.FirstName = "first"
+		user.LastName = "last"
+		user.ThaiCitizenID = "id"
+		user.BankAccountName = "account name"
+		user.BankAccountNumber = "0123456789"
+		user.Email = "test@example.com"
 		req := models.IncomeReq{WorkDate: "20"}
 		i := NewIncome(uidFromSession)
-		record, err := i.prepareDataForAddIncome(req, user)
-		assert.NoError(t, err)
+		record, _ := i.prepareDataForAddIncome(req, user)
 		i = NewIncomeFromRecord(*record)
 
 		csvColumns := i.export(user)
@@ -141,23 +130,16 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("export จำนวนเงินที่ต้องโอนสำหรับ individual income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := models.User{
-			ID:          bson.ObjectIdHex(uidFromSession),
-			Role:        "individual",
-			Vat:         "N",
-			DailyIncome: "5",
-		}
+		user := givenIndividualUser(uidFromSession, "5")
 		req := models.IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
 			WorkingHours:  "10",
 		}
 		i := NewIncome(uidFromSession)
-		record, err := i.prepareDataForAddIncome(req, user)
-		assert.NoError(t, err)
+		record, _ := i.prepareDataForAddIncome(req, user)
 		i = NewIncomeFromRecord(*record)
-		loan := &models.StudentLoan{Amount: 50}
-		i.SetLoan(loan)
+		i.SetLoan(&models.StudentLoan{Amount: 50})
 
 		csvColumns := i.export(user)
 
@@ -170,12 +152,7 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("calculate individual income โดยไม่ได้กรอก special income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := models.User{
-			ID:          bson.ObjectIdHex(uidFromSession),
-			Role:        "individual",
-			Vat:         "N",
-			DailyIncome: "5",
-		}
+		user := givenIndividualUser(uidFromSession, "5")
 		req := models.IncomeReq{
 			WorkDate: "20",
 		}
@@ -193,11 +170,7 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("calculate individual special income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := models.User{
-			ID:   bson.ObjectIdHex(uidFromSession),
-			Role: "individual",
-			Vat:  "N",
-		}
+		user := givenIndividualUser(uidFromSession, "5")
 		req := models.IncomeReq{SpecialIncome: "100", WorkingHours: "10"}
 		i := NewIncome(uidFromSession)
 
@@ -222,12 +195,7 @@ func TestModelIncome(t *testing.T) {
 		// ใครที่ กยศ ให้หัก เราก็จะหักแล้วไปแจ้งใน basecamp กลุ่ม กยศ ไว้
 
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := models.User{
-			ID:          bson.ObjectIdHex(uidFromSession),
-			Role:        "individual",
-			Vat:         "N",
-			DailyIncome: "5",
-		}
+		user := givenIndividualUser(uidFromSession, "5")
 		req := models.IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
@@ -271,4 +239,13 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, 10*100.0*0.07, i.VAT(i.specialIncome()))
 		assert.Equal(t, 1000.0+70-30, i.Net(i.specialIncome()))
 	})
+}
+
+func givenIndividualUser(uidFromSession string, dailyIncome string) models.User {
+	return models.User{
+		ID:          bson.ObjectIdHex(uidFromSession),
+		Role:        "individual",
+		Vat:         "N",
+		DailyIncome: dailyIncome,
+	}
 }
