@@ -254,7 +254,7 @@ func TestUseCaseExportIncomeNotExport(t *testing.T) {
 }
 
 func TestUsecaseAddIncome(t *testing.T) {
-	t.Run("when add income success it should be return income model", func(t *testing.T) {
+	t.Run("when a user add income success it should be return income model to show on the screen", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		user := userMock.User
