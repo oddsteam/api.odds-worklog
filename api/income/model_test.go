@@ -27,7 +27,6 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, "19400.00", res.NetSpecialIncome)
 		assert.Equal(t, "", res.VAT)
 		assert.Equal(t, "1800.00", res.WHT)
-		assert.Equal(t, "60000.00", res.TotalIncome)
 		assert.Equal(t, user.BankAccountName, res.BankAccountName)
 		assert.Equal(t, user.BankAccountNumber, res.BankAccountNumber)
 	})
