@@ -218,7 +218,7 @@ func (u *usecase) exportIncome_new(role string, shouldUpdateExportStatus bool) (
 		loan := studentLoanList.FindLoan(*user)
 		if income.ID.Hex() != "" {
 			if shouldUpdateExportStatus {
-				// u.repo.UpdateExportStatus(income.ID.Hex())
+				u.repo.UpdateExportStatus(income.ID.Hex())
 			}
 			i := NewIncomeFromRecord(*income)
 			i.SetLoan(&loan)

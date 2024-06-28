@@ -98,7 +98,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
 		incomes := []*models.Income{
 			&incomeMock.MockIncome,
-			&incomeMock.MockIncome,
+			&incomeMock.MockIncome2,
 		}
 		mockRepoIncome.EXPECT().GetAllIncomeByStartDateAndEndDate(gomock.Any(), startDate, endDate).Return(
 			incomes, nil)
