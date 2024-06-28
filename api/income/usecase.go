@@ -3,7 +3,7 @@ package income
 import (
 	"encoding/csv"
 	"errors"
-	"fmt"
+	"strings"
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
@@ -16,80 +16,43 @@ type usecase struct {
 	userRepo user.Repository
 }
 
-type incomeSum struct {
-	Net         string
-	VAT         string
-	WHT         string
-	TotalIncome string
-}
-
 func NewUsecase(r Repository, ur user.Repository) Usecase {
 	return &usecase{r, ur}
 }
 
-func calIncomeSum(workAmount string, vattype string, incomes string, role string) (*incomeSum, error) {
-	var vat, wht string
-	var vatf, whtf float64
-	var ins = new(incomeSum)
-
-	amount, _ := utils.StringToFloat64(workAmount)
-	income, _ := utils.StringToFloat64(incomes)
-	totalIncomeStr := utils.FloatToString(amount * income)
-	totalIncome, err := utils.StringToFloat64(totalIncomeStr)
+func (u *usecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
+	userDetail, _ := u.userRepo.GetByID(uid)
+	year, month := utils.GetYearMonthNow()
+	_, err := u.repo.GetIncomeUserByYearMonth(uid, year, month)
+	if err == nil {
+		return nil, errors.New("Sorry, has income data of user " + userDetail.GetName())
+	}
+	income, err := NewIncome(uid).prepareDataForAddIncome(*req, *userDetail)
 	if err != nil {
 		return nil, err
 	}
-	if role == "corporate" {
-		wht, whtf, err = calWHTCorporate(totalIncomeStr)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if role == "individual" {
-		wht, whtf, err = calWHT(totalIncomeStr)
-		if err != nil {
-			return nil, err
-		}
-	}
-	ins.WHT = wht
-	ins.TotalIncome = totalIncomeStr
-
-	if vattype == "Y" {
-		vat, vatf, err = calVAT(totalIncomeStr)
-		if err != nil {
-			return nil, err
-		}
-
-		net := totalIncome + vatf - whtf
-
-		ins.Net = utils.FloatToString(net)
-		ins.VAT = vat
-		return ins, nil
-	}
-	net := totalIncome - whtf
-	ins.Net = utils.FloatToString(net)
-	return ins, nil
-}
-
-func calWHTCorporate(income string) (string, float64, error) {
-	return calWHT(income)
-}
-
-func calWHT(income string) (string, float64, error) {
-	return multiply(income, 0.03)
-}
-
-func calVAT(income string) (string, float64, error) {
-	return multiply(income, 0.07)
-}
-
-func multiply(a string, b float64) (string, float64, error) {
-	num, err := utils.StringToFloat64(a)
+	err = u.repo.AddIncome(income)
 	if err != nil {
-		return "", 0.0, err
+		return nil, err
 	}
-	vat := num * b
-	return utils.FloatToString(vat), utils.RealFloat(vat), nil
+
+	return income, nil
+}
+
+func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
+	userDetail, _ := u.userRepo.GetByID(uid)
+	income, err := u.repo.GetIncomeByID(id, uid)
+	if err != nil {
+		return nil, err
+	}
+
+	err = NewIncome(uid).prepareDataForUpdateIncome(*req, *userDetail, income)
+	if err != nil {
+		return nil, err
+	}
+	u.repo.UpdateIncome(income)
+
+	return income, nil
 }
 
 func (u *usecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
@@ -158,6 +121,12 @@ func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) 
 	return u.exportIncome(role, getIncome, shouldUpdateExportStatus)
 }
 
+func (u *usecase) ExportIncomeNew(role string, beforeMonth string) (string, error) {
+	shouldUpdateExportStatus := beforeMonth == "0"
+
+	return u.exportIncome_new(role, shouldUpdateExportStatus)
+}
+
 func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
 	year, month := utils.GetYearMonthNow()
 	getIncome := u.createFunctionGetUnexportedIncomeByUserWithPeriod(year, month)
@@ -174,13 +143,11 @@ func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (stri
 	}
 
 	studentLoanList := u.repo.GetStudentLoans()
-	fmt.Printf("%#v", studentLoanList)
 
 	strWrite := make([][]string, 0)
 	strWrite = append(strWrite, createHeaders())
 
 	for _, income := range incomes {
-
 		user, err := u.GetUserByID(income.UserID)
 		loan := studentLoanList.FindLoan(*user)
 		if err == nil {
@@ -210,6 +177,77 @@ func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (stri
 }
 
 func (u *usecase) exportIncome(role string, getIncome getIncomeFn, shouldUpdateExportStatus bool) (string, error) {
+	return u.exportIncome_obsoleted(role, getIncome, shouldUpdateExportStatus)
+}
+
+func (u *usecase) exportIncome_new(role string, shouldUpdateExportStatus bool) (string, error) {
+	file, filename, err := utils.CreateCVSFile(role)
+	defer file.Close()
+
+	if err != nil {
+		return "", err
+	}
+	users, err := u.userRepo.GetByRole(role)
+	if err != nil {
+		return "", err
+	}
+
+	var userIds []string
+	for _, v := range users {
+		userIds = append(userIds, v.ID.Hex())
+	}
+
+	startDate, endDate := utils.GetStartDateAndEndDate(time.Now())
+	incomes, err := u.repo.GetAllIncomeByStartDateAndEndDate(userIds, startDate, endDate)
+
+	if err != nil {
+		return "", err
+	}
+
+	studentLoanList := u.repo.GetStudentLoans()
+
+	strWrite := make([][]string, 0)
+	strWrite = append(strWrite, createHeaders())
+	for _, user := range users {
+		income := &models.Income{}
+		for _, e := range incomes {
+			if strings.Contains(user.ID.Hex(), e.UserID) {
+				income = e
+			}
+		}
+		loan := studentLoanList.FindLoan(*user)
+		if income.ID.Hex() != "" {
+			if shouldUpdateExportStatus {
+				u.repo.UpdateExportStatus(income.ID.Hex())
+			}
+			i := NewIncomeFromRecord(*income)
+			i.SetLoan(&loan)
+			d := i.export2()
+			strWrite = append(strWrite, d)
+		}
+	}
+
+	if len(strWrite) == 1 {
+		return "", errors.New("No data for export to CSV file.")
+	}
+
+	csvWriter := csv.NewWriter(file)
+	csvWriter.WriteAll(strWrite)
+	csvWriter.Flush()
+
+	ep := models.Export{
+		Filename: filename,
+		Date:     time.Now(),
+	}
+	err = u.repo.AddExport(&ep)
+	if err != nil {
+		return "", err
+	}
+
+	return filename, nil
+}
+
+func (u *usecase) exportIncome_obsoleted(role string, getIncome getIncomeFn, shouldUpdateExportStatus bool) (string, error) {
 	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()
 
@@ -222,7 +260,6 @@ func (u *usecase) exportIncome(role string, getIncome getIncomeFn, shouldUpdateE
 	}
 
 	studentLoanList := u.repo.GetStudentLoans()
-	fmt.Printf("%#v", studentLoanList)
 
 	strWrite := make([][]string, 0)
 	strWrite = append(strWrite, createHeaders())
@@ -272,48 +309,17 @@ func (u *usecase) createFunctionGetIncomeByUserWithPeriod(year int, month time.M
 	}
 }
 
-func (u *usecase) createFunctionGetIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) getIncomeFn {
-	return func(user models.User) (*models.Income, error) {
-		return u.repo.GetIncomeByStartDateAndEndDate(role, startDate, endDate)
-	}
-}
-
-func createRow(income models.Income, user models.User, loan models.StudentLoan) []string {
-	t := income.SubmitDate
-	summaryIncome, _ := calSummary(income.NetDailyIncome, income.NetSpecialIncome)
-	summaryIncome = calSummaryWithLoan(summaryIncome, loan)
-	tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
-	d := []string{
-		user.GetName(),
-		user.ThaiCitizenID,
-		user.BankAccountName,
-		utils.SetValueCSV(user.BankAccountNumber),
-		user.Email,
-		utils.FormatCommas(income.NetDailyIncome),
-		utils.FormatCommas(income.NetSpecialIncome),
-		loan.CSVAmount(),
-		income.WHT,
-		utils.FormatCommas(summaryIncome),
-		income.Note,
-		tf,
-	}
-	return d
-}
-
-func calSummaryWithLoan(summaryIncome string, loan models.StudentLoan) string {
-	summary, _ := utils.StringToFloat64(summaryIncome)
-	summary = summary - float64(loan.Amount)
-	summaryIncome = utils.FloatToString(summary)
-	return summaryIncome
+func createRow(record models.Income, user models.User, loan models.StudentLoan) []string {
+	i := NewIncomeFromRecord(record)
+	i.SetLoan(&loan)
+	return i.export(user)
 }
 
 func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, incomes []*models.Income) (string, error) {
-
 	return u.exportCsvByInCome(role, incomes)
 }
 
 func (u *usecase) GetAllInComeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
-
 	return u.repo.GetAllIncomeByStartDateAndEndDate(userIds, startDate, endDate)
 }
 

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -14,7 +15,7 @@ import (
 )
 
 func TestUsecaseExportIncome(t *testing.T) {
-	t.Run("export corporate income success", func(t *testing.T) {
+	t.Run("export corporate income success obsoleted", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
@@ -39,6 +40,88 @@ func TestUsecaseExportIncome(t *testing.T) {
 		// remove file after test
 		os.Remove(filename)
 	})
+
+	t.Run("export corporate income beforeMonth success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		year, month := utils.GetYearMonthNow()
+		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month-1).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month-1).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().GetStudentLoans()
+
+		mockRepoUser := userMock.NewMockRepository(ctrl)
+		mockRepoUser.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
+
+		usecase := NewUsecase(mockRepoIncome, mockRepoUser)
+		filename, err := usecase.ExportIncome("corporate", "1")
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
+	t.Run("export individual income current month success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		year, month := utils.GetYearMonthNow()
+		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().GetStudentLoans()
+
+		mockRepoUser := userMock.NewMockRepository(ctrl)
+		mockRepoUser.EXPECT().GetByRole("individual").Return(userMock.Users, nil)
+
+		usecase := NewUsecase(mockRepoIncome, mockRepoUser)
+		filename, err := usecase.ExportIncome("individual", "0")
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
+
+	t.Run("export individual income current month success (new)", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		startDate, endDate := utils.GetStartDateAndEndDate(time.Now())
+		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		incomes := []*models.Income{
+			&incomeMock.MockIncome,
+			&incomeMock.MockIncome2,
+		}
+		mockRepoIncome.EXPECT().GetAllIncomeByStartDateAndEndDate(gomock.Any(), startDate, endDate).Return(
+			incomes, nil)
+		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
+		mockRepoIncome.EXPECT().GetStudentLoans()
+
+		mockRepoUser := userMock.NewMockRepository(ctrl)
+		mockRepoUser.EXPECT().GetByRole("individual").Return(userMock.Users, nil)
+
+		usecase := NewUsecase(mockRepoIncome, mockRepoUser)
+		filename, err := usecase.ExportIncomeNew("individual", "0")
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
+}
+
+func TestUsecaseExportIncomeObsoleted(t *testing.T) {
 	t.Run("export corporate income beforeMonth success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -170,76 +253,8 @@ func TestUseCaseExportIncomeNotExport(t *testing.T) {
 	})
 }
 
-func TestCalVAT(t *testing.T) {
-	vat, vatf, err := calVAT("100000")
-	assert.NoError(t, err)
-	assert.Equal(t, "7000.00", vat)
-	assert.Equal(t, 7000.00, vatf)
-
-	vat, vatf, err = calVAT("123456")
-	assert.NoError(t, err)
-	assert.Equal(t, "8641.92", vat)
-	assert.Equal(t, 8641.92, vatf)
-
-	vat, vatf, err = calVAT("99999")
-	assert.NoError(t, err)
-	assert.Equal(t, "6999.93", vat)
-	assert.Equal(t, 6999.93, vatf)
-}
-func TestCalWHT(t *testing.T) {
-	wht, whtf, err := calWHT("100000")
-	assert.NoError(t, err)
-	assert.Equal(t, "3000.00", wht)
-	assert.Equal(t, 3000.0, whtf)
-
-	wht, whtf, err = calWHT("123456")
-	assert.NoError(t, err)
-	assert.Equal(t, "3703.68", wht)
-	assert.Equal(t, 3703.68, whtf)
-
-	wht, whtf, err = calWHT("99999")
-	assert.NoError(t, err)
-	assert.Equal(t, "2999.97", wht)
-	assert.Equal(t, 2999.97, whtf)
-}
-func TestCalWHTCorporate(t *testing.T) {
-	wht, whtf, err := calWHTCorporate("100000")
-	assert.NoError(t, err)
-	assert.Equal(t, "3000.00", wht)
-	assert.Equal(t, 3000.00, whtf)
-
-	wht, whtf, err = calWHTCorporate("123456")
-	assert.NoError(t, err)
-	assert.Equal(t, "3703.68", wht)
-	assert.Equal(t, 3703.68, whtf)
-
-	wht, whtf, err = calWHTCorporate("99999")
-	assert.NoError(t, err)
-	assert.Equal(t, "2999.97", wht)
-	assert.Equal(t, 2999.97, whtf)
-}
-func TestCalCorporateIncomeSum(t *testing.T) {
-	sum, err := calIncomeSum("20", "Y", "5000", "corporate")
-	assert.NoError(t, err)
-	assert.Equal(t, "104000.00", sum.Net)
-
-	sum, err = calIncomeSum("20", "Y", "2000", "corporate")
-	assert.NoError(t, err)
-	assert.Equal(t, "41600.00", sum.Net)
-}
-
-func TestCalPersonIncomeSum(t *testing.T) {
-	sum, err := calIncomeSum("20", "N", "5000", "individual")
-	assert.NoError(t, err)
-	assert.Equal(t, "97000.00", sum.Net)
-
-	sum, err = calIncomeSum("20", "N", "2000", "individual")
-	assert.NoError(t, err)
-	assert.Equal(t, "38800.00", sum.Net)
-}
-
 func TestUsecaseAddIncome(t *testing.T) {
-	t.Run("when add income success it should be return income model", func(t *testing.T) {
+	t.Run("when a user add income success it should be return income model to show on the screen", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		user := userMock.User
@@ -259,6 +274,8 @@ func TestUsecaseAddIncome(t *testing.T) {
 		assert.Equal(t, "116400.00", res.NetIncome)
 		assert.Equal(t, "97000.00", res.NetDailyIncome)
 		assert.Equal(t, "19400.00", res.NetSpecialIncome)
+		assert.Equal(t, "", res.VAT)
+		assert.Equal(t, "3600.00", res.WHT)
 	})
 }
 

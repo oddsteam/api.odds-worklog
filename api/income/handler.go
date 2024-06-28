@@ -3,10 +3,11 @@ package income
 import (
 	"encoding/json"
 	"errors"
-	"gitlab.odds.team/worklog/api.odds-worklog/requests"
 	"log"
 	"net/http"
 	"time"
+
+	"gitlab.odds.team/worklog/api.odds-worklog/requests"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 
@@ -262,16 +263,6 @@ func (h *HttpHandler) GetExportDifferentCorporate(c echo.Context) error {
 	return c.Attachment(filename, filename)
 }
 
-// GetExportIndividual godoc
-// @Summary Get Individual Export Income
-// @Description Get Individual Export Income to csv file.
-// @Tags incomes
-// @Accept  json
-// @Produce  json
-// @Param month path string true "Month"
-// @Success 200 {array} string
-// @Failure 500 {object} utils.HTTPError
-// @Router /incomes/export/individual/{month} [get]
 func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	isAdmin, message := IsUserAdmin(c)
 	if !isAdmin {
@@ -282,6 +273,32 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 	filename, err := h.Usecase.ExportIncome("individual", month)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.Attachment(filename, filename)
+}
+
+// GetExportIndividualNew godoc
+// @Summary Get Individual Export Income (New API)
+// @Description Get Individual Export Income to csv file.
+// @Tags incomes
+// @Accept  json
+// @Produce  json
+// @Param month path string true "Month"
+// @Success 200 {array} string
+// @Failure 500 {object} utils.HTTPError
+// @Router /v2/incomes/export/individual/{month} [get]
+func (h *HttpHandler) GetExportIndividualNew(c echo.Context) error {
+	isAdmin, message := IsUserAdmin(c)
+	if !isAdmin {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
+	month := c.Param("month")
+	if month == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	filename, err := h.Usecase.ExportIncomeNew("individual", month)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -408,7 +425,15 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/export/corporate/different", handler.GetExportDifferentCorporate)
 	r.GET("/export/individual/different", handler.GetExportDifferentIndividuals)
 	r.GET("/export/pdf/:id", handler.GetExportPdf)
-
 	r.POST("/export", handler.PostExportPdf)
+}
 
+func NewHttpHandler2(r *echo.Group, session *mongo.Session) {
+	incomeRepo := NewRepository(session)
+	userRepo := user.NewRepository(session)
+	uc := NewUsecase(incomeRepo, userRepo)
+	handler := &HttpHandler{uc}
+
+	r = r.Group("/incomes")
+	r.GET("/export/individual/:month", handler.GetExportIndividualNew)
 }

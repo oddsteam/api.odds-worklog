@@ -7,21 +7,29 @@ import (
 )
 
 type Income struct {
-	ID               bson.ObjectId `bson:"_id" json:"id"`
-	UserID           string        `bson:"userId" json:"userId"`
-	TotalIncome      string        `bson:"totalIncome" json:"totalIncome"`
-	NetIncome        string        `bson:"netIncome" json:"netIncome"`
-	NetDailyIncome   string        `bson:"netDailyIncome" json:"netDailyIncome"`
-	WorkDate         string        `bson:"workDate" json:"workDate"`
-	SubmitDate       time.Time     `bson:"submitDate" json:"submitDate"`
-	LastUpdate       time.Time     `bson:"lastUpdate" json:"lastUpdate"`
-	Note             string        `bson:"note" json:"note"`
-	VAT              string        `bson:"vat" json:"vat"`
-	WHT              string        `bson:"wht" json:"wht"`
-	SpecialIncome    string        `bson:"specialIncome" json:"specialIncome"`
-	NetSpecialIncome string        `bson:"netSpecialIncome" json:"netSpecialIncome"`
-	WorkingHours     string        `bson:"workingHours" json:"workingHours"`
-	ExportStatus     bool          `bson:"exportStatus" json:"exportStatus"`
+	ID                bson.ObjectId `bson:"_id" json:"id"`
+	UserID            string        `bson:"userId" json:"userId"`
+	TotalIncome       string        `bson:"totalIncome" json:"totalIncome"`
+	NetIncome         string        `bson:"netIncome" json:"netIncome"`
+	NetDailyIncome    string        `bson:"netDailyIncome" json:"netDailyIncome"`
+	WorkDate          string        `bson:"workDate" json:"workDate"`
+	SubmitDate        time.Time     `bson:"submitDate" json:"submitDate"`
+	LastUpdate        time.Time     `bson:"lastUpdate" json:"lastUpdate"`
+	Note              string        `bson:"note" json:"note"`
+	VAT               string        `bson:"vat" json:"vat"`
+	WHT               string        `bson:"wht" json:"wht"`
+	SpecialIncome     string        `bson:"specialIncome" json:"specialIncome"`
+	NetSpecialIncome  string        `bson:"netSpecialIncome" json:"netSpecialIncome"`
+	WorkingHours      string        `bson:"workingHours" json:"workingHours"`
+	ExportStatus      bool          `bson:"exportStatus" json:"exportStatus"`
+	ThaiCitizenID     string        `bson:"thaiCitizenId" json:"thaiCitizenId,omitempty"`
+	Name              string        `bson:"name" json:"name,omitempty"`
+	BankAccountName   string        `bson:"bankAccountName" json:"bankAccountName"`
+	BankAccountNumber string        `bson:"bankAccountNumber" json:"bankAccountNumber"`
+	Email             string        `bson:"email" json:"email"`
+	Phone             string        `bson:"phone" json:"phone"`
+	DailyRate         float64       `bson:"dailyRate"`
+	IsVATRegistered   bool          `bson:"isVATRegistered"`
 }
 
 type IncomeStatus struct {

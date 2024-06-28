@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"unicode"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
@@ -69,71 +70,46 @@ func (u *usecase) GetBySiteID(id string) ([]*models.User, error) {
 	return u.repo.GetBySiteID(id)
 }
 
-func (u *usecase) Update(m *models.User, isAdmin bool) (*models.User, error) {
-	if err := m.ValidateRole(); err != nil {
+func (u *usecase) Update(userFromRequest *models.User, isAdmin bool) (*models.User, error) {
+	if err := userFromRequest.ValidateRole(); err != nil {
 		return nil, err
 	}
-	if err := m.ValidateVat(); err != nil {
+	if err := userFromRequest.ValidateVat(); err != nil {
 		return nil, err
 	}
-	if m.Role == "admin" && !isAdmin {
+	if userFromRequest.Role == "admin" && !isAdmin {
 		return nil, utils.ErrInvalidUserRole
 	}
 
-	user, err := u.repo.GetByID(m.ID.Hex())
+	currentUser, err := u.repo.GetByID(userFromRequest.ID.Hex())
 	if err != nil {
 		return nil, err
 	}
 
-	if m.FirstName != "" {
-		user.FirstName = utils.ToFirstUpper(m.FirstName)
+	user := NewUser(*currentUser)
+	err = user.prepareDataForUpdateFrom(*userFromRequest)
+	if err != nil {
+		return nil, err
 	}
-	if m.LastName != "" {
-		user.LastName = utils.ToFirstUpper(m.LastName)
+
+	persistedUser, err := u.repo.Update(user.data)
+	if err != nil {
+		return nil, err
 	}
-	if m.CorporateName != "" {
-		user.CorporateName = m.CorporateName
-	}
-	if m.BankAccountName != "" {
-		user.BankAccountName = m.BankAccountName
-	}
-	if m.BankAccountNumber != "" {
-		user.BankAccountNumber = m.BankAccountNumber
-	}
-	if m.ThaiCitizenID != "" {
-		user.ThaiCitizenID = m.ThaiCitizenID
-	}
-	if m.SlackAccount != "" {
-		if err := utils.ValidateEmail(m.SlackAccount); err != nil {
-			return nil, errors.New("Invalid slack acount.")
+
+	return persistedUser, nil
+}
+
+func extractNumbers(input string) string {
+	var result []rune
+
+	for _, char := range input {
+		if unicode.IsDigit(char) {
+			result = append(result, char)
 		}
-		user.SlackAccount = m.SlackAccount
-	}
-	if m.SiteID != "" {
-		user.SiteID = m.SiteID
-	}
-	if m.Project != "" {
-		user.Project = m.Project
-	}
-	if m.DailyIncome != "" {
-		user.DailyIncome = m.DailyIncome
-	}
-	if m.Address != "" {
-		user.Address = m.Address
-	}
-	if m.StartDate != "" {
-		user.StartDate = m.StartDate
 	}
 
-	user.StatusTavi = m.StatusTavi
-	user.Role = m.Role
-	user.Vat = m.Vat
-	user.Phone = m.Phone
-	user, err = u.repo.Update(user)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
+	return string(result)
 }
 
 func (u *usecase) UpdateStatusTavi(m []*models.StatusTavi, isAdmin bool) ([]*models.User, error) {

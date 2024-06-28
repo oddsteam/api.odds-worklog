@@ -28,8 +28,8 @@ var (
 		ExportStatus:     false,
 	}
 	MockIncome2 = models.Income{
-		ID:               bson.ObjectIdHex("5bd1fda30fd2df2a3e41e569"),
-		UserID:           "5bbcf2f90fd2df527bc39539",
+		ID:               bson.ObjectIdHex("5bd1fda30fd2df2a3e41e570"),
+		UserID:           "5bbcf2f90fd2df527bc39530",
 		TotalIncome:      "100000",
 		NetIncome:        "00.00",
 		NetDailyIncome:   "48500.00",

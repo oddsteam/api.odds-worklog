@@ -65,3 +65,13 @@ func TestGetYearMonthNow(t *testing.T) {
 	assert.Equal(t, tn.Year(), y)
 	assert.Equal(t, tn.Month(), m)
 }
+
+func TestGetTheStartDateAndEndDateOfThisMonth(t *testing.T) {
+	now := time.Date(2022, time.Month(1), 1, 13, 30, 29, 0, time.UTC)
+	startDate, endDate := GetStartDateAndEndDate(now)
+
+	expectedStartDate := time.Date(2022, time.Month(1), 1, 0, 0, 0, 0, time.UTC)
+	expectedEndDate := time.Date(2022, time.Month(1), 31, 23, 59, 59, 0, time.UTC)
+	assert.Equal(t, expectedStartDate, startDate)
+	assert.Equal(t, expectedEndDate, endDate)
+}

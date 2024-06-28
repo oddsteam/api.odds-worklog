@@ -3,6 +3,7 @@ package user
 import (
 	"testing"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
 	siteMock "gitlab.odds.team/worklog/api.odds-worklog/api/site/mock"
@@ -199,6 +200,18 @@ func TestUsecase_Update(t *testing.T) {
 		assert.NotNil(t, u)
 		assert.Equal(t, userMock.User.GetFullname(), u.GetFullname())
 		assert.Equal(t, userMock.User.StartDate, u.StartDate)
+	})
+
+	t.Run("Bank account number with - and special char will create a bad batch file for bank system. This will fail the batch transfer process in the bank, causing the delay for all members to receive income. Therefore, we will remove - and special char from the bank account number!", func(t *testing.T) {
+		userFromRequest := models.User{
+			BankAccountNumber: "้1234-123-999",
+		}
+
+		user := NewUser(userMock.User)
+		err := user.prepareDataForUpdateFrom(userFromRequest)
+
+		assert.NoError(t, err)
+		assert.Equal(t, user.data.BankAccountNumber, "1234123999")
 	})
 
 	t.Run("when update user invalid role, then retuen erro nil, ErrInvalidUserRole", func(t *testing.T) {

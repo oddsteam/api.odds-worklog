@@ -66,6 +66,10 @@ func main() {
 	invoice.NewHttpHandler(r, session)
 	customer.NewHttpHandler(r, session)
 
+	r = e.Group("/v2")
+	r.Use(middleware.JWTWithConfig(m))
+	income.NewHttpHandler2(r, session)
+
 	reminderRepo := reminder.NewRepository(session)
 	s, err := reminderRepo.GetReminder()
 	if err != nil {

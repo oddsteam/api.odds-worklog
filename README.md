@@ -2,10 +2,11 @@
 
 ODDS Worklog API written in Go
 
-**Table of contents**
+**Table of Contents**
 
 - [Requirements](#requirements)
 - [Getting started](#getting-started)
+- [Running Worklog API in Docker](#running-worklog-api-in-docker)
 - [Contributing](#contributing)
 
 ## Requirements
@@ -17,56 +18,76 @@ ODDS Worklog API is tested with:
 | Go      | 1.13         |
 | MongoDB | 4.0.3        |
 
-## Getting started
+## Architecture
 
-### Running in Docker
+See our [C4 Model](./docs/c4/).
 
-Install [Docker Community Edition (CE)](https://docs.docker.com/engine/install/) on your machine.
+## Getting Started
 
-```sh
-docker-compose up --build -d
-```
+### Running Worklog API in Docker
 
-If you found the error "The container name "/odds-worklog-mongo" is already.", please follow the steps below.
+1. Install [Docker Community Edition (CE)](https://docs.docker.com/engine/install/) on your machine.
+1. Run the following command:
 
-1. Run `docker stop odds-worklog-mongo` to stop container or `docker rm odds-worklog-mongo` to remove old container
-1. Run `docker-compose up --build -d` again
+    ```sh
+    docker compose up --build -d
+    ```
 
-If the API does not start due to the error "Authentication failed", please see the section below.
+If the API does not start due to the error "Authentication failed", please see the [MongoDB Authentication Setup](#mongodb-authentication-setup) section below.
 
-### Setup authen mongodb
+#### MongoDB Authentication Setup
 
-If first time, you must Run `docker volume create mongodbdata_odds_worklog` for create mongodb docker volume.
+1. If the MongoDB container hasn't been started yet, run the following command:
 
-1. Start mongodb container <br>
-   If container mongo name `odds-worklog-mongo` is not running <br>
-   Run `docker-compose -f docker-compose.local.yaml up -d mongodb` <br>
-   If docker: Error response from daemon: Conflict. Run `docker rm odds-worklog-mongo` to remove old container <br>
-   If you have container using port `27017` you must be stop it and run command again.
+   ```bash
+   docker compose -f docker-compose.local.yaml up -d mongodb
+   ```
 
-2. Invoke mongodb container <br>
-   Run `docker exec -it odds-worklog-mongo bash`
+1. Enter the MongoDB container's shell using the command below:
 
-3. Invoke mongodb <br>
-   Run `mongo`
+   ```bash
+   docker compose -f docker-compose.local.yaml exec mongodb bash
+   ```
 
-4. Create user admin <br>
-   Run `use admin` <br>
-   If no user admin <br>
-   Run `db.createUser({user:"admin",pwd:"admin",roles:["root"]})` <br>
-   Else authen, run `db.auth('admin','admin')`
+1. After that, we'll invoke MongoDB shell by
 
-5. Create user for read/write data on `odds_worklog_db` <br>
-   Run `use odds_worklog_db` <br>
-   Run `db.createUser({user:"admin",pwd:"admin",roles:[{role:"readWrite",db:"odds_worklog_db"}]})`
+   ```bash
+   mongo
+   ```
 
-6. Exit mongo and container<br>
-   Exit mongo in container, run `exit` <br>
-   Exit container, run `exit`
+1. To authenticate an admin user, run the commands below:
 
-### Run by `go run main.go` <br>
+   ```bash
+   use admin
+   db.auth("admin", "admin")
+   ```
 
-Run `go run main.go` (at project path)
+   If you found an error "Error: Authentication failed", it means that the admin user probably doesn't exist yet, we need to create it first by running the following command:
+
+   ```bash
+   db.createUser({user: "admin", pwd: "admin", roles:["root"]})
+   ```
+
+1. Create an user to manage data on the `odds_worklog_db` database, run the following commands:
+
+   ```bash
+   use odds_worklog_db
+   db.createUser({user: "admin", pwd: "admin", roles: [{role: "readWrite",db: "odds_worklog_db"}]})
+   ```
+
+1. Now we can exit the MongoDB container:
+
+   ```bash
+   exit
+   ```
+
+### Starting Worklog API on Local Machine
+
+Run the following command at the project path.
+
+```bash
+go run main.go
+````
 
 ### API
 
