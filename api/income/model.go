@@ -206,6 +206,13 @@ func (i *Income) export(user models.User) []string {
 	return d
 }
 
+func calSummaryWithLoan(summaryIncome string, loan models.StudentLoan) string {
+	summary, _ := utils.StringToFloat64(summaryIncome)
+	summary = summary - float64(loan.Amount)
+	summaryIncome = utils.FloatToString(summary)
+	return summaryIncome
+}
+
 func (i *Income) export2() []string {
 	income := *i.data
 	loan := *i.loan
@@ -224,13 +231,6 @@ func (i *Income) export2() []string {
 		i.submitDateStr(),
 	}
 	return d
-}
-
-func calSummaryWithLoan(summaryIncome string, loan models.StudentLoan) string {
-	summary, _ := utils.StringToFloat64(summaryIncome)
-	summary = summary - float64(loan.Amount)
-	summaryIncome = utils.FloatToString(summary)
-	return summaryIncome
 }
 
 func (i *Income) submitDateStr() string {
