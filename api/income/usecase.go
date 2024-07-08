@@ -3,7 +3,6 @@ package income
 import (
 	"encoding/csv"
 	"errors"
-	"strings"
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
@@ -206,27 +205,14 @@ func (u *usecase) exportIncome_new(role string, shouldUpdateExportStatus bool) (
 
 	studentLoanList := u.repo.GetStudentLoans()
 
-	strWrite := make([][]string, 0)
-	strWrite = append(strWrite, createHeaders())
-	for _, user := range users {
-		income := &models.Income{}
-		for _, e := range incomes {
-			if strings.Contains(user.ID.Hex(), e.UserID) {
-				income = e
-			}
-		}
-		loan := studentLoanList.FindLoan(*user)
-		if income.ID.Hex() != "" {
-			if shouldUpdateExportStatus {
-				u.repo.UpdateExportStatus(income.ID.Hex())
-			}
-			i := NewIncomeFromRecord(*income)
-			i.SetLoan(&loan)
-			d := i.export2()
-			strWrite = append(strWrite, d)
+	ics := NewIncomes(incomes, studentLoanList, users)
+	strWrite, updatedIncomeIds := ics.toCSV()
+
+	for _, id := range updatedIncomeIds {
+		if shouldUpdateExportStatus {
+			u.repo.UpdateExportStatus(id)
 		}
 	}
-
 	if len(strWrite) == 1 {
 		return "", errors.New("No data for export to CSV file.")
 	}

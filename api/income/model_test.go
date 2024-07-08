@@ -296,3 +296,105 @@ func givenIndividualUser(uidFromSession string, dailyIncome string) models.User 
 		DailyIncome: dailyIncome,
 	}
 }
+
+func TestModelIncomes(t *testing.T) {
+	t.Run("test export to CSV when there is 0 income", func(t *testing.T) {
+		users := []*models.User{{ID: "id"}}
+		records := []*models.Income{}
+		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+
+		csv, _ := incomes.toCSV()
+
+		assert.NotNil(t, csv)
+		headerLenght := 1
+		assert.Equal(t, headerLenght, len(csv))
+	})
+
+	t.Run("test export to CSV when there is 1 income", func(t *testing.T) {
+		users := []*models.User{
+			{ID: "id"},
+		}
+		records := []*models.Income{
+			{ID: "incomeId", UserID: users[0].ID.Hex()},
+		}
+		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+
+		csv, _ := incomes.toCSV()
+
+		assert.NotNil(t, csv)
+		headerLenght := 1
+		incomeCount := 1
+		assert.Equal(t, headerLenght+incomeCount, len(csv))
+	})
+
+	t.Run("test export to CSV when there is n incomes", func(t *testing.T) {
+		users := []*models.User{
+			{ID: "id1"},
+			{ID: "id2"},
+		}
+		records := []*models.Income{
+			{ID: "incomeId1", UserID: users[0].ID.Hex()},
+			{ID: "incomeId2", UserID: users[1].ID.Hex()},
+		}
+		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+
+		csv, _ := incomes.toCSV()
+
+		assert.NotNil(t, csv)
+		headerLenght := 1
+		incomeCount := 2
+		assert.Equal(t, headerLenght+incomeCount, len(csv))
+	})
+
+	t.Run("test export to CSV when มีคนตกขบวน", func(t *testing.T) {
+		users := []*models.User{
+			{ID: "id1"},
+			{ID: "id2"},
+		}
+		records := []*models.Income{
+			{ID: "incomeId1", UserID: users[0].ID.Hex()},
+		}
+		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+
+		csv, _ := incomes.toCSV()
+
+		assert.NotNil(t, csv)
+		headerLenght := 1
+		incomeCount := 1
+		assert.Equal(t, headerLenght+incomeCount, len(csv))
+	})
+
+	t.Run("test should also return updatedIncomeIds", func(t *testing.T) {
+		// เราจะได้ mark ว่า income เหล่านี้ถูก export ออกไปแล้ว
+		// เวลา export different individuals (คนที่ยังไม่ถูก export, เพราะตัดรอบไปก่อน)
+		// จะได้รู้ว่าใครบ้างที่ export ไปแล้ว
+		users := []*models.User{
+			{ID: "id"},
+		}
+		records := []*models.Income{
+			{ID: "incomeId", UserID: users[0].ID.Hex()},
+		}
+		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+
+		_, updatedIncomeIds := incomes.toCSV()
+
+		assert.NotNil(t, updatedIncomeIds)
+		assert.Equal(t, 1, len(updatedIncomeIds))
+	})
+
+	t.Run("test updatedIncomeIds when มีคนตกขบวน", func(t *testing.T) {
+		users := []*models.User{
+			{ID: "id1"},
+			{ID: "id2"},
+		}
+		records := []*models.Income{
+			{ID: "incomeId1", UserID: users[0].ID.Hex()},
+		}
+		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+
+		_, updatedIncomeIds := incomes.toCSV()
+
+		assert.NotNil(t, updatedIncomeIds)
+		assert.Equal(t, 1, len(updatedIncomeIds))
+	})
+}
