@@ -2,6 +2,7 @@ package income
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
@@ -206,6 +207,13 @@ func (i *Income) export(user models.User) []string {
 	return d
 }
 
+func calSummaryWithLoan(summaryIncome string, loan models.StudentLoan) string {
+	summary, _ := utils.StringToFloat64(summaryIncome)
+	summary = summary - float64(loan.Amount)
+	summaryIncome = utils.FloatToString(summary)
+	return summaryIncome
+}
+
 func (i *Income) export2() []string {
 	income := *i.data
 	loan := *i.loan
@@ -226,14 +234,44 @@ func (i *Income) export2() []string {
 	return d
 }
 
-func calSummaryWithLoan(summaryIncome string, loan models.StudentLoan) string {
-	summary, _ := utils.StringToFloat64(summaryIncome)
-	summary = summary - float64(loan.Amount)
-	summaryIncome = utils.FloatToString(summary)
-	return summaryIncome
-}
-
 func (i *Income) submitDateStr() string {
 	t := i.data.SubmitDate
 	return fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
+}
+
+type Incomes struct {
+	users   []*models.User
+	records []*models.Income
+	loans   models.StudentLoanList
+}
+
+func NewIncomes(records []*models.Income, loans models.StudentLoanList, users []*models.User) *Incomes {
+	return &Incomes{
+		records: records,
+		loans:   loans,
+		users:   users,
+	}
+}
+
+func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
+	strWrite := make([][]string, 0)
+	strWrite = append(strWrite, createHeaders())
+	updatedIncomeIds = []string{}
+	for _, user := range ics.users {
+		income := models.Income{}
+		for _, e := range ics.records {
+			if strings.Contains(user.ID.Hex(), e.UserID) {
+				income = *e
+			}
+		}
+		loan := ics.loans.FindLoan(*user)
+		if income.ID.Hex() != "" {
+			updatedIncomeIds = append(updatedIncomeIds, income.ID.Hex())
+			i := NewIncomeFromRecord(income)
+			i.SetLoan(&loan)
+			d := i.export2()
+			strWrite = append(strWrite, d)
+		}
+	}
+	return strWrite, updatedIncomeIds
 }
