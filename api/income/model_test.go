@@ -81,6 +81,19 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, incomeMock.MockIncomeReq.Note, res.Note)
 	})
 
+	t.Run("เวลา Add income ควร total income ด้วยเพราะ iOS, Andriod และหน้า history ใช้", func(t *testing.T) {
+		// ref: https://3.basecamp.com/4877526/buckets/19693649/card_tables/cards/7638832341#__recording_7639315070
+		user := userMock.IndividualUser1
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		i := NewIncome(uidFromSession)
+
+		res, err := i.prepareDataForAddIncome(incomeMock.MockIncomeReq, user)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.Equal(t, "40000.00", res.TotalIncome)
+	})
+
 	t.Run("calculate individual income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := givenIndividualUser(uidFromSession, "5")

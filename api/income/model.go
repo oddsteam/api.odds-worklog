@@ -95,6 +95,7 @@ func (i *Income) prepareDataForUpdateIncome(req models.IncomeReq, userDetail mod
 	income.WorkingHours = req.WorkingHours
 	income.DailyRate = i.u.DailyRate
 	income.IsVATRegistered = i.u.IsVATRegistered()
+	income.TotalIncome = i.totalIncomeStr()
 
 	return nil
 }
@@ -150,6 +151,10 @@ func (i *Income) netDailyIncomeStr() string {
 
 func (i *Income) netDailyIncome() float64 {
 	return i.Net(i.totalIncome())
+}
+
+func (i *Income) totalIncomeStr() string {
+	return utils.FloatToString(i.totalIncome())
 }
 
 func (i *Income) totalIncome() float64 {
