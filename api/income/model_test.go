@@ -91,7 +91,7 @@ func TestModelIncome(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, "40000.00", res.TotalIncome)
+		assert.Equal(t, "60000.00", res.TotalIncome)
 	})
 
 	t.Run("calculate individual income", func(t *testing.T) {
@@ -107,14 +107,15 @@ func TestModelIncome(t *testing.T) {
 		err := i.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 5*20.0, i.totalIncome())
-		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.totalIncome()))
-		assert.Equal(t, 0.0, i.VAT(i.totalIncome()))
-		assert.Equal(t, 100.0+0-3, i.Net(i.totalIncome()))
+		assert.Equal(t, 5*20.0, i.dailyIncome())
+		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.dailyIncome()))
+		assert.Equal(t, 0.0, i.VAT(i.dailyIncome()))
+		assert.Equal(t, 100.0+0-3, i.Net(i.dailyIncome()))
 		assert.Equal(t, 10*100.0, i.specialIncome())
 		assert.Equal(t, 10*100.0*0.03, i.WitholdingTax(i.specialIncome()))
 		assert.Equal(t, 0.0, i.VAT(i.specialIncome()))
 		assert.Equal(t, 1000.0+0-30, i.Net(i.specialIncome()))
+		assert.Equal(t, i.dailyIncome()+i.specialIncome(), i.totalIncome())
 	})
 
 	// begin obsoleted export will be replaced with new export in Aug release
@@ -221,9 +222,9 @@ func TestModelIncome(t *testing.T) {
 		err := i.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 5*20.0, i.totalIncome())
-		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.totalIncome()))
-		assert.Equal(t, 0.0, i.VAT(i.totalIncome()))
+		assert.Equal(t, 5*20.0, i.dailyIncome())
+		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.dailyIncome()))
+		assert.Equal(t, 0.0, i.VAT(i.dailyIncome()))
 		assert.Equal(t, 100.0+0-3, i.netDailyIncome())
 		assert.Equal(t, "97.00", i.netDailyIncomeStr())
 	})
@@ -290,10 +291,10 @@ func TestModelIncome(t *testing.T) {
 		err := i.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 5*20.0, i.totalIncome())
-		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.totalIncome()))
-		assert.Equal(t, 7.000000000000001, i.VAT(i.totalIncome()))
-		assert.Equal(t, 100.0+7-3, i.Net(i.totalIncome()))
+		assert.Equal(t, 5*20.0, i.dailyIncome())
+		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.dailyIncome()))
+		assert.Equal(t, 7.000000000000001, i.VAT(i.dailyIncome()))
+		assert.Equal(t, 100.0+7-3, i.Net(i.dailyIncome()))
 		assert.Equal(t, 10*100.0, i.specialIncome())
 		assert.Equal(t, 10*100.0*0.03, i.WitholdingTax(i.specialIncome()))
 		assert.Equal(t, 10*100.0*0.07, i.VAT(i.specialIncome()))

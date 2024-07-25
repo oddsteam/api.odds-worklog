@@ -134,7 +134,7 @@ func (i *Income) summaryWHT() float64 {
 }
 
 func (i *Income) summaryIncome() float64 {
-	return i.totalIncome() + i.specialIncome()
+	return i.dailyIncome() + i.specialIncome()
 }
 
 func (i *Income) transferAmountStr() string {
@@ -150,7 +150,7 @@ func (i *Income) netDailyIncomeStr() string {
 }
 
 func (i *Income) netDailyIncome() float64 {
-	return i.Net(i.totalIncome())
+	return i.Net(i.dailyIncome())
 }
 
 func (i *Income) totalIncomeStr() string {
@@ -158,6 +158,10 @@ func (i *Income) totalIncomeStr() string {
 }
 
 func (i *Income) totalIncome() float64 {
+	return i.dailyIncome() + i.specialIncome()
+}
+
+func (i *Income) dailyIncome() float64 {
 	return (i.workDate * i.dailyRate)
 }
 
