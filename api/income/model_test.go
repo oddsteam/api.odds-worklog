@@ -320,8 +320,8 @@ func TestModelIncomes(t *testing.T) {
 		csv, _ := incomes.toCSV()
 
 		assert.NotNil(t, csv)
-		headerLenght := 1
-		assert.Equal(t, headerLenght, len(csv))
+		headerLength := 1
+		assert.Equal(t, headerLength, len(csv))
 	})
 
 	t.Run("test export to CSV when there is 1 income", func(t *testing.T) {
@@ -336,9 +336,9 @@ func TestModelIncomes(t *testing.T) {
 		csv, _ := incomes.toCSV()
 
 		assert.NotNil(t, csv)
-		headerLenght := 1
+		headerLength := 1
 		incomeCount := 1
-		assert.Equal(t, headerLenght+incomeCount, len(csv))
+		assert.Equal(t, headerLength+incomeCount, len(csv))
 	})
 
 	t.Run("test export to CSV when there is n incomes", func(t *testing.T) {
@@ -355,9 +355,9 @@ func TestModelIncomes(t *testing.T) {
 		csv, _ := incomes.toCSV()
 
 		assert.NotNil(t, csv)
-		headerLenght := 1
+		headerLength := 1
 		incomeCount := 2
-		assert.Equal(t, headerLenght+incomeCount, len(csv))
+		assert.Equal(t, headerLength+incomeCount, len(csv))
 	})
 
 	t.Run("test export to CSV when มีคนตกขบวน", func(t *testing.T) {
@@ -373,9 +373,9 @@ func TestModelIncomes(t *testing.T) {
 		csv, _ := incomes.toCSV()
 
 		assert.NotNil(t, csv)
-		headerLenght := 1
+		headerLength := 1
 		incomeCount := 1
-		assert.Equal(t, headerLenght+incomeCount, len(csv))
+		assert.Equal(t, headerLength+incomeCount, len(csv))
 	})
 
 	t.Run("test should also return updatedIncomeIds", func(t *testing.T) {

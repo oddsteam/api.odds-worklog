@@ -193,7 +193,7 @@ func (i *Income) export(user models.User) []string {
 	loan := *i.loan
 	t := income.SubmitDate
 	netTotalIncome, _ := calTotal(income.NetDailyIncome, income.NetSpecialIncome)
-	netTotalIncome = calTotalWithLoan(netTotalIncome, loan)
+	netTotalIncome = calTotalWithLoanDeduction(netTotalIncome, loan)
 	tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 	d := []string{
 		user.GetName(),
@@ -212,7 +212,7 @@ func (i *Income) export(user models.User) []string {
 	return d
 }
 
-func calTotalWithLoan(totalIncomeStr string, loan models.StudentLoan) string {
+func calTotalWithLoanDeduction(totalIncomeStr string, loan models.StudentLoan) string {
 	totalIncome, _ := utils.StringToFloat64(totalIncomeStr)
 	totalIncome = totalIncome - float64(loan.Amount)
 	totalIncomeStr = utils.FloatToString(totalIncome)
