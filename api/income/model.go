@@ -126,15 +126,11 @@ func (i *Income) summaryVatStr() string {
 }
 
 func (i *Income) summaryVat() float64 {
-	return i.VAT(i.summaryIncome())
+	return i.VAT(i.totalIncome())
 }
 
 func (i *Income) summaryWHT() float64 {
-	return i.WitholdingTax(i.summaryIncome())
-}
-
-func (i *Income) summaryIncome() float64 {
-	return i.dailyIncome() + i.specialIncome()
+	return i.WitholdingTax(i.totalIncome())
 }
 
 func (i *Income) transferAmountStr() string {
