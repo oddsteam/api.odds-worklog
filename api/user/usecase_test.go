@@ -205,7 +205,7 @@ func TestUsecase_Update(t *testing.T) {
 
 	t.Run("Bank account number with - and special char will create a bad batch file for bank system. This will fail the batch transfer process in the bank, causing the delay for all members to receive income. Therefore, we will remove - and special char from the bank account number!", func(t *testing.T) {
 		userFromRequest := models.User{
-			BankAccountNumber: "้1234-123-999",
+			BankAccountNumber: "้1234-123-999‬",
 		}
 
 		user := NewUser(userMock.User)
