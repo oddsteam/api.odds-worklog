@@ -99,7 +99,7 @@ func (u *usecase) GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, er
 	}
 	for index := range listIncome {
 		if listIncome[index].NetSpecialIncome != "" && listIncome[index].NetDailyIncome != "" {
-			listIncome[index].NetIncome, err = calSummary(listIncome[index].NetDailyIncome, listIncome[index].NetSpecialIncome)
+			listIncome[index].NetIncome, err = calTotal(listIncome[index].NetDailyIncome, listIncome[index].NetSpecialIncome)
 			if err != nil {
 				return nil, err
 			}
@@ -317,7 +317,7 @@ func (u *usecase) GetUserByID(userId string) (*models.User, error) {
 	return u.userRepo.GetByID(userId)
 }
 
-func calSummary(main string, special string) (string, error) {
+func calTotal(main string, special string) (string, error) {
 	ma, err := utils.StringToFloat64(main)
 	if err != nil {
 		return "", err

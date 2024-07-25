@@ -87,8 +87,8 @@ func (i *Income) prepareDataForUpdateIncome(req models.IncomeReq, userDetail mod
 	income.NetIncome = i.transferAmountStr()
 	income.NetSpecialIncome = i.netSpecialIncomeStr()
 	income.NetDailyIncome = i.netDailyIncomeStr()
-	income.VAT = i.summaryVatStr()
-	income.WHT = utils.FloatToString(i.summaryWHT())
+	income.VAT = i.totalVatStr()
+	income.WHT = utils.FloatToString(i.totalWHT())
 	income.Note = req.Note
 	income.WorkDate = req.WorkDate
 	income.SpecialIncome = req.SpecialIncome
@@ -117,19 +117,19 @@ func (i *Income) parse(req models.IncomeReq) error {
 	return nil
 }
 
-func (i *Income) summaryVatStr() string {
-	v := i.summaryVat()
+func (i *Income) totalVatStr() string {
+	v := i.totalVat()
 	if v == 0.0 {
 		return ""
 	}
 	return utils.FloatToString(v)
 }
 
-func (i *Income) summaryVat() float64 {
+func (i *Income) totalVat() float64 {
 	return i.VAT(i.totalIncome())
 }
 
-func (i *Income) summaryWHT() float64 {
+func (i *Income) totalWHT() float64 {
 	return i.WitholdingTax(i.totalIncome())
 }
 
@@ -192,8 +192,8 @@ func (i *Income) export(user models.User) []string {
 	income := *i.data
 	loan := *i.loan
 	t := income.SubmitDate
-	summaryIncome, _ := calSummary(income.NetDailyIncome, income.NetSpecialIncome)
-	summaryIncome = calSummaryWithLoan(summaryIncome, loan)
+	netTotalIncome, _ := calTotal(income.NetDailyIncome, income.NetSpecialIncome)
+	netTotalIncome = calTotalWithLoan(netTotalIncome, loan)
 	tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 	d := []string{
 		user.GetName(),
@@ -205,18 +205,18 @@ func (i *Income) export(user models.User) []string {
 		utils.FormatCommas(income.NetSpecialIncome),
 		loan.CSVAmount(),
 		income.WHT,
-		utils.FormatCommas(summaryIncome),
+		utils.FormatCommas(netTotalIncome),
 		income.Note,
 		tf,
 	}
 	return d
 }
 
-func calSummaryWithLoan(summaryIncome string, loan models.StudentLoan) string {
-	summary, _ := utils.StringToFloat64(summaryIncome)
-	summary = summary - float64(loan.Amount)
-	summaryIncome = utils.FloatToString(summary)
-	return summaryIncome
+func calTotalWithLoan(totalIncomeStr string, loan models.StudentLoan) string {
+	totalIncome, _ := utils.StringToFloat64(totalIncomeStr)
+	totalIncome = totalIncome - float64(loan.Amount)
+	totalIncomeStr = utils.FloatToString(totalIncome)
+	return totalIncomeStr
 }
 
 func (i *Income) export2() []string {

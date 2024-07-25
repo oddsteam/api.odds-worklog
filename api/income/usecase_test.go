@@ -189,7 +189,7 @@ func TestCSVContentForIndividual(t *testing.T) {
 	expectedNetDailyIncome := "97.00"
 	expectedNetSpecialIncome := "9.70"
 	expectedWHT := "3.30"
-	expectedSummaryIncome := "106.70"
+	expectedTotalIncome := "106.70"
 	expected := [...]string{"first last", "ThaiCitizenID", "ชื่อ นามสกุล", expectedAccountNo,
 		"email@example.com", expectedNetDailyIncome, expectedNetSpecialIncome,
 	}
@@ -197,7 +197,7 @@ func TestCSVContentForIndividual(t *testing.T) {
 		assert.Equal(t, expected[i], actual[i])
 	}
 	assert.Equal(t, expectedWHT, actual[8])
-	assert.Equal(t, expectedSummaryIncome, actual[9])
+	assert.Equal(t, expectedTotalIncome, actual[9])
 	assert.Equal(t, "note", actual[10])
 	assert.Equal(t, "01/12/2022 20:30:00", actual[11])
 }
@@ -208,9 +208,9 @@ func TestStudentLoanInCSVContent(t *testing.T) {
 		Amount:   10,
 	}
 	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1, loan)
-	expectedSummaryIncome := "96.70"
+	expectedTotalIncome := "96.70"
 	assert.Equal(t, "10.00", actual[7])
-	assert.Equal(t, expectedSummaryIncome, actual[9])
+	assert.Equal(t, expectedTotalIncome, actual[9])
 }
 
 func TestForeignStudentDoesNotRequireSocialSecuritySoWeUseNegativeStudentLoanToAdjust(t *testing.T) {
@@ -219,9 +219,9 @@ func TestForeignStudentDoesNotRequireSocialSecuritySoWeUseNegativeStudentLoanToA
 		Amount:   -270,
 	}
 	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1, loan)
-	expectedSummaryIncome := "376.70"
+	expectedTotalIncome := "376.70"
 	assert.Equal(t, "-270.00", actual[7])
-	assert.Equal(t, expectedSummaryIncome, actual[9])
+	assert.Equal(t, expectedTotalIncome, actual[9])
 }
 
 func TestUseCaseExportIncomeNotExport(t *testing.T) {
