@@ -13,6 +13,15 @@ services:
       - "27017:27017"
     networks:
       - odds_worklog_api
+  queue:
+    image: rabbitmq:3-management
+    hostname: my-rabbit
+    volumes:
+      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
+      - ./rabbitmq/logs:/var/log/rabbitmq/log
+    ports:
+      - 5672:5672
+      - 15672:15672
 
 volumes:
   mongodbdata_odds_worklog:
