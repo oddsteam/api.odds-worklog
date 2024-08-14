@@ -49,3 +49,19 @@ func Publish(ch *amqp.Channel, routingKey string, body string) {
 		})
 	failOnError(err, "Failed to publish a message")
 }
+
+func Subscribe(ch *amqp.Channel, routingKey string) <-chan amqp.Delivery {
+	msgs, err := ch.Consume(
+		routingKey, // queue
+		"",         // consumer
+		true,       // auto-ack
+		false,      // exclusive
+		false,      // no-local
+		false,      // no-wait
+		nil,        // args
+	)
+	if err != nil {
+		log.Fatalf("Failed to register a consumer: %v", err)
+	}
+	return msgs
+}
