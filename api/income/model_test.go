@@ -191,15 +191,12 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("new export จำนวนเงินที่ต้องโอนสำหรับ individual income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
-		req := models.IncomeReq{
-			WorkDate:      "20",
-			SpecialIncome: "100",
-			WorkingHours:  "10",
-		}
-		i := NewIncome(uidFromSession)
-		record, _ := i.prepareDataForAddIncome(req, user)
-		i = NewIncomeFromRecord(*record)
+		dailyIncome := "5"
+		workDate := "20"
+		specialIncome := "100"
+		workingHours := "10"
+		record := CreateIncome(uidFromSession, dailyIncome, workDate, specialIncome, workingHours)
+		i := NewIncomeFromRecord(*record)
 		i.SetLoan(&models.StudentLoan{Amount: 50})
 
 		csvColumns := i.export2()
@@ -300,15 +297,6 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, 10*100.0*0.07, i.VAT(i.specialIncome()))
 		assert.Equal(t, 1000.0+70-30, i.Net(i.specialIncome()))
 	})
-}
-
-func givenIndividualUser(uidFromSession string, dailyIncome string) models.User {
-	return models.User{
-		ID:          bson.ObjectIdHex(uidFromSession),
-		Role:        "individual",
-		Vat:         "N",
-		DailyIncome: dailyIncome,
-	}
 }
 
 func TestModelIncomes(t *testing.T) {

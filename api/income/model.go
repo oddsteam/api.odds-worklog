@@ -2,9 +2,11 @@ package income
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
+	"github.com/globalsign/mgo/bson"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -279,4 +281,32 @@ func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
 		}
 	}
 	return strWrite, updatedIncomeIds
+}
+
+func CreateIncome(uidFromSession string, dailyIncome string, workDate string, specialIncome string, workingHours string) *models.Income {
+	user := givenIndividualUser(uidFromSession, dailyIncome)
+	req := models.IncomeReq{
+		WorkDate:      workDate,
+		SpecialIncome: specialIncome,
+		WorkingHours:  workingHours,
+	}
+	i := NewIncome(uidFromSession)
+	record, err := i.prepareDataForAddIncome(req, user)
+	FailOnError(err, "Error prepare data for add income")
+	return record
+}
+
+func givenIndividualUser(uidFromSession string, dailyIncome string) models.User {
+	return models.User{
+		ID:          bson.ObjectIdHex(uidFromSession),
+		Role:        "individual",
+		Vat:         "N",
+		DailyIncome: dailyIncome,
+	}
+}
+
+func FailOnError(err error, msg string) {
+	if err != nil {
+		log.Panicf("%s: %s", msg, err)
+	}
 }

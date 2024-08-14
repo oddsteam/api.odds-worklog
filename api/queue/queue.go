@@ -4,23 +4,18 @@ import (
 	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 )
-
-func failOnError(err error, msg string) {
-	if err != nil {
-		log.Panicf("%s: %s", msg, err)
-	}
-}
 
 func Connect() *amqp.Connection {
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-	failOnError(err, "Failed to connect to RabbitMQ")
+	income.FailOnError(err, "Failed to connect to RabbitMQ")
 	return conn
 }
 
 func GetChannel(conn *amqp.Connection) *amqp.Channel {
 	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
+	income.FailOnError(err, "Failed to open a channel")
 	return ch
 }
 
@@ -33,7 +28,7 @@ func DeclareQueue(ch *amqp.Channel, name string, durable bool) amqp.Queue {
 		false, // no-wait
 		nil,   // arguments
 	)
-	failOnError(err, "Failed to declare a queue")
+	income.FailOnError(err, "Failed to declare a queue")
 	return q
 }
 
@@ -47,7 +42,7 @@ func Publish(ch *amqp.Channel, routingKey string, body string) {
 			ContentType: "text/plain",
 			Body:        []byte(body),
 		})
-	failOnError(err, "Failed to publish a message")
+	income.FailOnError(err, "Failed to publish a message")
 }
 
 func Subscribe(ch *amqp.Channel, routingKey string) <-chan amqp.Delivery {
