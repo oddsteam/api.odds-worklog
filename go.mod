@@ -16,8 +16,9 @@ require (
 	github.com/labstack/echo v0.0.0-20180911044237-1abaa3049251
 	github.com/labstack/gommon v0.2.7 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
+	github.com/rabbitmq/amqp091-go v1.10.0 // indirect
 	github.com/signintech/gopdf v0.8.2
-	github.com/stretchr/testify v1.2.2
+	github.com/stretchr/testify v1.8.0
 	github.com/swaggo/echo-swagger v0.0.0-20180315045949-97f46bb9e5a5
 	github.com/swaggo/files v0.0.0-20180215091130-49c8a91ea3fa // indirect
 	github.com/swaggo/gin-swagger v1.0.0 // indirect
