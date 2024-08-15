@@ -3,12 +3,17 @@ package main
 import (
 	"log"
 
+	friendslog "gitlab.odds.team/worklog/api.odds-worklog/api/friendlogs"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/queue"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 )
 
 func main() {
 	conn := queue.Connect()
 	defer conn.Close()
+
+	session := mongo.Setup()
+	defer session.Close()
 
 	ch := queue.GetChannel(conn)
 	defer ch.Close()
@@ -21,7 +26,8 @@ func main() {
 
 	go func() {
 		for d := range msgs {
-			log.Printf("Received a message: %s", d.Body)
+			incomeCreatedEvent := string(d.Body)
+			friendslog.CreateIncome(session, incomeCreatedEvent)
 		}
 	}()
 
