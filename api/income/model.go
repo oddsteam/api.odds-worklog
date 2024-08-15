@@ -2,7 +2,6 @@ package income
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -295,7 +294,7 @@ func CreateIncome(uidFromSession string,
 	}
 	i := NewIncome(uidFromSession)
 	record, err := i.prepareDataForAddIncome(req, user)
-	FailOnError(err, "Error prepare data for add income")
+	utils.FailOnError(err, "Error prepare data for add income")
 	return record
 }
 
@@ -305,11 +304,5 @@ func givenIndividualUser(uidFromSession string, dailyIncome string) models.User 
 		Role:        "individual",
 		Vat:         "N",
 		DailyIncome: dailyIncome,
-	}
-}
-
-func FailOnError(err error, msg string) {
-	if err != nil {
-		log.Panicf("%s: %s", msg, err)
 	}
 }

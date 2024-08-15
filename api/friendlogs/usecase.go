@@ -5,6 +5,7 @@ import (
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 type usecase struct{}
@@ -16,7 +17,7 @@ func NewUsecase() *usecase {
 func (u *usecase) AddIncome(incomeStr string) models.Income {
 	var data IncomeCreatedEvent
 	err := json.Unmarshal([]byte(incomeStr), &data)
-	income.FailOnError(err, "Error parsing JSON")
+	utils.FailOnError(err, "Error parsing JSON")
 	uid := "000000000000000000000000"
 	return *income.CreateIncome(uid,
 		data.Registration.ThaiCitizenID,

@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"log"
 
 	"github.com/labstack/echo"
 )
@@ -43,4 +44,10 @@ func NewError(ctx echo.Context, status int, err error) error {
 type HTTPError struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
+}
+
+func FailOnError(err error, msg string) {
+	if err != nil {
+		log.Panicf("%s: %s", msg, err)
+	}
 }
