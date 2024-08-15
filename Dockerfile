@@ -1,6 +1,6 @@
 # Build State
 # Base Image
-FROM golang:1.13-alpine AS build-state
+FROM golang:1.22-alpine AS build-state
 
 # Install Git
 RUN apk update && apk upgrade && \
@@ -18,6 +18,7 @@ RUN CGO_ENABLED=0 GOOS=linux go test ./...
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o /go/bin/api
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o /go/bin/get_student_loan scripts/get_student_loan.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o /go/bin/subscribe_friendslog scripts/subscribe_friendslog/main.go
 
 
 # Deploy State
@@ -31,3 +32,4 @@ ADD image /app/image
 ADD font /app/font
 COPY --from=build-state /go/bin/api /app
 COPY --from=build-state /go/bin/get_student_loan /app
+COPY --from=build-state /go/bin/subscribe_friendslog /app
