@@ -30,12 +30,7 @@ import (
 // @host http://worklog-dev.odds.team/api
 // @BasePath /v1
 func main() {
-	c := config.Config()
-	// Setup Mongo
-	session, err := mongo.NewSession(c)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+	session := mongo.Setup()
 	defer session.Close()
 
 	// Echo instance
@@ -81,5 +76,6 @@ func main() {
 		worker.StartWorker(s)
 	}
 	// Start server
+	c := config.Config()
 	e.Logger.Fatal(e.Start(c.APIPort))
 }
