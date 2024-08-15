@@ -19,6 +19,9 @@ func Config() *models.Config {
 		os.Getenv("API_PORT"),
 		os.Getenv("MONGO_DB_USERNAME"),
 		os.Getenv("MONGO_DB_PASSWORD"),
+		os.Getenv("RABBITMQ_USERNAME"),
+		os.Getenv("RABBITMQ_PASSWORD"),
+		os.Getenv("RABBITMQ_HOST"),
 	}
 	return &config
 }

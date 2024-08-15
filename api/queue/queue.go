@@ -1,16 +1,23 @@
 package queue
 
 import (
+	"fmt"
 	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 func Connect() *amqp.Connection {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial(connectionStr())
 	utils.FailOnError(err, "Failed to connect to RabbitMQ")
 	return conn
+}
+
+func connectionStr() string {
+	c := config.Config()
+	return fmt.Sprintf("amqp://%s:%s@%s/", c.RabbitMQUserName, c.RabbitMQPassword, c.RabbitMQHost)
 }
 
 func GetChannel(conn *amqp.Connection) *amqp.Channel {
