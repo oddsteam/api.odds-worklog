@@ -30,6 +30,16 @@ func TestUsecaseAddIncome(t *testing.T) {
 
 		assert.Equal(t, "15000.00", income.TotalIncome)
 	})
+	t.Run("Complex income", func(t *testing.T) {
+		incomeCreatedEvent := friendslog.CreateEvent(1, "Chi", "Sweethome", 750, 20,
+			"123456789122", "+66912345678", "987654321",
+			15375.0, 14913.75, 750.0, 461.25, "2024-07-26T06:26:25.531Z",
+			"ba1357eb-20aa-4897-9759-658bf75e8429", "user1@example.com")
+
+		income := u.AddIncome(incomeCreatedEvent)
+
+		assert.Equal(t, "15000.00", income.TotalIncome)
+	})
 }
 
 func simpleCoopIncomeEvent(thaiCitizenID string, workDate string, dailyRate float64) string {
