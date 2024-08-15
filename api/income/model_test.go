@@ -195,7 +195,7 @@ func TestModelIncome(t *testing.T) {
 		workDate := "20"
 		specialIncome := "100"
 		workingHours := "10"
-		record := CreateIncome(uidFromSession, dailyIncome, workDate, specialIncome, workingHours)
+		record := CreateIncome(uidFromSession, "citizenId", dailyIncome, workDate, specialIncome, workingHours)
 		i := NewIncomeFromRecord(*record)
 		i.SetLoan(&models.StudentLoan{Amount: 50})
 

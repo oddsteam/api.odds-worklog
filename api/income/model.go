@@ -283,8 +283,11 @@ func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
 	return strWrite, updatedIncomeIds
 }
 
-func CreateIncome(uidFromSession string, dailyIncome string, workDate string, specialIncome string, workingHours string) *models.Income {
+func CreateIncome(uidFromSession string,
+	thaiCitizenID string, dailyIncome string, workDate string,
+	specialIncome string, workingHours string) *models.Income {
 	user := givenIndividualUser(uidFromSession, dailyIncome)
+	user.ThaiCitizenID = thaiCitizenID
 	req := models.IncomeReq{
 		WorkDate:      workDate,
 		SpecialIncome: specialIncome,
