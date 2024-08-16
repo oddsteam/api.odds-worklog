@@ -35,6 +35,8 @@ func dataToUser(data IncomeCreatedEvent) models.User {
 	user.LastName = data.Registration.LastName
 	user.Phone = data.Registration.Phone
 	user.BankAccountNumber = data.Registration.BankAccountNumber
+	user.BankAccountName = user.GetFullname()
+	user.Email = data.Registration.Email
 	return user
 }
 
@@ -55,4 +57,5 @@ type Registration struct {
 	LastName          string `json:"last_name"`
 	Phone             string `json:"phone"`
 	BankAccountNumber string `json:"bank_no"`
+	Email             string `json:"email"`
 }
