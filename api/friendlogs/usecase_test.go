@@ -30,7 +30,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 
 		assert.Equal(t, "15000.00", income.TotalIncome)
 	})
-	t.Run("Complex income", func(t *testing.T) {
+	t.Run("income created event can has more fields which worklog ignores", func(t *testing.T) {
 		incomeCreatedEvent := friendslog.CreateEvent(1, "Chi", "Sweethome", 750, 20,
 			"123456789122", "+66912345678", "987654321",
 			15375.0, 14913.75, 750.0, 461.25, "2024-07-26T06:26:25.531Z",
