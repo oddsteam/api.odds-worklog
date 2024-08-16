@@ -38,6 +38,16 @@ func TestUsecaseAddIncome(t *testing.T) {
 		assert.Equal(t, "450.00", income.WHT)
 		assert.Equal(t, "14550.00", income.NetIncome)
 	})
+
+	t.Run("income contains note when it was added", func(t *testing.T) {
+		incomeCreatedEvent := fullCoopIncomeEvent("Chi", "Sweethome", 750, 20,
+			"0123456789121", "+66912345678", "987654321",
+			"2024-07-26T06:26:25.531Z", "user1@example.com")
+
+		income := u.AddIncome(incomeCreatedEvent)
+
+		assert.Equal(t, "Added on 2024-07-26T06:26:25.531Z", income.Note)
+	})
 	t.Run("income created event can has more fields which worklog ignores", func(t *testing.T) {
 		incomeCreatedEvent := friendslog.CreateEvent(1, "Chi", "Sweethome", 750, 20,
 			"123456789122", "+66912345678", "987654321",

@@ -282,9 +282,10 @@ func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
 	return strWrite, updatedIncomeIds
 }
 
-func CreateIncome(user models.User, req models.IncomeReq) *models.Income {
+func CreateIncome(user models.User, req models.IncomeReq, note string) *models.Income {
 	i := NewIncome(string(user.ID))
 	record, err := i.prepareDataForAddIncome(req, user)
+	record.Note = note
 	utils.FailOnError(err, "Error prepare data for add income")
 	return record
 }

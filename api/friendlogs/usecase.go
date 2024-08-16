@@ -2,6 +2,7 @@ package friendslog
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
@@ -24,7 +25,8 @@ func (u *usecase) AddIncome(incomeStr string) models.Income {
 		SpecialIncome: "0",
 		WorkingHours:  "0",
 	}
-	return *income.CreateIncome(user, req)
+	note := fmt.Sprintf("Added on %s", data.Income.CreatedAt)
+	return *income.CreateIncome(user, req, note)
 }
 
 func dataToUser(data IncomeCreatedEvent) models.User {
@@ -46,7 +48,8 @@ type IncomeCreatedEvent struct {
 }
 
 type Income struct {
-	WorkDate string `json:"workDate"`
+	WorkDate  string `json:"workDate"`
+	CreatedAt string `json:"created_at"`
 }
 
 type Registration struct {
