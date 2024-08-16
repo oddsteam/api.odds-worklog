@@ -12,15 +12,18 @@ func TestUsecaseAddIncome(t *testing.T) {
 	u := friendslog.NewUsecase()
 	t.Run("Income which a Coop added in friendslog is saved in worklog", func(t *testing.T) {
 		thaiCitizenID := "0123456789121"
-		workDate := "20"
-		dailyRate := 750.0
-		incomeCreatedEvent := simpleCoopIncomeEvent(thaiCitizenID, workDate, dailyRate)
+		incomeCreatedEvent := fullCoopIncomeEvent("Chi", "Sweethome", 750, 20,
+			thaiCitizenID, "+66912345678", "987654321",
+			"2024-07-26T06:26:25.531Z", "user1@example.com")
 
 		income := u.AddIncome(incomeCreatedEvent)
 
-		assert.Equal(t, workDate, income.WorkDate)
+		assert.Equal(t, "Chi Sweethome", income.Name)
+		assert.Equal(t, "20", income.WorkDate)
 		assert.Equal(t, thaiCitizenID, income.ThaiCitizenID)
-		assert.Equal(t, dailyRate, income.DailyRate)
+		assert.Equal(t, "+66912345678", income.Phone)
+		assert.Equal(t, "987654321", income.BankAccountNumber)
+		assert.Equal(t, 750.0, income.DailyRate)
 	})
 	t.Run("The total amount of the Income which a Coop added in friendslog is calculated", func(t *testing.T) {
 		workDate := "20"
@@ -29,6 +32,8 @@ func TestUsecaseAddIncome(t *testing.T) {
 		income := u.AddIncome(incomeCreatedEvent)
 
 		assert.Equal(t, "15000.00", income.TotalIncome)
+		assert.Equal(t, "450.00", income.WHT)
+		assert.Equal(t, "14550.00", income.NetIncome)
 	})
 	t.Run("income created event can has more fields which worklog ignores", func(t *testing.T) {
 		incomeCreatedEvent := friendslog.CreateEvent(1, "Chi", "Sweethome", 750, 20,
@@ -40,6 +45,15 @@ func TestUsecaseAddIncome(t *testing.T) {
 
 		assert.Equal(t, "15000.00", income.TotalIncome)
 	})
+}
+
+func fullCoopIncomeEvent(firstName string, lastName string,
+	dailyRate float64, workDays int, thaiCitizenID string,
+	phone string, bankAcocuntNumber string, createAt string, email string) string {
+
+	return friendslog.CreateEvent(1, firstName, lastName, int(dailyRate), workDays,
+		thaiCitizenID, phone, bankAcocuntNumber,
+		0, 0, 0, 0, createAt, "friendslogId", email)
 }
 
 func simpleCoopIncomeEvent(thaiCitizenID string, workDate string, dailyRate float64) string {

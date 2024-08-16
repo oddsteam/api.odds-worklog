@@ -18,10 +18,24 @@ func (u *usecase) AddIncome(incomeStr string) models.Income {
 	var data IncomeCreatedEvent
 	err := json.Unmarshal([]byte(incomeStr), &data)
 	utils.FailOnError(err, "Error parsing JSON")
+	user := dataToUser(data)
+	req := models.IncomeReq{
+		WorkDate:      data.Income.WorkDate,
+		SpecialIncome: "0",
+		WorkingHours:  "0",
+	}
+	return *income.CreateIncome(user, req)
+}
+
+func dataToUser(data IncomeCreatedEvent) models.User {
 	uid := "000000000000000000000000"
-	return *income.CreateIncome(uid,
-		data.Registration.ThaiCitizenID,
-		data.Registration.DailyIncome, data.Income.WorkDate, "0", "0")
+	user := income.GivenIndividualUser(uid, data.Registration.DailyIncome)
+	user.ThaiCitizenID = data.Registration.ThaiCitizenID
+	user.FirstName = data.Registration.FirstName
+	user.LastName = data.Registration.LastName
+	user.Phone = data.Registration.Phone
+	user.BankAccountNumber = data.Registration.BankAccountNumber
+	return user
 }
 
 type IncomeCreatedEvent struct {
@@ -34,7 +48,11 @@ type Income struct {
 }
 
 type Registration struct {
-	ThaiCitizenID string `json:"thai_citizen_id"`
-	DailyIncome   string `json:"daily_income"`
-	UserID        string `json:"userId"`
+	ThaiCitizenID     string `json:"thai_citizen_id"`
+	DailyIncome       string `json:"daily_income"`
+	UserID            string `json:"userId"`
+	FirstName         string `json:"first_name"`
+	LastName          string `json:"last_name"`
+	Phone             string `json:"phone"`
+	BankAccountNumber string `json:"bank_no"`
 }

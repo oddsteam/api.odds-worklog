@@ -282,23 +282,14 @@ func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
 	return strWrite, updatedIncomeIds
 }
 
-func CreateIncome(uidFromSession string,
-	thaiCitizenID string, dailyIncome string, workDate string,
-	specialIncome string, workingHours string) *models.Income {
-	user := givenIndividualUser(uidFromSession, dailyIncome)
-	user.ThaiCitizenID = thaiCitizenID
-	req := models.IncomeReq{
-		WorkDate:      workDate,
-		SpecialIncome: specialIncome,
-		WorkingHours:  workingHours,
-	}
-	i := NewIncome(uidFromSession)
+func CreateIncome(user models.User, req models.IncomeReq) *models.Income {
+	i := NewIncome(string(user.ID))
 	record, err := i.prepareDataForAddIncome(req, user)
 	utils.FailOnError(err, "Error prepare data for add income")
 	return record
 }
 
-func givenIndividualUser(uidFromSession string, dailyIncome string) models.User {
+func GivenIndividualUser(uidFromSession string, dailyIncome string) models.User {
 	return models.User{
 		ID:          bson.ObjectIdHex(uidFromSession),
 		Role:        "individual",

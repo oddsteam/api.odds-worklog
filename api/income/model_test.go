@@ -96,7 +96,7 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("calculate individual income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
+		user := GivenIndividualUser(uidFromSession, "5")
 		req := models.IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
@@ -121,7 +121,7 @@ func TestModelIncome(t *testing.T) {
 	// begin obsoleted export will be replaced with new export in Aug release
 	t.Run("export individual income information เพื่อให้บัญชีติดต่อได้เวลามีปัญหา", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
+		user := GivenIndividualUser(uidFromSession, "5")
 		user.FirstName = "first"
 		user.LastName = "last"
 		user.ThaiCitizenID = "id"
@@ -144,7 +144,7 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("export จำนวนเงินที่ต้องโอนสำหรับ individual income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
+		user := GivenIndividualUser(uidFromSession, "5")
 		req := models.IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
@@ -168,7 +168,7 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("new export individual income information เพื่อให้บัญชีติดต่อได้เวลามีปัญหา", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
+		user := GivenIndividualUser(uidFromSession, "5")
 		user.FirstName = "first"
 		user.LastName = "last"
 		user.ThaiCitizenID = "id"
@@ -195,7 +195,13 @@ func TestModelIncome(t *testing.T) {
 		workDate := "20"
 		specialIncome := "100"
 		workingHours := "10"
-		record := CreateIncome(uidFromSession, "citizenId", dailyIncome, workDate, specialIncome, workingHours)
+		u := GivenIndividualUser(uidFromSession, dailyIncome)
+		req := models.IncomeReq{
+			WorkDate:      workDate,
+			SpecialIncome: specialIncome,
+			WorkingHours:  workingHours,
+		}
+		record := CreateIncome(u, req)
 		i := NewIncomeFromRecord(*record)
 		i.SetLoan(&models.StudentLoan{Amount: 50})
 
@@ -210,7 +216,7 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("calculate individual income โดยไม่ได้กรอก special income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
+		user := GivenIndividualUser(uidFromSession, "5")
 		req := models.IncomeReq{
 			WorkDate: "20",
 		}
@@ -228,7 +234,7 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("calculate individual special income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
+		user := GivenIndividualUser(uidFromSession, "5")
 		req := models.IncomeReq{SpecialIncome: "100", WorkingHours: "10"}
 		i := NewIncome(uidFromSession)
 
@@ -253,7 +259,7 @@ func TestModelIncome(t *testing.T) {
 		// ใครที่ กยศ ให้หัก เราก็จะหักแล้วไปแจ้งใน basecamp กลุ่ม กยศ ไว้
 
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
+		user := GivenIndividualUser(uidFromSession, "5")
 		req := models.IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
