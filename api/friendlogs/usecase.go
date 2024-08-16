@@ -21,7 +21,7 @@ func (u *usecase) AddIncome(incomeStr string) models.Income {
 	utils.FailOnError(err, "Error parsing JSON")
 	user := dataToUser(data)
 	req := models.IncomeReq{
-		WorkDate:      data.Income.WorkDate,
+		WorkDate:      fmt.Sprint(data.Income.WorkDate),
 		SpecialIncome: "0",
 		WorkingHours:  "0",
 	}
@@ -48,7 +48,7 @@ type IncomeCreatedEvent struct {
 }
 
 type Income struct {
-	WorkDate  string `json:"workDate"`
+	WorkDate  int    `json:"workDate"`
 	CreatedAt string `json:"created_at"`
 }
 

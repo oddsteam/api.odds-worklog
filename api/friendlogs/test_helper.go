@@ -9,7 +9,7 @@ func CreateEvent(id int, firstName string, lastName string, dailyIncome int, wor
 			"totalIncome":"%f",
 			"netIncome":"%f",
 			"netDailyIncome":"%f",
-			"workDate":"%d",
+			"workDate":%d,
 			"submitDate":null,
 			"lastUpdate":null,
 			"note":"",

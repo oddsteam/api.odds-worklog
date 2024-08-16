@@ -29,7 +29,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 		assert.Equal(t, "user1@example.com", income.Email)
 	})
 	t.Run("The total amount of the Income which a Coop added in friendslog is calculated", func(t *testing.T) {
-		workDate := "20"
+		workDate := 20
 		incomeCreatedEvent := simpleCoopIncomeEvent("0123456789121", workDate, 750)
 
 		income := u.AddIncome(incomeCreatedEvent)
@@ -58,6 +58,14 @@ func TestUsecaseAddIncome(t *testing.T) {
 
 		assert.Equal(t, "15000.00", income.TotalIncome)
 	})
+
+	t.Run("debug", func(t *testing.T) {
+		incomeCreatedEvent := `{"income":{"id":6,"totalIncome":15000.0,"netIncome":14550.0,"netDailyIncome":750.0,"workDate":20,"submitDate":null,"lastUpdate":null,"note":"test","vat":null,"wht":450.0,"specialIncome":null,"netSpecialIncome":null,"workingHours":null,"exportStatus":null,"created_at":"2024-08-16T06:17:34.663Z","updated_at":"2024-08-16T06:17:34.663Z","userId":"7f554403-a6e2-495c-a42a-5e7ad00888da","work_date":null},"registration":{"id":7,"first_name":"Peerapat","last_name":"Sukkasem","thai_citizen_id":"7890123456789","phone":"0123456789","bank_no":"0123456789","daily_income":"750","start_date":"2024-08-01T00:00:00.000Z","created_at":"2024-08-16T06:17:19.038Z","updated_at":"2024-08-16T06:17:19.038Z","userId":"7f554403-a6e2-495c-a42a-5e7ad00888da","email":"peer.forwork@gmail.com"}}`
+
+		income := u.AddIncome(incomeCreatedEvent)
+
+		assert.Equal(t, "15000.00", income.TotalIncome)
+	})
 }
 
 func fullCoopIncomeEvent(firstName string, lastName string,
@@ -69,10 +77,10 @@ func fullCoopIncomeEvent(firstName string, lastName string,
 		0, 0, 0, 0, createAt, "friendslogId", email)
 }
 
-func simpleCoopIncomeEvent(thaiCitizenID string, workDate string, dailyRate float64) string {
+func simpleCoopIncomeEvent(thaiCitizenID string, workDate int, dailyRate float64) string {
 	return fmt.Sprintf(`{
 			"income":{
-				"workDate":"%s"
+				"workDate":%d
 			},
 			"registration":{
 				"thai_citizen_id":"%s",
