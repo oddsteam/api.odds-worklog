@@ -22,6 +22,7 @@ func Config() *models.Config {
 		os.Getenv("RABBITMQ_USERNAME"),
 		os.Getenv("RABBITMQ_PASSWORD"),
 		os.Getenv("RABBITMQ_HOST"),
+		os.Getenv("RABBITMQ_VHOST"),
 	}
 	return &config
 }

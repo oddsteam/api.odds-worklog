@@ -17,7 +17,7 @@ func Connect() *amqp.Connection {
 
 func connectionStr() string {
 	c := config.Config()
-	return fmt.Sprintf("amqp://%s:%s@%s/", c.RabbitMQUserName, c.RabbitMQPassword, c.RabbitMQHost)
+	return fmt.Sprintf("amqp://%s:%s@%s/%s", c.RabbitMQUserName, c.RabbitMQPassword, c.RabbitMQHost, c.RabbitMQVirtualHost)
 }
 
 func GetChannel(conn *amqp.Connection) *amqp.Channel {

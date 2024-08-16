@@ -10,4 +10,5 @@ type Config struct {
 	RabbitMQUserName     string
 	RabbitMQPassword     string
 	RabbitMQHost         string
+	RabbitMQVirtualHost  string
 }
