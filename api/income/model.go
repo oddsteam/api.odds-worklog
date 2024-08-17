@@ -2,7 +2,6 @@ package income
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -247,16 +246,14 @@ func (i *Income) submitDateStr() string {
 }
 
 type Incomes struct {
-	users   []*models.User
 	records []*models.Income
 	loans   models.StudentLoanList
 }
 
-func NewIncomes(records []*models.Income, loans models.StudentLoanList, users []*models.User) *Incomes {
+func NewIncomes(records []*models.Income, loans models.StudentLoanList) *Incomes {
 	return &Incomes{
 		records: records,
 		loans:   loans,
-		users:   users,
 	}
 }
 
@@ -264,13 +261,8 @@ func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
 	strWrite := make([][]string, 0)
 	strWrite = append(strWrite, createHeaders())
 	updatedIncomeIds = []string{}
-	for _, user := range ics.users {
-		income := models.Income{}
-		for _, e := range ics.records {
-			if strings.Contains(user.ID.Hex(), e.UserID) {
-				income = *e
-			}
-		}
+	for _, e := range ics.records {
+		income := *e
 		loan := ics.loans.FindLoan(income.BankAccountName)
 		if income.ID.Hex() != "" {
 			updatedIncomeIds = append(updatedIncomeIds, income.ID.Hex())

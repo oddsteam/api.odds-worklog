@@ -186,10 +186,6 @@ func (u *usecase) exportIncome_new(role string, shouldUpdateExportStatus bool) (
 	if err != nil {
 		return "", err
 	}
-	users, err := u.userRepo.GetByRole(role)
-	if err != nil {
-		return "", err
-	}
 
 	startDate, endDate := utils.GetStartDateAndEndDate(time.Now())
 	incomes, err := u.repo.GetAllIncomeByRoleStartDateAndEndDate(role, startDate, endDate)
@@ -200,7 +196,7 @@ func (u *usecase) exportIncome_new(role string, shouldUpdateExportStatus bool) (
 
 	studentLoanList := u.repo.GetStudentLoans()
 
-	ics := NewIncomes(incomes, studentLoanList, users)
+	ics := NewIncomes(incomes, studentLoanList)
 	strWrite, updatedIncomeIds := ics.toCSV()
 
 	for _, id := range updatedIncomeIds {

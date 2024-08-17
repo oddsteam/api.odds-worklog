@@ -319,9 +319,8 @@ func TestModelIncome(t *testing.T) {
 
 func TestModelIncomes(t *testing.T) {
 	t.Run("test export to CSV when there is 0 income", func(t *testing.T) {
-		users := []*models.User{{ID: "id"}}
 		records := []*models.Income{}
-		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+		incomes := NewIncomes(records, models.StudentLoanList{})
 
 		csv, _ := incomes.toCSV()
 
@@ -331,13 +330,10 @@ func TestModelIncomes(t *testing.T) {
 	})
 
 	t.Run("test export to CSV when there is 1 income", func(t *testing.T) {
-		users := []*models.User{
-			{ID: "id"},
-		}
 		records := []*models.Income{
-			{ID: "incomeId", UserID: users[0].ID.Hex()},
+			{ID: "incomeId"},
 		}
-		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+		incomes := NewIncomes(records, models.StudentLoanList{})
 
 		csv, _ := incomes.toCSV()
 
@@ -348,15 +344,11 @@ func TestModelIncomes(t *testing.T) {
 	})
 
 	t.Run("test export to CSV when there is n incomes", func(t *testing.T) {
-		users := []*models.User{
-			{ID: "id1"},
-			{ID: "id2"},
-		}
 		records := []*models.Income{
-			{ID: "incomeId1", UserID: users[0].ID.Hex()},
-			{ID: "incomeId2", UserID: users[1].ID.Hex()},
+			{ID: "incomeId1"},
+			{ID: "incomeId2"},
 		}
-		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+		incomes := NewIncomes(records, models.StudentLoanList{})
 
 		csv, _ := incomes.toCSV()
 
@@ -374,7 +366,7 @@ func TestModelIncomes(t *testing.T) {
 		records := []*models.Income{
 			{ID: "incomeId1", UserID: users[0].ID.Hex()},
 		}
-		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+		incomes := NewIncomes(records, models.StudentLoanList{})
 
 		csv, _ := incomes.toCSV()
 
@@ -388,13 +380,10 @@ func TestModelIncomes(t *testing.T) {
 		// เราจะได้ mark ว่า income เหล่านี้ถูก export ออกไปแล้ว
 		// เวลา export different individuals (คนที่ยังไม่ถูก export, เพราะตัดรอบไปก่อน)
 		// จะได้รู้ว่าใครบ้างที่ export ไปแล้ว
-		users := []*models.User{
-			{ID: "id"},
-		}
 		records := []*models.Income{
-			{ID: "incomeId", UserID: users[0].ID.Hex()},
+			{ID: "incomeId"},
 		}
-		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+		incomes := NewIncomes(records, models.StudentLoanList{})
 
 		_, updatedIncomeIds := incomes.toCSV()
 
@@ -410,7 +399,7 @@ func TestModelIncomes(t *testing.T) {
 		records := []*models.Income{
 			{ID: "incomeId1", UserID: users[0].ID.Hex()},
 		}
-		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+		incomes := NewIncomes(records, models.StudentLoanList{})
 
 		_, updatedIncomeIds := incomes.toCSV()
 
