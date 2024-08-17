@@ -30,6 +30,7 @@ type Income struct {
 	Phone             string        `bson:"phone" json:"phone"`
 	DailyRate         float64       `bson:"dailyRate"`
 	IsVATRegistered   bool          `bson:"isVATRegistered"`
+	Role              string        `bson:"role" json:"role"`
 }
 
 type IncomeStatus struct {

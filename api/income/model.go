@@ -79,6 +79,7 @@ func (i *Income) prepareDataForUpdateIncome(req models.IncomeReq, userDetail mod
 
 	income.SubmitDate = time.Now()
 	income.UserID = i.UserID
+	income.Role = userDetail.Role
 	income.ThaiCitizenID = userDetail.ThaiCitizenID
 	income.Name = userDetail.GetName()
 	income.BankAccountName = userDetail.BankAccountName

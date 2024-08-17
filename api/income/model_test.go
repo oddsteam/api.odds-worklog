@@ -31,6 +31,18 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, "1800.00", res.WHT)
 	})
 
+	t.Run("เวลา Add income ควร save role ด้วย จะได้รู้ว่าเป็น coporate หรือ individual income", func(t *testing.T) {
+		user := userMock.IndividualUser1
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		i := NewIncome(uidFromSession)
+
+		res, err := i.prepareDataForAddIncome(incomeMock.MockIncomeReq, user)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.Equal(t, user.Role, res.Role)
+	})
+
 	t.Run("เวลา Add income ควร save ชื่อ นามสกุล เลขบัตรประชาชนเวลา export ให้บัญชี เค้าจะได้รู้ว่าจ่ายเงินให้ใคร", func(t *testing.T) {
 		user := userMock.IndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
