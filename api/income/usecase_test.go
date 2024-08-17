@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/globalsign/mgo/bson"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
@@ -101,35 +102,28 @@ func TestUsecaseExportIncome(t *testing.T) {
 		os.Remove(filename)
 	})
 
-	// t.Run("export individual income (new) includes income from friendslog", func(t *testing.T) {
-	// 	ctrl := gomock.NewController(t)
-	// 	defer ctrl.Finish()
+	t.Run("export individual income (new) includes income from friendslog", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-	// 	startDate, endDate := utils.GetStartDateAndEndDate(time.Now())
-	// 	mockRepoIncome := incomeMock.NewMockRepository(ctrl)
-	// 	incomes := []*models.Income{
-	// 		&incomeMock.MockIncome,
-	// 		&incomeMock.MockIncome2,
-	// 	}
-	// 	mockRepoIncome.EXPECT().GetAllIncomeByStartDateAndEndDate(gomock.Any(), startDate, endDate).Return(
-	// 		incomes, nil)
-	// 	mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
-	// 	mockRepoIncome.EXPECT().UpdateExportStatus(gomock.Any()).Return(nil)
-	// 	mockRepoIncome.EXPECT().AddExport(gomock.Any()).Return(nil)
-	// 	mockRepoIncome.EXPECT().GetStudentLoans()
+		incomes := []*models.Income{
+			&incomeMock.MockIncome,
+			&incomeMock.MockIncome2,
+			{ID: bson.ObjectIdHex("5bd1fda30fd2df2a3e41e571"), Role: "individual", WorkDate: "20", DailyRate: 750},
+		}
+		mockRepoIncome := mockIncomeRepository(ctrl)
+		mockRepoIncome.expectNumberOfExportStatuses(3)
+		mockRepoIncome.expectGetAllIncomeOfCurrentMonthByRole(incomes)
 
-	// 	mockRepoUser := userMock.NewMockRepository(ctrl)
-	// 	mockRepoUser.EXPECT().GetByRole("individual").Return(userMock.Users, nil)
+		usecase := NewUsecase(mockRepoIncome.mock, userMock.NewMockRepository(ctrl))
+		filename, err := usecase.ExportIncomeNew("individual", "0")
 
-	// 	usecase := NewUsecase(mockRepoIncome, mockRepoUser)
-	// 	filename, err := usecase.ExportIncomeNew("individual", "0")
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
 
-	// 	assert.NoError(t, err)
-	// 	assert.NotNil(t, filename)
-
-	// 	// remove file after test
-	// 	os.Remove(filename)
-	// })
+		// remove file after test
+		os.Remove(filename)
+	})
 }
 
 func TestUsecaseExportIncomeObsoleted(t *testing.T) {
