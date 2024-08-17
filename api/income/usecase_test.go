@@ -89,7 +89,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 		}
 		mockRepoIncome := mockIncomeRepository(ctrl)
 		mockRepoIncome.expectNumberOfExportStatuses(2)
-		mockRepoIncome.expectGetAllIncomeOfCurrentMonth(incomes)
+		mockRepoIncome.expectGetAllIncomeOfCurrentMonthByRole(incomes)
 		mockRepoUser := userMock.NewMockRepository(ctrl)
 		mockRepoUser.EXPECT().GetByRole("individual").Return(userMock.Users, nil)
 
@@ -401,6 +401,12 @@ func (m *MockIncomeRepository) expectGetIncomeUserOfPreviousMonth(u models.User)
 func (m *MockIncomeRepository) expectGetAllIncomeOfCurrentMonth(incomes []*models.Income) {
 	startDate, endDate := utils.GetStartDateAndEndDate(time.Now())
 	m.mock.EXPECT().GetAllIncomeByStartDateAndEndDate(
+		gomock.Any(), startDate, endDate).Return(incomes, nil)
+}
+
+func (m *MockIncomeRepository) expectGetAllIncomeOfCurrentMonthByRole(incomes []*models.Income) {
+	startDate, endDate := utils.GetStartDateAndEndDate(time.Now())
+	m.mock.EXPECT().GetAllIncomeByRoleStartDateAndEndDate(
 		gomock.Any(), startDate, endDate).Return(incomes, nil)
 }
 

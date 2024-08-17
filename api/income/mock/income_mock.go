@@ -63,6 +63,21 @@ func (mr *MockRepositoryMockRecorder) AddIncome(u interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddIncome", reflect.TypeOf((*MockRepository)(nil).AddIncome), u)
 }
 
+// GetAllIncomeByRoleStartDateAndEndDate mocks base method.
+func (m *MockRepository) GetAllIncomeByRoleStartDateAndEndDate(role string, startDate, endDate time.Time) ([]*models.Income, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllIncomeByRoleStartDateAndEndDate", role, startDate, endDate)
+	ret0, _ := ret[0].([]*models.Income)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllIncomeByRoleStartDateAndEndDate indicates an expected call of GetAllIncomeByRoleStartDateAndEndDate.
+func (mr *MockRepositoryMockRecorder) GetAllIncomeByRoleStartDateAndEndDate(role, startDate, endDate interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllIncomeByRoleStartDateAndEndDate", reflect.TypeOf((*MockRepository)(nil).GetAllIncomeByRoleStartDateAndEndDate), role, startDate, endDate)
+}
+
 // GetAllIncomeByStartDateAndEndDate mocks base method.
 func (m *MockRepository) GetAllIncomeByStartDateAndEndDate(userIds []string, startDate, endDate time.Time) ([]*models.Income, error) {
 	m.ctrl.T.Helper()

@@ -19,6 +19,7 @@ type Repository interface {
 	GetStudentLoans() models.StudentLoanList
 	SaveStudentLoans(loans models.StudentLoanList) int
 	GetAllIncomeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error)
+	GetAllIncomeByRoleStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) ([]*models.Income, error)
 	//GetAllUserIdByRole(role string) ([]string,error)
 
 }

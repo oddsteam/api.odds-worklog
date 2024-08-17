@@ -148,7 +148,7 @@ func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (stri
 
 	for _, income := range incomes {
 		user, err := u.GetUserByID(income.UserID)
-		loan := studentLoanList.FindLoan(*user)
+		loan := studentLoanList.FindLoan(user.BankAccountName)
 		if err == nil {
 			d := createRow(*income, *user, loan)
 			strWrite = append(strWrite, d)
@@ -191,13 +191,8 @@ func (u *usecase) exportIncome_new(role string, shouldUpdateExportStatus bool) (
 		return "", err
 	}
 
-	var userIds []string
-	for _, v := range users {
-		userIds = append(userIds, v.ID.Hex())
-	}
-
 	startDate, endDate := utils.GetStartDateAndEndDate(time.Now())
-	incomes, err := u.repo.GetAllIncomeByStartDateAndEndDate(userIds, startDate, endDate)
+	incomes, err := u.repo.GetAllIncomeByRoleStartDateAndEndDate(role, startDate, endDate)
 
 	if err != nil {
 		return "", err
@@ -251,7 +246,7 @@ func (u *usecase) exportIncome_obsoleted(role string, getIncome getIncomeFn, sho
 	strWrite = append(strWrite, createHeaders())
 	for _, user := range users {
 		income, err := getIncome(*user)
-		loan := studentLoanList.FindLoan(*user)
+		loan := studentLoanList.FindLoan(user.BankAccountName)
 		if err == nil {
 			if shouldUpdateExportStatus {
 				u.repo.UpdateExportStatus(income.ID.Hex())

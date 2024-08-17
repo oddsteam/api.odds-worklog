@@ -271,7 +271,7 @@ func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
 				income = *e
 			}
 		}
-		loan := ics.loans.FindLoan(*user)
+		loan := ics.loans.FindLoan(income.BankAccountName)
 		if income.ID.Hex() != "" {
 			updatedIncomeIds = append(updatedIncomeIds, income.ID.Hex())
 			i := NewIncomeFromRecord(income)

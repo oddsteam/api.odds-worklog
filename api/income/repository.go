@@ -56,6 +56,11 @@ func (r *repository) GetAllIncomeByStartDateAndEndDate(userIds []string, startDa
 	return getAllInComeByQuery(r, query)
 }
 
+func (r *repository) GetAllIncomeByRoleStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
+	query := createQueryIncomeByRoleStartDateAndEndDate(role, startDate, endDate)
+	return getAllInComeByQuery(r, query)
+}
+
 func (r *repository) GetIncomeByUserIdAllMonth(id string) ([]*models.Income, error) {
 	income := make([]*models.Income, 0)
 
@@ -121,6 +126,17 @@ func createQueryIncomeByStartDateAndEndDate(userIds []string, startDate time.Tim
 		"userId": bson.M{
 			"$in": userIds,
 		},
+		"submitDate": bson.M{
+			"$gt": startDate,
+			"$lt": endDate,
+		},
+	}
+	return query
+}
+
+func createQueryIncomeByRoleStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) bson.M {
+	query := bson.M{
+		"role": role,
 		"submitDate": bson.M{
 			"$gt": startDate,
 			"$lt": endDate,
