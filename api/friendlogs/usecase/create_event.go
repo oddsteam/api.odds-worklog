@@ -2,6 +2,10 @@ package usecase
 
 import "fmt"
 
+func UpdateEvent(id int, firstName string, lastName string, dailyIncome int, workDate int, thaiCitizenId string, phone string, bank_no string, totalIncome float64, netIncome float64, netDailyIncome float64, wht float64, createdAt string, userId string, email string) string {
+	return CreateEvent(id, firstName, lastName, dailyIncome, workDate, thaiCitizenId, phone, bank_no, totalIncome, netIncome, netDailyIncome, wht, createdAt, userId, email)
+}
+
 func CreateEvent(id int, firstName string, lastName string, dailyIncome int, workDate int, thaiCitizenId string, phone string, bank_no string, totalIncome float64, netIncome float64, netDailyIncome float64, wht float64, createdAt string, userId string, email string) string {
 	format := `{
 		"income":{
