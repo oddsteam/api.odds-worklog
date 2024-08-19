@@ -29,6 +29,20 @@ func (u *usecase) AddIncome(incomeStr string) models.Income {
 	return *income.CreateIncome(user, req, note)
 }
 
+func (u *usecase) UpdateIncome(original models.Income, incomeStr string) models.Income {
+	var data IncomeCreatedEvent
+	err := json.Unmarshal([]byte(incomeStr), &data)
+	utils.FailOnError(err, "Error parsing JSON")
+	user := dataToUser(data)
+	req := models.IncomeReq{
+		WorkDate:      fmt.Sprint(data.Income.WorkDate),
+		SpecialIncome: "0",
+		WorkingHours:  "0",
+	}
+	note := fmt.Sprintf("%s\nUpdated on %s", original.Note, data.Income.UpdatedAt)
+	return *income.CreateIncome(user, req, note)
+}
+
 func dataToUser(data IncomeCreatedEvent) models.User {
 	uid := "000000000000000000000000"
 	user := income.GivenIndividualUser(uid, data.Registration.DailyIncome)
@@ -50,6 +64,7 @@ type IncomeCreatedEvent struct {
 type Income struct {
 	WorkDate  int    `json:"workDate"`
 	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
 }
 
 type Registration struct {

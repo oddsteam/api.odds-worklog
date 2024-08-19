@@ -20,12 +20,20 @@ func main() {
 	defer ch.Close()
 
 	createEvents := subscribe(ch, "incomes_created")
+	updateEvents := subscribe(ch, "incomes_updated")
 
 	forever := make(chan bool)
 
 	go func() {
 		for e := range createEvents {
 			controllers.CreateIncome(session, string(e.Body))
+		}
+	}()
+
+	go func() {
+		for e := range updateEvents {
+			controllers.CreateIncome(session, string(e.Body))
+			// controllers.UpdateIncome(session, string(e.Body))
 		}
 	}()
 

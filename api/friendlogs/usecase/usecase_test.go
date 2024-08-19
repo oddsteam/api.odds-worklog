@@ -2,10 +2,12 @@ package usecase_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/friendlogs/usecase"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
 func TestUsecaseAddIncome(t *testing.T) {
@@ -14,7 +16,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 		thaiCitizenID := "0123456789121"
 		incomeCreatedEvent := fullCoopIncomeEvent("Chi", "Sweethome", 750, 20,
 			thaiCitizenID, "+66912345678", "987654321",
-			"2024-07-26T06:26:25.531Z", "user1@example.com")
+			"2024-07-26T06:26:25.531Z", "", "user1@example.com")
 
 		income := u.AddIncome(incomeCreatedEvent)
 
@@ -41,7 +43,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 	t.Run("income contains note when it was added", func(t *testing.T) {
 		incomeCreatedEvent := fullCoopIncomeEvent("Chi", "Sweethome", 750, 20,
 			"0123456789121", "+66912345678", "987654321",
-			"2024-07-26T06:26:25.531Z", "user1@example.com")
+			"2024-07-26T06:26:25.531Z", "", "user1@example.com")
 
 		income := u.AddIncome(incomeCreatedEvent)
 
@@ -50,7 +52,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 	t.Run("income created event can has more fields which worklog ignores", func(t *testing.T) {
 		incomeCreatedEvent := usecase.CreateEvent(1, "Chi", "Sweethome", 750, 20,
 			"123456789122", "+66912345678", "987654321",
-			15375.0, 14913.75, 750.0, 461.25, "2024-07-26T06:26:25.531Z",
+			15375.0, 14913.75, 750.0, 461.25, "2024-07-26T06:26:25.531Z", "",
 			"ba1357eb-20aa-4897-9759-658bf75e8429", "user1@example.com")
 
 		income := u.AddIncome(incomeCreatedEvent)
@@ -59,13 +61,37 @@ func TestUsecaseAddIncome(t *testing.T) {
 	})
 }
 
+func TestUsecaseUpdateIncome(t *testing.T) {
+	u := usecase.NewUsecase()
+	t.Run("Coop updated income from 20 -> 21 in friendslog success", func(t *testing.T) {
+		thaiCitizenID := "0123456789121"
+		addedIncome := models.Income{
+			ThaiCitizenID: thaiCitizenID,
+			WorkDate:      "20",
+			DailyRate:     750,
+			Note:          "Added on 2024-07-22T06:26:25.531Z",
+		}
+		incomeUpdatedEvent := fullCoopIncomeEvent("Chi", "Sweethome", 750, 21,
+			addedIncome.ThaiCitizenID, "+66912345678", "987654321",
+			"", "2024-07-23T06:26:25.531Z", "user1@example.com")
+
+		income := u.UpdateIncome(addedIncome, incomeUpdatedEvent)
+
+		expectedNote := []string{
+			"Added on 2024-07-22T06:26:25.531Z",
+			"Updated on 2024-07-23T06:26:25.531Z",
+		}
+		assert.Equal(t, "21", income.WorkDate)
+		assert.Equal(t, strings.Join(expectedNote, "\n"), income.Note)
+	})
+}
 func fullCoopIncomeEvent(firstName string, lastName string,
 	dailyRate float64, workDays int, thaiCitizenID string,
-	phone string, bankAcocuntNumber string, createAt string, email string) string {
+	phone string, bankAcocuntNumber string, createAt string, updatedAt string, email string) string {
 
 	return usecase.CreateEvent(1, firstName, lastName, int(dailyRate), workDays,
 		thaiCitizenID, phone, bankAcocuntNumber,
-		0, 0, 0, 0, createAt, "friendslogId", email)
+		0, 0, 0, 0, createAt, updatedAt, "friendslogId", email)
 }
 
 func simpleCoopIncomeEvent(thaiCitizenID string, workDate int, dailyRate float64) string {
