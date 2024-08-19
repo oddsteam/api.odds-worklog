@@ -25,7 +25,6 @@ func TestUsecaseAddIncome(t *testing.T) {
 		assert.Equal(t, "987654321", income.BankAccountNumber)
 		assert.Equal(t, 750.0, income.DailyRate)
 		assert.Equal(t, "Chi Sweethome", income.BankAccountName)
-		assert.Equal(t, 750.0, income.DailyRate)
 		assert.Equal(t, "user1@example.com", income.Email)
 	})
 	t.Run("The total amount of the Income which a Coop added in friendslog is calculated", func(t *testing.T) {
