@@ -2,9 +2,9 @@ package income
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
+	"github.com/globalsign/mgo/bson"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -78,6 +78,7 @@ func (i *Income) prepareDataForUpdateIncome(req models.IncomeReq, userDetail mod
 
 	income.SubmitDate = time.Now()
 	income.UserID = i.UserID
+	income.Role = userDetail.Role
 	income.ThaiCitizenID = userDetail.ThaiCitizenID
 	income.Name = userDetail.GetName()
 	income.BankAccountName = userDetail.BankAccountName
@@ -87,8 +88,8 @@ func (i *Income) prepareDataForUpdateIncome(req models.IncomeReq, userDetail mod
 	income.NetIncome = i.transferAmountStr()
 	income.NetSpecialIncome = i.netSpecialIncomeStr()
 	income.NetDailyIncome = i.netDailyIncomeStr()
-	income.VAT = i.summaryVatStr()
-	income.WHT = utils.FloatToString(i.summaryWHT())
+	income.VAT = i.totalVatStr()
+	income.WHT = utils.FloatToString(i.totalWHT())
 	income.Note = req.Note
 	income.WorkDate = req.WorkDate
 	income.SpecialIncome = req.SpecialIncome
@@ -117,24 +118,20 @@ func (i *Income) parse(req models.IncomeReq) error {
 	return nil
 }
 
-func (i *Income) summaryVatStr() string {
-	v := i.summaryVat()
+func (i *Income) totalVatStr() string {
+	v := i.totalVat()
 	if v == 0.0 {
 		return ""
 	}
 	return utils.FloatToString(v)
 }
 
-func (i *Income) summaryVat() float64 {
-	return i.VAT(i.summaryIncome())
+func (i *Income) totalVat() float64 {
+	return i.VAT(i.totalIncome())
 }
 
-func (i *Income) summaryWHT() float64 {
-	return i.WitholdingTax(i.summaryIncome())
-}
-
-func (i *Income) summaryIncome() float64 {
-	return i.totalIncome() + i.specialIncome()
+func (i *Income) totalWHT() float64 {
+	return i.WitholdingTax(i.totalIncome())
 }
 
 func (i *Income) transferAmountStr() string {
@@ -150,7 +147,7 @@ func (i *Income) netDailyIncomeStr() string {
 }
 
 func (i *Income) netDailyIncome() float64 {
-	return i.Net(i.totalIncome())
+	return i.Net(i.dailyIncome())
 }
 
 func (i *Income) totalIncomeStr() string {
@@ -158,6 +155,10 @@ func (i *Income) totalIncomeStr() string {
 }
 
 func (i *Income) totalIncome() float64 {
+	return i.dailyIncome() + i.specialIncome()
+}
+
+func (i *Income) dailyIncome() float64 {
 	return (i.workDate * i.dailyRate)
 }
 
@@ -192,8 +193,8 @@ func (i *Income) export(user models.User) []string {
 	income := *i.data
 	loan := *i.loan
 	t := income.SubmitDate
-	summaryIncome, _ := calSummary(income.NetDailyIncome, income.NetSpecialIncome)
-	summaryIncome = calSummaryWithLoan(summaryIncome, loan)
+	netTotalIncome, _ := calTotal(income.NetDailyIncome, income.NetSpecialIncome)
+	netTotalIncome = calTotalWithLoanDeduction(netTotalIncome, loan)
 	tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 	d := []string{
 		user.GetName(),
@@ -205,18 +206,18 @@ func (i *Income) export(user models.User) []string {
 		utils.FormatCommas(income.NetSpecialIncome),
 		loan.CSVAmount(),
 		income.WHT,
-		utils.FormatCommas(summaryIncome),
+		utils.FormatCommas(netTotalIncome),
 		income.Note,
 		tf,
 	}
 	return d
 }
 
-func calSummaryWithLoan(summaryIncome string, loan models.StudentLoan) string {
-	summary, _ := utils.StringToFloat64(summaryIncome)
-	summary = summary - float64(loan.Amount)
-	summaryIncome = utils.FloatToString(summary)
-	return summaryIncome
+func calTotalWithLoanDeduction(totalIncomeStr string, loan models.StudentLoan) string {
+	totalIncome, _ := utils.StringToFloat64(totalIncomeStr)
+	totalIncome = totalIncome - float64(loan.Amount)
+	totalIncomeStr = utils.FloatToString(totalIncome)
+	return totalIncomeStr
 }
 
 func (i *Income) export2() []string {
@@ -245,16 +246,14 @@ func (i *Income) submitDateStr() string {
 }
 
 type Incomes struct {
-	users   []*models.User
 	records []*models.Income
 	loans   models.StudentLoanList
 }
 
-func NewIncomes(records []*models.Income, loans models.StudentLoanList, users []*models.User) *Incomes {
+func NewIncomes(records []*models.Income, loans models.StudentLoanList) *Incomes {
 	return &Incomes{
 		records: records,
 		loans:   loans,
-		users:   users,
 	}
 }
 
@@ -262,14 +261,9 @@ func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
 	strWrite := make([][]string, 0)
 	strWrite = append(strWrite, createHeaders())
 	updatedIncomeIds = []string{}
-	for _, user := range ics.users {
-		income := models.Income{}
-		for _, e := range ics.records {
-			if strings.Contains(user.ID.Hex(), e.UserID) {
-				income = *e
-			}
-		}
-		loan := ics.loans.FindLoan(*user)
+	for _, e := range ics.records {
+		income := *e
+		loan := ics.loans.FindLoan(income.BankAccountName)
 		if income.ID.Hex() != "" {
 			updatedIncomeIds = append(updatedIncomeIds, income.ID.Hex())
 			i := NewIncomeFromRecord(income)
@@ -279,4 +273,21 @@ func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
 		}
 	}
 	return strWrite, updatedIncomeIds
+}
+
+func CreateIncome(user models.User, req models.IncomeReq, note string) *models.Income {
+	i := NewIncome(string(user.ID))
+	record, err := i.prepareDataForAddIncome(req, user)
+	record.Note = note
+	utils.FailOnError(err, "Error prepare data for add income")
+	return record
+}
+
+func GivenIndividualUser(uidFromSession string, dailyIncome string) models.User {
+	return models.User{
+		ID:          bson.ObjectIdHex(uidFromSession),
+		Role:        "individual",
+		Vat:         "N",
+		DailyIncome: dailyIncome,
+	}
 }

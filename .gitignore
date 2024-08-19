@@ -26,3 +26,6 @@ report/
 *.jpeg
 *.png
 *.zip
+
+# rabbitmq data
+rabbitmq/

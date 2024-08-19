@@ -1,15 +1,26 @@
 package mongo
 
 import (
+	"log"
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	mgo "github.com/globalsign/mgo"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
 )
 
 type Session struct {
 	MgoSession *mgo.Session
 	DBName     string
+}
+
+func Setup() *Session {
+	c := config.Config()
+	session, err := NewSession(c)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	return session
 }
 
 func NewSession(config *models.Config) (*Session, error) {

@@ -99,7 +99,7 @@ func (u *usecase) GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, er
 	}
 	for index := range listIncome {
 		if listIncome[index].NetSpecialIncome != "" && listIncome[index].NetDailyIncome != "" {
-			listIncome[index].NetIncome, err = calSummary(listIncome[index].NetDailyIncome, listIncome[index].NetSpecialIncome)
+			listIncome[index].NetIncome, err = calTotal(listIncome[index].NetDailyIncome, listIncome[index].NetSpecialIncome)
 			if err != nil {
 				return nil, err
 			}
@@ -148,7 +148,7 @@ func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (stri
 
 	for _, income := range incomes {
 		user, err := u.GetUserByID(income.UserID)
-		loan := studentLoanList.FindLoan(*user)
+		loan := studentLoanList.FindLoan(user.BankAccountName)
 		if err == nil {
 			d := createRow(*income, *user, loan)
 			strWrite = append(strWrite, d)
@@ -186,18 +186,9 @@ func (u *usecase) exportIncome_new(role string, shouldUpdateExportStatus bool) (
 	if err != nil {
 		return "", err
 	}
-	users, err := u.userRepo.GetByRole(role)
-	if err != nil {
-		return "", err
-	}
-
-	var userIds []string
-	for _, v := range users {
-		userIds = append(userIds, v.ID.Hex())
-	}
 
 	startDate, endDate := utils.GetStartDateAndEndDate(time.Now())
-	incomes, err := u.repo.GetAllIncomeByStartDateAndEndDate(userIds, startDate, endDate)
+	incomes, err := u.repo.GetAllIncomeByRoleStartDateAndEndDate(role, startDate, endDate)
 
 	if err != nil {
 		return "", err
@@ -205,7 +196,7 @@ func (u *usecase) exportIncome_new(role string, shouldUpdateExportStatus bool) (
 
 	studentLoanList := u.repo.GetStudentLoans()
 
-	ics := NewIncomes(incomes, studentLoanList, users)
+	ics := NewIncomes(incomes, studentLoanList)
 	strWrite, updatedIncomeIds := ics.toCSV()
 
 	for _, id := range updatedIncomeIds {
@@ -251,7 +242,7 @@ func (u *usecase) exportIncome_obsoleted(role string, getIncome getIncomeFn, sho
 	strWrite = append(strWrite, createHeaders())
 	for _, user := range users {
 		income, err := getIncome(*user)
-		loan := studentLoanList.FindLoan(*user)
+		loan := studentLoanList.FindLoan(user.BankAccountName)
 		if err == nil {
 			if shouldUpdateExportStatus {
 				u.repo.UpdateExportStatus(income.ID.Hex())
@@ -317,7 +308,7 @@ func (u *usecase) GetUserByID(userId string) (*models.User, error) {
 	return u.userRepo.GetByID(userId)
 }
 
-func calSummary(main string, special string) (string, error) {
+func calTotal(main string, special string) (string, error) {
 	ma, err := utils.StringToFloat64(main)
 	if err != nil {
 		return "", err

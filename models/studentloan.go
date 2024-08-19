@@ -34,9 +34,9 @@ func (sll *StudentLoanList) CreateIDForLoans() {
 	}
 }
 
-func (sll *StudentLoanList) FindLoan(u User) StudentLoan {
+func (sll *StudentLoanList) FindLoan(bankAccountName string) StudentLoan {
 	for _, e := range sll.List {
-		if strings.Contains(u.BankAccountName, e.Fullname) {
+		if strings.Contains(bankAccountName, e.Fullname) {
 			return e
 		}
 	}

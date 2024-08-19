@@ -31,6 +31,18 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, "1800.00", res.WHT)
 	})
 
+	t.Run("เวลา Add income ควร save role ด้วย จะได้รู้ว่าเป็น coporate หรือ individual income", func(t *testing.T) {
+		user := userMock.IndividualUser1
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		i := NewIncome(uidFromSession)
+
+		res, err := i.prepareDataForAddIncome(incomeMock.MockIncomeReq, user)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.Equal(t, user.Role, res.Role)
+	})
+
 	t.Run("เวลา Add income ควร save ชื่อ นามสกุล เลขบัตรประชาชนเวลา export ให้บัญชี เค้าจะได้รู้ว่าจ่ายเงินให้ใคร", func(t *testing.T) {
 		user := userMock.IndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
@@ -91,12 +103,12 @@ func TestModelIncome(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, "40000.00", res.TotalIncome)
+		assert.Equal(t, "60000.00", res.TotalIncome)
 	})
 
 	t.Run("calculate individual income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
+		user := GivenIndividualUser(uidFromSession, "5")
 		req := models.IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
@@ -107,20 +119,21 @@ func TestModelIncome(t *testing.T) {
 		err := i.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 5*20.0, i.totalIncome())
-		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.totalIncome()))
-		assert.Equal(t, 0.0, i.VAT(i.totalIncome()))
-		assert.Equal(t, 100.0+0-3, i.Net(i.totalIncome()))
+		assert.Equal(t, 5*20.0, i.dailyIncome())
+		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.dailyIncome()))
+		assert.Equal(t, 0.0, i.VAT(i.dailyIncome()))
+		assert.Equal(t, 100.0+0-3, i.Net(i.dailyIncome()))
 		assert.Equal(t, 10*100.0, i.specialIncome())
 		assert.Equal(t, 10*100.0*0.03, i.WitholdingTax(i.specialIncome()))
 		assert.Equal(t, 0.0, i.VAT(i.specialIncome()))
 		assert.Equal(t, 1000.0+0-30, i.Net(i.specialIncome()))
+		assert.Equal(t, i.dailyIncome()+i.specialIncome(), i.totalIncome())
 	})
 
 	// begin obsoleted export will be replaced with new export in Aug release
 	t.Run("export individual income information เพื่อให้บัญชีติดต่อได้เวลามีปัญหา", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
+		user := GivenIndividualUser(uidFromSession, "5")
 		user.FirstName = "first"
 		user.LastName = "last"
 		user.ThaiCitizenID = "id"
@@ -143,7 +156,7 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("export จำนวนเงินที่ต้องโอนสำหรับ individual income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
+		user := GivenIndividualUser(uidFromSession, "5")
 		req := models.IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
@@ -167,7 +180,7 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("new export individual income information เพื่อให้บัญชีติดต่อได้เวลามีปัญหา", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
+		user := GivenIndividualUser(uidFromSession, "5")
 		user.FirstName = "first"
 		user.LastName = "last"
 		user.ThaiCitizenID = "id"
@@ -190,15 +203,18 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("new export จำนวนเงินที่ต้องโอนสำหรับ individual income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
+		dailyIncome := "5"
+		workDate := "20"
+		specialIncome := "100"
+		workingHours := "10"
+		u := GivenIndividualUser(uidFromSession, dailyIncome)
 		req := models.IncomeReq{
-			WorkDate:      "20",
-			SpecialIncome: "100",
-			WorkingHours:  "10",
+			WorkDate:      workDate,
+			SpecialIncome: specialIncome,
+			WorkingHours:  workingHours,
 		}
-		i := NewIncome(uidFromSession)
-		record, _ := i.prepareDataForAddIncome(req, user)
-		i = NewIncomeFromRecord(*record)
+		record := CreateIncome(u, req, "note")
+		i := NewIncomeFromRecord(*record)
 		i.SetLoan(&models.StudentLoan{Amount: 50})
 
 		csvColumns := i.export2()
@@ -212,7 +228,7 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("calculate individual income โดยไม่ได้กรอก special income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
+		user := GivenIndividualUser(uidFromSession, "5")
 		req := models.IncomeReq{
 			WorkDate: "20",
 		}
@@ -221,16 +237,16 @@ func TestModelIncome(t *testing.T) {
 		err := i.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 5*20.0, i.totalIncome())
-		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.totalIncome()))
-		assert.Equal(t, 0.0, i.VAT(i.totalIncome()))
+		assert.Equal(t, 5*20.0, i.dailyIncome())
+		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.dailyIncome()))
+		assert.Equal(t, 0.0, i.VAT(i.dailyIncome()))
 		assert.Equal(t, 100.0+0-3, i.netDailyIncome())
 		assert.Equal(t, "97.00", i.netDailyIncomeStr())
 	})
 
 	t.Run("calculate individual special income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
+		user := GivenIndividualUser(uidFromSession, "5")
 		req := models.IncomeReq{SpecialIncome: "100", WorkingHours: "10"}
 		i := NewIncome(uidFromSession)
 
@@ -255,7 +271,7 @@ func TestModelIncome(t *testing.T) {
 		// ใครที่ กยศ ให้หัก เราก็จะหักแล้วไปแจ้งใน basecamp กลุ่ม กยศ ไว้
 
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := givenIndividualUser(uidFromSession, "5")
+		user := GivenIndividualUser(uidFromSession, "5")
 		req := models.IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
@@ -290,10 +306,10 @@ func TestModelIncome(t *testing.T) {
 		err := i.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 5*20.0, i.totalIncome())
-		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.totalIncome()))
-		assert.Equal(t, 7.000000000000001, i.VAT(i.totalIncome()))
-		assert.Equal(t, 100.0+7-3, i.Net(i.totalIncome()))
+		assert.Equal(t, 5*20.0, i.dailyIncome())
+		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.dailyIncome()))
+		assert.Equal(t, 7.000000000000001, i.VAT(i.dailyIncome()))
+		assert.Equal(t, 100.0+7-3, i.Net(i.dailyIncome()))
 		assert.Equal(t, 10*100.0, i.specialIncome())
 		assert.Equal(t, 10*100.0*0.03, i.WitholdingTax(i.specialIncome()))
 		assert.Equal(t, 10*100.0*0.07, i.VAT(i.specialIncome()))
@@ -301,62 +317,45 @@ func TestModelIncome(t *testing.T) {
 	})
 }
 
-func givenIndividualUser(uidFromSession string, dailyIncome string) models.User {
-	return models.User{
-		ID:          bson.ObjectIdHex(uidFromSession),
-		Role:        "individual",
-		Vat:         "N",
-		DailyIncome: dailyIncome,
-	}
-}
-
 func TestModelIncomes(t *testing.T) {
 	t.Run("test export to CSV when there is 0 income", func(t *testing.T) {
-		users := []*models.User{{ID: "id"}}
 		records := []*models.Income{}
-		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+		incomes := NewIncomes(records, models.StudentLoanList{})
 
 		csv, _ := incomes.toCSV()
 
 		assert.NotNil(t, csv)
-		headerLenght := 1
-		assert.Equal(t, headerLenght, len(csv))
+		headerLength := 1
+		assert.Equal(t, headerLength, len(csv))
 	})
 
 	t.Run("test export to CSV when there is 1 income", func(t *testing.T) {
-		users := []*models.User{
-			{ID: "id"},
-		}
 		records := []*models.Income{
-			{ID: "incomeId", UserID: users[0].ID.Hex()},
+			{ID: "incomeId"},
 		}
-		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+		incomes := NewIncomes(records, models.StudentLoanList{})
 
 		csv, _ := incomes.toCSV()
 
 		assert.NotNil(t, csv)
-		headerLenght := 1
+		headerLength := 1
 		incomeCount := 1
-		assert.Equal(t, headerLenght+incomeCount, len(csv))
+		assert.Equal(t, headerLength+incomeCount, len(csv))
 	})
 
 	t.Run("test export to CSV when there is n incomes", func(t *testing.T) {
-		users := []*models.User{
-			{ID: "id1"},
-			{ID: "id2"},
-		}
 		records := []*models.Income{
-			{ID: "incomeId1", UserID: users[0].ID.Hex()},
-			{ID: "incomeId2", UserID: users[1].ID.Hex()},
+			{ID: "incomeId1"},
+			{ID: "incomeId2"},
 		}
-		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+		incomes := NewIncomes(records, models.StudentLoanList{})
 
 		csv, _ := incomes.toCSV()
 
 		assert.NotNil(t, csv)
-		headerLenght := 1
+		headerLength := 1
 		incomeCount := 2
-		assert.Equal(t, headerLenght+incomeCount, len(csv))
+		assert.Equal(t, headerLength+incomeCount, len(csv))
 	})
 
 	t.Run("test export to CSV when มีคนตกขบวน", func(t *testing.T) {
@@ -367,27 +366,24 @@ func TestModelIncomes(t *testing.T) {
 		records := []*models.Income{
 			{ID: "incomeId1", UserID: users[0].ID.Hex()},
 		}
-		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+		incomes := NewIncomes(records, models.StudentLoanList{})
 
 		csv, _ := incomes.toCSV()
 
 		assert.NotNil(t, csv)
-		headerLenght := 1
+		headerLength := 1
 		incomeCount := 1
-		assert.Equal(t, headerLenght+incomeCount, len(csv))
+		assert.Equal(t, headerLength+incomeCount, len(csv))
 	})
 
 	t.Run("test should also return updatedIncomeIds", func(t *testing.T) {
 		// เราจะได้ mark ว่า income เหล่านี้ถูก export ออกไปแล้ว
 		// เวลา export different individuals (คนที่ยังไม่ถูก export, เพราะตัดรอบไปก่อน)
 		// จะได้รู้ว่าใครบ้างที่ export ไปแล้ว
-		users := []*models.User{
-			{ID: "id"},
-		}
 		records := []*models.Income{
-			{ID: "incomeId", UserID: users[0].ID.Hex()},
+			{ID: "incomeId"},
 		}
-		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+		incomes := NewIncomes(records, models.StudentLoanList{})
 
 		_, updatedIncomeIds := incomes.toCSV()
 
@@ -403,7 +399,7 @@ func TestModelIncomes(t *testing.T) {
 		records := []*models.Income{
 			{ID: "incomeId1", UserID: users[0].ID.Hex()},
 		}
-		incomes := NewIncomes(records, models.StudentLoanList{}, users)
+		incomes := NewIncomes(records, models.StudentLoanList{})
 
 		_, updatedIncomeIds := incomes.toCSV()
 

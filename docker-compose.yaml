@@ -15,6 +15,19 @@ services:
       - odds_worklog_api
     restart: always
 
+  friendslog:
+    container_name: "odds-worklog-friendslog-subscriber"
+    build: .
+    command: /app/subscribe_friendslog
+    env_file:
+      - dev.env
+    depends_on:
+      - "mongodb"
+      - "queue"
+    networks:
+      - odds_worklog_api
+    restart: always
+
   mongodb:
     container_name: "odds-worklog-mongo"
     image: "mongo:4.0.3"
@@ -24,6 +37,17 @@ services:
       - dev.env
     expose:
       - "27017"
+    networks:
+      - odds_worklog_api
+  queue:
+    image: rabbitmq:3-management
+    hostname: my-rabbit
+    volumes:
+      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
+      - ./rabbitmq/logs:/var/log/rabbitmq/log
+    ports:
+      - 5672:5672
+      - 15672:15672
     networks:
       - odds_worklog_api
 
