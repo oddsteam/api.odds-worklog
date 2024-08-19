@@ -1,15 +1,15 @@
-package friendslog_test
+package usecase_test
 
 import (
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	friendslog "gitlab.odds.team/worklog/api.odds-worklog/api/friendlogs"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/friendlogs/usecase"
 )
 
 func TestUsecaseAddIncome(t *testing.T) {
-	u := friendslog.NewUsecase()
+	u := usecase.NewUsecase()
 	t.Run("Income which a Coop added in friendslog is saved in worklog", func(t *testing.T) {
 		thaiCitizenID := "0123456789121"
 		incomeCreatedEvent := fullCoopIncomeEvent("Chi", "Sweethome", 750, 20,
@@ -49,7 +49,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 		assert.Equal(t, "Added on 2024-07-26T06:26:25.531Z", income.Note)
 	})
 	t.Run("income created event can has more fields which worklog ignores", func(t *testing.T) {
-		incomeCreatedEvent := friendslog.CreateEvent(1, "Chi", "Sweethome", 750, 20,
+		incomeCreatedEvent := usecase.CreateEvent(1, "Chi", "Sweethome", 750, 20,
 			"123456789122", "+66912345678", "987654321",
 			15375.0, 14913.75, 750.0, 461.25, "2024-07-26T06:26:25.531Z",
 			"ba1357eb-20aa-4897-9759-658bf75e8429", "user1@example.com")
@@ -64,7 +64,7 @@ func fullCoopIncomeEvent(firstName string, lastName string,
 	dailyRate float64, workDays int, thaiCitizenID string,
 	phone string, bankAcocuntNumber string, createAt string, email string) string {
 
-	return friendslog.CreateEvent(1, firstName, lastName, int(dailyRate), workDays,
+	return usecase.CreateEvent(1, firstName, lastName, int(dailyRate), workDays,
 		thaiCitizenID, phone, bankAcocuntNumber,
 		0, 0, 0, 0, createAt, "friendslogId", email)
 }

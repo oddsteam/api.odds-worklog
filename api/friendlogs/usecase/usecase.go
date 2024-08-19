@@ -1,4 +1,4 @@
-package friendslog
+package usecase
 
 import (
 	"encoding/json"

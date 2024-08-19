@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	friendslog "gitlab.odds.team/worklog/api.odds-worklog/api/friendlogs"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/friendlogs/controllers"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/queue"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 )
@@ -27,7 +27,7 @@ func main() {
 	go func() {
 		for d := range msgs {
 			incomeCreatedEvent := string(d.Body)
-			friendslog.CreateIncome(session, incomeCreatedEvent)
+			controllers.CreateIncome(session, incomeCreatedEvent)
 		}
 	}()
 
