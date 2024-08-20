@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/globalsign/mgo/bson"
 	"github.com/stretchr/testify/assert"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/friendlogs/usecase"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
@@ -65,17 +66,20 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 	u := usecase.NewUsecase()
 	t.Run("Coop updated income from 20 -> 21 in friendslog success", func(t *testing.T) {
 		thaiCitizenID := "0123456789121"
-		addedIncome := models.Income{
-			ThaiCitizenID: thaiCitizenID,
-			WorkDate:      "20",
-			DailyRate:     750,
-			Note:          "Added on 2024-07-22T06:26:25.531Z",
+		allAddedIncomes := []*models.Income{
+			{
+				ThaiCitizenID: thaiCitizenID,
+				WorkDate:      "20",
+				DailyRate:     750,
+				Note:          "Added on 2024-07-22T06:26:25.531Z",
+			},
 		}
+
 		incomeUpdatedEvent := fullCoopIncomeEvent("Chi", "Sweethome", 750, 21,
-			addedIncome.ThaiCitizenID, "+66912345678", "987654321",
+			thaiCitizenID, "+66912345678", "987654321",
 			"", "2024-07-23T06:26:25.531Z", "user1@example.com")
 
-		income := u.UpdateIncome(addedIncome, incomeUpdatedEvent)
+		income := u.UpdateIncome(allAddedIncomes, incomeUpdatedEvent)
 
 		expectedNote := []string{
 			"Added on 2024-07-22T06:26:25.531Z",
@@ -83,6 +87,31 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		}
 		assert.Equal(t, "21", income.WorkDate)
 		assert.Equal(t, strings.Join(expectedNote, "\n"), income.Note)
+	})
+
+	t.Run("only update income of the same citizen id", func(t *testing.T) {
+		thaiCitizenID := "0123456789121"
+		allAddedIncomes := []*models.Income{
+			{
+				ID:            "1",
+				ThaiCitizenID: "another id", WorkDate: "20", DailyRate: 750,
+			},
+			{
+				ID:            "2",
+				ThaiCitizenID: thaiCitizenID,
+				WorkDate:      "20",
+				DailyRate:     750,
+				Note:          "Added on 2024-07-22T06:26:25.531Z",
+			},
+		}
+
+		incomeUpdatedEvent := fullCoopIncomeEvent("Chi", "Sweethome", 750, 21,
+			thaiCitizenID, "+66912345678", "987654321",
+			"", "2024-07-23T06:26:25.531Z", "user1@example.com")
+
+		income := u.UpdateIncome(allAddedIncomes, incomeUpdatedEvent)
+
+		assert.Equal(t, bson.ObjectId("2"), income.ID)
 	})
 }
 func fullCoopIncomeEvent(firstName string, lastName string,

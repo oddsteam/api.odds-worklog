@@ -32,8 +32,7 @@ func main() {
 
 	go func() {
 		for e := range updateEvents {
-			controllers.CreateIncome(session, string(e.Body))
-			// controllers.UpdateIncome(session, string(e.Body))
+			controllers.UpdateIncome(session, string(e.Body))
 		}
 	}()
 
@@ -42,6 +41,6 @@ func main() {
 }
 
 func subscribe(ch *amqp091.Channel, queueName string) <-chan amqp091.Delivery {
-	q := queue.DeclareQueue(ch, "incomes_created", true)
+	q := queue.DeclareQueue(ch, queueName, true)
 	return queue.Subscribe(ch, q.Name)
 }
