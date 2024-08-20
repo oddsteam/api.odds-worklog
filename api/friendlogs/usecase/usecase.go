@@ -29,7 +29,7 @@ func (u *usecase) AddIncome(incomeStr string) models.Income {
 	return *income.CreateIncome(user, req, note)
 }
 
-func (u *usecase) UpdateIncome(allIncomesCurrentMonth []*models.Income, incomeStr string) models.Income {
+func (u *usecase) UpdateIncome(allIncomesCurrentMonth []*models.Income, incomeStr string) *models.Income {
 	var data IncomeCreatedEvent
 	err := json.Unmarshal([]byte(incomeStr), &data)
 	utils.FailOnError(err, "Error parsing JSON")
@@ -42,7 +42,7 @@ func (u *usecase) UpdateIncome(allIncomesCurrentMonth []*models.Income, incomeSt
 	ics := income.NewIncomes(allIncomesCurrentMonth, models.StudentLoanList{})
 	original := ics.FindByCitizenId(data.Registration.ThaiCitizenID)
 	note := fmt.Sprintf("%s\nUpdated on %s", original.Note, data.Income.UpdatedAt)
-	return *income.UpdateIncome(user, req, note, original)
+	return income.UpdateIncome(user, req, note, original)
 }
 
 func dataToUser(data IncomeCreatedEvent) models.User {
