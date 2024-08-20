@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/friendlogs/usecase"
@@ -10,12 +11,14 @@ import (
 )
 
 func CreateIncome(s *mongo.Session, incomeCreatedEvent string) {
+	defer handlePanic()
 	record := usecase.NewUsecase().AddIncome(incomeCreatedEvent)
 	err := income.NewRepository(s).AddIncome(&record)
 	utils.FailOnError(err, "Fail to save event")
 }
 
 func UpdateIncome(s *mongo.Session, incomeUpdatedEvent string) {
+	defer handlePanic()
 	r := income.NewRepository(s)
 	start, end := utils.GetStartDateAndEndDate(time.Now())
 	incomes, err := r.GetAllIncomeByRoleStartDateAndEndDate("individual", start, end)
@@ -23,4 +26,10 @@ func UpdateIncome(s *mongo.Session, incomeUpdatedEvent string) {
 	record := usecase.NewUsecase().UpdateIncome(incomes, incomeUpdatedEvent)
 	err = income.NewRepository(s).UpdateIncome(record)
 	utils.FailOnError(err, "Fail to save event")
+}
+
+func handlePanic() {
+	if r := recover(); r != nil {
+		fmt.Println("Recovered from panic:", r)
+	}
 }
