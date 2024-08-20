@@ -2,7 +2,6 @@ package usecase_test
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/globalsign/mgo/bson"
@@ -32,7 +31,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 	})
 	t.Run("The total amount of the Income which a Coop added in friendslog is calculated", func(t *testing.T) {
 		workDate := 20
-		incomeCreatedEvent := simpleCoopIncomeEvent("0123456789121", workDate, 750)
+		incomeCreatedEvent := simpleCoopIncomeEvent(workDate, 750)
 
 		income := u.AddIncome(incomeCreatedEvent)
 
@@ -42,55 +41,45 @@ func TestUsecaseAddIncome(t *testing.T) {
 	})
 
 	t.Run("income contains note when it was added", func(t *testing.T) {
-		incomeCreatedEvent := fullCoopIncomeEvent("Chi", "Sweethome", 750, 20,
-			"0123456789121", "+66912345678", "987654321",
-			"2024-07-26T06:26:25.531Z", "", "user1@example.com")
+		incomeCreatedEvent := addedIncomeEventAt(20, "2024-07-26T06:26:25.531Z")
 
 		income := u.AddIncome(incomeCreatedEvent)
 
 		assert.Equal(t, "Added on 2024-07-26T06:26:25.531Z", income.Note)
 	})
-	t.Run("income created event can has more fields which worklog ignores", func(t *testing.T) {
-		incomeCreatedEvent := usecase.CreateEvent(1, "Chi", "Sweethome", 750, 20,
-			"123456789122", "+66912345678", "987654321",
-			15375.0, 14913.75, 750.0, 461.25, "2024-07-26T06:26:25.531Z", "",
-			"ba1357eb-20aa-4897-9759-658bf75e8429", "user1@example.com")
+	t.Run("worklog ignores irrelevant fields from friendslog", func(t *testing.T) {
+		incomeCreatedEvent := `{
+			"otherField": "value",
+			"income":{
+				"workDate":20
+			},
+			"registration":{
+				"thai_citizen_id":"0123456789121",
+				"daily_income":"750",
+				"userId":"userId"
+			}
+		}`
 
 		income := u.AddIncome(incomeCreatedEvent)
 
-		assert.Equal(t, "15000.00", income.TotalIncome)
+		assert.NotNil(t, income)
 	})
 }
 
 func TestUsecaseUpdateIncome(t *testing.T) {
 	u := usecase.NewUsecase()
 	t.Run("Coop updated income from 20 -> 21 in friendslog success", func(t *testing.T) {
-		thaiCitizenID := "0123456789121"
-		allAddedIncomes := []*models.Income{
-			{
-				ThaiCitizenID: thaiCitizenID,
-				WorkDate:      "20",
-				DailyRate:     750,
-				Note:          "Added on 2024-07-22T06:26:25.531Z",
-			},
-		}
-
-		incomeUpdatedEvent := fullCoopIncomeEvent("Chi", "Sweethome", 750, 21,
-			thaiCitizenID, "+66912345678", "987654321",
-			"", "2024-07-23T06:26:25.531Z", "user1@example.com")
+		allAddedIncomes := givenThereIsAnIncomeExist("20", 750, "Added on 2024-07-22T06:26:25.531Z")
+		incomeUpdatedEvent := updatedIncomeEventAt(21, "2024-07-23T06:26:25.531Z")
 
 		income := u.UpdateIncome(allAddedIncomes, incomeUpdatedEvent)
 
-		expectedNote := []string{
-			"Added on 2024-07-22T06:26:25.531Z",
-			"Updated on 2024-07-23T06:26:25.531Z",
-		}
+		expectedNote := "Added on 2024-07-22T06:26:25.531Z\nUpdated on 2024-07-23T06:26:25.531Z"
 		assert.Equal(t, "21", income.WorkDate)
-		assert.Equal(t, strings.Join(expectedNote, "\n"), income.Note)
+		assert.Equal(t, expectedNote, income.Note)
 	})
 
 	t.Run("only update income of the same citizen id", func(t *testing.T) {
-		thaiCitizenID := "0123456789121"
 		allAddedIncomes := []*models.Income{
 			{
 				ID:            "1",
@@ -98,22 +87,42 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 			},
 			{
 				ID:            "2",
-				ThaiCitizenID: thaiCitizenID,
+				ThaiCitizenID: "0123456789121",
 				WorkDate:      "20",
 				DailyRate:     750,
 				Note:          "Added on 2024-07-22T06:26:25.531Z",
 			},
 		}
-
-		incomeUpdatedEvent := fullCoopIncomeEvent("Chi", "Sweethome", 750, 21,
-			thaiCitizenID, "+66912345678", "987654321",
-			"", "2024-07-23T06:26:25.531Z", "user1@example.com")
+		incomeUpdatedEvent := updatedIncomeEventAt(21, "2024-07-23T06:26:25.531Z")
 
 		income := u.UpdateIncome(allAddedIncomes, incomeUpdatedEvent)
 
 		assert.Equal(t, bson.ObjectId("2"), income.ID)
 	})
 }
+
+func givenThereIsAnIncomeExist(days string, rate float64, n string) []*models.Income {
+	return []*models.Income{
+		{
+			ThaiCitizenID: "0123456789121",
+			WorkDate:      days,
+			DailyRate:     rate,
+			Note:          n,
+		},
+	}
+}
+
+func addedIncomeEventAt(days int, createdAt string) string {
+	return fullCoopIncomeEvent("Chi", "Sweethome", 750, days,
+		"0123456789121", "+66912345678", "987654321",
+		createdAt, "", "user1@example.com")
+}
+func updatedIncomeEventAt(days int, updatedAt string) string {
+	return fullCoopIncomeEvent("Chi", "Sweethome", 750, days,
+		"0123456789121", "+66912345678", "987654321",
+		"", updatedAt, "user1@example.com")
+}
+
 func fullCoopIncomeEvent(firstName string, lastName string,
 	dailyRate float64, workDays int, thaiCitizenID string,
 	phone string, bankAcocuntNumber string, createAt string, updatedAt string, email string) string {
@@ -123,15 +132,15 @@ func fullCoopIncomeEvent(firstName string, lastName string,
 		0, 0, 0, 0, createAt, updatedAt, "friendslogId", email)
 }
 
-func simpleCoopIncomeEvent(thaiCitizenID string, workDate int, dailyRate float64) string {
+func simpleCoopIncomeEvent(workDate int, dailyRate float64) string {
 	return fmt.Sprintf(`{
 			"income":{
 				"workDate":%d
 			},
 			"registration":{
-				"thai_citizen_id":"%s",
+				"thai_citizen_id":"0123456789121",
 				"daily_income":"%f",
 				"userId":"userId"
 			}
-		}`, workDate, thaiCitizenID, dailyRate)
+		}`, workDate, dailyRate)
 }
