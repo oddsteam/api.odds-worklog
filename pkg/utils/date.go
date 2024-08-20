@@ -13,6 +13,11 @@ func getNow(now time.Time) string {
 	return now.Format(time.RFC3339)
 }
 
+func ParseDate(s string) (time.Time, error) {
+	layout := time.RFC3339Nano
+	return time.Parse(layout, s)
+}
+
 func GetCurrentMonth() string {
 	return getCurrentMonth(time.Now())
 }

@@ -20,6 +20,17 @@ func TestGetNowAgain(t *testing.T) {
 	assert.Equal(t, "2022-12-01T13:30:29Z", actual)
 }
 
+func TestParseDateSuccess(t *testing.T) {
+	actual, _ := ParseDate("2022-12-01T13:30:29Z")
+	expected := time.Date(2022, time.Month(12), 1, 13, 30, 29, 0, time.UTC)
+	assert.Equal(t, expected, actual)
+}
+func TestParseAnotherDate(t *testing.T) {
+	actual, _ := ParseDate("2024-07-26T06:26:25.531Z")
+	expected := time.Date(2024, time.Month(7), 26, 6, 26, 25, 531000000, time.UTC)
+	assert.Equal(t, expected, actual)
+}
+
 func TestGetCurrentMonth(t *testing.T) {
 	r := regexp.MustCompile("\\d{4}-\\d{0,2}")
 	cm := GetCurrentMonth()

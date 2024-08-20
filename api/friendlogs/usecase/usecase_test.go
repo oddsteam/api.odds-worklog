@@ -3,6 +3,7 @@ package usecase_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/stretchr/testify/assert"
@@ -28,6 +29,9 @@ func TestUsecaseAddIncome(t *testing.T) {
 		assert.Equal(t, 750.0, income.DailyRate)
 		assert.Equal(t, "Chi Sweethome", income.BankAccountName)
 		assert.Equal(t, "user1@example.com", income.Email)
+		createdAt := time.Date(2024, time.Month(7), 26, 6, 26, 25, 531000000, time.UTC)
+		assert.Equal(t, createdAt, income.SubmitDate)
+		assert.Equal(t, createdAt, income.LastUpdate)
 	})
 	t.Run("The total amount of the Income which a Coop added in friendslog is calculated", func(t *testing.T) {
 		workDate := 20
@@ -115,7 +119,7 @@ func givenThereIsAnIncomeExist(days string, rate float64, n string) []*models.In
 func addedIncomeEventAt(days int, createdAt string) string {
 	return fullCoopIncomeEvent("Chi", "Sweethome", 750, days,
 		"0123456789121", "+66912345678", "987654321",
-		createdAt, "", "user1@example.com")
+		createdAt, createdAt, "user1@example.com")
 }
 func updatedIncomeEventAt(days int, updatedAt string) string {
 	return fullCoopIncomeEvent("Chi", "Sweethome", 750, days,

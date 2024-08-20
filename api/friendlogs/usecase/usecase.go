@@ -21,8 +21,11 @@ func (u *usecase) AddIncome(incomeStr string) models.Income {
 	utils.FailOnError(err, "Error parsing JSON")
 	user := data.user()
 	req := data.incomeReq()
-	note := data.addNote()
-	return *income.CreateIncome(user, req, note)
+	record := income.CreateIncome(user, req, "")
+	record.Note = data.addNote()
+	record.SubmitDate, _ = utils.ParseDate(data.Income.CreatedAt)
+	record.LastUpdate = record.SubmitDate
+	return *record
 }
 
 func (u *usecase) UpdateIncome(allIncomesCurrentMonth []*models.Income, incomeStr string) *models.Income {
