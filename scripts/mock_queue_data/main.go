@@ -38,7 +38,7 @@ func main() {
 			"123456789122", "+66912345678", "987654321",
 			0.0, 0.0, 0.0, 0.0, createdAt1, updatedAt1,
 			"ba1357eb-20aa-4897-9759-658bf75e8429", "user1@example.com"),
-		usecase.UpdateEvent(2, "Yohei", "Yamada", 750, 10,
+		usecase.UpdateEvent(2, "Yohei", "Yamada", 750, 15,
 			"1234567890121", "0816543210", "0123456789",
 			0.0, 0.0, 0.0, 0.0, createdAt2, updatedAt2,
 			"e82217a2-669a-4b0e-b98b-917e0ccfdf4c", "user2@example.com"),
