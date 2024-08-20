@@ -257,6 +257,10 @@ func NewIncomes(records []*models.Income, loans models.StudentLoanList) *Incomes
 	}
 }
 
+func NewIncomesWithoutLoans(records []*models.Income) *Incomes {
+	return NewIncomes(records, models.StudentLoanList{})
+}
+
 func (ics *Incomes) FindByCitizenId(cid string) *models.Income {
 	for _, e := range ics.records {
 		if cid == e.ThaiCitizenID {
