@@ -27,6 +27,10 @@ func NewRepository(session *mongo.Session) Repository {
 
 func (r *repository) AddIncome(income *models.Income) error {
 	t := time.Now()
+	return r.AddIncomeOnSpecificTime(income, t)
+}
+
+func (r *repository) AddIncomeOnSpecificTime(income *models.Income, t time.Time) error {
 	income.SubmitDate = t
 	income.LastUpdate = t
 	income.ID = bson.NewObjectId()

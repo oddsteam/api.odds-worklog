@@ -63,6 +63,20 @@ func (mr *MockRepositoryMockRecorder) AddIncome(u interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddIncome", reflect.TypeOf((*MockRepository)(nil).AddIncome), u)
 }
 
+// AddIncomeOnSpecificTime mocks base method.
+func (m *MockRepository) AddIncomeOnSpecificTime(u *models.Income, t time.Time) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddIncomeOnSpecificTime", u, t)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddIncomeOnSpecificTime indicates an expected call of AddIncomeOnSpecificTime.
+func (mr *MockRepositoryMockRecorder) AddIncomeOnSpecificTime(u, t interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddIncomeOnSpecificTime", reflect.TypeOf((*MockRepository)(nil).AddIncomeOnSpecificTime), u, t)
+}
+
 // GetAllIncomeByRoleStartDateAndEndDate mocks base method.
 func (m *MockRepository) GetAllIncomeByRoleStartDateAndEndDate(role string, startDate, endDate time.Time) ([]*models.Income, error) {
 	m.ctrl.T.Helper()

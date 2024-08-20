@@ -13,7 +13,7 @@ import (
 func CreateIncome(s *mongo.Session, incomeCreatedEvent string) {
 	defer handlePanic()
 	record := usecase.NewUsecase().AddIncome(incomeCreatedEvent)
-	err := income.NewRepository(s).AddIncome(&record)
+	err := income.NewRepository(s).AddIncomeOnSpecificTime(&record, record.SubmitDate)
 	utils.FailOnError(err, "Fail to save event")
 }
 

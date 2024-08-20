@@ -8,6 +8,7 @@ import (
 
 type Repository interface {
 	AddIncome(u *models.Income) error
+	AddIncomeOnSpecificTime(u *models.Income, t time.Time) error
 	GetIncomeUserByYearMonth(id string, fromYear int, fromMonth time.Month) (*models.Income, error)
 	GetIncomeByID(incID, uID string) (*models.Income, error)
 	GetIncomeByUserID(uID string, fromYear int, fromMonth time.Month) (*models.Income, error)
