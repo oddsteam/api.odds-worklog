@@ -35,9 +35,10 @@ func (u *usecase) UpdateIncome(allIncomesCurrentMonth []*models.Income, incomeSt
 	user := data.user()
 	req := data.incomeReq()
 	ics := income.NewIncomesWithoutLoans(allIncomesCurrentMonth)
-	original := ics.FindByCitizenId(data.Registration.ThaiCitizenID)
-	note := data.updateNote(original.Note)
-	return income.UpdateIncome(user, req, note, original)
+	record := ics.FindByCitizenId(data.Registration.ThaiCitizenID)
+	record.LastUpdate, _ = utils.ParseDate(data.Income.UpdatedAt)
+	note := data.updateNote(record.Note)
+	return income.UpdateIncome(user, req, note, record)
 }
 
 type IncomeCreatedEvent struct {

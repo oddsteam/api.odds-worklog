@@ -81,6 +81,8 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		expectedNote := "Added on 2024-07-22T06:26:25.531Z\nUpdated on 2024-07-23T06:26:25.531Z"
 		assert.Equal(t, "21", income.WorkDate)
 		assert.Equal(t, expectedNote, income.Note)
+		updatedAt := time.Date(2024, time.Month(7), 23, 6, 26, 25, 531000000, time.UTC)
+		assert.Equal(t, updatedAt, income.LastUpdate)
 	})
 
 	t.Run("only update income of the same citizen id", func(t *testing.T) {
