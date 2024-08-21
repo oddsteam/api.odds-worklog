@@ -22,7 +22,7 @@ func UpdateIncome(s *mongo.Session, incomeUpdatedEvent string) {
 	r := income.NewRepository(s)
 	start, end := utils.GetStartDateAndEndDate(time.Now())
 	incomes, err := r.GetAllIncomeByRoleStartDateAndEndDate("individual", start, end)
-	utils.FailOnError(err, "Fail to save event")
+	utils.FailOnError(err, "Fail to retrieve incomes")
 	record := usecase.NewUsecase().UpdateIncome(incomes, incomeUpdatedEvent)
 	err = income.NewRepository(s).UpdateIncome(record)
 	utils.FailOnError(err, "Fail to save event")
