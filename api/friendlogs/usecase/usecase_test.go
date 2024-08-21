@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/friendlogs/usecase"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 func TestUsecaseAddIncome(t *testing.T) {
@@ -76,7 +77,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 
 		// Anyway, payer wants the most update income when export.
 
-		allAddedIncomes := givenThereIsAnIncomeExist("20", 750, "Added on 2024-07-22T06:26:25.531Z")
+		allAddedIncomes := givenThereIsAnIncomeExist("20", 750, "Updated on 2024-07-22T06:26:25.531Z")
 
 		incomeCreatedEvent := addedIncomeEventAt(20, "2024-07-26T06:26:25.531Z")
 
@@ -84,6 +85,24 @@ func TestUsecaseAddIncome(t *testing.T) {
 
 		assert.NotNil(t, income)
 		assert.Equal(t, "", income.ID.Hex())
+	})
+
+	t.Run("when newer income exist in database, do nothing", func(t *testing.T) {
+		// The assumption here is:
+		// - the update event may be processed before the add event.
+
+		// Anyway, payer wants the most update income when export.
+		// Ignore the incoming event if it last update is older
+		// than the income in the database
+
+		allAddedIncomes := givenThereIsAnIncomeExist("20", 750, "Updated on 2024-07-22T06:26:24.531Z")
+		andTheIncomeLastUpdateWas(allAddedIncomes, "2024-07-22T06:26:24.531Z")
+
+		incomeCreatedEvent := addedIncomeEventAt(20, "2024-07-16T06:26:24.531Z")
+
+		assert.Panics(t, func() {
+			u.SaveIncome(allAddedIncomes, incomeCreatedEvent, "Added")
+		})
 	})
 }
 
@@ -149,6 +168,11 @@ func givenThereIsAnIncomeExist(days string, rate float64, n string) []*models.In
 			Note:          n,
 		},
 	}
+}
+
+func andTheIncomeLastUpdateWas(incomes []*models.Income, s string) {
+	t, _ := utils.ParseDate(s)
+	incomes[0].LastUpdate = t
 }
 
 func addedIncomeEventAt(days int, createdAt string) string {

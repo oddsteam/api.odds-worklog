@@ -3,6 +3,7 @@ package usecase
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
@@ -24,10 +25,14 @@ func (u *usecase) SaveIncome(allIncomesCurrentMonth []*models.Income, incomeStr,
 	req := data.incomeReq()
 	ics := income.NewIncomesWithoutLoans(allIncomesCurrentMonth)
 	original := ics.FindByCitizenId(data.Registration.ThaiCitizenID)
+	lastUpdate, _ := utils.ParseDate(data.Income.UpdatedAt)
+	if lastUpdate.Before(original.LastUpdate) {
+		log.Panic("Old event: ignored")
+	}
 	record := income.UpdateIncome(user, req, original.Note, original)
 	record.Note = data.appendNote(original.Note, action)
 	record.SubmitDate, _ = utils.ParseDate(data.Income.CreatedAt)
-	record.LastUpdate, _ = utils.ParseDate(data.Income.UpdatedAt)
+	record.LastUpdate = lastUpdate
 	return record
 }
 
