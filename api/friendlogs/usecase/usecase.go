@@ -24,7 +24,7 @@ func (u *usecase) SaveIncome(allIncomesCurrentMonth []*models.Income, incomeStr,
 	user := data.user()
 	req := data.incomeReq()
 	ics := income.NewIncomesWithoutLoans(allIncomesCurrentMonth)
-	original := ics.FindByCitizenId(data.Registration.ThaiCitizenID)
+	original := ics.FindByUserID(data.id())
 	lastUpdate, _ := utils.ParseDate(data.Income.UpdatedAt)
 	if lastUpdate.Before(original.LastUpdate) {
 		log.Panic("Old event: ignored")
@@ -33,6 +33,7 @@ func (u *usecase) SaveIncome(allIncomesCurrentMonth []*models.Income, incomeStr,
 	record.Note = data.appendNote(original.Note, action)
 	record.SubmitDate, _ = utils.ParseDate(data.Income.CreatedAt)
 	record.LastUpdate = lastUpdate
+	record.UserID = data.id()
 	return record
 }
 
@@ -69,6 +70,10 @@ func (data *IncomeCreatedEvent) user() models.User {
 	user.BankAccountName = user.GetFullname()
 	user.Email = data.Registration.Email
 	return user
+}
+
+func (data *IncomeCreatedEvent) id() string {
+	return fmt.Sprintf("friendslog-%s", data.Registration.ThaiCitizenID)
 }
 
 func (data *IncomeCreatedEvent) incomeReq() models.IncomeReq {

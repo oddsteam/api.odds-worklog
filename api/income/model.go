@@ -261,9 +261,9 @@ func NewIncomesWithoutLoans(records []*models.Income) *Incomes {
 	return NewIncomes(records, models.StudentLoanList{})
 }
 
-func (ics *Incomes) FindByCitizenId(cid string) *models.Income {
+func (ics *Incomes) FindByUserID(id string) *models.Income {
 	for _, e := range ics.records {
-		if cid == e.ThaiCitizenID {
+		if id == e.UserID {
 			return e
 		}
 	}

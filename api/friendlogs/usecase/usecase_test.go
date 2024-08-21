@@ -35,6 +35,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 		assert.Equal(t, createdAt, income.SubmitDate)
 		assert.Equal(t, createdAt, income.LastUpdate)
 	})
+
 	t.Run("The total amount of the Income which a Coop added in friendslog is calculated", func(t *testing.T) {
 		workDate := 20
 		incomeCreatedEvent := simpleCoopIncomeEvent(workDate, 750)
@@ -133,6 +134,7 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 				WorkDate:      "20",
 				DailyRate:     750,
 				Note:          "Added on 2024-07-22T06:26:25.531Z",
+				UserID:        "friendslog-0123456789121",
 			},
 		}
 		incomeUpdatedEvent := updatedIncomeEventAt(21, "2024-07-23T06:26:25.531Z")
@@ -140,6 +142,55 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		income := u.SaveIncome(allAddedIncomes, incomeUpdatedEvent, "Updated")
 
 		assert.Equal(t, bson.ObjectId("2"), income.ID)
+	})
+
+	t.Run("only update friendslog income, not worklog income", func(t *testing.T) {
+		// We plan to do parallel run in our release plan.
+		// While coops are inputing income both in worklog and friendslog,
+		// there will be 2 income recoreds in database (worklog & friendslog).
+
+		// updating friendslog income should update friendslog record, not worklog.
+		// we use UserID to find the record to update.
+
+		allAddedIncomes := []*models.Income{
+			{
+				ID:            "1",
+				ThaiCitizenID: "0123456789121",
+				WorkDate:      "20",
+				DailyRate:     750,
+			},
+			{
+				ID:            "2",
+				ThaiCitizenID: "0123456789121",
+				WorkDate:      "20",
+				DailyRate:     750,
+				Note:          "Added on 2024-07-22T06:26:25.531Z",
+				UserID:        "friendslog-0123456789121",
+			},
+		}
+		incomeUpdatedEvent := updatedIncomeEventAt(21, "2024-07-23T06:26:25.531Z")
+
+		income := u.SaveIncome(allAddedIncomes, incomeUpdatedEvent, "Updated")
+
+		assert.Equal(t, bson.ObjectId("2"), income.ID)
+	})
+
+	t.Run("Income which a Coop added in friendslog has UserID so that we know which record to update", func(t *testing.T) {
+		allAddedIncomes := []*models.Income{}
+		incomeCreatedEvent := `{
+			"income":{
+				"workDate":20
+			},
+			"registration":{
+				"thai_citizen_id":"0123456789121",
+				"daily_income":"750",
+				"userId":"userId"
+			}
+		}`
+
+		income := u.SaveIncome(allAddedIncomes, incomeCreatedEvent, "Added")
+
+		assert.Equal(t, "friendslog-0123456789121", income.UserID)
 	})
 
 	t.Run("when income does not exist, create it anyway", func(t *testing.T) {
@@ -166,6 +217,7 @@ func givenThereIsAnIncomeExist(days string, rate float64, n string) []*models.In
 			WorkDate:      days,
 			DailyRate:     rate,
 			Note:          n,
+			UserID:        "friendslog-0123456789121",
 		},
 	}
 }
