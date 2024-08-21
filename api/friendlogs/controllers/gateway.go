@@ -14,7 +14,7 @@ func CreateIncome(s *mongo.Session, incomeCreatedEvent string) {
 	defer handlePanic()
 	record := usecase.NewUsecase().AddIncome(incomeCreatedEvent)
 	err := income.NewRepository(s).AddIncomeOnSpecificTime(&record, record.SubmitDate)
-	utils.FailOnError(err, "Fail to save event")
+	utils.FailOnError(err, "Fail to save income")
 }
 
 func UpdateIncome(s *mongo.Session, incomeUpdatedEvent string) {
@@ -24,8 +24,12 @@ func UpdateIncome(s *mongo.Session, incomeUpdatedEvent string) {
 	incomes, err := r.GetAllIncomeByRoleStartDateAndEndDate("individual", start, end)
 	utils.FailOnError(err, "Fail to retrieve incomes")
 	record := usecase.NewUsecase().UpdateIncome(incomes, incomeUpdatedEvent)
-	err = income.NewRepository(s).UpdateIncome(record)
-	utils.FailOnError(err, "Fail to save event")
+	if record.ID.Hex() == "" {
+		err = income.NewRepository(s).AddIncomeOnSpecificTime(record, record.SubmitDate)
+	} else {
+		err = income.NewRepository(s).UpdateIncome(record)
+	}
+	utils.FailOnError(err, "Fail to save income")
 }
 
 func handlePanic() {

@@ -105,6 +105,22 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 
 		assert.Equal(t, bson.ObjectId("2"), income.ID)
 	})
+
+	t.Run("when income does not exist, create it anyway", func(t *testing.T) {
+		// The assumptions here are:
+		// - the income might be lost when added;
+		// - the update event may be processed before the add event.
+
+		// Anyway, payer wants the most update income when export.
+
+		allAddedIncomes := []*models.Income{}
+		incomeUpdatedEvent := updatedIncomeEventAt(21, "2024-07-23T06:26:25.531Z")
+
+		income := u.UpdateIncome(allAddedIncomes, incomeUpdatedEvent)
+
+		assert.NotNil(t, income)
+		assert.Equal(t, "", income.ID.Hex())
+	})
 }
 
 func givenThereIsAnIncomeExist(days string, rate float64, n string) []*models.Income {
