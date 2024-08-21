@@ -12,18 +12,20 @@ import (
 
 func CreateIncome(s *mongo.Session, incomeCreatedEvent string) {
 	defer handlePanic()
-	record := usecase.NewUsecase().AddIncome(incomeCreatedEvent)
-	err := income.NewRepository(s).AddIncomeOnSpecificTime(&record, record.SubmitDate)
-	utils.FailOnError(err, "Fail to save income")
+	saveIncome(s, incomeCreatedEvent, "Added")
 }
 
 func UpdateIncome(s *mongo.Session, incomeUpdatedEvent string) {
 	defer handlePanic()
+	saveIncome(s, incomeUpdatedEvent, "Updated")
+}
+
+func saveIncome(s *mongo.Session, event, action string) {
 	r := income.NewRepository(s)
 	start, end := utils.GetStartDateAndEndDate(time.Now())
 	incomes, err := r.GetAllIncomeByRoleStartDateAndEndDate("individual", start, end)
 	utils.FailOnError(err, "Fail to retrieve incomes")
-	record := usecase.NewUsecase().UpdateIncome(incomes, incomeUpdatedEvent)
+	record := usecase.NewUsecase().SaveIncome(incomes, event, action)
 	if record.ID.Hex() == "" {
 		err = income.NewRepository(s).AddIncomeOnSpecificTime(record, record.SubmitDate)
 	} else {

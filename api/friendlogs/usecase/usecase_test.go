@@ -13,13 +13,14 @@ import (
 
 func TestUsecaseAddIncome(t *testing.T) {
 	u := usecase.NewUsecase()
+	allAddedIncomes := []*models.Income{}
 	t.Run("Income which a Coop added in friendslog is saved in worklog", func(t *testing.T) {
 		thaiCitizenID := "0123456789121"
 		incomeCreatedEvent := fullCoopIncomeEvent("Chi", "Sweethome", 750, 20,
 			thaiCitizenID, "+66912345678", "987654321",
-			"2024-07-26T06:26:25.531Z", "", "user1@example.com")
+			"2024-07-26T06:26:25.531Z", "2024-07-26T06:26:25.531Z", "user1@example.com")
 
-		income := u.AddIncome(incomeCreatedEvent)
+		income := u.SaveIncome(allAddedIncomes, incomeCreatedEvent, "Added")
 
 		assert.Equal(t, "Chi Sweethome", income.Name)
 		assert.Equal(t, "20", income.WorkDate)
@@ -37,7 +38,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 		workDate := 20
 		incomeCreatedEvent := simpleCoopIncomeEvent(workDate, 750)
 
-		income := u.AddIncome(incomeCreatedEvent)
+		income := u.SaveIncome(allAddedIncomes, incomeCreatedEvent, "Added")
 
 		assert.Equal(t, "15000.00", income.TotalIncome)
 		assert.Equal(t, "450.00", income.WHT)
@@ -47,7 +48,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 	t.Run("income contains note when it was added", func(t *testing.T) {
 		incomeCreatedEvent := addedIncomeEventAt(20, "2024-07-26T06:26:25.531Z")
 
-		income := u.AddIncome(incomeCreatedEvent)
+		income := u.SaveIncome(allAddedIncomes, incomeCreatedEvent, "Added")
 
 		assert.Equal(t, "Added on 2024-07-26T06:26:25.531Z", income.Note)
 	})
@@ -64,9 +65,25 @@ func TestUsecaseAddIncome(t *testing.T) {
 			}
 		}`
 
-		income := u.AddIncome(incomeCreatedEvent)
+		income := u.SaveIncome(allAddedIncomes, incomeCreatedEvent, "Added")
 
 		assert.NotNil(t, income)
+	})
+
+	t.Run("when older income exist in database, update it", func(t *testing.T) {
+		// The assumption here is:
+		// - the update event may be processed before the add event.
+
+		// Anyway, payer wants the most update income when export.
+
+		allAddedIncomes := givenThereIsAnIncomeExist("20", 750, "Added on 2024-07-22T06:26:25.531Z")
+
+		incomeCreatedEvent := addedIncomeEventAt(20, "2024-07-26T06:26:25.531Z")
+
+		income := u.SaveIncome(allAddedIncomes, incomeCreatedEvent, "Added")
+
+		assert.NotNil(t, income)
+		assert.Equal(t, "", income.ID.Hex())
 	})
 }
 
@@ -76,7 +93,7 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		allAddedIncomes := givenThereIsAnIncomeExist("20", 750, "Added on 2024-07-22T06:26:25.531Z")
 		incomeUpdatedEvent := updatedIncomeEventAt(21, "2024-07-23T06:26:25.531Z")
 
-		income := u.UpdateIncome(allAddedIncomes, incomeUpdatedEvent)
+		income := u.SaveIncome(allAddedIncomes, incomeUpdatedEvent, "Updated")
 
 		expectedNote := "Added on 2024-07-22T06:26:25.531Z\nUpdated on 2024-07-23T06:26:25.531Z"
 		assert.Equal(t, "21", income.WorkDate)
@@ -101,7 +118,7 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		}
 		incomeUpdatedEvent := updatedIncomeEventAt(21, "2024-07-23T06:26:25.531Z")
 
-		income := u.UpdateIncome(allAddedIncomes, incomeUpdatedEvent)
+		income := u.SaveIncome(allAddedIncomes, incomeUpdatedEvent, "Updated")
 
 		assert.Equal(t, bson.ObjectId("2"), income.ID)
 	})
@@ -116,7 +133,7 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		allAddedIncomes := []*models.Income{}
 		incomeUpdatedEvent := updatedIncomeEventAt(21, "2024-07-23T06:26:25.531Z")
 
-		income := u.UpdateIncome(allAddedIncomes, incomeUpdatedEvent)
+		income := u.SaveIncome(allAddedIncomes, incomeUpdatedEvent, "Updated")
 
 		assert.NotNil(t, income)
 		assert.Equal(t, "", income.ID.Hex())

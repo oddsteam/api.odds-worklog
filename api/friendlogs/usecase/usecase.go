@@ -3,6 +3,7 @@ package usecase
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
@@ -15,30 +16,19 @@ func NewUsecase() *usecase {
 	return &usecase{}
 }
 
-func (u *usecase) AddIncome(incomeStr string) models.Income {
-	var data IncomeCreatedEvent
-	err := json.Unmarshal([]byte(incomeStr), &data)
-	utils.FailOnError(err, "Error parsing JSON")
-	user := data.user()
-	req := data.incomeReq()
-	record := income.CreateIncome(user, req, "")
-	record.Note = data.addNote()
-	record.SubmitDate, _ = utils.ParseDate(data.Income.CreatedAt)
-	record.LastUpdate = record.SubmitDate
-	return *record
-}
-
-func (u *usecase) UpdateIncome(allIncomesCurrentMonth []*models.Income, incomeStr string) *models.Income {
+func (u *usecase) SaveIncome(allIncomesCurrentMonth []*models.Income, incomeStr, action string) *models.Income {
 	var data IncomeCreatedEvent
 	err := json.Unmarshal([]byte(incomeStr), &data)
 	utils.FailOnError(err, "Error parsing JSON")
 	user := data.user()
 	req := data.incomeReq()
 	ics := income.NewIncomesWithoutLoans(allIncomesCurrentMonth)
-	record := ics.FindByCitizenId(data.Registration.ThaiCitizenID)
+	original := ics.FindByCitizenId(data.Registration.ThaiCitizenID)
+	record := income.UpdateIncome(user, req, original.Note, original)
+	record.Note = data.appendNote(original.Note, action)
+	record.SubmitDate, _ = utils.ParseDate(data.Income.CreatedAt)
 	record.LastUpdate, _ = utils.ParseDate(data.Income.UpdatedAt)
-	note := data.updateNote(record.Note)
-	return income.UpdateIncome(user, req, note, record)
+	return record
 }
 
 type IncomeCreatedEvent struct {
@@ -84,10 +74,6 @@ func (data *IncomeCreatedEvent) incomeReq() models.IncomeReq {
 	}
 }
 
-func (data *IncomeCreatedEvent) addNote() string {
-	return fmt.Sprintf("Added on %s", data.Income.CreatedAt)
-}
-
-func (data *IncomeCreatedEvent) updateNote(note string) string {
-	return fmt.Sprintf("%s\nUpdated on %s", note, data.Income.UpdatedAt)
+func (data *IncomeCreatedEvent) appendNote(note, action string) string {
+	return strings.TrimSpace(fmt.Sprintf("%s\n%s on %s", note, action, data.Income.UpdatedAt))
 }
