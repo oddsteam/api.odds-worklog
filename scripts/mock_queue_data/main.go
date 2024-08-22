@@ -15,10 +15,12 @@ func main() {
 	ch := queue.GetChannel(conn)
 	defer ch.Close()
 
-	createdAt1 := "2024-07-26T06:26:25.531Z"
-	updatedAt1 := "2024-07-27T06:26:25.531Z"
-	createdAt2 := "2024-08-01T07:33:27.440Z"
-	updatedAt2 := "2024-08-02T07:33:27.440Z"
+	_, m, _ := time.Now().Date()
+
+	createdAt1 := fmt.Sprintf("2024-%02d-22T10:12:22+07:00", m)
+	updatedAt1 := fmt.Sprintf("2024-%02d-27T10:12:22+07:00", m)
+	createdAt2 := fmt.Sprintf("2024-%02d-22T01:12:22+07:00", m)
+	updatedAt2 := fmt.Sprintf("2024-%02d-27T02:12:22+07:00", m)
 
 	events := []string{
 		usecase.CreateEvent(1, "Chi", "Sweethome", 750, 20,
