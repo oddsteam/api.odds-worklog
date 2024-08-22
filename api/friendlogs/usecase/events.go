@@ -1,8 +1,12 @@
-package friendslog
+package usecase
 
 import "fmt"
 
-func CreateEvent(id int, firstName string, lastName string, dailyIncome int, workDate int, thaiCitizenId string, phone string, bank_no string, totalIncome float64, netIncome float64, netDailyIncome float64, wht float64, createdAt string, userId string, email string) string {
+func UpdateEvent(id int, firstName, lastName string, dailyIncome, workDate int, thaiCitizenId, phone, bank_no string, totalIncome, netIncome, netDailyIncome, wht float64, createdAt, updatedAt, userId, email string) string {
+	return CreateEvent(id, firstName, lastName, dailyIncome, workDate, thaiCitizenId, phone, bank_no, totalIncome, netIncome, netDailyIncome, wht, createdAt, updatedAt, userId, email)
+}
+
+func CreateEvent(id int, firstName, lastName string, dailyIncome, workDate int, thaiCitizenId, phone, bank_no string, totalIncome, netIncome, netDailyIncome, wht float64, createdAt, updatedAt, userId, email string) string {
 	format := `{
 		"income":{
 			"id":"%d",
@@ -40,7 +44,7 @@ func CreateEvent(id int, firstName string, lastName string, dailyIncome int, wor
 		}
 	}`
 	return fmt.Sprintf(format, id, totalIncome, netIncome, netDailyIncome,
-		workDate, wht, createdAt, createdAt, userId,
+		workDate, wht, createdAt, updatedAt, userId,
 		id, firstName, lastName, thaiCitizenId, phone, bank_no,
 		dailyIncome, userId, email)
 }

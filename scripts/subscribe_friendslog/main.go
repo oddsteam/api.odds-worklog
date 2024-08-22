@@ -3,7 +3,8 @@ package main
 import (
 	"log"
 
-	friendslog "gitlab.odds.team/worklog/api.odds-worklog/api/friendlogs"
+	"github.com/rabbitmq/amqp091-go"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/friendlogs/controllers"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/queue"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 )
@@ -18,19 +19,28 @@ func main() {
 	ch := queue.GetChannel(conn)
 	defer ch.Close()
 
-	q := queue.DeclareQueue(ch, "incomes_created", true)
-
-	msgs := queue.Subscribe(ch, q.Name)
+	createEvents := subscribe(ch, "incomes_created")
+	updateEvents := subscribe(ch, "incomes_updated")
 
 	forever := make(chan bool)
 
 	go func() {
-		for d := range msgs {
-			incomeCreatedEvent := string(d.Body)
-			friendslog.CreateIncome(session, incomeCreatedEvent)
+		for e := range createEvents {
+			controllers.CreateIncome(session, string(e.Body))
+		}
+	}()
+
+	go func() {
+		for e := range updateEvents {
+			controllers.UpdateIncome(session, string(e.Body))
 		}
 	}()
 
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
+}
+
+func subscribe(ch *amqp091.Channel, queueName string) <-chan amqp091.Delivery {
+	q := queue.DeclareQueue(ch, queueName, true)
+	return queue.Subscribe(ch, q.Name)
 }

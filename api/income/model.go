@@ -257,6 +257,19 @@ func NewIncomes(records []*models.Income, loans models.StudentLoanList) *Incomes
 	}
 }
 
+func NewIncomesWithoutLoans(records []*models.Income) *Incomes {
+	return NewIncomes(records, models.StudentLoanList{})
+}
+
+func (ics *Incomes) FindByUserID(id string) *models.Income {
+	for _, e := range ics.records {
+		if id == e.UserID {
+			return e
+		}
+	}
+	return &models.Income{}
+}
+
 func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
 	strWrite := make([][]string, 0)
 	strWrite = append(strWrite, createHeaders())
@@ -278,6 +291,14 @@ func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
 func CreateIncome(user models.User, req models.IncomeReq, note string) *models.Income {
 	i := NewIncome(string(user.ID))
 	record, err := i.prepareDataForAddIncome(req, user)
+	record.Note = note
+	utils.FailOnError(err, "Error prepare data for add income")
+	return record
+}
+
+func UpdateIncome(user models.User, req models.IncomeReq, note string, record *models.Income) *models.Income {
+	i := NewIncomeFromRecord(*record)
+	err := i.prepareDataForUpdateIncome(req, user, record)
 	record.Note = note
 	utils.FailOnError(err, "Error prepare data for add income")
 	return record
