@@ -21,15 +21,17 @@ func UpdateIncome(s *mongo.Session, incomeUpdatedEvent string) {
 }
 
 func saveIncome(s *mongo.Session, event, action string) {
+	er := NewRepository(s)
+	er.Create(action, event)
 	r := income.NewRepository(s)
 	start, end := utils.GetStartDateAndEndDate(time.Now())
 	incomes, err := r.GetAllIncomeByRoleStartDateAndEndDate("individual", start, end)
 	utils.FailOnError(err, "Fail to retrieve incomes")
 	record := usecase.NewUsecase().SaveIncome(incomes, event, action)
 	if record.ID.Hex() == "" {
-		err = income.NewRepository(s).AddIncomeOnSpecificTime(record, record.SubmitDate)
+		err = r.AddIncomeOnSpecificTime(record, record.SubmitDate)
 	} else {
-		err = income.NewRepository(s).UpdateIncome(record)
+		err = r.UpdateIncome(record)
 	}
 	utils.FailOnError(err, "Fail to save income")
 }
