@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"time"
 
 	"github.com/rabbitmq/amqp091-go"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/friendlogs/usecase"
@@ -45,6 +47,8 @@ func main() {
 			0.0, 0.0, 0.0, 0.0, createdAt2, updatedAt2,
 			"e82217a2-669a-4b0e-b98b-917e0ccfdf4c", "user2@example.com"),
 	}
+
+	time.Sleep(time.Millisecond)
 
 	publishMessages(ch, "incomes_updated", events)
 }
