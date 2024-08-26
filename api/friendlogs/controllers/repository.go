@@ -15,6 +15,7 @@ type Event struct {
 	Action    string    `bson:"action"`
 	Message   string    `bson:"message"`
 	CreatedAt time.Time `bson:"createdAt"`
+	Version   string    `bson:"version"`
 }
 
 func NewRepository(session *mongo.Session) *Repository {
@@ -22,7 +23,7 @@ func NewRepository(session *mongo.Session) *Repository {
 }
 
 func (r *Repository) Create(action, message string) {
-	e := Event{Action: action, Message: message}
+	e := Event{Action: action, Message: message, Version: "0.0.1"}
 	e.CreatedAt = time.Now()
 	coll := r.session.GetCollection("event")
 	err := coll.Insert(e)
