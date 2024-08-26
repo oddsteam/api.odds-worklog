@@ -21,6 +21,7 @@ func UpdateIncome(s *mongo.Session, incomeUpdatedEvent string) {
 }
 
 func saveIncome(s *mongo.Session, event, action string) {
+	fmt.Printf("%#v, %#v\n", event, action)
 	er := NewRepository(s)
 	er.Create(action, event)
 	r := income.NewRepository(s)
