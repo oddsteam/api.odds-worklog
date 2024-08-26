@@ -18,14 +18,12 @@ type Event struct {
 	Version   string    `bson:"version"`
 }
 
-const VERSION = "0.0.2"
-
 func NewRepository(session *mongo.Session) *Repository {
 	return &Repository{session}
 }
 
 func (r *Repository) Create(action, message string) {
-	e := Event{Action: action, Message: message, Version: VERSION}
+	e := Event{Action: action, Message: message, Version: "0.0.1"}
 	e.CreatedAt = time.Now()
 	coll := r.session.GetCollection("event")
 	err := coll.Insert(e)

@@ -36,7 +36,6 @@ func main() {
 		}
 	}()
 
-	log.Printf(" version %#v\n", controllers.VERSION)
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
 }
