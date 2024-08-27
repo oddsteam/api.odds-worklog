@@ -9,6 +9,8 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 )
 
+const VERSION = "1.0.0"
+
 func main() {
 	conn := queue.Connect()
 	defer conn.Close()
@@ -36,7 +38,7 @@ func main() {
 		}
 	}()
 
-	log.Printf(" version %#v\n", controllers.VERSION)
+	log.Printf(" version %#v\n", VERSION)
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
 }
