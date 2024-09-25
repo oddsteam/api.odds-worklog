@@ -2,18 +2,18 @@ package usecase
 
 import "fmt"
 
-func UpdateEvent(id int, firstName, lastName string, dailyIncome, workDate int, thaiCitizenId, phone, bank_no string, totalIncome, netIncome, netDailyIncome, wht float64, createdAt, updatedAt, userId, email string) string {
+func UpdateEvent(id int, firstName, lastName string, dailyIncome int, workDate float64, thaiCitizenId, phone, bank_no string, totalIncome, netIncome, netDailyIncome, wht float64, createdAt, updatedAt, userId, email string) string {
 	return CreateEvent(id, firstName, lastName, dailyIncome, workDate, thaiCitizenId, phone, bank_no, totalIncome, netIncome, netDailyIncome, wht, createdAt, updatedAt, userId, email)
 }
 
-func CreateEvent(id int, firstName, lastName string, dailyIncome, workDate int, thaiCitizenId, phone, bank_no string, totalIncome, netIncome, netDailyIncome, wht float64, createdAt, updatedAt, userId, email string) string {
+func CreateEvent(id int, firstName, lastName string, dailyIncome int, workDate float64, thaiCitizenId, phone, bank_no string, totalIncome, netIncome, netDailyIncome, wht float64, createdAt, updatedAt, userId, email string) string {
 	format := `{
 		"income":{
 			"id":"%d",
 			"totalIncome":"%f",
 			"netIncome":"%f",
 			"netDailyIncome":"%f",
-			"workDate":%d,
+			"workDate": %f,
 			"submitDate":null,
 			"lastUpdate":null,
 			"note":"",

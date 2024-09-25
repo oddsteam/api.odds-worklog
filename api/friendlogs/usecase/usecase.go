@@ -43,9 +43,9 @@ type IncomeCreatedEvent struct {
 }
 
 type Income struct {
-	WorkDate  int    `json:"workDate"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	WorkDate  float64 `json:"workDate"`
+	CreatedAt string  `json:"created_at"`
+	UpdatedAt string  `json:"updated_at"`
 }
 
 type Registration struct {

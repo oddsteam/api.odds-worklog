@@ -17,7 +17,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 	allAddedIncomes := []*models.Income{}
 	t.Run("Income which a Coop added in friendslog is saved in worklog", func(t *testing.T) {
 		thaiCitizenID := "0123456789121"
-		incomeCreatedEvent := fullCoopIncomeEvent("Chi", "Sweethome", 750, 20,
+		incomeCreatedEvent := fullCoopIncomeEvent("Chi", "Sweethome", 750, 20.0,
 			thaiCitizenID, "+66912345678", "987654321",
 			"2024-07-26T06:26:25.531Z", "2024-07-26T06:26:25.531Z", "user1@example.com")
 
@@ -37,7 +37,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 	})
 
 	t.Run("The total amount of the Income which a Coop added in friendslog is calculated", func(t *testing.T) {
-		workDate := 20
+		workDate := 20.0
 		incomeCreatedEvent := simpleCoopIncomeEvent(workDate, 750)
 
 		income := u.SaveIncome(allAddedIncomes, incomeCreatedEvent, "Added")
@@ -58,7 +58,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 		incomeCreatedEvent := `{
 			"otherField": "value",
 			"income":{
-				"workDate":20
+				"workDate": 20.0
 			},
 			"registration":{
 				"thai_citizen_id":"0123456789121",
@@ -227,19 +227,19 @@ func andTheIncomeLastUpdateWas(incomes []*models.Income, s string) {
 	incomes[0].LastUpdate = t
 }
 
-func addedIncomeEventAt(days int, createdAt string) string {
+func addedIncomeEventAt(days float64, createdAt string) string {
 	return fullCoopIncomeEvent("Chi", "Sweethome", 750, days,
 		"0123456789121", "+66912345678", "987654321",
 		createdAt, createdAt, "user1@example.com")
 }
-func updatedIncomeEventAt(days int, updatedAt string) string {
+func updatedIncomeEventAt(days float64, updatedAt string) string {
 	return fullCoopIncomeEvent("Chi", "Sweethome", 750, days,
 		"0123456789121", "+66912345678", "987654321",
 		"", updatedAt, "user1@example.com")
 }
 
 func fullCoopIncomeEvent(firstName string, lastName string,
-	dailyRate float64, workDays int, thaiCitizenID string,
+	dailyRate, workDays float64, thaiCitizenID string,
 	phone string, bankAcocuntNumber string, createAt string, updatedAt string, email string) string {
 
 	return usecase.CreateEvent(1, firstName, lastName, int(dailyRate), workDays,
@@ -247,10 +247,10 @@ func fullCoopIncomeEvent(firstName string, lastName string,
 		0, 0, 0, 0, createAt, updatedAt, "friendslogId", email)
 }
 
-func simpleCoopIncomeEvent(workDate int, dailyRate float64) string {
+func simpleCoopIncomeEvent(workDate, dailyRate float64) string {
 	return fmt.Sprintf(`{
 			"income":{
-				"workDate":%d
+				"workDate": %#v
 			},
 			"registration":{
 				"thai_citizen_id":"0123456789121",
