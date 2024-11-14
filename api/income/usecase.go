@@ -322,10 +322,10 @@ func calTotal(main string, special string) (string, error) {
 
 const (
 	VENDOR_CODE_INDEX = iota
-	NAME_INDEX
-	ID_CARD_INDEX
 	ACCOUNT_NAME_INDEX
 	ACCOUNT_NUMBER_INDEX
+	NAME_INDEX
+	ID_CARD_INDEX
 	EMAIL_INDEX
 	NET_DAILY_INCOME_INDEX
 	NET_SPECIAL_INCOME_INDEX
@@ -337,5 +337,5 @@ const (
 )
 
 func createHeaders() []string {
-	return []string{"Vendor Code", "ชื่อ", "เลขบัตรประชาชน", "ชื่อบัญชี", "เลขบัญชี", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
+	return []string{"Vendor Code", "ชื่อบัญชี", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 }

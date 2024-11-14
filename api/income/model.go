@@ -198,10 +198,10 @@ func (i *Income) export(user models.User) []string {
 	tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 	d := []string{
 		"",
-		user.GetName(),
-		user.ThaiCitizenID,
 		user.BankAccountName,
 		utils.SetValueCSV(user.BankAccountNumber),
+		user.GetName(),
+		user.ThaiCitizenID,
 		user.Email,
 		utils.FormatCommas(income.NetDailyIncome),
 		utils.FormatCommas(income.NetSpecialIncome),
@@ -226,10 +226,10 @@ func (i *Income) export2() []string {
 	loan := *i.loan
 	d := []string{
 		"",
-		income.Name,
-		income.ThaiCitizenID,
 		income.BankAccountName,
 		utils.SetValueCSV(income.BankAccountNumber),
+		income.Name,
+		income.ThaiCitizenID,
 		income.Email,
 		utils.FormatCommas(income.NetDailyIncome),
 		utils.FormatCommas(income.NetSpecialIncome),
