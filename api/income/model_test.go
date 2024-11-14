@@ -147,11 +147,11 @@ func TestModelIncome(t *testing.T) {
 
 		csvColumns := i.export(user)
 
-		assert.Equal(t, "first last", csvColumns[0])
-		assert.Equal(t, "id", csvColumns[1])
-		assert.Equal(t, "account name", csvColumns[2])
-		assert.Equal(t, `="0123456789"`, csvColumns[3])
-		assert.Equal(t, "test@example.com", csvColumns[4])
+		assert.Equal(t, "first last", csvColumns[NAME_INDEX])
+		assert.Equal(t, "id", csvColumns[ID_CARD_INDEX])
+		assert.Equal(t, "account name", csvColumns[ACCOUNT_NAME_INDEX])
+		assert.Equal(t, `="0123456789"`, csvColumns[ACCOUNT_NUMBER_INDEX])
+		assert.Equal(t, "test@example.com", csvColumns[EMAIL_INDEX])
 	})
 
 	t.Run("export จำนวนเงินที่ต้องโอนสำหรับ individual income", func(t *testing.T) {
@@ -169,11 +169,11 @@ func TestModelIncome(t *testing.T) {
 
 		csvColumns := i.export(user)
 
-		assert.Equal(t, "97.00", csvColumns[5])
-		assert.Equal(t, "970.00", csvColumns[6])
-		assert.Equal(t, "50.00", csvColumns[7])
-		assert.Equal(t, "33.00", csvColumns[8])
-		assert.Equal(t, "1,017.00", csvColumns[9])
+		assert.Equal(t, "97.00", csvColumns[NET_DAILY_INCOME_INDEX])
+		assert.Equal(t, "970.00", csvColumns[NET_SPECIAL_INCOME_INDEX])
+		assert.Equal(t, "50.00", csvColumns[LOAN_DEDUCTION_INDEX])
+		assert.Equal(t, "33.00", csvColumns[WITHHOLDING_TAX_INDEX])
+		assert.Equal(t, "1,017.00", csvColumns[TRANSFER_AMOUNT_INDEX])
 	})
 
 	// end obsoleted export
@@ -194,11 +194,11 @@ func TestModelIncome(t *testing.T) {
 
 		csvColumns := i.export2()
 
-		assert.Equal(t, "first last", csvColumns[0])
-		assert.Equal(t, "id", csvColumns[1])
-		assert.Equal(t, "account name", csvColumns[2])
-		assert.Equal(t, `="0123456789"`, csvColumns[3])
-		assert.Equal(t, "test@example.com", csvColumns[4])
+		assert.Equal(t, "first last", csvColumns[NAME_INDEX])
+		assert.Equal(t, "id", csvColumns[ID_CARD_INDEX])
+		assert.Equal(t, "account name", csvColumns[ACCOUNT_NAME_INDEX])
+		assert.Equal(t, `="0123456789"`, csvColumns[ACCOUNT_NUMBER_INDEX])
+		assert.Equal(t, "test@example.com", csvColumns[EMAIL_INDEX])
 	})
 
 	t.Run("new export จำนวนเงินที่ต้องโอนสำหรับ individual income", func(t *testing.T) {
@@ -219,11 +219,11 @@ func TestModelIncome(t *testing.T) {
 
 		csvColumns := i.export2()
 
-		assert.Equal(t, "97.00", csvColumns[5])
-		assert.Equal(t, "970.00", csvColumns[6])
-		assert.Equal(t, "33.00", csvColumns[8])
-		assert.Equal(t, "50.00", csvColumns[7])
-		assert.Equal(t, "1,017.00", csvColumns[9])
+		assert.Equal(t, "97.00", csvColumns[NET_DAILY_INCOME_INDEX])
+		assert.Equal(t, "970.00", csvColumns[NET_SPECIAL_INCOME_INDEX])
+		assert.Equal(t, "50.00", csvColumns[LOAN_DEDUCTION_INDEX])
+		assert.Equal(t, "33.00", csvColumns[WITHHOLDING_TAX_INDEX])
+		assert.Equal(t, "1,017.00", csvColumns[TRANSFER_AMOUNT_INDEX])
 	})
 
 	t.Run("calculate individual income โดยไม่ได้กรอก special income", func(t *testing.T) {
@@ -358,6 +358,23 @@ func TestModelIncomes(t *testing.T) {
 		assert.Equal(t, headerLength+incomeCount, len(csv))
 	})
 
+	t.Run("test export to CSV with running vendor codes", func(t *testing.T) {
+		records := []*models.Income{
+			{ID: "incomeId1"},
+			{ID: "incomeId2"},
+		}
+		incomes := NewIncomes(records, models.StudentLoanList{})
+
+		csv, _ := incomes.toCSV()
+
+		assert.NotNil(t, csv)
+		headerLength := 1
+		incomeCount := 2
+		assert.Equal(t, headerLength+incomeCount, len(csv))
+		assert.Equal(t, "AAA", csv[1][VENDOR_CODE_INDEX])
+		assert.Equal(t, "AAB", csv[2][VENDOR_CODE_INDEX])
+	})
+
 	t.Run("test export to CSV when มีคนตกขบวน", func(t *testing.T) {
 		users := []*models.User{
 			{ID: "id1"},
@@ -405,5 +422,12 @@ func TestModelIncomes(t *testing.T) {
 
 		assert.NotNil(t, updatedIncomeIds)
 		assert.Equal(t, 1, len(updatedIncomeIds))
+	})
+}
+
+func TestModelVendorCode(t *testing.T) {
+	t.Run("test large index vendor code", func(t *testing.T) {
+		vc := VendorCode{index: 381}
+		assert.Equal(t, "AOR", vc.String())
 	})
 }
