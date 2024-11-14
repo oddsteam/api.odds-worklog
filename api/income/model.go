@@ -278,7 +278,7 @@ func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
 	strWrite := make([][]string, 0)
 	strWrite = append(strWrite, createHeaders())
 	updatedIncomeIds = []string{}
-	for _, e := range ics.records {
+	for index, e := range ics.records {
 		income := *e
 		loan := ics.loans.FindLoan(income.BankAccountName)
 		if income.ID.Hex() != "" {
@@ -286,12 +286,16 @@ func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
 			i := NewIncomeFromRecord(income)
 			i.SetLoan(&loan)
 			d := i.export2()
+			d[VENDOR_CODE_INDEX] = ics.getVendorCode(index)
 			strWrite = append(strWrite, d)
 		}
 	}
 	return strWrite, updatedIncomeIds
 }
 
+func (ics *Incomes) getVendorCode(i int) string {
+	return VendorCode{index: i}.String()
+}
 func CreateIncome(user models.User, req models.IncomeReq, note string) *models.Income {
 	i := NewIncome(string(user.ID))
 	record, err := i.prepareDataForAddIncome(req, user)
@@ -315,4 +319,25 @@ func GivenIndividualUser(uidFromSession string, dailyIncome string) models.User 
 		Vat:         "N",
 		DailyIncome: dailyIncome,
 	}
+}
+
+type VendorCode struct {
+	index int
+}
+
+func (vc VendorCode) String() string {
+	return string([]rune{vc.getFirstLetter(), vc.getSecondLetter(), vc.getThirdLetter()})
+}
+
+func (vc VendorCode) getFirstLetter() rune {
+	first := 'A' + (vc.index / (26 * 26))
+	return rune(first)
+}
+
+func (vc VendorCode) getSecondLetter() rune {
+	return rune('A' + ((vc.index % (26 * 26)) / 26))
+}
+
+func (vc VendorCode) getThirdLetter() rune {
+	return rune('A' + (vc.index % 26))
 }

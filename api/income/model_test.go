@@ -358,6 +358,23 @@ func TestModelIncomes(t *testing.T) {
 		assert.Equal(t, headerLength+incomeCount, len(csv))
 	})
 
+	t.Run("test export to CSV with running vendor codes", func(t *testing.T) {
+		records := []*models.Income{
+			{ID: "incomeId1"},
+			{ID: "incomeId2"},
+		}
+		incomes := NewIncomes(records, models.StudentLoanList{})
+
+		csv, _ := incomes.toCSV()
+
+		assert.NotNil(t, csv)
+		headerLength := 1
+		incomeCount := 2
+		assert.Equal(t, headerLength+incomeCount, len(csv))
+		assert.Equal(t, "AAA", csv[1][VENDOR_CODE_INDEX])
+		assert.Equal(t, "AAB", csv[2][VENDOR_CODE_INDEX])
+	})
+
 	t.Run("test export to CSV when มีคนตกขบวน", func(t *testing.T) {
 		users := []*models.User{
 			{ID: "id1"},
@@ -405,5 +422,12 @@ func TestModelIncomes(t *testing.T) {
 
 		assert.NotNil(t, updatedIncomeIds)
 		assert.Equal(t, 1, len(updatedIncomeIds))
+	})
+}
+
+func TestModelVendorCode(t *testing.T) {
+	t.Run("test large index vendor code", func(t *testing.T) {
+		vc := VendorCode{index: 381}
+		assert.Equal(t, "AOR", vc.String())
 	})
 }
