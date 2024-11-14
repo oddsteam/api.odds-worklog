@@ -145,12 +145,14 @@ func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (stri
 
 	strWrite := make([][]string, 0)
 	strWrite = append(strWrite, createHeaders())
+	ics := NewIncomes(incomes, studentLoanList)
 
-	for _, income := range incomes {
+	for index, income := range incomes {
 		user, err := u.GetUserByID(income.UserID)
 		loan := studentLoanList.FindLoan(user.BankAccountName)
 		if err == nil {
 			d := createRow(*income, *user, loan)
+			d[VENDOR_CODE_INDEX] = ics.getVendorCode(index)
 			strWrite = append(strWrite, d)
 		}
 	}
@@ -237,10 +239,11 @@ func (u *usecase) exportIncome_obsoleted(role string, getIncome getIncomeFn, sho
 	}
 
 	studentLoanList := u.repo.GetStudentLoans()
+	ics := NewIncomes([]*models.Income{}, studentLoanList)
 
 	strWrite := make([][]string, 0)
 	strWrite = append(strWrite, createHeaders())
-	for _, user := range users {
+	for index, user := range users {
 		income, err := getIncome(*user)
 		loan := studentLoanList.FindLoan(user.BankAccountName)
 		if err == nil {
@@ -248,6 +251,7 @@ func (u *usecase) exportIncome_obsoleted(role string, getIncome getIncomeFn, sho
 				u.repo.UpdateExportStatus(income.ID.Hex())
 			}
 			d := createRow(*income, *user, loan)
+			d[VENDOR_CODE_INDEX] = ics.getVendorCode(index)
 			strWrite = append(strWrite, d)
 		}
 	}
