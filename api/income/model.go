@@ -197,6 +197,7 @@ func (i *Income) export(user models.User) []string {
 	netTotalIncome = calTotalWithLoanDeduction(netTotalIncome, loan)
 	tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 	d := []string{
+		"",
 		user.GetName(),
 		user.ThaiCitizenID,
 		user.BankAccountName,
@@ -224,6 +225,7 @@ func (i *Income) export2() []string {
 	income := *i.data
 	loan := *i.loan
 	d := []string{
+		"",
 		income.Name,
 		income.ThaiCitizenID,
 		income.BankAccountName,

@@ -320,6 +320,22 @@ func calTotal(main string, special string) (string, error) {
 	return utils.FloatToString(ma + sp), nil
 }
 
+const (
+	VENDOR_CODE_INDEX = iota
+	NAME_INDEX
+	ID_CARD_INDEX
+	ACCOUNT_NAME_INDEX
+	ACCOUNT_NUMBER_INDEX
+	EMAIL_INDEX
+	NET_DAILY_INCOME_INDEX
+	NET_SPECIAL_INCOME_INDEX
+	LOAN_DEDUCTION_INDEX
+	WITHHOLDING_TAX_INDEX
+	TRANSFER_AMOUNT_INDEX
+	NOTE_INDEX
+	SUBMIT_DATE_INDEX
+)
+
 func createHeaders() []string {
-	return []string{"ชื่อ", "เลขบัตรประชาชน", "ชื่อบัญชี", "เลขบัญชี", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
+	return []string{"Vendor Code", "ชื่อ", "เลขบัตรประชาชน", "ชื่อบัญชี", "เลขบัญชี", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 }
