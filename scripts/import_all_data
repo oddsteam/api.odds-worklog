@@ -1,16 +1,16 @@
 #!/bin/bash
 
-docker exec -it odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection user --type json --file fixture/data/user.json --maintainInsertionOrder --jsonArray
+docker exec odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection user --type json --file fixture/data/user.json --maintainInsertionOrder --jsonArray
 
-docker exec -it odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection site --type json --file fixture/data/site.json --maintainInsertionOrder --jsonArray
+docker exec odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection site --type json --file fixture/data/site.json --maintainInsertionOrder --jsonArray
 
-docker exec -it odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection customer --type json --file fixture/data/customer.json --maintainInsertionOrder --jsonArray
+docker exec odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection customer --type json --file fixture/data/customer.json --maintainInsertionOrder --jsonArray
 
-docker exec -it odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection consumer --type json --file fixture/data/consumer.json --maintainInsertionOrder --jsonArray
+docker exec odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection consumer --type json --file fixture/data/consumer.json --maintainInsertionOrder --jsonArray
 
-docker exec -it odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection po --type json --file fixture/data/po.json --maintainInsertionOrder --jsonArray
+docker exec odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection po --type json --file fixture/data/po.json --maintainInsertionOrder --jsonArray
 
-docker exec -it odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection invoice --type json --file fixture/data/invoice.json --maintainInsertionOrder --jsonArray
+docker exec odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection invoice --type json --file fixture/data/invoice.json --maintainInsertionOrder --jsonArray
 
 ./scripts/update_current_income
-docker exec -it odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection income --type json --file fixture/data/income.json --maintainInsertionOrder --jsonArray
+docker exec odds-worklog-mongo mongoimport -u admin -p admin -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection income --type json --file fixture/data/income.json --maintainInsertionOrder --jsonArray
