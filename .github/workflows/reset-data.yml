@@ -8,6 +8,9 @@ jobs:
     name: Reset
     runs-on: self-hosted
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Run reset Data
         id: reset-data
         run: |
