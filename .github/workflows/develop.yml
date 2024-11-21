@@ -59,4 +59,4 @@ jobs:
             docker compose up -d
           host: ${{ vars.ODDS_CLOUD_DEV_HOST }}
           user: ubuntu
-          key: ${{ secrets.ODDS_CLOUD_DEV_PRIVATE}}
+          key: ${{ secrets.ODDS_CLOUD_DEV_PRIVATE_KEY}}
