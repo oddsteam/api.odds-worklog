@@ -2,7 +2,7 @@ on:
   push:
     branches: [ 'deployment/odds-cloud' ]
 
-name: CI/CD Project worklogAPI Develop
+name: CI/CD Project worklogAPI Develop (ODDS Cloud)
 
 jobs:
   build:
@@ -50,3 +50,5 @@ jobs:
         id: pull-image
         run: |
           docker pull 844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev-odds-cloud
+          docker compose down
+          docker compose up -d
