@@ -14,5 +14,6 @@ jobs:
       - name: Run reset Data
         id: reset-data
         run: |
-          docker cp ./data odds-worklog-mongo:/fixture/data/
+          docker exec odds-worklog-mongo mkdir -p /fixture/data
+          docker cp ./data odds-worklog-mongo:/fixture/data
           bash ./scripts/import_all_data
