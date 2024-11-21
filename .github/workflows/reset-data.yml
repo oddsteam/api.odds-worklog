@@ -13,5 +13,4 @@ jobs:
 
       - name: Run reset Data
         id: reset-data
-        run: |
-          bash scripts/import_all_data
+        run: ./scripts/import_all_data
