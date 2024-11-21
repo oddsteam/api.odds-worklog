@@ -32,6 +32,7 @@ jobs:
            docker push 844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev-odds-cloud
   deploy:
     name: Deploy
+    needs: build
     runs-on: self-hosted
     steps:
       - name: Configure AWS credentials
