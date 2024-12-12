@@ -62,6 +62,7 @@ jobs:
           key: ${{ secrets.ODDS_CLOUD_DEV_PRIVATE_KEY}}
           source: "deployment/dev/docker-compose.yaml"
           target: "/home/ubuntu/worklog"
+          strip_components: 2
 
       - name: SSH Shell Command
         uses: fifsky/ssh-action@master
