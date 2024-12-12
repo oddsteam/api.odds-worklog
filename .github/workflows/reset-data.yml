@@ -16,4 +16,4 @@ jobs:
         run: |
           docker exec odds-worklog-mongo mkdir -p /fixture
           docker cp ./data odds-worklog-mongo:/fixture
-          bash ./scripts/import_all_data
+          MONGO_DB_PASSWORD=${{secrets.ODDS_CLOUD_DEV_MONGO_DB_PASSWORD}} bash ./scripts/import_all_data
