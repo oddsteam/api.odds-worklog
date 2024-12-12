@@ -4,7 +4,7 @@ services:
     image: "844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev-odds-cloud"
     command: /app/api
     ports:
-      - 8080:8080
+      - "8080:8080"
     env_file:
       - .env
     depends_on:
@@ -45,8 +45,15 @@ services:
       - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@odds-worklog-queue
       - ./rabbitmq/logs:/var/log/rabbitmq/log
     ports:
-      - 5672:5672
-      - 15672:15672
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - odds_worklog_api
+  web:
+    container_name: "odds-worklog-web"
+    image: "844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/web-worklog:dev"
+    ports:
+      - "80:80"
     networks:
       - odds_worklog_api
 
