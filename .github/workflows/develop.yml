@@ -58,7 +58,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.ODDS_CLOUD_DEV_PRIVATE_KEY}}
           source: "deployment/dev/docker-compose.yaml"
-          target: "/home/ubuntu/worklog/docker-compose.yaml"
+          target: "/home/ubuntu/worklog"
 
       - name: SSH Shell Command
         uses: fifsky/ssh-action@master
