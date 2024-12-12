@@ -54,7 +54,7 @@ jobs:
       - name: copy file via ssh password
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.ODDS_CLOUD_DEV_HOST }}
+          host: ${{ vars.ODDS_CLOUD_DEV_HOST }}
           username: ubuntu
           key: ${{ secrets.ODDS_CLOUD_DEV_PRIVATE_KEY}}
           source: "deployment/dev/docker-compose.yaml"
