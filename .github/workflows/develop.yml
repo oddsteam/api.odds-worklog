@@ -51,10 +51,20 @@ jobs:
         run: |
           docker pull 844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev-odds-cloud
 
+      - name: copy file via ssh password
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.ODDS_CLOUD_DEV_HOST }}
+          username: ubuntu
+          key: ${{ secrets.ODDS_CLOUD_DEV_PRIVATE_KEY}}
+          source: "deployment/dev/docker-compose.yaml"
+          target: "/home/ubuntu/api/docker-compose.yaml"
+
       - name: SSH Shell Command
         uses: fifsky/ssh-action@master
         with:
           command: |
+            cd /home/ubuntu/api
             docker compose down
             docker compose up -d
           host: ${{ vars.ODDS_CLOUD_DEV_HOST }}

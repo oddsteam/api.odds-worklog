@@ -1,4 +1,3 @@
-## waiting for move to deployment folder
 services:
   api:
     container_name: "odds-worklog-api"
@@ -39,9 +38,11 @@ services:
     networks:
       - odds_worklog_api
   queue:
+    container_name: "odds-worklog-queue"
+    hostname: "odds-worklog-queue"
     image: rabbitmq:3-management
     volumes:
-      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
+      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@odds-worklog-queue
       - ./rabbitmq/logs:/var/log/rabbitmq/log
     ports:
       - 5672:5672
