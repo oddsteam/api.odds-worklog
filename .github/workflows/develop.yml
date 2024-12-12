@@ -69,6 +69,7 @@ jobs:
         with:
           command: |
             cd /home/ubuntu/worklog
+            docker compose pull
             docker compose down
             docker compose up -d
           host: ${{ vars.ODDS_CLOUD_DEV_HOST }}
