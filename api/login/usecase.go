@@ -36,7 +36,7 @@ func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
 	}
 
 	log.Println("IsValidConsumerClientID")
-	log.Println("tokenInfo.Audienc")
+	log.Println(tokenInfo.Audience)
 
 	if !u.IsValidConsumerClientID(tokenInfo.Audience) {
 		return nil, utils.ErrInvalidConsumer
