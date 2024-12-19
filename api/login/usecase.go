@@ -2,6 +2,7 @@ package login
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -33,6 +34,9 @@ func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Println("IsValidConsumerClientID")
+	log.Println("tokenInfo.Audienc")
 
 	if !u.IsValidConsumerClientID(tokenInfo.Audience) {
 		return nil, utils.ErrInvalidConsumer
