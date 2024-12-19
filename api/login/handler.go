@@ -1,7 +1,6 @@
 package login
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -44,7 +43,6 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 func (h *HttpHandler) loginGoogle(c echo.Context) error {
 	var login models.Login
 	if err := c.Bind(&login); err != nil {
-		log.Println(err.Error())
 		return utils.NewError(c, http.StatusUnauthorized, utils.ErrBadRequest)
 	}
 
@@ -54,19 +52,16 @@ func (h *HttpHandler) loginGoogle(c echo.Context) error {
 
 	tokenInfo, err := h.Usecase.GetTokenInfo(login.Token)
 	if err != nil {
-		log.Println(err.Error())
 		return utils.NewError(c, http.StatusUnauthorized, err)
 	}
 
 	user, err := h.Usecase.CreateUser(tokenInfo.Email)
 	if err != nil && err != utils.ErrConflict {
-		log.Println(err.Error())
 		return utils.NewError(c, http.StatusUnauthorized, err)
 	}
 
 	token, err := handleToken(user)
 	if err != nil {
-		log.Println(err.Error())
 		return utils.NewError(c, http.StatusUnauthorized, err)
 	}
 
