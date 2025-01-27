@@ -1,0 +1,14 @@
+on:
+  workflow_dispatch:
+
+name: Reset Dev Odds cloud Data
+
+jobs:
+  build:
+    name: Reset
+    runs-on: self-hosted
+    steps:
+      - name: Run reset Data
+        id: reset-data
+        run: |
+          bash scripts/import_all_data

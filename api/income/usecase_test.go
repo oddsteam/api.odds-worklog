@@ -172,7 +172,7 @@ func TestUsecaseExportIncomeObsoleted(t *testing.T) {
 
 func TestCSVHeaders(t *testing.T) {
 	actual := createHeaders()
-	expected := [...]string{"Vendor Code", "ชื่อบัญชี", "เลขบัญชี", "Payment method", "ชื่อ", "เลขบัตรประชาชน",
+	expected := [...]string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน",
 		"อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ",
 		"หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก",
 	}
@@ -188,7 +188,7 @@ func TestCSVContentForIndividual(t *testing.T) {
 	expectedNetSpecialIncome := "9.70"
 	expectedWHT := "3.30"
 	expectedTransferAmount := "106.70"
-	expected := [...]string{"", "ชื่อ นามสกุล", expectedAccountNo, "", "first last", "ThaiCitizenID",
+	expected := [...]string{"", "ชื่อ นามสกุล", "", expectedAccountNo, "first last", "ThaiCitizenID",
 		"email@example.com", expectedNetDailyIncome, expectedNetSpecialIncome,
 	}
 	for i := 0; i < len(expected); i++ {

@@ -199,8 +199,8 @@ func (i *Income) export(user models.User) []string {
 	d := []string{
 		"",
 		user.BankAccountName,
-		utils.SetValueCSV(user.BankAccountNumber),
 		"",
+		utils.SetValueCSV(user.BankAccountNumber),
 		user.GetName(),
 		user.ThaiCitizenID,
 		user.Email,
@@ -228,8 +228,8 @@ func (i *Income) export2() []string {
 	d := []string{
 		"",
 		income.BankAccountName,
-		utils.SetValueCSV(income.BankAccountNumber),
 		"",
+		utils.SetValueCSV(income.BankAccountNumber),
 		income.Name,
 		income.ThaiCitizenID,
 		income.Email,
