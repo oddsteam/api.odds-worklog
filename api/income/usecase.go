@@ -139,7 +139,7 @@ func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (stri
 	}
 
 	if len(strWrite) == 1 {
-		return "", errors.New("No data for export to CSV file.")
+		return "", errors.New("no data for export to CSV file")
 	}
 
 	csvWriter := csv.NewWriter(file)
@@ -184,7 +184,7 @@ func (u *usecase) exportIncome(role string, shouldUpdateExportStatus bool) (stri
 		}
 	}
 	if len(strWrite) == 1 {
-		return "", errors.New("No data for export to CSV file.")
+		return "", errors.New("no data for export to CSV file")
 	}
 
 	csvWriter := csv.NewWriter(file)
