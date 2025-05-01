@@ -50,7 +50,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 		mockRepoIncome.expectGetAllIncomeOfCurrentMonthByRole(incomes)
 
 		usecase := NewUsecase(mockRepoIncome.mock, userMock.NewMockRepository(ctrl))
-		filename, err := usecase.ExportIncomeNew("individual", "0")
+		filename, err := usecase.ExportIncome("individual", "0")
 
 		assert.NoError(t, err)
 		assert.NotNil(t, filename)
@@ -73,7 +73,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 		mockRepoIncome.expectGetAllIncomeOfCurrentMonthByRole(incomes)
 
 		usecase := NewUsecase(mockRepoIncome.mock, userMock.NewMockRepository(ctrl))
-		filename, err := usecase.ExportIncomeNew("individual", "0")
+		filename, err := usecase.ExportIncome("individual", "0")
 
 		assert.NoError(t, err)
 		assert.NotNil(t, filename)

@@ -108,10 +108,10 @@ func (u *usecase) GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, er
 	return listIncome, nil
 }
 
-func (u *usecase) ExportIncomeNew(role string, beforeMonth string) (string, error) {
+func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) {
 	shouldUpdateExportStatus := beforeMonth == "0"
 
-	return u.exportIncome_new(role, shouldUpdateExportStatus)
+	return u.exportIncome(role, shouldUpdateExportStatus)
 }
 
 func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (string, error) {
@@ -158,7 +158,7 @@ func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (stri
 	return filename, nil
 }
 
-func (u *usecase) exportIncome_new(role string, shouldUpdateExportStatus bool) (string, error) {
+func (u *usecase) exportIncome(role string, shouldUpdateExportStatus bool) (string, error) {
 	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()
 
@@ -201,14 +201,6 @@ func (u *usecase) exportIncome_new(role string, shouldUpdateExportStatus bool) (
 	}
 
 	return filename, nil
-}
-
-type getIncomeFn = func(user models.User) (*models.Income, error)
-
-func (u *usecase) createFunctionGetUnexportedIncomeByUserWithPeriod(year int, month time.Month) getIncomeFn {
-	return func(user models.User) (*models.Income, error) {
-		return u.repo.GetIncomeByUserID(user.ID.Hex(), year, month)
-	}
 }
 
 func createRow(record models.Income, user models.User, loan models.StudentLoan) []string {

@@ -235,7 +235,7 @@ func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
 	if month == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
-	filename, err := h.Usecase.ExportIncomeNew("corporate", month)
+	filename, err := h.Usecase.ExportIncome("corporate", month)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -251,7 +251,7 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	if month == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
-	filename, err := h.Usecase.ExportIncomeNew("individual", month)
+	filename, err := h.Usecase.ExportIncome("individual", month)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -277,7 +277,7 @@ func (h *HttpHandler) GetExportIndividualNew(c echo.Context) error {
 	if month == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
-	filename, err := h.Usecase.ExportIncomeNew("individual", month)
+	filename, err := h.Usecase.ExportIncome("individual", month)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
