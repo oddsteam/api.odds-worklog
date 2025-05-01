@@ -383,10 +383,6 @@ func (fs MockInComeUsecase) ExportIncomeByStartDateAndEndDate(role string, start
 	return "", nil
 }
 
-func (fs MockInComeUsecase) ExportIncomeByStartDateAndEndDate2(role string, incomes []*models.Income) (string, error) {
-	return "", nil
-}
-
 func (fs MockInComeUsecase) GetAllInComeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
 	return nil, nil
 }

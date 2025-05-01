@@ -306,21 +306,6 @@ func (mr *MockUsecaseMockRecorder) ExportIncomeByStartDateAndEndDate(role, start
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncomeByStartDateAndEndDate", reflect.TypeOf((*MockUsecase)(nil).ExportIncomeByStartDateAndEndDate), role, startDate, endDate)
 }
 
-// ExportIncomeByStartDateAndEndDate2 mocks base method.
-func (m *MockUsecase) ExportIncomeByStartDateAndEndDate2(role string, incomes []*models.Income) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExportIncomeByStartDateAndEndDate2", role, incomes)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ExportIncomeByStartDateAndEndDate2 indicates an expected call of ExportIncomeByStartDateAndEndDate2.
-func (mr *MockUsecaseMockRecorder) ExportIncomeByStartDateAndEndDate2(role, incomes interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncomeByStartDateAndEndDate2", reflect.TypeOf((*MockUsecase)(nil).ExportIncomeByStartDateAndEndDate2), role, incomes)
-}
-
 // ExportPdf mocks base method.
 func (m *MockUsecase) ExportPdf(id string) (string, error) {
 	m.ctrl.T.Helper()
