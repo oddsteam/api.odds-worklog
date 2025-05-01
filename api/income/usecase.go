@@ -108,10 +108,8 @@ func (u *usecase) GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, er
 	return listIncome, nil
 }
 
-func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) {
-	shouldUpdateExportStatus := beforeMonth == "0"
-
-	return u.exportIncome(role, shouldUpdateExportStatus)
+func (u *usecase) ExportIncomeByStartDateAndEndDate2(role string, incomes []*models.Income) (string, error) {
+	return u.exportCsvByInCome(role, incomes)
 }
 
 func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (string, error) {
@@ -158,7 +156,16 @@ func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (stri
 	return filename, nil
 }
 
-func (u *usecase) exportIncome(role string, shouldUpdateExportStatus bool) (string, error) {
+func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) {
+	return u.exportIncome(role)
+}
+
+func (u *usecase) exportIncome(role string) (string, error) {
+	startDate, endDate := utils.GetStartDateAndEndDate(time.Now())
+	return u.ExportIncomeByStartDateAndEndDate(role, startDate, endDate)
+}
+
+func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, startDate, endDate time.Time) (string, error) {
 	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()
 
@@ -166,7 +173,6 @@ func (u *usecase) exportIncome(role string, shouldUpdateExportStatus bool) (stri
 		return "", err
 	}
 
-	startDate, endDate := utils.GetStartDateAndEndDate(time.Now())
 	incomes, err := u.repo.GetAllIncomeByRoleStartDateAndEndDate(role, startDate, endDate)
 
 	if err != nil {
@@ -176,13 +182,8 @@ func (u *usecase) exportIncome(role string, shouldUpdateExportStatus bool) (stri
 	studentLoanList := u.repo.GetStudentLoans()
 
 	ics := NewIncomes(incomes, studentLoanList)
-	strWrite, updatedIncomeIds := ics.toCSV()
+	strWrite, _ := ics.toCSV()
 
-	for _, id := range updatedIncomeIds {
-		if shouldUpdateExportStatus {
-			u.repo.UpdateExportStatus(id)
-		}
-	}
 	if len(strWrite) == 1 {
 		return "", errors.New("no data for export to CSV file")
 	}
@@ -207,10 +208,6 @@ func createRow(record models.Income, user models.User, loan models.StudentLoan) 
 	i := NewIncomeFromRecord(record)
 	i.SetLoan(&loan)
 	return i.export(user)
-}
-
-func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, incomes []*models.Income) (string, error) {
-	return u.exportCsvByInCome(role, incomes)
 }
 
 func (u *usecase) GetAllInComeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {

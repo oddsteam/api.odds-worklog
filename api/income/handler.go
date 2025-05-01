@@ -307,7 +307,7 @@ func (h *HttpHandler) PostExportPdf(c echo.Context) error {
 
 	log.Println(incomes)
 
-	filename, err := h.Usecase.ExportIncomeByStartDateAndEndDate(t.Role, incomes)
+	filename, err := h.Usecase.ExportIncomeByStartDateAndEndDate2(t.Role, incomes)
 	if err != nil {
 		log.Println(err.Error())
 	}
