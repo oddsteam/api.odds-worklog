@@ -258,32 +258,6 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	return c.Attachment(filename, filename)
 }
 
-// GetExportIndividualNew godoc
-// @Summary Get Individual Export Income (New API)
-// @Description Get Individual Export Income to csv file.
-// @Tags incomes
-// @Accept  json
-// @Produce  json
-// @Param month path string true "Month"
-// @Success 200 {array} string
-// @Failure 500 {object} utils.HTTPError
-// @Router /v2/incomes/export/individual/{month} [get]
-func (h *HttpHandler) GetExportIndividualNew(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
-	month := c.Param("month")
-	if month == "" {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
-	}
-	filename, err := h.Usecase.ExportIncome("individual", month)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.Attachment(filename, filename)
-}
-
 // PostExportPdf godoc
 // @Summary Post Export Pdf by start date - end date
 // @Description Post Export to Pdf file.
@@ -391,5 +365,5 @@ func NewHttpHandler2(r *echo.Group, session *mongo.Session) {
 	handler := &HttpHandler{uc}
 
 	r = r.Group("/incomes")
-	r.GET("/export/individual/:month", handler.GetExportIndividualNew)
+	r.GET("/export/individual/:month", handler.GetExportIndividual)
 }
