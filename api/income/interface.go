@@ -31,9 +31,9 @@ type Usecase interface {
 	GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error)
 	GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error)
 	ExportIncome(role string, beforeMonth string) (string, error)
+	ExportIncomeByStartDateAndEndDate(role string, incomes []*models.Income) (string, error)
 	ExportPdf(id string) (string, error)
 	GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, error)
 	GetAllInComeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error)
-	ExportIncomeByStartDateAndEndDate(role string, incomes []*models.Income) (string, error)
 	GetByRole(role string) ([]*models.User, error)
 }
