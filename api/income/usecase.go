@@ -108,18 +108,6 @@ func (u *usecase) GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, er
 	return listIncome, nil
 }
 
-func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) {
-	beforemonth, err := utils.StringToInt(beforeMonth)
-	if err != nil {
-		return "", err
-	}
-	year, month := utils.GetYearMonthNow()
-	getIncome := u.createFunctionGetIncomeByUserWithPeriod(year, month-time.Month(beforemonth))
-	shouldUpdateExportStatus := beforeMonth == "0"
-
-	return u.exportIncome(role, getIncome, shouldUpdateExportStatus)
-}
-
 func (u *usecase) ExportIncomeNew(role string, beforeMonth string) (string, error) {
 	shouldUpdateExportStatus := beforeMonth == "0"
 

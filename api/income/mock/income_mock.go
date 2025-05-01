@@ -276,21 +276,6 @@ func (mr *MockUsecaseMockRecorder) AddIncome(req, uid interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddIncome", reflect.TypeOf((*MockUsecase)(nil).AddIncome), req, uid)
 }
 
-// ExportIncome mocks base method.
-func (m *MockUsecase) ExportIncome(role, beforeMonth string) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExportIncome", role, beforeMonth)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ExportIncome indicates an expected call of ExportIncome.
-func (mr *MockUsecaseMockRecorder) ExportIncome(role, beforeMonth interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncome", reflect.TypeOf((*MockUsecase)(nil).ExportIncome), role, beforeMonth)
-}
-
 // ExportIncomeByStartDateAndEndDate mocks base method.
 func (m *MockUsecase) ExportIncomeByStartDateAndEndDate(role string, incomes []*models.Income) (string, error) {
 	m.ctrl.T.Helper()

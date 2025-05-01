@@ -306,7 +306,7 @@ func TestGetExportCorporateIncomeStatus(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().ExportIncome("corporate", "1").Return("test.csv", nil)
+		mockUsecase.EXPECT().ExportIncomeNew("corporate", "1").Return("test.csv", nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -348,7 +348,7 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().ExportIncome("individual", "1").Return("test.csv", nil)
+		mockUsecase.EXPECT().ExportIncomeNew("individual", "1").Return("test.csv", nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
