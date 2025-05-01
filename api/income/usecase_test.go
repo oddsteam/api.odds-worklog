@@ -37,7 +37,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 	// 	// remove file after test
 	// 	os.Remove(filename)
 	// })
-	t.Run("export individual income current month success (new)", func(t *testing.T) {
+	t.Run("export individual income current month success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
@@ -59,7 +59,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 		os.Remove(filename)
 	})
 
-	t.Run("export individual income (new) includes income from friendslog", func(t *testing.T) {
+	t.Run("export individual income includes income from friendslog", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
