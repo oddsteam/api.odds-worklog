@@ -242,27 +242,6 @@ func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
 	return c.Attachment(filename, filename)
 }
 
-// GetExportDifferentCorporate godoc
-// @Summary Get Corporate Export Income
-// @Description Get Different Corporate Export Income to csv file.
-// @Tags incomes
-// @Accept  json
-// @Produce  json
-// @Success 200 {array} string
-// @Failure 500 {object} utils.HTTPError
-// @Router /incomes/export/corporate/different [get]
-func (h *HttpHandler) GetExportDifferentCorporate(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
-	filename, err := h.Usecase.ExportIncomeNotExport("corporate")
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.Attachment(filename, filename)
-}
-
 func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	isAdmin, message := IsUserAdmin(c)
 	if !isAdmin {
@@ -299,27 +278,6 @@ func (h *HttpHandler) GetExportIndividualNew(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 	filename, err := h.Usecase.ExportIncomeNew("individual", month)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.Attachment(filename, filename)
-}
-
-// GetExportDifferentIndividuals godoc
-// @Summary Get Corporate Export Income
-// @Description Get Different Corporate Export Income to csv file.
-// @Tags incomes
-// @Accept  json
-// @Produce  json
-// @Success 200 {array} string
-// @Failure 500 {object} utils.HTTPError
-// @Router /incomes/export/individual/different [get]
-func (h *HttpHandler) GetExportDifferentIndividuals(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
-	filename, err := h.Usecase.ExportIncomeNotExport("individual")
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -422,8 +380,6 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/all-month/:id", handler.GetIncomeAllMonthByUserId)
 	r.GET("/export/corporate/:month", handler.GetExportCorporate)
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
-	r.GET("/export/corporate/different", handler.GetExportDifferentCorporate)
-	r.GET("/export/individual/different", handler.GetExportDifferentIndividuals)
 	r.GET("/export/pdf/:id", handler.GetExportPdf)
 	r.POST("/export", handler.PostExportPdf)
 }

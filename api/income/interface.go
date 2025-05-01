@@ -32,7 +32,6 @@ type Usecase interface {
 	GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error)
 	ExportIncomeNew(role string, beforeMonth string) (string, error)
 	ExportPdf(id string) (string, error)
-	ExportIncomeNotExport(role string) (string, error)
 	GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, error)
 	GetAllInComeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error)
 	ExportIncomeByStartDateAndEndDate(role string, incomes []*models.Income) (string, error)

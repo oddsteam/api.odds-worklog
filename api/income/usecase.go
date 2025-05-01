@@ -114,13 +114,6 @@ func (u *usecase) ExportIncomeNew(role string, beforeMonth string) (string, erro
 	return u.exportIncome_new(role, shouldUpdateExportStatus)
 }
 
-func (u *usecase) ExportIncomeNotExport(role string) (string, error) {
-	year, month := utils.GetYearMonthNow()
-	getIncome := u.createFunctionGetUnexportedIncomeByUserWithPeriod(year, month)
-	shouldUpdateExportStatus := true
-	return u.exportIncome(role, getIncome, shouldUpdateExportStatus)
-}
-
 func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (string, error) {
 	file, filename, err := utils.CreateCVSFile(role)
 	defer file.Close()
@@ -163,10 +156,6 @@ func (u *usecase) exportCsvByInCome(role string, incomes []*models.Income) (stri
 	}
 
 	return filename, nil
-}
-
-func (u *usecase) exportIncome(role string, getIncome getIncomeFn, shouldUpdateExportStatus bool) (string, error) {
-	return u.exportIncome_obsoleted(role, getIncome, shouldUpdateExportStatus)
 }
 
 func (u *usecase) exportIncome_new(role string, shouldUpdateExportStatus bool) (string, error) {
@@ -214,67 +203,11 @@ func (u *usecase) exportIncome_new(role string, shouldUpdateExportStatus bool) (
 	return filename, nil
 }
 
-func (u *usecase) exportIncome_obsoleted(role string, getIncome getIncomeFn, shouldUpdateExportStatus bool) (string, error) {
-	file, filename, err := utils.CreateCVSFile(role)
-	defer file.Close()
-
-	if err != nil {
-		return "", err
-	}
-	users, err := u.userRepo.GetByRole(role)
-	if err != nil {
-		return "", err
-	}
-
-	studentLoanList := u.repo.GetStudentLoans()
-	ics := NewIncomes([]*models.Income{}, studentLoanList)
-
-	strWrite := make([][]string, 0)
-	strWrite = append(strWrite, createHeaders())
-	for index, user := range users {
-		income, err := getIncome(*user)
-		loan := studentLoanList.FindLoan(user.BankAccountName)
-		if err == nil {
-			if shouldUpdateExportStatus {
-				u.repo.UpdateExportStatus(income.ID.Hex())
-			}
-			d := createRow(*income, *user, loan)
-			d[VENDOR_CODE_INDEX] = ics.getVendorCode(index)
-			strWrite = append(strWrite, d)
-		}
-	}
-
-	if len(strWrite) == 1 {
-		return "", errors.New("No data for export to CSV file.")
-	}
-
-	csvWriter := csv.NewWriter(file)
-	csvWriter.WriteAll(strWrite)
-	csvWriter.Flush()
-
-	ep := models.Export{
-		Filename: filename,
-		Date:     time.Now(),
-	}
-	err = u.repo.AddExport(&ep)
-	if err != nil {
-		return "", err
-	}
-
-	return filename, nil
-}
-
 type getIncomeFn = func(user models.User) (*models.Income, error)
 
 func (u *usecase) createFunctionGetUnexportedIncomeByUserWithPeriod(year int, month time.Month) getIncomeFn {
 	return func(user models.User) (*models.Income, error) {
 		return u.repo.GetIncomeByUserID(user.ID.Hex(), year, month)
-	}
-}
-
-func (u *usecase) createFunctionGetIncomeByUserWithPeriod(year int, month time.Month) getIncomeFn {
-	return func(user models.User) (*models.Income, error) {
-		return u.repo.GetIncomeUserByYearMonth(user.ID.Hex(), year, month)
 	}
 }
 
