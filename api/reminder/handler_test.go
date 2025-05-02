@@ -379,7 +379,7 @@ func (fs MockInComeUsecase) GetIncomeByStartDateAndEndDate(role string, startDat
 	return nil, nil
 }
 
-func (fs MockInComeUsecase) ExportIncomeByStartDateAndEndDate(role string, incomes []*models.Income) (string, error) {
+func (fs MockInComeUsecase) ExportIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) (string, error) {
 	return "", nil
 }
 

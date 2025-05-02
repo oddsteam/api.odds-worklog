@@ -242,27 +242,6 @@ func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
 	return c.Attachment(filename, filename)
 }
 
-// GetExportDifferentCorporate godoc
-// @Summary Get Corporate Export Income
-// @Description Get Different Corporate Export Income to csv file.
-// @Tags incomes
-// @Accept  json
-// @Produce  json
-// @Success 200 {array} string
-// @Failure 500 {object} utils.HTTPError
-// @Router /incomes/export/corporate/different [get]
-func (h *HttpHandler) GetExportDifferentCorporate(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
-	filename, err := h.Usecase.ExportIncomeNotExport("corporate")
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.Attachment(filename, filename)
-}
-
 func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	isAdmin, message := IsUserAdmin(c)
 	if !isAdmin {
@@ -273,53 +252,6 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 	filename, err := h.Usecase.ExportIncome("individual", month)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.Attachment(filename, filename)
-}
-
-// GetExportIndividualNew godoc
-// @Summary Get Individual Export Income (New API)
-// @Description Get Individual Export Income to csv file.
-// @Tags incomes
-// @Accept  json
-// @Produce  json
-// @Param month path string true "Month"
-// @Success 200 {array} string
-// @Failure 500 {object} utils.HTTPError
-// @Router /v2/incomes/export/individual/{month} [get]
-func (h *HttpHandler) GetExportIndividualNew(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
-	month := c.Param("month")
-	if month == "" {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
-	}
-	filename, err := h.Usecase.ExportIncomeNew("individual", month)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.Attachment(filename, filename)
-}
-
-// GetExportDifferentIndividuals godoc
-// @Summary Get Corporate Export Income
-// @Description Get Different Corporate Export Income to csv file.
-// @Tags incomes
-// @Accept  json
-// @Produce  json
-// @Success 200 {array} string
-// @Failure 500 {object} utils.HTTPError
-// @Router /incomes/export/individual/different [get]
-func (h *HttpHandler) GetExportDifferentIndividuals(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
-	filename, err := h.Usecase.ExportIncomeNotExport("individual")
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -351,36 +283,12 @@ func (h *HttpHandler) PostExportPdf(c echo.Context) error {
 	startDate, _ := time.Parse("01/2006", t.StartDate)
 	endDate, _ := time.Parse("01/2006", t.EndDate)
 	endDate = endDate.AddDate(0, 1, 0)
-	log.Println(startDate)
-	log.Println(endDate)
-	log.Println(t.Role)
 
-	users, errorUser := h.Usecase.GetByRole(t.Role)
-	if errorUser != nil {
-		log.Println(errorUser)
-	}
+	filename, err := h.Usecase.ExportIncomeByStartDateAndEndDate(t.Role, startDate, endDate)
 
-	var userIds []string
-	for _, v := range users {
-		userIds = append(userIds, v.ID.Hex())
-	}
-
-	log.Println("users......")
-	log.Println(userIds)
-
-	incomes, errQuery := h.Usecase.GetAllInComeByStartDateAndEndDate(userIds, startDate, endDate)
-	if errQuery != nil {
-		log.Println(errQuery.Error())
-	}
-
-	log.Println(incomes)
-
-	filename, err := h.Usecase.ExportIncomeByStartDateAndEndDate(t.Role, incomes)
 	if err != nil {
 		log.Println(err.Error())
 	}
-
-	log.Println(filename)
 
 	return c.Attachment(filename, filename)
 }
@@ -422,8 +330,6 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/all-month/:id", handler.GetIncomeAllMonthByUserId)
 	r.GET("/export/corporate/:month", handler.GetExportCorporate)
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
-	r.GET("/export/corporate/different", handler.GetExportDifferentCorporate)
-	r.GET("/export/individual/different", handler.GetExportDifferentIndividuals)
 	r.GET("/export/pdf/:id", handler.GetExportPdf)
 	r.POST("/export", handler.PostExportPdf)
 }
@@ -435,5 +341,5 @@ func NewHttpHandler2(r *echo.Group, session *mongo.Session) {
 	handler := &HttpHandler{uc}
 
 	r = r.Group("/incomes")
-	r.GET("/export/individual/:month", handler.GetExportIndividualNew)
+	r.GET("/export/individual/:month", handler.GetExportIndividual)
 }
