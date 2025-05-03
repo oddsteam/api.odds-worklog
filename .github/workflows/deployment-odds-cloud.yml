@@ -60,7 +60,7 @@ jobs:
           host: ${{ vars.ODDS_CLOUD_DEV_HOST }}
           username: ubuntu
           key: ${{ secrets.ODDS_CLOUD_DEV_PRIVATE_KEY}}
-          source: "docker-compose.odds-cloud.yaml"
+          source: "deployment/dev/docker-compose.yaml"
           target: "/home/ubuntu/worklog"
           strip_components: 2
 
