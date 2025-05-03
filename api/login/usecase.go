@@ -2,7 +2,6 @@ package login
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
