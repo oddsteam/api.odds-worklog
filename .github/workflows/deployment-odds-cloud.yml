@@ -1,6 +1,6 @@
 on:
   push:
-    branches: ["deployment/odds-cloud"]
+    branches: ["develop"]
 
 name: CI/CD Project worklogAPI Develop (ODDS Cloud)
 
@@ -50,10 +50,10 @@ jobs:
         id: pull-image
         run: |
           docker pull 844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev-odds-cloud
-          
+
       - name: Checkout for get docker compose file
         uses: actions/checkout@v2
-        
+
       - name: copy docker compose file via ssh password
         uses: appleboy/scp-action@v0.1.7
         with:
