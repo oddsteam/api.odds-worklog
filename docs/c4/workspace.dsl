@@ -42,6 +42,20 @@ workspace {
                 technology "MongoDB"
                 tags "database"
             }
+
+            group "Network" {
+                elb = container "ELB" {
+                    description "shared ELB for HTTPS"
+                }
+
+                reverse_proxy = container "Reverse Proxy" {
+                    description "Separating prod and dev environment requests"
+                }
+
+                local_nginx = container "Local Reverse Proxy" {
+                    description "Separating web and api requests"
+                }
+            }
         }
 
         google_signin = softwareSystem "Google Sign-In" {
@@ -58,6 +72,29 @@ workspace {
         api_app -> database "Read from and writes to"
         api_app -> google_signin "Integrates with"
         friends_log_worker -> central_queue "listen incomes_created and incomes_updated events"
+        friends_log_worker -> database "update incomes from FriendsLog"
+
+
+
+        odds_member -> elb "Sends HTTPS requests"
+        elb -> reverse_proxy "HTTP"
+        reverse_proxy -> local_nginx
+        local_nginx -> web_app
+        local_nginx -> api_app
+
+        deployment = deploymentEnvironment "worklog-dev" {
+            deploymentNode "Huawei Cloud" {
+                containerInstance elb
+                deploymentNode "Worklog instance" {
+                    containerInstance reverse_proxy
+                    deploymentNode "worklog-web-dev" {
+                        containerInstance local_nginx
+                        containerInstance web_app
+                        containerInstance api_app
+                    }
+                }
+            }
+        }
     }
 
     views {
@@ -67,6 +104,18 @@ workspace {
         }
 
         container worklog {
+            include odds_member
+            include odds_admin
+            include ios_app
+            include android_app
+            include web_app
+            include api_app
+            include friends_log_worker
+            include database
+            autoLayout lr
+        }
+
+        deployment * deployment {
             include *
             autoLayout lr
         }

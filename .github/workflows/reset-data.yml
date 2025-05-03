@@ -8,7 +8,12 @@ jobs:
     name: Reset
     runs-on: self-hosted
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Run reset Data
         id: reset-data
         run: |
-          bash scripts/import_all_data
+          docker exec odds-worklog-mongo mkdir -p /fixture
+          docker cp ./data odds-worklog-mongo:/fixture
+          MONGO_DB_PASSWORD=${{secrets.ODDS_CLOUD_DEV_MONGO_DB_PASSWORD}} bash ./scripts/import_all_data

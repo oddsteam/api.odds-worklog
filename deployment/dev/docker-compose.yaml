@@ -1,0 +1,64 @@
+services:
+  api:
+    container_name: "odds-worklog-api"
+    image: "844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev-odds-cloud"
+    command: /app/api
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - "mongodb"
+    networks:
+      - odds_worklog_api
+    restart: always
+
+  friendslog:
+    container_name: "odds-worklog-friendslog-subscriber"
+    image: "844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev-odds-cloud"
+    command: /app/subscribe_friendslog
+    env_file:
+      - .env
+    depends_on:
+      - "mongodb"
+      - "queue"
+    networks:
+      - odds_worklog_api
+    restart: always
+
+  mongodb:
+    container_name: "odds-worklog-mongo"
+    image: "mongo:4.0.3"
+    volumes:
+      - mongodbdata_odds_worklog:/data/db
+    env_file:
+      - .env
+    ports:
+      - "27017:27017"
+    networks:
+      - odds_worklog_api
+  queue:
+    container_name: "odds-worklog-queue"
+    hostname: "odds-worklog-queue"
+    image: rabbitmq:3-management
+    volumes:
+      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@odds-worklog-queue
+      - ./rabbitmq/logs:/var/log/rabbitmq/log
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - odds_worklog_api
+  web:
+    container_name: "odds-worklog-web"
+    image: "844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/web-worklog:dev-odds-cloud"
+    ports:
+      - "80:80"
+    networks:
+      - odds_worklog_api
+
+volumes:
+  mongodbdata_odds_worklog:
+
+networks:
+  odds_worklog_api:
