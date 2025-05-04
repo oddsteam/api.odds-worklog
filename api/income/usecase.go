@@ -109,11 +109,17 @@ func (u *usecase) GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, er
 }
 
 func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) {
-	return u.exportIncome(role)
+	return u.exportIncome(role, beforeMonth)
 }
 
-func (u *usecase) exportIncome(role string) (string, error) {
-	startDate, endDate := utils.GetStartDateAndEndDate(time.Now())
+func (u *usecase) exportIncome(role string, beforeMonth string) (string, error) {
+	var t time.Time
+	if beforeMonth == "0" {
+		t = time.Now()
+	} else {
+		t = time.Now().AddDate(0, -1, 0)
+	}
+	startDate, endDate := utils.GetStartDateAndEndDate(t)
 	return u.ExportIncomeByStartDateAndEndDate(role, startDate, endDate)
 }
 
