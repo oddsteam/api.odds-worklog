@@ -29,25 +29,17 @@ services:
     restart: always
 
   mongodb:
-    container_name: "odds-worklog-mongo"
-    image: "mongo:4.0.3"
-    volumes:
-      - mongodbdata_odds_worklog:/data/db
-    env_file:
-      - dev.env
-    expose:
-      - "27017"
+    extends:
+      file: ./docker-compose.local.yaml
+      service: mongodb
     networks:
       - odds_worklog_api
+
   queue:
-    image: rabbitmq:3-management
-    hostname: my-rabbit
-    volumes:
-      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
-      - ./rabbitmq/logs:/var/log/rabbitmq/log
-    ports:
-      - 5672:5672
-      - 15672:15672
+    extends:
+      file: ./docker-compose.local.yaml
+      service: queue
+
     networks:
       - odds_worklog_api
 
