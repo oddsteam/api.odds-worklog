@@ -17,26 +17,6 @@ import (
 )
 
 func TestUsecaseExportIncome(t *testing.T) {
-	// t.Run("export corporate income beforeMonth success", func(t *testing.T) {
-	// 	ctrl := gomock.NewController(t)
-	// 	defer ctrl.Finish()
-
-	// 	mockRepoIncome := mockIncomeRepository(ctrl)
-	// 	mockRepoIncome.expectGetIncomeUserOfPreviousMonth(userMock.User)
-	// 	mockRepoIncome.expectGetIncomeUserOfPreviousMonth(userMock.User2)
-
-	// 	mockRepoUser := userMock.NewMockRepository(ctrl)
-	// 	mockRepoUser.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
-
-	// 	usecase := NewUsecase(mockRepoIncome.mock, mockRepoUser)
-	// 	filename, err := usecase.ExportIncome("corporate", "1")
-
-	// 	assert.NoError(t, err)
-	// 	assert.NotNil(t, filename)
-
-	// 	// remove file after test
-	// 	os.Remove(filename)
-	// })
 	t.Run("export individual income current month success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -72,6 +52,27 @@ func TestUsecaseExportIncome(t *testing.T) {
 
 		usecase := NewUsecase(mockRepoIncome.mock, userMock.NewMockRepository(ctrl))
 		filename, err := usecase.ExportIncome("individual", "0")
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
+
+	t.Run("export corporate income previous month success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		incomes := []*models.Income{
+			&incomeMock.MockIncome,
+			&incomeMock.MockIncome2,
+		}
+		mockRepoIncome := mockIncomeRepository(ctrl)
+		mockRepoIncome.expectGetAllIncomeOfCurrentMonthByRole(incomes)
+
+		usecase := NewUsecase(mockRepoIncome.mock, userMock.NewMockRepository(ctrl))
+		filename, err := usecase.ExportIncome("corporate", "1")
 
 		assert.NoError(t, err)
 		assert.NotNil(t, filename)
