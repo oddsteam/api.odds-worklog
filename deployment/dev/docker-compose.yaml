@@ -37,18 +37,6 @@ services:
       - "27017:27017"
     networks:
       - odds_worklog_api
-  queue:
-    container_name: "odds-worklog-queue"
-    hostname: "odds-worklog-queue"
-    image: rabbitmq:3-management
-    volumes:
-      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@odds-worklog-queue
-      - ./rabbitmq/logs:/var/log/rabbitmq/log
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    networks:
-      - odds_worklog_api
   web:
     container_name: "odds-worklog-web"
     image: "844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/web-worklog:dev-odds-cloud"
