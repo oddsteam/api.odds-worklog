@@ -21,7 +21,6 @@ services:
       - .env
     depends_on:
       - "mongodb"
-      - "queue"
     networks:
       - odds_worklog_api
     restart: always
