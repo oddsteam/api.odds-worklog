@@ -17,26 +17,6 @@ import (
 )
 
 func TestUsecaseExportIncome(t *testing.T) {
-	// t.Run("export corporate income beforeMonth success", func(t *testing.T) {
-	// 	ctrl := gomock.NewController(t)
-	// 	defer ctrl.Finish()
-
-	// 	mockRepoIncome := mockIncomeRepository(ctrl)
-	// 	mockRepoIncome.expectGetIncomeUserOfPreviousMonth(userMock.User)
-	// 	mockRepoIncome.expectGetIncomeUserOfPreviousMonth(userMock.User2)
-
-	// 	mockRepoUser := userMock.NewMockRepository(ctrl)
-	// 	mockRepoUser.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
-
-	// 	usecase := NewUsecase(mockRepoIncome.mock, mockRepoUser)
-	// 	filename, err := usecase.ExportIncome("corporate", "1")
-
-	// 	assert.NoError(t, err)
-	// 	assert.NotNil(t, filename)
-
-	// 	// remove file after test
-	// 	os.Remove(filename)
-	// })
 	t.Run("export individual income current month success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -46,7 +26,7 @@ func TestUsecaseExportIncome(t *testing.T) {
 			&incomeMock.MockIncome2,
 		}
 		mockRepoIncome := mockIncomeRepository(ctrl)
-		mockRepoIncome.expectGetAllIncomeOfCurrentMonthByRole(incomes)
+		mockRepoIncome.expectGetAllIncomeOfCurrentMonthByRole(incomes, time.Now())
 
 		usecase := NewUsecase(mockRepoIncome.mock, userMock.NewMockRepository(ctrl))
 		filename, err := usecase.ExportIncome("individual", "0")
@@ -68,10 +48,31 @@ func TestUsecaseExportIncome(t *testing.T) {
 			{ID: bson.ObjectIdHex("5bd1fda30fd2df2a3e41e571"), Role: "individual", WorkDate: "20", DailyRate: 750},
 		}
 		mockRepoIncome := mockIncomeRepository(ctrl)
-		mockRepoIncome.expectGetAllIncomeOfCurrentMonthByRole(incomes)
+		mockRepoIncome.expectGetAllIncomeOfCurrentMonthByRole(incomes, time.Now())
 
 		usecase := NewUsecase(mockRepoIncome.mock, userMock.NewMockRepository(ctrl))
 		filename, err := usecase.ExportIncome("individual", "0")
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
+
+	t.Run("export corporate income previous month success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		incomes := []*models.Income{
+			&incomeMock.MockIncome,
+			&incomeMock.MockIncome2,
+		}
+		mockRepoIncome := mockIncomeRepository(ctrl)
+		mockRepoIncome.expectGetAllIncomeOfPreviousMonthByRole(incomes)
+
+		usecase := NewUsecase(mockRepoIncome.mock, userMock.NewMockRepository(ctrl))
+		filename, err := usecase.ExportIncome("corporate", "1")
 
 		assert.NoError(t, err)
 		assert.NotNil(t, filename)
@@ -258,24 +259,13 @@ type MockIncomeRepository struct {
 	mock *mock_income.MockRepository
 }
 
-func (m *MockIncomeRepository) expectGetIncomeUserOfCurrentMonth(u models.User) {
-	year, month := utils.GetYearMonthNow()
-	m.mock.EXPECT().GetIncomeUserByYearMonth(u.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
+func (m *MockIncomeRepository) expectGetAllIncomeOfPreviousMonthByRole(incomes []*models.Income) {
+	previousMonth := time.Now().AddDate(0, -1, 0)
+	m.expectGetAllIncomeOfCurrentMonthByRole(incomes, previousMonth)
 }
 
-func (m *MockIncomeRepository) expectGetIncomeUserOfPreviousMonth(u models.User) {
-	year, month := utils.GetYearMonthNow()
-	m.mock.EXPECT().GetIncomeUserByYearMonth(u.ID.Hex(), year, month-1).Return(&incomeMock.MockIncome, nil)
-}
-
-func (m *MockIncomeRepository) expectGetAllIncomeOfCurrentMonth(incomes []*models.Income) {
-	startDate, endDate := utils.GetStartDateAndEndDate(time.Now())
-	m.mock.EXPECT().GetAllIncomeByStartDateAndEndDate(
-		gomock.Any(), startDate, endDate).Return(incomes, nil)
-}
-
-func (m *MockIncomeRepository) expectGetAllIncomeOfCurrentMonthByRole(incomes []*models.Income) {
-	startDate, endDate := utils.GetStartDateAndEndDate(time.Now())
+func (m *MockIncomeRepository) expectGetAllIncomeOfCurrentMonthByRole(incomes []*models.Income, now time.Time) {
+	startDate, endDate := utils.GetStartDateAndEndDate(now)
 	m.mock.EXPECT().GetAllIncomeByRoleStartDateAndEndDate(
 		gomock.Any(), startDate, endDate).Return(incomes, nil)
 }

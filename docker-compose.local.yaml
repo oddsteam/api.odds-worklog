@@ -11,8 +11,6 @@ services:
       - dev.env
     ports:
       - "27017:27017"
-    networks:
-      - odds_worklog_api
   queue:
     image: rabbitmq:3-management
     hostname: my-rabbit
@@ -25,6 +23,3 @@ services:
 
 volumes:
   mongodbdata_odds_worklog:
-
-networks:
-  odds_worklog_api:
