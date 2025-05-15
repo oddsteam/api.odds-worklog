@@ -1,3 +1,5 @@
+[![Build Status](https://github.com/oddsteam/api.odds-worklog/actions/workflows/deployment-odds-cloud.yml/badge.svg)](https://github.com/oddsteam/api.odds-worklog/actions)
+
 # ODDS Worklog API
 
 ODDS Worklog API written in Go
