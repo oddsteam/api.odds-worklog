@@ -7,6 +7,7 @@ import (
 
 type Usecase interface {
 	GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error)
+	CreateUser(email string) (*models.User, error)
 	CreateUserAndValidateEmail(email string) (*models.User, error)
 	IsValidConsumerClientID(cid string) bool
 }

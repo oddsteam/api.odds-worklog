@@ -35,6 +35,21 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
+// CreateUser mocks base method.
+func (m *MockUsecase) CreateUser(email string) (*models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateUser", email)
+	ret0, _ := ret[0].(*models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateUser indicates an expected call of CreateUser.
+func (mr *MockUsecaseMockRecorder) CreateUser(email interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockUsecase)(nil).CreateUser), email)
+}
+
 // CreateUserAndValidateEmail mocks base method.
 func (m *MockUsecase) CreateUserAndValidateEmail(email string) (*models.User, error) {
 	m.ctrl.T.Helper()

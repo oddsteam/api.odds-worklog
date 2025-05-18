@@ -44,10 +44,10 @@ func (u *usecase) CreateUserAndValidateEmail(email string) (*models.User, error)
 	if !isOddsTeam(email) {
 		return nil, utils.ErrEmailIsNotOddsTeam
 	}
-	return u.createUser(email)
+	return u.CreateUser(email)
 }
 
-func (u *usecase) createUser(email string) (*models.User, error) {
+func (u *usecase) CreateUser(email string) (*models.User, error) {
 	user := &models.User{}
 	user.Email = email
 	if user.IsAdmin() {
