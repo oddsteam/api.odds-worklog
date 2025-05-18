@@ -36,7 +36,22 @@ func (u *usecase) ValidateAndExtractToken(accessToken string) (models.Identity, 
 		return models.Identity{}, err
 	}
 
+	// Check if journeyman role exists
+	if !contains(claims.ResourceAccess["worklog"].Roles, "journeyman") {
+		return models.Identity{}, fmt.Errorf("user does not have journeyman role")
+	}
+
 	return models.Identity{Email: claims.Email}, nil
+}
+
+// contains checks if a string exists in a slice of strings
+func contains(slice []string, str string) bool {
+	for _, v := range slice {
+		if v == str {
+			return true
+		}
+	}
+	return false
 }
 
 func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
