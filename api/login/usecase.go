@@ -22,6 +22,15 @@ func NewUsecase(uu user.Usecase, cu consumer.Usecase) Usecase {
 	return &usecase{uu, cu}
 }
 
+func (u *usecase) ValidateAndExtractToken(idToken string) (models.Identity, error) {
+	tokenInfo, err := u.GetTokenInfo(idToken)
+
+	if err != nil {
+		return models.Identity{}, err
+	}
+	return models.Identity{Email: tokenInfo.Email}, nil
+}
+
 func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
 	oauth2Service, err := oauth2.New(&http.Client{})
 	if err != nil {

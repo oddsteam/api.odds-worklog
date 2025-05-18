@@ -93,3 +93,18 @@ func (mr *MockUsecaseMockRecorder) IsValidConsumerClientID(cid interface{}) *gom
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsValidConsumerClientID", reflect.TypeOf((*MockUsecase)(nil).IsValidConsumerClientID), cid)
 }
+
+// ValidateAndExtractToken mocks base method.
+func (m *MockUsecase) ValidateAndExtractToken(idToken string) (models.Identity, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValidateAndExtractToken", idToken)
+	ret0, _ := ret[0].(models.Identity)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ValidateAndExtractToken indicates an expected call of ValidateAndExtractToken.
+func (mr *MockUsecaseMockRecorder) ValidateAndExtractToken(idToken interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateAndExtractToken", reflect.TypeOf((*MockUsecase)(nil).ValidateAndExtractToken), idToken)
+}
