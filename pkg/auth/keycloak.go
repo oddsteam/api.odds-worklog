@@ -2,10 +2,10 @@ package auth
 
 import (
 	"crypto/rsa"
-	"encoding/base64"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
-	"math/big"
 	"net/http"
 	"strings"
 	"time"
@@ -26,11 +26,16 @@ type KeycloakClaims struct {
 	ResourceAccess map[string]struct {
 		Roles []string `json:"roles"`
 	} `json:"resource_access"`
+	AuthorizedParty string `json:"azp"`
 }
 
 // VerifyAudience implements the jwt.Claims interface
 func (c *KeycloakClaims) VerifyAudience(claim string, required bool) bool {
 	if !required {
+		return true
+	}
+	// Check both standard audience and authorized party
+	if c.AuthorizedParty == claim {
 		return true
 	}
 	for _, aud := range c.Audience {
@@ -44,6 +49,7 @@ func (c *KeycloakClaims) VerifyAudience(claim string, required bool) bool {
 // KeycloakValidator handles Keycloak token validation
 type KeycloakValidator struct {
 	realmURL     string
+	realm        string
 	clientID     string
 	publicKey    *rsa.PublicKey
 	issuer       string
@@ -52,9 +58,10 @@ type KeycloakValidator struct {
 }
 
 // NewKeycloakValidator creates a new Keycloak validator
-func NewKeycloakValidator(realmURL, clientID string) *KeycloakValidator {
+func NewKeycloakValidator(realmURL, realm, clientID string) *KeycloakValidator {
 	return &KeycloakValidator{
 		realmURL:     realmURL,
+		realm:        realm,
 		clientID:     clientID,
 		cacheTimeout: 24 * time.Hour,
 	}
@@ -67,40 +74,51 @@ func (v *KeycloakValidator) fetchPublicKey() error {
 		return nil
 	}
 
+	url := fmt.Sprintf("%s/realms/%s", v.realmURL, v.realm)
+	fmt.Printf("Fetching public key from: %s\n", url)
+
 	// Fetch the realm configuration
-	resp, err := http.Get(fmt.Sprintf("%s/realms/%s", v.realmURL, "master"))
+	resp, err := http.Get(url)
 	if err != nil {
 		return fmt.Errorf("failed to fetch realm configuration: %v", err)
 	}
 	defer resp.Body.Close()
 
 	var config struct {
-		PublicKey string `json:"public_key"`
-		Issuer    string `json:"issuer"`
+		PublicKey    string `json:"public_key"`
+		TokenService string `json:"token-service"`
+		Issuer       string `json:"issuer"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&config); err != nil {
 		return fmt.Errorf("failed to decode realm configuration: %v", err)
 	}
 
-	// Decode the public key
-	decodedKey, err := base64.StdEncoding.DecodeString(config.PublicKey)
-	if err != nil {
-		return fmt.Errorf("failed to decode public key: %v", err)
-	}
+	fmt.Printf("Received token service: %s\n", config.TokenService)
+	fmt.Printf("Received public key: %s\n", config.PublicKey)
 
 	// Parse the public key
-	modulus := new(big.Int)
-	modulus.SetBytes(decodedKey)
-	v.publicKey = &rsa.PublicKey{
-		N: modulus,
-		E: 65537, // Standard RSA public exponent
+	block, _ := pem.Decode([]byte("-----BEGIN PUBLIC KEY-----\n" + config.PublicKey + "\n-----END PUBLIC KEY-----"))
+	if block == nil {
+		return fmt.Errorf("failed to decode public key PEM")
 	}
-	v.issuer = config.Issuer
+
+	publicKey, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return fmt.Errorf("failed to parse public key: %v", err)
+	}
+
+	rsaPublicKey, ok := publicKey.(*rsa.PublicKey)
+	if !ok {
+		return fmt.Errorf("public key is not RSA")
+	}
+
+	v.publicKey = rsaPublicKey
+	// Set the issuer to the token service URL without the protocol/openid-connect part
+	v.issuer = strings.TrimSuffix(config.TokenService, "/protocol/openid-connect")
 	v.lastFetch = time.Now()
 
-	fmt.Printf("v.publicKey %#v\n", v.publicKey)
-	fmt.Printf("v.issuer %#v\n", v.issuer)
+	fmt.Printf("Set issuer to: %s\n", v.issuer)
 
 	return nil
 }
@@ -113,17 +131,21 @@ func (v *KeycloakValidator) ValidateToken(tokenString string) (*KeycloakClaims, 
 	}
 
 	// Parse and validate the token
-	token, _ := jwt.ParseWithClaims(tokenString, &KeycloakClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &KeycloakClaims{}, func(token *jwt.Token) (interface{}, error) {
 		// Validate the signing method
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
+
+		// Print token header for debugging
+		fmt.Printf("Token header: %+v\n", token.Header)
+
 		return v.publicKey, nil
 	})
 
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to parse token: %v", err)
-	// }
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse token: %v", err)
+	}
 
 	// Type assert the claims
 	claims, ok := token.Claims.(*KeycloakClaims)
@@ -131,15 +153,18 @@ func (v *KeycloakValidator) ValidateToken(tokenString string) (*KeycloakClaims, 
 		return nil, fmt.Errorf("invalid token claims")
 	}
 
+	// Print claims for debugging
+	fmt.Printf("Token claims: %+v\n", claims)
+
 	// Validate the issuer
-	// if claims.Issuer != v.issuer {
-	// return nil, fmt.Errorf("invalid issuer")
-	// }
+	if claims.Issuer != v.issuer {
+		return nil, fmt.Errorf("invalid issuer: got %s, want %s", claims.Issuer, v.issuer)
+	}
 
 	// Validate the audience
-	// if !claims.VerifyAudience(v.clientID, true) {
-	// 	return nil, fmt.Errorf("invalid audience")
-	// }
+	if !claims.VerifyAudience(v.clientID, true) {
+		return nil, fmt.Errorf("invalid audience: got %v, want %s", claims.Audience, v.clientID)
+	}
 
 	// Validate the expiration
 	if claims.ExpiresAt != nil && claims.ExpiresAt.Before(time.Now()) {

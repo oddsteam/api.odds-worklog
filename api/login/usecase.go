@@ -25,8 +25,9 @@ func NewUsecase(uu user.Usecase, cu consumer.Usecase) Usecase {
 
 func (u *usecase) ValidateAndExtractToken(accessToken string) (models.Identity, error) {
 	validator := auth.NewKeycloakValidator(
-		"http://localhost:9000/auth", // Your Keycloak server URL
-		"worklog",                    // Your client ID
+		"http://localhost:9000", // Your Keycloak server URL
+		"odds",
+		"worklog", // Your client ID
 	)
 
 	claims, err := validator.ValidateToken(accessToken)
