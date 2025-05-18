@@ -9,6 +9,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/api/consumer"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/auth"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 	oauth2 "google.golang.org/api/oauth2/v2"
 )
@@ -22,13 +23,19 @@ func NewUsecase(uu user.Usecase, cu consumer.Usecase) Usecase {
 	return &usecase{uu, cu}
 }
 
-func (u *usecase) ValidateAndExtractToken(idToken string) (models.Identity, error) {
-	tokenInfo, err := u.GetTokenInfo(idToken)
+func (u *usecase) ValidateAndExtractToken(accessToken string) (models.Identity, error) {
+	validator := auth.NewKeycloakValidator(
+		"http://localhost:9000/auth", // Your Keycloak server URL
+		"worklog",                    // Your client ID
+	)
+
+	claims, err := validator.ValidateToken(accessToken)
 
 	if err != nil {
 		return models.Identity{}, err
 	}
-	return models.Identity{Email: tokenInfo.Email}, nil
+
+	return models.Identity{Email: claims.Email}, nil
 }
 
 func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
