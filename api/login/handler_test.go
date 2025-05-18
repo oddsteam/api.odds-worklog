@@ -28,7 +28,7 @@ func TestLoginGoogle(t *testing.T) {
 
 		mockUsecase := mock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().GetTokenInfo(mock.Login.Token).Return(&mock.MockTokenInfo, nil)
-		mockUsecase.EXPECT().CreateUser(mock.MockTokenInfo.Email).Return(user, nil)
+		mockUsecase.EXPECT().CreateUserAndValidateEmail(mock.MockTokenInfo.Email).Return(user, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mock.LoginJson))
@@ -112,7 +112,7 @@ func TestLoginGoogle(t *testing.T) {
 
 		mockUsecase := mock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().GetTokenInfo(mock.Login.Token).Return(&mock.MockTokenInfo, nil)
-		mockUsecase.EXPECT().CreateUser(mock.MockTokenInfo.Email).Return(user, errors.New(""))
+		mockUsecase.EXPECT().CreateUserAndValidateEmail(mock.MockTokenInfo.Email).Return(user, errors.New(""))
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(mock.LoginJson))

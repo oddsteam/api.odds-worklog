@@ -55,7 +55,7 @@ func (h *HttpHandler) loginGoogle(c echo.Context) error {
 		return utils.NewError(c, http.StatusUnauthorized, err)
 	}
 
-	user, err := h.Usecase.CreateUser(tokenInfo.Email)
+	user, err := h.Usecase.CreateUserAndValidateEmail(tokenInfo.Email)
 	if err != nil && err != utils.ErrConflict {
 		return utils.NewError(c, http.StatusUnauthorized, err)
 	}

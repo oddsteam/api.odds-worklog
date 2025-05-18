@@ -40,7 +40,7 @@ func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
 	return tokenInfo, nil
 }
 
-func (u *usecase) CreateUser(email string) (*models.User, error) {
+func (u *usecase) CreateUserAndValidateEmail(email string) (*models.User, error) {
 	if !isOddsTeam(email) {
 		return nil, utils.ErrEmailIsNotOddsTeam
 	}

@@ -5,36 +5,52 @@
 package mock_login
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	models "gitlab.odds.team/worklog/api.odds-worklog/models"
 	oauth2 "google.golang.org/api/oauth2/v2"
-	reflect "reflect"
 )
 
-// MockUsecase is a mock of Usecase interface
+// MockUsecase is a mock of Usecase interface.
 type MockUsecase struct {
 	ctrl     *gomock.Controller
 	recorder *MockUsecaseMockRecorder
 }
 
-// MockUsecaseMockRecorder is the mock recorder for MockUsecase
+// MockUsecaseMockRecorder is the mock recorder for MockUsecase.
 type MockUsecaseMockRecorder struct {
 	mock *MockUsecase
 }
 
-// NewMockUsecase creates a new mock instance
+// NewMockUsecase creates a new mock instance.
 func NewMockUsecase(ctrl *gomock.Controller) *MockUsecase {
 	mock := &MockUsecase{ctrl: ctrl}
 	mock.recorder = &MockUsecaseMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
-// GetTokenInfo mocks base method
+// CreateUserAndValidateEmail mocks base method.
+func (m *MockUsecase) CreateUserAndValidateEmail(email string) (*models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateUserAndValidateEmail", email)
+	ret0, _ := ret[0].(*models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateUserAndValidateEmail indicates an expected call of CreateUserAndValidateEmail.
+func (mr *MockUsecaseMockRecorder) CreateUserAndValidateEmail(email interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUserAndValidateEmail", reflect.TypeOf((*MockUsecase)(nil).CreateUserAndValidateEmail), email)
+}
+
+// GetTokenInfo mocks base method.
 func (m *MockUsecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTokenInfo", idToken)
@@ -43,28 +59,13 @@ func (m *MockUsecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
 	return ret0, ret1
 }
 
-// GetTokenInfo indicates an expected call of GetTokenInfo
+// GetTokenInfo indicates an expected call of GetTokenInfo.
 func (mr *MockUsecaseMockRecorder) GetTokenInfo(idToken interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTokenInfo", reflect.TypeOf((*MockUsecase)(nil).GetTokenInfo), idToken)
 }
 
-// CreateUser mocks base method
-func (m *MockUsecase) CreateUser(email string) (*models.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateUser", email)
-	ret0, _ := ret[0].(*models.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreateUser indicates an expected call of CreateUser
-func (mr *MockUsecaseMockRecorder) CreateUser(email interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockUsecase)(nil).CreateUser), email)
-}
-
-// IsValidConsumerClientID mocks base method
+// IsValidConsumerClientID mocks base method.
 func (m *MockUsecase) IsValidConsumerClientID(cid string) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "IsValidConsumerClientID", cid)
@@ -72,7 +73,7 @@ func (m *MockUsecase) IsValidConsumerClientID(cid string) bool {
 	return ret0
 }
 
-// IsValidConsumerClientID indicates an expected call of IsValidConsumerClientID
+// IsValidConsumerClientID indicates an expected call of IsValidConsumerClientID.
 func (mr *MockUsecaseMockRecorder) IsValidConsumerClientID(cid interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsValidConsumerClientID", reflect.TypeOf((*MockUsecase)(nil).IsValidConsumerClientID), cid)
