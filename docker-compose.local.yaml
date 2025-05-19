@@ -21,5 +21,27 @@ services:
       - 5672:5672
       - 15672:15672
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.2
+    container_name: keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "9000:8080"
+    volumes:
+      - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
+    command: start-dev --import-realm
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          '[ -f /tmp/HealthCheck.java ] || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)new java.net.URL(args[0]).openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://localhost:8080/realms/odds',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
 volumes:
   mongodbdata_odds_worklog:
