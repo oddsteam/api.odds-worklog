@@ -3,6 +3,7 @@ package login
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -25,9 +26,9 @@ func NewUsecase(uu user.Usecase, cu consumer.Usecase) Usecase {
 
 func (u *usecase) ValidateAndExtractToken(accessToken string) (models.Identity, error) {
 	validator := auth.NewKeycloakValidator(
-		"http://localhost:9000", // Your Keycloak server URL
-		"odds",
-		"worklog", // Your client ID
+		os.Getenv("KEYCLOAK_SERVER_URL"),
+		os.Getenv("KEYCLOAK_REALM"),
+		os.Getenv("KEYCLOAK_CLIENT_ID"),
 	)
 
 	claims, err := validator.ValidateToken(accessToken)
