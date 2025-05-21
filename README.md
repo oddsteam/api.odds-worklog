@@ -1,3 +1,5 @@
+[![Build Status](https://github.com/oddsteam/api.odds-worklog/actions/workflows/deployment-odds-cloud.yml/badge.svg)](https://github.com/oddsteam/api.odds-worklog/actions)
+
 # ODDS Worklog API
 
 ODDS Worklog API written in Go
@@ -13,10 +15,10 @@ ODDS Worklog API written in Go
 
 ODDS Worklog API is tested with:
 
-|         | Main version |
-| ------- | ------------ |
+|         | Main version                |
+| ------- | --------------------------- |
 | Go      | 1.13, 1.20.5 (darwin/arm64) |
-| MongoDB | 4.0.3        |
+| MongoDB | 4.0.3                       |
 
 ## Architecture
 
@@ -26,14 +28,17 @@ See our [C4 Model](./docs/c4/).
 
 ### Running Worklog API in Docker
 
-1. Install [Docker Community Edition (CE)](https://docs.docker.com/engine/install/) on your machine.
+1. Install
+   [Docker Community Edition (CE)](https://docs.docker.com/engine/install/) on
+   your machine.
 1. Run the following command:
 
-    ```sh
-    docker compose up --build -d
-    ```
+   ```sh
+   docker compose up --build -d
+   ```
 
-If the API does not start due to the error "Authentication failed", please see the [MongoDB Authentication Setup](#mongodb-authentication-setup) section below.
+If the API does not start due to the error "Authentication failed", please see
+the [MongoDB Authentication Setup](#mongodb-authentication-setup) section below.
 
 #### MongoDB Authentication Setup
 
@@ -62,13 +67,16 @@ If the API does not start due to the error "Authentication failed", please see t
    db.auth("admin", "admin")
    ```
 
-   If you found an error "Error: Authentication failed", it means that the admin user probably doesn't exist yet, we need to create it first by running the following command:
+   If you found an error "Error: Authentication failed", it means that the admin
+   user probably doesn't exist yet, we need to create it first by running the
+   following command:
 
    ```bash
    db.createUser({user: "admin", pwd: "admin", roles:["root"]})
    ```
 
-1. Create an user to manage data on the `odds_worklog_db` database, run the following commands:
+1. Create an user to manage data on the `odds_worklog_db` database, run the
+   following commands:
 
    ```bash
    use odds_worklog_db
@@ -87,7 +95,7 @@ Run the following command at the project path.
 
 ```bash
 go run main.go
-````
+```
 
 ### API
 
@@ -99,13 +107,13 @@ production cloud: https://worklog.odds.team/api/v1/
 
 ### Import mock data to mongodb
 
-If you use to import data mock, data should be alive. <br>
-Importion is optional.
+If you use to import data mock, data should be alive. <br> Importion is
+optional.
 
 At project path<br>
 
 ```bash
-    ./scripts/import_all_data
+./scripts/import_all_data
 ```
 
 ### Command go mockgen
@@ -116,33 +124,43 @@ GoMock is a mocking framework for the Go programming language.
 
 [https://godoc.org/github.com/golang/mock/gomock](https://godoc.org/github.com/golang/mock/gomock)
 
-user `mockgen -source="api/user/interface.go" -destination="api/user/mock/user_mock.go"`
+user
+`mockgen -source="api/user/interface.go" -destination="api/user/mock/user_mock.go"`
 
-income `mockgen -source="api/income/interface.go" -destination="api/income/mock/income_mock.go"`
+income
+`mockgen -source="api/income/interface.go" -destination="api/income/mock/income_mock.go"`
 
-login `mockgen -source="api/login/interface.go" -destination="api/login/mock/login_mock.go"`
+login
+`mockgen -source="api/login/interface.go" -destination="api/login/mock/login_mock.go"`
 
-file `mockgen -source="api/file/interface.go" -destination="api/file/mock/file_mock.go"`
+file
+`mockgen -source="api/file/interface.go" -destination="api/file/mock/file_mock.go"`
 
-site `mockgen -source="api/site/interface.go" -destination="api/site/mock/site_mock.go"`
+site
+`mockgen -source="api/site/interface.go" -destination="api/site/mock/site_mock.go"`
 
-customer `mockgen -source="api/customer/interface.go" -destination="api/customer/mock/customer_mock.go"`
+customer
+`mockgen -source="api/customer/interface.go" -destination="api/customer/mock/customer_mock.go"`
 
 po `mockgen -source="api/po/interface.go" -destination="api/po/mock/po_mock.go"`
 
-invoice `mockgen -source="api/invoice/interface.go" -destination="api/invoice/mock/invoice_mock.go"`
+invoice
+`mockgen -source="api/invoice/interface.go" -destination="api/invoice/mock/invoice_mock.go"`
 
 ### Swagger
 
-After fill comments to each handler, you must be run `swag init` to generate swagger docs
+After fill comments to each handler, you must be run `swag init` to generate
+swagger docs
 
 [https://github.com/swaggo/swag](https://github.com/swaggo/swag)
 
 [https://github.com/swaggo/echo-swagger](https://github.com/swaggo/echo-swagger)
 
-local [http://localhost:8080/v1/swagger/index.html](http://localhost:8080/v1/swagger/index.html)
+local
+[http://localhost:8080/v1/swagger/index.html](http://localhost:8080/v1/swagger/index.html)
 
-online [https://worklog-dev.odds.team/api/v1/swagger/index.html](http://worklog-dev.odds.team/api/v1/swagger/index.html)
+online
+[https://worklog-dev.odds.team/api/v1/swagger/index.html](http://worklog-dev.odds.team/api/v1/swagger/index.html)
 
 ### Run test
 
@@ -150,9 +168,8 @@ Run all test `./runtests.md`
 
 Run all test coverage by package `go test ./... -cover`
 
-Run all test coverage and view with html <br>
-`go test -coverprofile=cover.out` <br>
-`go test ./... -coverprofile=cover.out && go tool cover -html=cover.out`
+Run all test coverage and view with html <br> `go test -coverprofile=cover.out`
+<br> `go test ./... -coverprofile=cover.out && go tool cover -html=cover.out`
 
 ## Cannot login worklog-dev
 
@@ -162,7 +179,9 @@ Use the command below to reset dev database.
 
 ## Running Get Student Loan Script
 
-`scripts/get_student_loan.go` requires JSESSIONID and X-CSRF-TOKEN to run. Get it by logging in at the student loan website. (You will know how to do that if you have access to it.)
+`scripts/get_student_loan.go` requires JSESSIONID and X-CSRF-TOKEN to run. Get
+it by logging in at the student loan website. (You will know how to do that if
+you have access to it.)
 
 #### On Local
 

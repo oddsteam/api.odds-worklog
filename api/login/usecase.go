@@ -3,12 +3,14 @@ package login
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/consumer"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/auth"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 	oauth2 "google.golang.org/api/oauth2/v2"
 )
@@ -20,6 +22,37 @@ type usecase struct {
 
 func NewUsecase(uu user.Usecase, cu consumer.Usecase) Usecase {
 	return &usecase{uu, cu}
+}
+
+func (u *usecase) ValidateAndExtractToken(accessToken string) (models.Identity, error) {
+	validator := auth.NewKeycloakValidator(
+		os.Getenv("KEYCLOAK_SERVER_URL"),
+		os.Getenv("KEYCLOAK_REALM"),
+		os.Getenv("KEYCLOAK_CLIENT_ID"),
+	)
+
+	claims, err := validator.ValidateToken(accessToken)
+
+	if err != nil {
+		return models.Identity{}, err
+	}
+
+	// Check if journeyman role exists
+	if !contains(claims.ResourceAccess["worklog"].Roles, "journeyman") {
+		return models.Identity{}, fmt.Errorf("user does not have journeyman role")
+	}
+
+	return models.Identity{Email: claims.Email}, nil
+}
+
+// contains checks if a string exists in a slice of strings
+func contains(slice []string, str string) bool {
+	for _, v := range slice {
+		if v == str {
+			return true
+		}
+	}
+	return false
 }
 
 func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
@@ -40,10 +73,14 @@ func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
 	return tokenInfo, nil
 }
 
-func (u *usecase) CreateUser(email string) (*models.User, error) {
+func (u *usecase) CreateUserAndValidateEmail(email string) (*models.User, error) {
 	if !isOddsTeam(email) {
 		return nil, utils.ErrEmailIsNotOddsTeam
 	}
+	return u.CreateUser(email)
+}
+
+func (u *usecase) CreateUser(email string) (*models.User, error) {
 	user := &models.User{}
 	user.Email = email
 	if user.IsAdmin() {

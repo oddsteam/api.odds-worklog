@@ -58,7 +58,7 @@ func TestCreateUser(t *testing.T) {
 		mockConsumerUsecase := consumerMock.NewMockUsecase(ctrl)
 
 		usecase := NewUsecase(mockUsecase, mockConsumerUsecase)
-		userRes, err := usecase.CreateUser(email)
+		userRes, err := usecase.CreateUserAndValidateEmail(email)
 
 		assert.NoError(t, err)
 		assert.Equal(t, email, userRes.Email)
@@ -76,7 +76,7 @@ func TestCreateUser(t *testing.T) {
 		mockConsumerUsecase := consumerMock.NewMockUsecase(ctrl)
 
 		usecase := NewUsecase(mockUsecase, mockConsumerUsecase)
-		userRes, err := usecase.CreateUser(email)
+		userRes, err := usecase.CreateUserAndValidateEmail(email)
 
 		assert.Nil(t, userRes)
 		assert.EqualError(t, err, utils.ErrEmailIsNotOddsTeam.Error())
