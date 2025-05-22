@@ -29,3 +29,5 @@ report/
 
 # rabbitmq data
 rabbitmq/
+
+.DS_Store
