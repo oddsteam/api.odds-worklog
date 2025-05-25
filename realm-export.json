@@ -693,21 +693,21 @@
       "clientId": "worklog",
       "name": "worklog",
       "description": "",
-      "rootUrl": "https://web",
+      "rootUrl": "http://web",
       "adminUrl": "",
-      "baseUrl": "https://web",
+      "baseUrl": "http://web",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
         "http://localhost:4200/*",
-        "https://web/*",
+        "http://web/*",
         "https://www.keycloak.org/app/*"
       ],
       "webOrigins": [
         "http://localhost:4200",
-        "https://web",
+        "http://web",
         "https://www.keycloak.org"
       ],
       "notBefore": 0,
