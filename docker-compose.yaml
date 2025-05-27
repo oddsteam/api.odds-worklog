@@ -55,4 +55,3 @@ volumes:
 
 networks:
   odds_worklog_api:
-    external: true
