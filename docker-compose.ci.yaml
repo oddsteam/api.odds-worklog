@@ -1,0 +1,28 @@
+services:
+  api:
+    extends:
+      file: ./docker-compose.yaml
+      service: api
+    networks:
+      - odds_worklog_api
+
+  mongodb:
+    extends:
+      file: ./docker-compose.yaml
+      service: mongodb
+    networks:
+      - odds_worklog_api
+
+  keycloak:
+    extends:
+      file: ./docker-compose.yaml
+      service: keycloak
+    networks:
+      - odds_worklog_api
+
+volumes:
+  mongodbdata_odds_worklog:
+
+networks:
+  odds_worklog_api:
+    external: true

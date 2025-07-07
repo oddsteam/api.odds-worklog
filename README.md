@@ -37,10 +37,14 @@ See our [C4 Model](./docs/c4/).
    docker compose up --build -d
    ```
 
-If the API does not start due to the error "Authentication failed", please see
-the [MongoDB Authentication Setup](#mongodb-authentication-setup) section below.
+The MongoDB admin user for `odds_worklog_db` will be automatically created on first startup.
 
-#### MongoDB Authentication Setup
+If the API does not start due to the error "Authentication failed", please see
+the [Manual MongoDB Authentication Setup](#manual-mongodb-authentication-setup) section below.
+
+#### Manual MongoDB Authentication Setup (Fallback)
+
+If automatic user creation fails, you can manually set up the MongoDB authentication:
 
 1. If the MongoDB container hasn't been started yet, run the following command:
 
