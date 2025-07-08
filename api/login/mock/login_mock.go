@@ -9,6 +9,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	models "gitlab.odds.team/worklog/api.odds-worklog/models"
+	oauth2 "google.golang.org/api/oauth2/v2"
 )
 
 // MockUsecase is a mock of Usecase interface.
@@ -62,6 +63,21 @@ func (m *MockUsecase) CreateUserAndValidateEmail(email string) (*models.User, er
 func (mr *MockUsecaseMockRecorder) CreateUserAndValidateEmail(email interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUserAndValidateEmail", reflect.TypeOf((*MockUsecase)(nil).CreateUserAndValidateEmail), email)
+}
+
+// GetTokenInfo mocks base method.
+func (m *MockUsecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTokenInfo", idToken)
+	ret0, _ := ret[0].(*oauth2.Tokeninfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTokenInfo indicates an expected call of GetTokenInfo.
+func (mr *MockUsecaseMockRecorder) GetTokenInfo(idToken interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTokenInfo", reflect.TypeOf((*MockUsecase)(nil).GetTokenInfo), idToken)
 }
 
 // IsValidConsumerClientID mocks base method.

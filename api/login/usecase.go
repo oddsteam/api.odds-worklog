@@ -2,6 +2,7 @@ package login
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/auth"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+	oauth2 "google.golang.org/api/oauth2/v2"
 )
 
 type usecase struct {
@@ -51,6 +53,24 @@ func contains(slice []string, str string) bool {
 		}
 	}
 	return false
+}
+
+func (u *usecase) GetTokenInfo(idToken string) (*oauth2.Tokeninfo, error) {
+	oauth2Service, err := oauth2.New(&http.Client{})
+	if err != nil {
+		return nil, err
+	}
+
+	tokenInfoCall := oauth2Service.Tokeninfo()
+	tokenInfo, err := tokenInfoCall.IdToken(idToken).Do()
+	if err != nil {
+		return nil, err
+	}
+
+	if !u.IsValidConsumerClientID(tokenInfo.Audience) {
+		return nil, utils.ErrInvalidConsumer
+	}
+	return tokenInfo, nil
 }
 
 func (u *usecase) CreateUserAndValidateEmail(email string) (*models.User, error) {
