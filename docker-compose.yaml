@@ -6,7 +6,7 @@ services:
     ports:
       - 8080:8080
     env_file:
-      - dev.env
+      - .env
     depends_on:
       - "mongodb"
     networks:
@@ -18,7 +18,7 @@ services:
     build: .
     command: /app/subscribe_friendslog
     env_file:
-      - dev.env
+      - .env
     depends_on:
       - "mongodb"
       - "queue"

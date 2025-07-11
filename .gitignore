@@ -32,7 +32,7 @@ rabbitmq/
 
 .DS_Store
 
-ssl/nginx.key
-ssl/nginx.crt
 
 deployment/local/.env
+deployment/ci/ssl/nginx.key
+deployment/ci/ssl/nginx.crt

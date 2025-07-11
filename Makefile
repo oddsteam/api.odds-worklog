@@ -12,14 +12,14 @@ down:
 reset:
 	docker-compose -f deployment/local/docker-compose.yaml down -v
 
-e2e-ci-up: ssl/nginx.key
-	docker compose -f docker-compose.ci.yaml up -d
+e2e-ci-up: deployment/ci/ssl/nginx.key
+	docker compose -f deployment/ci/docker-compose.yaml up -d
 
-ssl/nginx.key:
+deployment/ci/ssl/nginx.key:
 	openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ssl/nginx.key -out ssl/nginx.crt -config ssl/openssl.conf -extensions v3_req
 
 e2e-ci-ps:
-	docker compose -f docker-compose.ci.yaml ps
+	docker compose -f deployment/ci/docker-compose.yaml ps
 
 e2e-ci-down:
-	docker compose -f docker-compose.ci.yaml down
+	docker compose -f deployment/ci/docker-compose.yaml down

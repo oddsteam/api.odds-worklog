@@ -1,7 +1,7 @@
 services:
   api:
     extends:
-      file: ./docker-compose.yaml
+      file: ../../docker-compose.yaml
       service: api
     environment:
       - KEYCLOAK_SERVER_URL=https://keycloak_proxy
@@ -9,14 +9,14 @@ services:
       - odds_worklog_api
   mongodb:
     extends:
-      file: ./docker-compose.yaml
+      file: ../local/docker-compose.yaml
       service: mongodb
     networks:
       - odds_worklog_api
 
   keycloak:
     extends:
-      file: ./docker-compose.yaml
+      file: ../local/docker-compose.yaml
       service: keycloak
     command: start-dev --import-realm --hostname-strict false --proxy-headers xforwarded
     networks:
