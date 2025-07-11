@@ -1,7 +1,10 @@
 .PHONY: up down reset e2e-ci-up e2e-ci-down e2e-ci-ps
 
-up:
+up: deployment/local/.env
 	docker-compose -f deployment/local/docker-compose.yaml up -d
+
+deployment/local/.env:
+	cp .env deployment/local/.env
 
 down:
 	docker-compose -f deployment/local/docker-compose.yaml down

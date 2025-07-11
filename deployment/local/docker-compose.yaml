@@ -7,7 +7,7 @@ services:
       - ../../data/:/fixture/data/
       - ../../scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     env_file:
-      - ../../dev.env
+      - .env
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: admin

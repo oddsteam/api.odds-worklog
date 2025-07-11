@@ -34,3 +34,5 @@ rabbitmq/
 
 ssl/nginx.key
 ssl/nginx.crt
+
+deployment/local/.env

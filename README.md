@@ -49,13 +49,13 @@ If automatic user creation fails, you can manually set up the MongoDB authentica
 1. If the MongoDB container hasn't been started yet, run the following command:
 
    ```bash
-   docker compose -f docker-compose.local.yaml up -d mongodb
+   make up
    ```
 
 1. Enter the MongoDB container's shell using the command below:
 
    ```bash
-   docker compose -f docker-compose.local.yaml exec mongodb bash
+   docker compose -f deployment/local/docker-compose.yaml exec mongodb bash
    ```
 
 1. After that, we'll invoke MongoDB shell by
