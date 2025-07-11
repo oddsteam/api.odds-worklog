@@ -286,6 +286,23 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, i.netDailyIncome()+i.netSpecialIncome()-50, i.transferAmount())
 	})
 
+	t.Run("หัก ณ ที่จ่าย 3% คิดจากรายได้รวม ไม่นับหนี้ กยศ", func(t *testing.T) {
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		user := GivenIndividualUser(uidFromSession, "5")
+		req := models.IncomeReq{
+			WorkDate:      "20",
+			SpecialIncome: "100",
+			WorkingHours:  "10",
+		}
+		i := NewIncome(uidFromSession)
+		i.SetLoan(&models.StudentLoan{Amount: 50})
+
+		err := i.parseRequest(req, user)
+
+		assert.NoError(t, err)
+		assert.Equal(t, i.totalIncome()*0.03, i.totalWHT())
+	})
+
 	t.Run("calculate corporate income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := models.User{
