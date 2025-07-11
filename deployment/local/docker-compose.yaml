@@ -4,10 +4,10 @@ services:
     image: "mongo:4.0.3"
     volumes:
       - mongodbdata_odds_worklog:/data/db
-      - ./data/:/fixture/data/
-      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ../../data/:/fixture/data/
+      - ../../scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     env_file:
-      - dev.env
+      - ../../dev.env
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: admin
@@ -18,8 +18,8 @@ services:
     image: rabbitmq:3-management
     hostname: my-rabbit
     volumes:
-      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
-      - ./rabbitmq/logs:/var/log/rabbitmq/log
+      - ../../rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
+      - ../../rabbitmq/logs:/var/log/rabbitmq/log
     ports:
       - 5672:5672
       - 15672:15672
@@ -33,7 +33,7 @@ services:
     ports:
       - "9000:8080"
     volumes:
-      - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
+      - ../../realm-export.json:/opt/keycloak/data/import/realm-export.json
     command: start-dev --import-realm
     healthcheck:
       test:

@@ -1,13 +1,13 @@
 .PHONY: up down reset e2e-ci-up e2e-ci-down e2e-ci-ps
 
 up:
-	docker-compose -f docker-compose.local.yaml up -d
+	docker-compose -f deployment/local/docker-compose.yaml up -d
 
 down:
-	docker-compose -f docker-compose.local.yaml down
+	docker-compose -f deployment/local/docker-compose.yaml down
 
 reset:
-	docker-compose -f docker-compose.local.yaml down -v
+	docker-compose -f deployment/local/docker-compose.yaml down -v
 
 e2e-ci-up: ssl/nginx.key
 	docker compose -f docker-compose.ci.yaml up -d
