@@ -2,7 +2,7 @@ vendor
 Dockerfile
 .DS_Store
 .gitignore
-docker-compose.yml
+docker-compose.yaml
 README.md
 user.json
 .csv
