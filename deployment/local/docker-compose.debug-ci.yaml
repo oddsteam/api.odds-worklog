@@ -1,7 +1,7 @@
 services:
   api:
     container_name: "odds-worklog-api"
-    build: .
+    build: ../..
     command: /app/api
     ports:
       - 8080:8080
@@ -15,7 +15,7 @@ services:
 
   friendslog:
     container_name: "odds-worklog-friendslog-subscriber"
-    build: .
+    build: ../..
     command: /app/subscribe_friendslog
     env_file:
       - .env
@@ -28,14 +28,14 @@ services:
 
   mongodb:
     extends:
-      file: ./docker-compose.local.yaml
+      file: ./docker-compose.yaml
       service: mongodb
     networks:
       - odds_worklog_api
 
   queue:
     extends:
-      file: ./docker-compose.local.yaml
+      file: ./docker-compose.yaml
       service: queue
 
     networks:
@@ -43,7 +43,7 @@ services:
 
   keycloak:
     extends:
-      file: ./docker-compose.local.yaml
+      file: ./docker-compose.yaml
       service: keycloak
     networks:
       - odds_worklog_api

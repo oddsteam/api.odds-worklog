@@ -34,7 +34,7 @@ See our [C4 Model](./docs/c4/).
 1. Run the following command:
 
    ```sh
-   docker compose up --build -d
+   make e2e-debug-ci-up
    ```
 
 The MongoDB admin user for `odds_worklog_db` will be automatically created on first startup.

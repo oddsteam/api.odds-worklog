@@ -23,3 +23,12 @@ e2e-ci-ps:
 
 e2e-ci-down:
 	docker compose -f deployment/ci/docker-compose.yaml down
+
+e2e-debug-ci-up: deployment/ci/ssl/nginx.key
+	docker compose -f deployment/local/docker-compose.debug-ci.yaml up -d
+
+e2e-debug-ci-ps:
+	docker compose -f deployment/local/docker-compose.debug-ci.yaml ps
+
+e2e-debug-ci-down:
+	docker compose -f deployment/local/docker-compose.debug-ci.yaml down

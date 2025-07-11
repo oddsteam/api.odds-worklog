@@ -1,7 +1,7 @@
 services:
   api:
     extends:
-      file: ../../docker-compose.yaml
+      file: ../local/docker-compose.debug-ci.yaml
       service: api
     environment:
       - KEYCLOAK_SERVER_URL=https://keycloak_proxy
