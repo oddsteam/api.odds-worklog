@@ -12,6 +12,9 @@ down:
 reset:
 	docker-compose -f deployment/local/docker-compose.yaml down -v
 
+e2e-ci-build:
+	docker compose -f deployment/ci/docker-compose.yaml build
+
 e2e-ci-up: deployment/ci/ssl/nginx.key
 	docker compose -f deployment/ci/docker-compose.yaml up -d
 
