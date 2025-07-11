@@ -19,6 +19,8 @@ services:
     command: /app/subscribe_friendslog
     env_file:
       - .env
+    environment:
+      - RABBITMQ_HOST=queue:5672
     depends_on:
       - "mongodb"
       - "queue"
