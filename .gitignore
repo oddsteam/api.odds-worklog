@@ -31,3 +31,8 @@ report/
 rabbitmq/
 
 .DS_Store
+
+
+deployment/local/.env
+deployment/ci/ssl/nginx.key
+deployment/ci/ssl/nginx.crt
