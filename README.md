@@ -93,6 +93,36 @@ If automatic user creation fails, you can manually set up the MongoDB authentica
    exit
    ```
 
+
+
+### Create User On Keycloak
+1. After run command 
+```sh
+   docker compose up --build -d
+   ```
+Make sure `keycloak` service has started
+
+2. Go to `http://localhost:9000` (keycloak website)
+3. Sign in with 
+```
+username: admin
+password: admin
+```
+4. Switch to realm `odds` by click on menu `Manage realms` and then select realm `odds`
+5. Create user <br>
+5.1 Click on menu `Users` > `Add user` <br>
+5.2 Fill informations and then click `Create` <br>
+
+6. Set password <br>
+6.1 Go to tab `Credencials` > `Set password` <br>
+6.2 Fill password, toggle of `Temporary` (if you don't want to change password after first time login) and then `Save password`
+
+7. Assign role `journeyman` (because worklog system allowed only employees who were in a journeyman state) <br>
+7.1 Go to `Role mapping` > `Assign role`<br>
+7.2 Filter roles by name `worklog`<br>
+7.3 Assign role `worklog`
+
+
 ### Starting Worklog API on Local Machine
 
 Run the following command at the project path.
