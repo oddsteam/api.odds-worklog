@@ -82,6 +82,99 @@ func TestUsecaseExportIncome(t *testing.T) {
 	})
 }
 
+func TestUsecaseExportIncomeSAP(t *testing.T) {
+	t.Run("export individual income SAP current month success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+		incomes := []*models.Income{
+			&incomeMock.MockSoloCorporateIncome,
+			&incomeMock.MockSwardCorporateIncome,
+		}
+		mockRepoIncome := mockIncomeRepository(ctrl)
+		mockRepoIncome.expectGetAllIncomeOfCurrentMonthByRole(incomes, time.Now())
+
+		usecase := NewUsecase(mockRepoIncome.mock, userMock.NewMockRepository(ctrl))
+		filename, err := usecase.ExportIncomeSAP("individual", "0", dateEff)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
+
+	t.Run("export corporate income SAP current month success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+		incomes := []*models.Income{
+			&incomeMock.MockSoloCorporateIncome,
+			&incomeMock.MockSwardCorporateIncome,
+		}
+		mockRepoIncome := mockIncomeRepository(ctrl)
+		mockRepoIncome.expectGetAllIncomeOfCurrentMonthByRole(incomes, time.Now())
+
+		usecase := NewUsecase(mockRepoIncome.mock, userMock.NewMockRepository(ctrl))
+		filename, err := usecase.ExportIncomeSAP("corporate", "0", dateEff)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
+
+	//t.Run("export individual income includes income from friendslog", func(t *testing.T) {
+
+	//})
+
+	t.Run("export individual income SAP previous month success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+		incomes := []*models.Income{
+			&incomeMock.MockSoloCorporateIncome,
+			&incomeMock.MockSwardCorporateIncome,
+		}
+		mockRepoIncome := mockIncomeRepository(ctrl)
+		mockRepoIncome.expectGetAllIncomeOfPreviousMonthByRole(incomes)
+
+		usecase := NewUsecase(mockRepoIncome.mock, userMock.NewMockRepository(ctrl))
+		filename, err := usecase.ExportIncomeSAP("individual", "1", dateEff)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
+
+	t.Run("export corporate income previous month success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+		incomes := []*models.Income{
+			&incomeMock.MockSoloCorporateIncome,
+			&incomeMock.MockSwardCorporateIncome,
+		}
+		mockRepoIncome := mockIncomeRepository(ctrl)
+		mockRepoIncome.expectGetAllIncomeOfPreviousMonthByRole(incomes)
+
+		usecase := NewUsecase(mockRepoIncome.mock, userMock.NewMockRepository(ctrl))
+		filename, err := usecase.ExportIncomeSAP("corporate", "1", dateEff)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
+}
+
 func TestCSVHeaders(t *testing.T) {
 	actual := createHeaders()
 	expected := [...]string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน",

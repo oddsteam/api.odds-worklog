@@ -3,6 +3,7 @@ package income
 import (
 	"encoding/csv"
 	"errors"
+	"strings"
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
@@ -162,6 +163,65 @@ func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, startDate, endD
 	return filename, nil
 }
 
+func (u *usecase) ExportIncomeSAP(role string, beforeMonth string, dateEff time.Time) (string, error) {
+	return u.exportIncomeSAP(role, beforeMonth, dateEff)
+}
+
+func (u *usecase) exportIncomeSAP(role string, beforeMonth string, dateEff time.Time) (string, error) {
+	var t time.Time
+	if beforeMonth == "0" {
+		t = time.Now()
+	} else {
+		t = time.Now().AddDate(0, -1, 0)
+	}
+	startDate, endDate := utils.GetStartDateAndEndDate(t)
+	return u.ExportIncomeSAPByStartDateAndEndDate(role, startDate, endDate, dateEff)
+}
+
+func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate time.Time, dateEff time.Time) (string, error) {
+	file, filename, err := utils.CreateCVSFile(role)
+	defer file.Close()
+
+	if err != nil {
+		return "", err
+	}
+
+	incomes, err := u.repo.GetAllIncomeByRoleStartDateAndEndDate(role, startDate, endDate)
+
+	if err != nil {
+		return "", err
+	}
+
+	studentLoanList := u.repo.GetStudentLoans()
+
+	ics := NewIncomes(incomes, studentLoanList)
+
+	strWrite, _ := ics.toCSVasSAP(dateEff)
+
+	if len(strWrite) == 1 {
+		return "", errors.New("no data for export to CSV file")
+	}
+
+	for _, record := range strWrite {
+		_, err := file.WriteString(strings.Join(record, "") + "\n")
+		if err != nil {
+			return "", err
+		}
+	}
+
+	ep := models.Export{
+		Filename: filename,
+		Date:     time.Now(),
+	}
+	err = u.repo.AddExport(&ep)
+	if err != nil {
+		return "", err
+	}
+
+	return filename, nil
+}
+
+/** deprecated **/
 func createRow(record models.Income, user models.User, loan models.StudentLoan) []string {
 	i := NewIncomeFromRecord(record)
 	i.SetLoan(&loan)

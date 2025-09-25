@@ -242,6 +242,40 @@ func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
 	return c.Attachment(filename, filename)
 }
 
+// GetExportSAPCorporate godoc
+// @Summary Get Corporate Export Income for SAP format
+// @Description Get Corporate Export Income as SAP format
+// @Tags incomes
+// @Accept  json
+// @Produce  json
+// @Param month path string true "Month"
+// @Param effectiveDate path string true "Effective Date(yyyy-mm-dd)"
+// @Success 200 {array} string
+// @Failure 500 {object} utils.HTTPError
+// @Router /incomes/export/corporate/{month}/effective-date/{effectiveDate}/format/SAP [get]
+func (h *HttpHandler) GetExportSAPCorporate(c echo.Context) error {
+	isAdmin, message := IsUserAdmin(c)
+	if !isAdmin {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
+	month := c.Param("month")
+	effectiveDate := c.Param("effectiveDate")
+
+	if month == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	dateEff, err := time.Parse("2006-01-02", effectiveDate)
+	if err != nil {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid effective date"))
+	}
+	
+	filename, err := h.Usecase.ExportIncomeSAP("corporate", month, dateEff)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.Attachment(filename, filename)
+}
+
 func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	isAdmin, message := IsUserAdmin(c)
 	if !isAdmin {

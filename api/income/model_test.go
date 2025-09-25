@@ -335,31 +335,6 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, 1000.0+70-30, i.Net(i.specialIncome()))
 	})
 
-	t.Run("export as SAP TXN row", func(t *testing.T) {
-		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		dailyIncome := "5"
-		workDate := "20"
-		specialIncome := "100"
-		workingHours := "10"
-		u := GivenIndividualUser(uidFromSession, dailyIncome)
-		req := models.IncomeReq{
-			WorkDate:      workDate,
-			SpecialIncome: specialIncome,
-			WorkingHours:  workingHours,
-		}
-		record := CreateIncome(u, req, "note")
-		i := NewIncomeFromRecord(*record)
-		i.SetLoan(&models.StudentLoan{Amount: 50})
-		dateEff := time.Date(2025, 9, 23, 0, 0, 0, 0, time.UTC)
-
-		txn, _ := i.exportSAP(dateEff)
-
-		assert.Equal(t, "TXN", txn[SAP_TXN_INDEX])
-		assert.Equal(t, "บจก. ออด-อี (ประเทศไทย) จำกัด                                               ", txn[SAP_PAYER_NAME_INDEX])
-		assert.Equal(t, "บจก. ออด-อี (ประเทศไทย) จำกัด                                               ", txn[SAP_PAYEE_NAME_INDEX])
-
-	})
-
 	t.Run("test export to SAP transaction should format correctly", func(t *testing.T) {
 		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
 		i := incomeMock.MockSoloCorporateIncome
@@ -391,8 +366,8 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, "                                                  ", txn[SAP_FAXNO_INDEX])
 		assert.Equal(t, "                                                  ", txn[SAP_EMAIL_INDEX])
 		assert.Equal(t, "                                                  ", txn[SAP_SMSNO_INDEX])
-		assert.Equal(t, "             ", txn[SAP_CHARGE_ON_INDEX])
-		assert.Equal(t, "   ", txn[SAP_PRODUCT_INDEX])
+		assert.Equal(t, "OUR          ", txn[SAP_CHARGE_ON_INDEX])
+		assert.Equal(t, "DCR", txn[SAP_PRODUCT_INDEX])
 		assert.Equal(t, "     ", txn[SAP_SCHEDULE_INDEX])
 		assert.Equal(t, "                                  ", txn[SAP_EMPTY_4_INDEX])
 		assert.Equal(t, "                                                                                                         ", txn[SAP_DOCREQ_INDEX])

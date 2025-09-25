@@ -576,7 +576,6 @@ func (ics *Incomes) toCSVasSAP(dateEff time.Time) (csv [][]string, updatedIncome
 			txn, wht := i.exportSAP(dateEff)
 			strWrite = append(strWrite, txn)
 			strWrite = append(strWrite, wht)
-			println(strWrite)
 		}
 	}
 	return strWrite, updatedIncomeIds
