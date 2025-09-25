@@ -166,10 +166,6 @@ func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, startDate, endD
 }
 
 func (u *usecase) ExportIncomeSAP(role string, beforeMonth string, dateEff time.Time) (string, error) {
-	return u.exportIncomeSAP(role, beforeMonth, dateEff)
-}
-
-func (u *usecase) exportIncomeSAP(role string, beforeMonth string, dateEff time.Time) (string, error) {
 	var t time.Time
 	if beforeMonth == "0" {
 		t = time.Now()
