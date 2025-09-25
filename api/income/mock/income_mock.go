@@ -427,3 +427,8 @@ func (mr *MockUsecaseMockRecorder) UpdateIncome(id, req, uid interface{}) *gomoc
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateIncome", reflect.TypeOf((*MockUsecase)(nil).UpdateIncome), id, req, uid)
 }
+
+func (mr *MockUsecaseMockRecorder) ExportIncomeSAP(role string, month string, eff interface{}) *gomock.Call  {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncomeSAP", reflect.TypeOf((*MockUsecase)(nil).ExportIncomeSAP), role, month, eff)
+}

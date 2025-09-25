@@ -242,6 +242,22 @@ func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
 	return c.Attachment(filename, filename)
 }
 
+func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
+	isAdmin, message := IsUserAdmin(c)
+	if !isAdmin {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
+	month := c.Param("month")
+	if month == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	filename, err := h.Usecase.ExportIncome("individual", month)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.Attachment(filename, filename)
+}
+
 // GetExportSAPCorporate godoc
 // @Summary Get Corporate Export Income for SAP format
 // @Description Get Corporate Export Income as SAP format
@@ -268,7 +284,7 @@ func (h *HttpHandler) GetExportSAPCorporate(c echo.Context) error {
 	if err != nil {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid effective date"))
 	}
-	
+
 	filename, err := h.Usecase.ExportIncomeSAP("corporate", month, dateEff)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
@@ -276,16 +292,24 @@ func (h *HttpHandler) GetExportSAPCorporate(c echo.Context) error {
 	return c.Attachment(filename, filename)
 }
 
-func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
+func (h *HttpHandler) GetExportSAPIndividual(c echo.Context) error {
 	isAdmin, message := IsUserAdmin(c)
 	if !isAdmin {
 		return c.JSON(http.StatusUnauthorized, message)
 	}
+
 	month := c.Param("month")
 	if month == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
-	filename, err := h.Usecase.ExportIncome("individual", month)
+
+	effectiveDate := c.Param("effectiveDate")
+	dateEff, err := time.Parse("2006-01-02", effectiveDate)
+	if err != nil {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid effective date"))
+	}
+
+	filename, err := h.Usecase.ExportIncomeSAP("individual", month, dateEff)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -364,6 +388,8 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/all-month/:id", handler.GetIncomeAllMonthByUserId)
 	r.GET("/export/corporate/:month", handler.GetExportCorporate)
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
+	r.GET("/export/corporate/:month/effective-date/:effectiveDate/format/SAP", handler.GetExportSAPCorporate)
+	r.GET("/export/individual/:month/effective-date/:effectiveDate/format/SAP", handler.GetExportSAPIndividual)
 	r.GET("/export/pdf/:id", handler.GetExportPdf)
 	r.POST("/export", handler.PostExportPdf)
 }

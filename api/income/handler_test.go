@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
@@ -340,6 +341,56 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 		handler := &HttpHandler{mockUsecase}
 		handler.GetExportIndividual(c)
 
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+}
+
+func TestGetExportSAPCorporateIncome(t *testing.T) {
+	t.Run("when export corporate income as SAP format success it should be return status OK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().ExportIncomeSAP("corporate", "1", dateEff).Return("test.csv", nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
+		c.SetParamNames("month", "effectiveDate")
+		c.SetParamValues("1", "2025-09-29")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.GetExportSAPCorporate(c)
+
+		//assert.Equal(t, http.StatusOK, rec.Body.String())
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+
+	t.Run("when export individual income as SAP format success it should be return status OK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().ExportIncomeSAP("individual", "1", dateEff).Return("test.csv", nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
+		c.SetParamNames("month", "effectiveDate")
+		c.SetParamValues("1", "2025-09-29")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.GetExportSAPIndividual(c)
+
+		//assert.Equal(t, http.StatusOK, rec.Body.String())
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 }

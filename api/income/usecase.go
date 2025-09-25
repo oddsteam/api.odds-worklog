@@ -9,6 +9,8 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/transform"
 )
 
 type usecase struct {
@@ -180,7 +182,10 @@ func (u *usecase) exportIncomeSAP(role string, beforeMonth string, dateEff time.
 
 func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate time.Time, dateEff time.Time) (string, error) {
 	file, filename, err := utils.CreateCVSFile(role)
+	encoder := charmap.Windows874.NewEncoder()
+	writer := transform.NewWriter(file, encoder)
 	defer file.Close()
+	defer writer.Close()
 
 	if err != nil {
 		return "", err
@@ -203,7 +208,7 @@ func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, e
 	}
 
 	for _, record := range strWrite {
-		_, err := file.WriteString(strings.Join(record, "") + "\n")
+		_, err := writer.Write([]byte(strings.Join(record, "") + "\n"))
 		if err != nil {
 			return "", err
 		}
