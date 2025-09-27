@@ -316,6 +316,33 @@ func (h *HttpHandler) GetExportSAPIndividual(c echo.Context) error {
 	return c.Attachment(filename, filename)
 }
 
+func (h *HttpHandler) PostExportSAP(c echo.Context) error {
+
+	var req = c.Request()
+	defer req.Body.Close()
+	decoder := json.NewDecoder(req.Body)
+
+	var t requests.ExportInComeSAPReq
+	err := decoder.Decode(&t)
+
+	if err != nil {
+		panic(err)
+	}
+
+	startDate, _ := time.Parse("01/2006", t.StartDate)
+	endDate, _ := time.Parse("01/2006", t.EndDate)
+	endDate = endDate.AddDate(0, 1, 0)
+	dateEff, _ := time.Parse("01/2006", t.EndDate)
+
+	filename, err := h.Usecase.ExportIncomeSAPByStartDateAndEndDate(t.Role, startDate, endDate, dateEff)
+
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	return c.Attachment(filename, filename)
+}
+
 // PostExportPdf godoc
 // @Summary Post Export Pdf by start date - end date
 // @Description Post Export to Pdf file.
@@ -392,6 +419,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/export/individual/:month/effective-date/:effectiveDate/format/SAP", handler.GetExportSAPIndividual)
 	r.GET("/export/pdf/:id", handler.GetExportPdf)
 	r.POST("/export", handler.PostExportPdf)
+	r.POST("/export/format/SAP", handler.PostExportSAP)
 }
 
 func NewHttpHandler2(r *echo.Group, session *mongo.Session) {

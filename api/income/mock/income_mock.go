@@ -432,3 +432,8 @@ func (mr *MockUsecaseMockRecorder) ExportIncomeSAP(role string, month string, ef
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncomeSAP", reflect.TypeOf((*MockUsecase)(nil).ExportIncomeSAP), role, month, eff)
 }
+
+func (mr *MockUsecaseMockRecorder) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate time.Time, dateEff time.Time) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncomeSAPByStartDateAndEndDate", reflect.TypeOf((*MockUsecase)(nil).ExportIncomeSAPByStartDateAndEndDate), role, startDate, endDate, dateEff)
+}
