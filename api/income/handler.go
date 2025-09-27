@@ -430,6 +430,5 @@ func NewHttpHandler2(r *echo.Group, session *mongo.Session) {
 
 	r = r.Group("/incomes")
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
-	r.GET("/export/corporate/:month/effective-date/:effectiveDate/format/SAP", handler.GetExportSAPCorporate)
-	r.GET("/export/individual/:month/effective-date/:effectiveDate/format/SAP", handler.GetExportSAPIndividual)
+
 }
