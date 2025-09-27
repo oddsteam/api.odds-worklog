@@ -3,6 +3,7 @@ package income
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -328,16 +329,27 @@ func (h *HttpHandler) PostExportSAP(c echo.Context) error {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Printf("ExportInComeSAPReq: %+v\n", t)
 
-	startDate, _ := time.Parse("01/2006", t.StartDate)
-	endDate, _ := time.Parse("01/2006", t.EndDate)
+	startDate, err := time.Parse("01/2006", t.StartDate)
+	if err != nil {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("startDate"))
+	}
+	endDate, err := time.Parse("01/2006", t.EndDate)
+	if err != nil {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("endDate"))
+	}
+
+	dateEff, err := time.Parse("02/01/2006", t.DateEffective)
+	if err != nil {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("dateEffective"))
+	}
+
 	endDate = endDate.AddDate(0, 1, 0)
-	dateEff, _ := time.Parse("01/2006", t.EndDate)
-
 	filename, err := h.Usecase.ExportIncomeSAPByStartDateAndEndDate(t.Role, startDate, endDate, dateEff)
-
 	if err != nil {
 		log.Println(err.Error())
+		return utils.NewError(c, http.StatusInternalServerError, errors.New("internal Server Error"))
 	}
 
 	return c.Attachment(filename, filename)

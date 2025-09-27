@@ -197,10 +197,10 @@ func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, e
 
 	ics := NewIncomes(incomes, studentLoanList)
 
-	strWrite, _ := ics.toCSVasSAP(dateEff)
+	strWrite, _ := ics.toSAP(dateEff)
 
-	if len(strWrite) == 1 {
-		return "", errors.New("no data for export to CSV file")
+	if len(strWrite) == 0 {
+		return "", errors.New("no data for export to SAP file")
 	}
 
 	for _, record := range strWrite {

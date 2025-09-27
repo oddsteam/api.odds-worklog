@@ -409,15 +409,15 @@ func TestPostExportSAPIncome(t *testing.T) {
 
 		body := ExportInComeSAPReq{
 			Role:          "corporate",
-			DateEffective: "2025-09-29",
-			StartDate:     "2025-09-01",
-			EndDate:       "2025-09-29",
+			DateEffective: "30/09/2025",
+			StartDate:     "09/2025",
+			EndDate:       "10/2025",
 		}
 		jsonBody, _ := json.Marshal(body)
 		startDate, _ := time.Parse("01/2006", body.StartDate)
 		endDate, _ := time.Parse("01/2006", body.EndDate)
 		endDate = endDate.AddDate(0, 1, 0)
-		dateEff, _ := time.Parse("01/2006", body.EndDate)
+		dateEff, _ := time.Parse("02/01/2006", body.DateEffective)
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().ExportIncomeSAPByStartDateAndEndDate("corporate", startDate, endDate, dateEff).Return("test.csv", nil)
@@ -440,15 +440,15 @@ func TestPostExportSAPIncome(t *testing.T) {
 
 		body := ExportInComeSAPReq{
 			Role:          "individual",
-			DateEffective: "2025-09-29",
-			StartDate:     "2025-09-01",
-			EndDate:       "2025-09-29",
+			DateEffective: "30/09/2025",
+			StartDate:     "09/2025",
+			EndDate:       "10/2025",
 		}
 		jsonBody, _ := json.Marshal(body)
 		startDate, _ := time.Parse("01/2006", body.StartDate)
 		endDate, _ := time.Parse("01/2006", body.EndDate)
 		endDate = endDate.AddDate(0, 1, 0)
-		dateEff, _ := time.Parse("01/2006", body.EndDate)
+		dateEff, _ := time.Parse("02/01/2006", body.DateEffective)
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().ExportIncomeSAPByStartDateAndEndDate("individual", startDate, endDate, dateEff).Return("test.csv", nil)
