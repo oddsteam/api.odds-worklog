@@ -563,7 +563,7 @@ func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
 	return strWrite, updatedIncomeIds
 }
 
-func (ics *Incomes) toCSVasSAP(dateEff time.Time) (csv [][]string, updatedIncomeIds []string) {
+func (ics *Incomes) toSAP(dateEff time.Time) (csv [][]string, updatedIncomeIds []string) {
 	strWrite := make([][]string, 0)
 	updatedIncomeIds = []string{}
 	for _, e := range ics.records {
