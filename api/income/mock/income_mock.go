@@ -315,14 +315,6 @@ func (m *MockUsecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDat
 }
 
 
-func (m *MockUsecase) ExportIncomeSAP(role, beforeMonth string, dateEff time.Time) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExportIncomeSAP", role, beforeMonth, dateEff)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
 // ExportPdf mocks base method.
 func (m *MockUsecase) ExportPdf(id string) (string, error) {
 	m.ctrl.T.Helper()
@@ -428,10 +420,6 @@ func (mr *MockUsecaseMockRecorder) UpdateIncome(id, req, uid interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateIncome", reflect.TypeOf((*MockUsecase)(nil).UpdateIncome), id, req, uid)
 }
 
-func (mr *MockUsecaseMockRecorder) ExportIncomeSAP(role string, month string, eff interface{}) *gomock.Call  {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncomeSAP", reflect.TypeOf((*MockUsecase)(nil).ExportIncomeSAP), role, month, eff)
-}
 
 func (mr *MockUsecaseMockRecorder) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate time.Time, dateEff time.Time) *gomock.Call {
 	mr.mock.ctrl.T.Helper()

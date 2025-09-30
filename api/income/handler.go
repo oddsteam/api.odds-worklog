@@ -218,7 +218,7 @@ func (h *HttpHandler) GetExportPdf(c echo.Context) error {
 }
 
 // GetExportCorporate godoc
-// @Summary Get Corporate Export Income
+// @Summary Get Corporate Export Income (unused deprecate soon)
 // @Description Get Corporate Export Income to csv file.
 // @Tags incomes
 // @Accept  json
@@ -253,64 +253,6 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 	filename, err := h.Usecase.ExportIncome("individual", month)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.Attachment(filename, filename)
-}
-
-// GetExportSAPCorporate godoc
-// @Summary Get Corporate Export Income for SAP format
-// @Description Get Corporate Export Income as SAP format
-// @Tags incomes
-// @Accept  json
-// @Produce  json
-// @Param month path string true "Month"
-// @Param effectiveDate path string true "Effective Date(yyyy-mm-dd)"
-// @Success 200 {array} string
-// @Failure 500 {object} utils.HTTPError
-// @Router /incomes/export/corporate/{month}/effective-date/{effectiveDate}/format/SAP [get]
-func (h *HttpHandler) GetExportSAPCorporate(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
-	month := c.Param("month")
-	effectiveDate := c.Param("effectiveDate")
-
-	if month == "" {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
-	}
-	dateEff, err := time.Parse("2006-01-02", effectiveDate)
-	if err != nil {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid effective date"))
-	}
-
-	filename, err := h.Usecase.ExportIncomeSAP("corporate", month, dateEff)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.Attachment(filename, filename)
-}
-
-func (h *HttpHandler) GetExportSAPIndividual(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
-
-	month := c.Param("month")
-	if month == "" {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
-	}
-
-	effectiveDate := c.Param("effectiveDate")
-	dateEff, err := time.Parse("2006-01-02", effectiveDate)
-	if err != nil {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid effective date"))
-	}
-
-	filename, err := h.Usecase.ExportIncomeSAP("individual", month, dateEff)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -427,8 +369,6 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/all-month/:id", handler.GetIncomeAllMonthByUserId)
 	r.GET("/export/corporate/:month", handler.GetExportCorporate)
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
-	r.GET("/export/corporate/:month/effective-date/:effectiveDate/format/SAP", handler.GetExportSAPCorporate)
-	r.GET("/export/individual/:month/effective-date/:effectiveDate/format/SAP", handler.GetExportSAPIndividual)
 	r.GET("/export/pdf/:id", handler.GetExportPdf)
 	r.POST("/export", handler.PostExportPdf)
 	r.POST("/export/format/SAP", handler.PostExportSAP)

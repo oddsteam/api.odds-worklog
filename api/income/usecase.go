@@ -165,17 +165,6 @@ func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, startDate, endD
 	return filename, nil
 }
 
-func (u *usecase) ExportIncomeSAP(role string, beforeMonth string, dateEff time.Time) (string, error) {
-	var t time.Time
-	if beforeMonth == "0" {
-		t = time.Now()
-	} else {
-		t = time.Now().AddDate(0, -1, 0)
-	}
-	startDate, endDate := utils.GetStartDateAndEndDate(t)
-	return u.ExportIncomeSAPByStartDateAndEndDate(role, startDate, endDate, dateEff)
-}
-
 func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate time.Time, dateEff time.Time) (string, error) {
 	file, filename, err := utils.CreateCVSFile(role)
 	encoder := charmap.Windows874.NewEncoder()
