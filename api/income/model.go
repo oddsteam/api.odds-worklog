@@ -1,12 +1,9 @@
 package income
 
 import (
-	"errors"
 	"fmt"
-	"math"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/globalsign/mgo/bson"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
@@ -277,122 +274,40 @@ type Transaction struct {
 	TaxID      string
 }
 
-func AddBlank(value string, length int) string {
-	if len(value) > length {
-		return value[:length]
-	}
-	return value + strings.Repeat(" ", length-utf8.RuneCountInString(value))
-}
-
-func AmountStr(amount float64, n int) string {
-	// ปัดทศนิยม 2 หลัก
-	rounded := math.Round(amount*100) / 100
-
-	// แปลงเป็น string ด้วย 2 หลักทศนิยม
-	s := fmt.Sprintf("%.2f", rounded)
-
-	// ถ้าไม่มีทศนิยม (เช่น 1500 -> 1500.00) Go จะเติมให้แล้ว
-
-	// เติม 0 ด้านหน้าให้ครบความยาว n
-	if len(s) > n {
-		return s[:n]
-	}
-	return strings.Repeat("0", n-len(s)) + s
-}
-
-func LeftN(s string, n int) string {
-	if len(s) >= n {
-		return s[:n]
-	}
-	return s
-}
-
-func ReceiveBRCode(bnkCode, brchCode string) string {
-	var tempStr string
-
-	switch bnkCode {
-	case "002", "004", "006", "011", "014",
-		"015", "020", "022", "024", "025",
-		"033", "065", "066", "071", "073":
-		// เอา 3 ตัวแรกของสาขาแล้วเติม 0 ข้างหน้า
-		if len(brchCode) >= 3 {
-			tempStr = "0" + brchCode[:3]
-		} else {
-			tempStr = "0" + brchCode
-		}
-
-	case "030", "067", "072", "069", "052":
-		// เอา 4 ตัวแรกของรหัสสาขา
-		if len(brchCode) >= 4 {
-			tempStr = brchCode[:4]
-		} else {
-			tempStr = brchCode
-		}
-
-	case "034":
-		tempStr = "0000"
-
-	case "045":
-		tempStr = "0010"
-
-	default:
-		tempStr = "0001"
-	}
-
-	return tempStr
-}
-
-func ReceiveAcCode(bnkCode, acCode string) (string, error) {
-	acCode = strings.ReplaceAll(acCode, "-", "")
-	acCode = strings.ReplaceAll(acCode, " ", "")
-	var tempStr string
-	if bnkCode == "011" {
-		if len(acCode) == 10 {
-			tempStr = "0" + acCode
-		} else {
-			tempStr = acCode
-		}
-		return tempStr, nil
-	} else {
-		return "", errors.New("not supported bank code")
-	}
-
-}
-
 func (t Transaction) ToTXNLine() []string {
-	bankAccNo, _ := ReceiveAcCode(t.PayYeeBank, t.AccNo)
+	bankAccNo, _ := utils.ReceiveAcCode(t.PayYeeBank, t.AccNo)
 	return []string{
 		"TXN",
-		AddBlank(t.ComName, 120),
-		AddBlank(t.Payee, 130),
-		AddBlank(t.MailTo, 40),
-		AddBlank(t.BenAddr1, 40),
-		AddBlank(t.BenAddr2, 40),
-		AddBlank(t.BenAddr3, 40),
-		AddBlank(t.BenAddr4, 40),
-		AddBlank(t.ZipCode, 10),
-		AddBlank(t.Ref, 16),
+		utils.AddBlank(t.ComName, 120),
+		utils.AddBlank(t.Payee, 130),
+		utils.AddBlank(t.MailTo, 40),
+		utils.AddBlank(t.BenAddr1, 40),
+		utils.AddBlank(t.BenAddr2, 40),
+		utils.AddBlank(t.BenAddr3, 40),
+		utils.AddBlank(t.BenAddr4, 40),
+		utils.AddBlank(t.ZipCode, 10),
+		utils.AddBlank(t.Ref, 16),
 		t.DateEff.Format("02012006"), // ddMMyyyy,
 		t.DateEff.Format("02012006"), // Date Pick up,
 		"THB",
-		AddBlank("", 50),
-		"0" + AddBlank(t.ComAccNo, 19),
-		AmountStr(t.Amt, 15),
-		AddBlank(LeftN(t.PayYeeBank, 3), 3) + ReceiveBRCode(t.PayYeeBank, t.AccNo) + AddBlank("", 9),
-		AddBlank(bankAccNo, 20),
+		utils.AddBlank("", 50),
+		"0" + utils.AddBlank(t.ComAccNo, 19),
+		utils.AmountStr(t.Amt, 15),
+		utils.AddBlank(utils.LeftN(t.PayYeeBank, 3), 3) + utils.ReceiveBRCode(t.PayYeeBank, t.AccNo) + utils.AddBlank("", 9),
+		utils.AddBlank(bankAccNo, 20),
 		"04" + "00",
-		AddBlank("", 2),
-		AddBlank("", 20), // Pickup Location,
-		AddBlank(t.AdvMode, 5),
-		AddBlank(strings.ReplaceAll(t.Fax, "-", ""), 50),
-		AddBlank(strings.ReplaceAll(t.Mail, "", ""), 50),
-		AddBlank(strings.ReplaceAll(t.SMS, "-", ""), 50),
-		AddBlank(strings.ToUpper(t.ChargeOn), 13),
-		AddBlank(t.Product, 3),
-		AddBlank(LeftN(t.Schedule, 5), 5),
-		AddBlank("", 34),
-		AddBlank(t.DocReq, 105),
-		AddBlank("", 295),
+		utils.AddBlank("", 2),
+		utils.AddBlank("", 20), // Pickup Location,
+		utils.AddBlank(t.AdvMode, 5),
+		utils.AddBlank(strings.ReplaceAll(t.Fax, "-", ""), 50),
+		utils.AddBlank(strings.ReplaceAll(t.Mail, "", ""), 50),
+		utils.AddBlank(strings.ReplaceAll(t.SMS, "-", ""), 50),
+		utils.AddBlank(strings.ToUpper(t.ChargeOn), 13),
+		utils.AddBlank(t.Product, 3),
+		utils.AddBlank(utils.LeftN(t.Schedule, 5), 5),
+		utils.AddBlank("", 34),
+		utils.AddBlank(t.DocReq, 105),
+		utils.AddBlank("", 295),
 		"END",
 	}
 }
@@ -400,26 +315,26 @@ func (t Transaction) ToTXNLine() []string {
 func (t Transaction) ToWHTLine() []string {
 	return []string{
 		"WHT",
-		AddBlank("", 13),
-		AddBlank(t.TaxID, 13),
-		AddBlank("", 2),
-		AmountStr(0, 15),
-		AddBlank("", 2),
-		AddBlank("", 35),
-		AddBlank("", 5),
-		AmountStr(0, 15),
-		AmountStr(0, 15),
-		AddBlank("", 2),
-		AddBlank("", 35),
-		AddBlank("", 5),
-		AmountStr(0, 15),
-		AddBlank("", 144),
-		AddBlank(t.ComName, 120),
-		AddBlank(t.Address, 160),
-		AddBlank("", 120),
-		AddBlank("", 160),
-		AddBlank("", 20),
-		AddBlank("", 938),
+		utils.AddBlank("", 13),
+		utils.AddBlank(t.TaxID, 13),
+		utils.AddBlank("", 2),
+		utils.AmountStr(0, 15),
+		utils.AddBlank("", 2),
+		utils.AddBlank("", 35),
+		utils.AddBlank("", 5),
+		utils.AmountStr(0, 15),
+		utils.AmountStr(0, 15),
+		utils.AddBlank("", 2),
+		utils.AddBlank("", 35),
+		utils.AddBlank("", 5),
+		utils.AmountStr(0, 15),
+		utils.AddBlank("", 144),
+		utils.AddBlank(t.ComName, 120),
+		utils.AddBlank(t.Address, 160),
+		utils.AddBlank("", 120),
+		utils.AddBlank("", 160),
+		utils.AddBlank("", 20),
+		utils.AddBlank("", 938),
 	}
 }
 

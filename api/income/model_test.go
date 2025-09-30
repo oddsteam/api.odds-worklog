@@ -10,6 +10,7 @@ import (
 	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 const (
@@ -459,7 +460,7 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, "                                                                                                                        ", wht[SAP_WHT_EMPTY_17])
 		assert.Equal(t, "                                                                                                                                                                ", wht[SAP_WHT_EMPTY_18])
 		assert.Equal(t, "                    ", wht[SAP_WHT_EMPTY_19])
-		assert.Equal(t, AddBlank("", 938), wht[SAP_WHT_EMPTY_20])
+		assert.Equal(t, utils.AddBlank("", 938), wht[SAP_WHT_EMPTY_20])
 
 	})
 
@@ -572,7 +573,7 @@ func TestModelIncomes(t *testing.T) {
 		assert.Equal(t, 1, len(updatedIncomeIds))
 	})
 
-	t.Run("test toSAP", func(t *testing.T) {
+	t.Run("test transform to SAP format", func(t *testing.T) {
 
 		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
 
