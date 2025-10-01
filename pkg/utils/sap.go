@@ -21,28 +21,18 @@ func AmountStr(amt float64, n int) string {
 	if amt == 0 && n <= 2 {
 		return "0.00"
 	}
-	// 1. ปัดเศษให้เหลือ 2 ตำแหน่งทศนิยม (Round)
-	// Go ไม่มีฟังก์ชัน Round() ในตัวสำหรับ float64, จึงต้องสร้างเอง
-	// Note: การใช้ math.Round(x * 100) / 100 เป็นวิธีปัดเศษมาตรฐานทางคณิตศาสตร์
+
 	roundedAmt := math.Ceil(amt*100) / 100
-	fmt.Printf("%.2f", roundedAmt)
-	// 2. Format ตัวเลขให้อยู่ในรูปแบบ "XX.XX"
-	// fmt.Sprintf("%.2f", ...) จะจัดการเรื่องการมีทศนิยม 2 ตำแหน่งให้
+
 	tempStr := fmt.Sprintf("%.2f", roundedAmt)
 
-	// 3. คำนวณความยาวปัจจุบันของสตริง
 	l := len(tempStr)
 
-	// 4. เติม '0' นำหน้าจนครบความยาว n
 	if l >= n {
-		// ถ้าความยาวเกินหรือเท่ากับ n ก็ตัดส่วนเกินออก (ถ้าจำเป็น)
 		return tempStr[:n]
 	}
 
-	// จำนวนศูนย์ที่ต้องเติม = n - l
 	tStr := strings.Repeat("0", n-l)
-
-	// 5. รวมสตริงที่เติมศูนย์นำหน้ากับสตริงตัวเลข
 	return tStr + tempStr
 }
 
