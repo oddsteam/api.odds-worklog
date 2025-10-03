@@ -3,11 +3,14 @@ package income
 import (
 	"encoding/csv"
 	"errors"
+	"strings"
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/transform"
 )
 
 type usecase struct {
@@ -162,6 +165,53 @@ func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, startDate, endD
 	return filename, nil
 }
 
+func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate time.Time, dateEff time.Time) (string, error) {
+	file, filename, err := utils.CreateCVSFile(role)
+	encoder := charmap.Windows874.NewEncoder()
+	writer := transform.NewWriter(file, encoder)
+	defer file.Close()
+	defer writer.Close()
+
+	if err != nil {
+		return "", err
+	}
+
+	incomes, err := u.repo.GetAllIncomeByRoleStartDateAndEndDate(role, startDate, endDate)
+
+	if err != nil {
+		return "", err
+	}
+
+	studentLoanList := u.repo.GetStudentLoans()
+
+	ics := NewIncomes(incomes, studentLoanList)
+
+	strWrite, _ := ics.toSAP(dateEff)
+
+	if len(strWrite) == 0 {
+		return "", errors.New("no data for export to SAP file")
+	}
+
+	for _, record := range strWrite {
+		_, err := writer.Write([]byte(strings.Join(record, "") + "\n"))
+		if err != nil {
+			return "", err
+		}
+	}
+
+	ep := models.Export{
+		Filename: filename,
+		Date:     time.Now(),
+	}
+	err = u.repo.AddExport(&ep)
+	if err != nil {
+		return "", err
+	}
+
+	return filename, nil
+}
+
+/** deprecated **/
 func createRow(record models.Income, user models.User, loan models.StudentLoan) []string {
 	i := NewIncomeFromRecord(record)
 	i.SetLoan(&loan)

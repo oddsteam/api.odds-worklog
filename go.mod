@@ -11,13 +11,13 @@ require (
 	github.com/go-openapi/swag v0.17.2 // indirect
 	github.com/go-playground/locales v0.12.1 // indirect
 	github.com/go-playground/universal-translator v0.16.0 // indirect
-	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/golang/mock v1.4.3
 	github.com/joho/godotenv v1.3.0
 	github.com/labstack/echo v0.0.0-20180911044237-1abaa3049251
 	github.com/labstack/gommon v0.2.7 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
-	github.com/rabbitmq/amqp091-go v1.10.0 // indirect
+	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/signintech/gopdf v0.8.2
 	github.com/stretchr/testify v1.8.0
 	github.com/swaggo/echo-swagger v0.0.0-20180315045949-97f46bb9e5a5
@@ -25,7 +25,7 @@ require (
 	github.com/swaggo/gin-swagger v1.0.0 // indirect
 	github.com/swaggo/swag v1.3.2
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	google.golang.org/api v0.0.0-20181114235557-83a9d304b1e6
+	golang.org/x/text v0.3.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.21.0
 )

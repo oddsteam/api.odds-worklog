@@ -1,19 +1,20 @@
 package income
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
-
-	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
-	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
+	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
+	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
 func TestAddIncome(t *testing.T) {
@@ -339,6 +340,77 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 		c.SetParamValues("1")
 		handler := &HttpHandler{mockUsecase}
 		handler.GetExportIndividual(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+}
+
+type ExportInComeSAPReq struct {
+	Role          string
+	DateEffective string
+	StartDate     string
+	EndDate       string
+}
+
+func TestPostExportSAPIncome(t *testing.T) {
+	t.Run("when export corporate income as SAP format by period time success it should be return status OK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		body := ExportInComeSAPReq{
+			Role:          "corporate",
+			DateEffective: "30/09/2025",
+			StartDate:     "09/2025",
+			EndDate:       "10/2025",
+		}
+		jsonBody, _ := json.Marshal(body)
+		startDate, _ := time.Parse("01/2006", body.StartDate)
+		endDate, _ := time.Parse("01/2006", body.EndDate)
+		endDate = endDate.AddDate(0, 1, 0)
+		dateEff, _ := time.Parse("02/01/2006", body.DateEffective)
+
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().ExportIncomeSAPByStartDateAndEndDate("corporate", startDate, endDate, dateEff).Return("test.csv", nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", bytes.NewReader(jsonBody))
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+
+		handler := &HttpHandler{mockUsecase}
+		handler.PostExportSAP(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+
+	t.Run("when export individual income as SAP format by period time success it should be return status OK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		body := ExportInComeSAPReq{
+			Role:          "individual",
+			DateEffective: "30/09/2025",
+			StartDate:     "09/2025",
+			EndDate:       "10/2025",
+		}
+		jsonBody, _ := json.Marshal(body)
+		startDate, _ := time.Parse("01/2006", body.StartDate)
+		endDate, _ := time.Parse("01/2006", body.EndDate)
+		endDate = endDate.AddDate(0, 1, 0)
+		dateEff, _ := time.Parse("02/01/2006", body.DateEffective)
+
+		mockUsecase := incomeMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().ExportIncomeSAPByStartDateAndEndDate("individual", startDate, endDate, dateEff).Return("test.csv", nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", bytes.NewReader(jsonBody))
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+
+		handler := &HttpHandler{mockUsecase}
+		handler.PostExportSAP(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})

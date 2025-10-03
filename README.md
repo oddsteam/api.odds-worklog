@@ -150,6 +150,12 @@ At project path<br>
 ./scripts/import_all_data
 ```
 
+For Local
+```bash
+export MONGO_DB_PASSWORD=admin
+./scripts/import_all_data
+```
+
 ### Command go mockgen
 
 GoMock is a mocking framework for the Go programming language.

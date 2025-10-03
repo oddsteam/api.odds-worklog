@@ -3,6 +3,7 @@ package income
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -217,7 +218,7 @@ func (h *HttpHandler) GetExportPdf(c echo.Context) error {
 }
 
 // GetExportCorporate godoc
-// @Summary Get Corporate Export Income
+// @Summary Get Corporate Export Income (unused deprecate soon)
 // @Description Get Corporate Export Income to csv file.
 // @Tags incomes
 // @Accept  json
@@ -255,6 +256,44 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
+	return c.Attachment(filename, filename)
+}
+
+func (h *HttpHandler) PostExportSAP(c echo.Context) error {
+
+	var req = c.Request()
+	defer req.Body.Close()
+	decoder := json.NewDecoder(req.Body)
+
+	var t requests.ExportInComeSAPReq
+	err := decoder.Decode(&t)
+
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("ExportInComeSAPReq: %+v\n", t)
+
+	startDate, err := time.Parse("01/2006", t.StartDate)
+	if err != nil {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("startDate"))
+	}
+	endDate, err := time.Parse("01/2006", t.EndDate)
+	if err != nil {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("endDate"))
+	}
+
+	dateEff, err := time.Parse("02/01/2006", t.DateEffective)
+	if err != nil {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("dateEffective"))
+	}
+
+	endDate = endDate.AddDate(0, 1, 0)
+	filename, err := h.Usecase.ExportIncomeSAPByStartDateAndEndDate(t.Role, startDate, endDate, dateEff)
+	if err != nil {
+		log.Println(err.Error())
+		return utils.NewError(c, http.StatusInternalServerError, errors.New("internal Server Error"))
+	}
+
 	return c.Attachment(filename, filename)
 }
 
@@ -332,6 +371,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
 	r.GET("/export/pdf/:id", handler.GetExportPdf)
 	r.POST("/export", handler.PostExportPdf)
+	r.POST("/export/format/SAP", handler.PostExportSAP)
 }
 
 func NewHttpHandler2(r *echo.Group, session *mongo.Session) {
@@ -342,4 +382,5 @@ func NewHttpHandler2(r *echo.Group, session *mongo.Session) {
 
 	r = r.Group("/incomes")
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
+
 }
