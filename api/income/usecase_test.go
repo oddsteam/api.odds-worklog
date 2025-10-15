@@ -82,6 +82,54 @@ func TestUsecaseExportIncome(t *testing.T) {
 	})
 }
 
+func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
+	t.Run("export individual income SAP by start date and end date success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+		startDate := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+		endDate := time.Date(2024, 1, 31, 23, 59, 59, 0, time.UTC)
+		incomes := []*models.Income{
+			&incomeMock.MockSoloCorporateIncome,
+			&incomeMock.MockSwardCorporateIncome,
+		}
+		mockRepoIncome := mockIncomeRepository(ctrl)
+		mockRepoIncome.GetAllIncomeByRoleStartDateAndEndDate(incomes, "individual", startDate, endDate)
+
+		usecase := NewUsecase(mockRepoIncome.mock, userMock.NewMockRepository(ctrl))
+		filename, err := usecase.ExportIncomeSAPByStartDateAndEndDate("individual", startDate, endDate, dateEff)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
+
+	t.Run("export corporate income SAP by start date and end date success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+		startDate := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+		endDate := time.Date(2024, 1, 31, 23, 59, 59, 0, time.UTC)
+		incomes := []*models.Income{
+			&incomeMock.MockSoloCorporateIncome,
+			&incomeMock.MockSwardCorporateIncome,
+		}
+		mockRepoIncome := mockIncomeRepository(ctrl)
+		mockRepoIncome.GetAllIncomeByRoleStartDateAndEndDate(incomes, "corporate", startDate, endDate)
+
+		usecase := NewUsecase(mockRepoIncome.mock, userMock.NewMockRepository(ctrl))
+		filename, err := usecase.ExportIncomeSAPByStartDateAndEndDate("corporate", startDate, endDate, dateEff)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
+}
+
 func TestCSVHeaders(t *testing.T) {
 	actual := createHeaders()
 	expected := [...]string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน",
@@ -268,6 +316,11 @@ func (m *MockIncomeRepository) expectGetAllIncomeOfCurrentMonthByRole(incomes []
 	startDate, endDate := utils.GetStartDateAndEndDate(now)
 	m.mock.EXPECT().GetAllIncomeByRoleStartDateAndEndDate(
 		gomock.Any(), startDate, endDate).Return(incomes, nil)
+}
+
+func (m *MockIncomeRepository) GetAllIncomeByRoleStartDateAndEndDate(incomes []*models.Income, role string, startDate, endDate time.Time) {
+	m.mock.EXPECT().GetAllIncomeByRoleStartDateAndEndDate(
+		role, startDate, endDate).Return(incomes, nil)
 }
 
 func mockIncomeRepository(ctrl *gomock.Controller) *MockIncomeRepository {

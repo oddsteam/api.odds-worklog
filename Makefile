@@ -19,7 +19,7 @@ e2e-ci-up: deployment/ci/ssl/nginx.key
 	docker compose -f deployment/ci/docker-compose.yaml up -d
 
 deployment/ci/ssl/nginx.key:
-	openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ssl/nginx.key -out ssl/nginx.crt -config ssl/openssl.conf -extensions v3_req
+	openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout deployment/ci/ssl/nginx.key -out deployment/ci/ssl/nginx.crt -config deployment/ci/ssl/openssl.conf -extensions v3_req
 
 e2e-ci-ps:
 	docker compose -f deployment/ci/docker-compose.yaml ps

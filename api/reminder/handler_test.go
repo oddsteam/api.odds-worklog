@@ -395,6 +395,14 @@ func (fs MockInComeUsecase) ExportIncomeNew(role string, beforeMonth string) (st
 	return "", nil
 }
 
+func (fs MockInComeUsecase) ExportIncomeSAP(role string, beforeMonth string, dateEff time.Time) (string, error) {
+	return "", nil
+}
+
+func (fs MockInComeUsecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate time.Time, dateEff time.Time) (string, error) {
+	return "", nil
+}
+
 // func TestListEmailUserIncomeStatusIsNoShouldFail_WhenGetIncomeStatusListWithCorpFlagNIsEmpty(t *testing.T) {
 // 	mockIncomeUsecase := NewMockInComeUsecase()
 // 	expected := []string{"test1@test.com"}

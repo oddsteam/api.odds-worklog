@@ -36,4 +36,5 @@ type Usecase interface {
 	GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, error)
 	GetAllInComeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error)
 	GetByRole(role string) ([]*models.User, error)
+	ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate time.Time, dateEff time.Time) (string, error)
 }

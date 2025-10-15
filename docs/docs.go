@@ -890,6 +890,100 @@ var doc = `{
                 }
             }
         },
+        "/incomes/export/corporate/{month}/effective-date/{effectiveDate}/format/SAP": {
+            "get": {
+                "description": "Get Corporate Export Income as SAP format to file.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "incomes"
+                ],
+                "summary": "Get Corporate Export Income as SAP format",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Month",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    },
+ 					{
+                        "type": "string",
+                        "description": "effective date format yyyy-MM-dd",
+                        "name": "effectiveDate",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/incomes/export/format/SAP": {
+            "post": {
+                "description": "Export income as SAP format to file by role and period date.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "incomes"
+                ],
+                "summary": "Export income as SAP format to file by role and period date.",
+                "parameters": [
+                    {
+                        "description": "Income export SAP request",
+                        "name": "IncomeExportSAPReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.IncomeExportSAPReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/incomes/export/individual/different": {
             "get": {
                 "description": "Get Different Corporate Export Income to csv file.",
@@ -941,6 +1035,55 @@ var doc = `{
                         "type": "string",
                         "description": "Month",
                         "name": "month",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/incomes/export/individual/{month}/effective-date/{effectiveDate}/format/SAP": {
+            "get": {
+                "description": "Get Individual Export Income as SAP format to file.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "incomes"
+                ],
+                "summary": "Get Individual Export Income as SAP format",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Month",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    },
+					{
+                        "type": "string",
+                        "description": "effective date format yyyy-MM-dd",
+                        "name": "effectiveDate",
                         "in": "path",
                         "required": true
                     }
@@ -2661,6 +2804,31 @@ var doc = `{
                 },
                 "workingHours": {
                     "type": "string"
+                }
+            }
+        },
+ 		"models.IncomeExportSAPReq": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "type": "string",
+ 					 "required": true,
+					"description": "corporate or individual"
+                },
+                "dateEffective": {
+                    "type": "string",
+ 					"required": true,
+					"description": "YYYY-MM-DD"
+                },
+                "startDate": {
+                    "type": "string",
+ 					"required": true,
+					"description": "YYYY-MM-DD"
+                },
+                "endDate": {
+                    "type": "string",
+ 					"required": true,
+					"description": "YYYY-MM-DD"
                 }
             }
         },

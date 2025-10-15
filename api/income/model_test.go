@@ -1,13 +1,73 @@
 package income
 
 import (
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/stretchr/testify/assert"
 	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+)
+
+const (
+	SAP_TXN_INDEX             = 0
+	SAP_PAYER_NAME_INDEX      = 1
+	SAP_PAYEE_NAME_INDEX      = 2
+	SAP_MALE_TO_NAME_INDEX    = 3
+	SAP_BENEFICIARY1_INDEX    = 4
+	SAP_BENEFICIARY2_INDEX    = 5
+	SAP_BENEFICIARY3_INDEX    = 6
+	SAP_BENEFICIARY4_INDEX    = 7
+	SAP_ZIPCODE_INDEX         = 8
+	SAP_CUSTOMER_REF_INDEX    = 9
+	SAP_DATE_EFFECTIVE_INDEX  = 10
+	SAP_DATE_PICKUP_INDEX     = 11
+	SAP_CURRENCY_INDEX        = 12
+	SAP_EMPTY_1_INDEX         = 13
+	SAP_COMPANY_ACCNO_INDEX   = 14
+	SAP_AMOUNT_INDEX          = 15
+	SAP_PAYEE_BANK_CODE_INDEX = 16
+	SAP_ACCOUNTNO_INDEX       = 17
+	SAP_UNKNOW_1_INDEX        = 18
+	SAP_EMPTY_2_INDEX         = 19
+	SAP_EMPTY_3_INDEX         = 20
+	SAP_ADVICEMODE2_INDEX     = 21
+	SAP_FAXNO_INDEX           = 22
+	SAP_EMAIL_INDEX           = 23
+	SAP_SMSNO_INDEX           = 24
+	SAP_CHARGE_ON_INDEX       = 25
+	SAP_PRODUCT_INDEX         = 26
+	SAP_SCHEDULE_INDEX        = 27
+	SAP_EMPTY_4_INDEX         = 28
+	SAP_DOCREQ_INDEX          = 29
+	SAP_EMPTY_5_INDEX         = 30
+	SAP_END_INDEX             = 31
+
+	SAP_WHT_WHT_INDEX      = 0
+	SAP_WHT_EMPTY_1_INDEX  = 1
+	SAP_WHT_TAX_ID_INDEX   = 2
+	SAP_WHT_EMPTY_3_INDEX  = 3
+	SAP_WHT_EMPTY_4_INDEX  = 4
+	SAP_WHT_EMPTY_5_INDEX  = 5
+	SAP_WHT_EMPTY_6_INDEX  = 6
+	SAP_WHT_EMPTY_7_INDEX  = 7
+	SAP_WHT_EMPTY_8_INDEX  = 8
+	SAP_WHT_EMPTY_9_INDEX  = 9
+	SAP_WHT_EMPTY_10_INDEX = 10
+	SAP_WHT_EMPTY_11_INDEX = 11
+	SAP_WHT_EMPTY_12_INDEX = 12
+	SAP_WHT_EMPTY_13_INDEX = 13
+	SAP_WHT_EMPTY_14_INDEX = 14
+	SAP_WHT_COM_NAME       = 15
+	SAP_WHT_ADDRESS        = 16
+	SAP_WHT_EMPTY_17       = 17
+	SAP_WHT_EMPTY_18       = 18
+	SAP_WHT_EMPTY_19       = 19
+	SAP_WHT_EMPTY_20       = 20
 )
 
 func TestModelIncome(t *testing.T) {
@@ -286,6 +346,23 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, i.netDailyIncome()+i.netSpecialIncome()-50, i.transferAmount())
 	})
 
+	t.Run("หัก ณ ที่จ่าย 3% คิดจากรายได้รวม ไม่นับหนี้ กยศ", func(t *testing.T) {
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		user := GivenIndividualUser(uidFromSession, "5")
+		req := models.IncomeReq{
+			WorkDate:      "20",
+			SpecialIncome: "100",
+			WorkingHours:  "10",
+		}
+		i := NewIncome(uidFromSession)
+		i.SetLoan(&models.StudentLoan{Amount: 50})
+
+		err := i.parseRequest(req, user)
+
+		assert.NoError(t, err)
+		assert.Equal(t, i.totalIncome()*0.03, i.totalWHT())
+	})
+
 	t.Run("calculate corporate income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := models.User{
@@ -315,6 +392,78 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, 10*100.0*0.07, i.VAT(i.specialIncome()))
 		assert.Equal(t, 1000.0+70-30, i.Net(i.specialIncome()))
 	})
+
+	t.Run("test export to SAP transaction should format correctly", func(t *testing.T) {
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+		i := incomeMock.MockSoloCorporateIncome
+
+		txn, _ := NewIncomeFromRecord(i).exportSAP(dateEff)
+
+		assert.Equal(t, "TXN", txn[SAP_TXN_INDEX])
+		assert.Equal(t, "บจก. ออด-อี (ประเทศไทย) จำกัด                                                                                           ", txn[SAP_PAYER_NAME_INDEX])
+		assert.Equal(t, "บจก. โซโล่ เลเวลลิ่ง                                                                                                              ", txn[SAP_PAYEE_NAME_INDEX])
+		assert.Equal(t, "                                        ", txn[SAP_MALE_TO_NAME_INDEX])
+		assert.Equal(t, "                                        ", txn[SAP_BENEFICIARY1_INDEX])
+		assert.Equal(t, "                                        ", txn[SAP_BENEFICIARY2_INDEX])
+		assert.Equal(t, "                                        ", txn[SAP_BENEFICIARY3_INDEX])
+		assert.Equal(t, "                                        ", txn[SAP_BENEFICIARY4_INDEX])
+		assert.Equal(t, "          ", txn[SAP_ZIPCODE_INDEX])
+		assert.Equal(t, "                ", txn[SAP_CUSTOMER_REF_INDEX])
+		assert.Equal(t, "29092025", txn[SAP_DATE_EFFECTIVE_INDEX])
+		assert.Equal(t, "29092025", txn[SAP_DATE_PICKUP_INDEX])
+		assert.Equal(t, "THB", txn[SAP_CURRENCY_INDEX])
+		assert.Equal(t, "                                                  ", txn[SAP_EMPTY_1_INDEX])
+		assert.Equal(t, "00011595873         ", txn[SAP_COMPANY_ACCNO_INDEX])
+		assert.Equal(t, "000000054704.00", txn[SAP_AMOUNT_INDEX])
+		assert.Equal(t, "0110246         ", txn[SAP_PAYEE_BANK_CODE_INDEX])
+		assert.Equal(t, "02462737202         ", txn[SAP_ACCOUNTNO_INDEX])
+		assert.Equal(t, "0400", txn[SAP_UNKNOW_1_INDEX])
+		assert.Equal(t, "  ", txn[SAP_EMPTY_2_INDEX])
+		assert.Equal(t, "                    ", txn[SAP_EMPTY_3_INDEX])
+		assert.Equal(t, "     ", txn[SAP_ADVICEMODE2_INDEX])
+		assert.Equal(t, "                                                  ", txn[SAP_FAXNO_INDEX])
+		assert.Equal(t, "                                                  ", txn[SAP_EMAIL_INDEX])
+		assert.Equal(t, "                                                  ", txn[SAP_SMSNO_INDEX])
+		assert.Equal(t, "OUR          ", txn[SAP_CHARGE_ON_INDEX])
+		assert.Equal(t, "DCR", txn[SAP_PRODUCT_INDEX])
+		assert.Equal(t, "     ", txn[SAP_SCHEDULE_INDEX])
+		assert.Equal(t, "                                  ", txn[SAP_EMPTY_4_INDEX])
+		assert.Equal(t, "                                                                                                         ", txn[SAP_DOCREQ_INDEX])
+		assert.Equal(t, "                                                                                                                                                                                                                                                                                                       ", txn[SAP_EMPTY_5_INDEX])
+		assert.Equal(t, "END", txn[SAP_END_INDEX])
+
+	})
+
+	t.Run("test export to SAP wht should format correctly", func(t *testing.T) {
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+		i := incomeMock.MockSoloCorporateIncome
+
+		_, wht := NewIncomeFromRecord(i).exportSAP(dateEff)
+
+		assert.Equal(t, "WHT", wht[SAP_WHT_WHT_INDEX])
+		assert.Equal(t, "             ", wht[SAP_WHT_EMPTY_1_INDEX])
+		assert.Equal(t, "0105556110718", wht[SAP_WHT_TAX_ID_INDEX])
+		assert.Equal(t, "  ", wht[SAP_WHT_EMPTY_3_INDEX])
+		assert.Equal(t, "000000000000.00", wht[SAP_WHT_EMPTY_4_INDEX])
+		assert.Equal(t, "  ", wht[SAP_WHT_EMPTY_5_INDEX])
+		assert.Equal(t, "                                   ", wht[SAP_WHT_EMPTY_6_INDEX])
+		assert.Equal(t, "     ", wht[SAP_WHT_EMPTY_7_INDEX])
+		assert.Equal(t, "000000000000.00", wht[SAP_WHT_EMPTY_8_INDEX])
+		assert.Equal(t, "000000000000.00", wht[SAP_WHT_EMPTY_9_INDEX])
+		assert.Equal(t, "  ", wht[SAP_WHT_EMPTY_10_INDEX])
+		assert.Equal(t, "                                   ", wht[SAP_WHT_EMPTY_11_INDEX])
+		assert.Equal(t, "     ", wht[SAP_WHT_EMPTY_12_INDEX])
+		assert.Equal(t, "000000000000.00", wht[SAP_WHT_EMPTY_13_INDEX])
+		assert.Equal(t, "                                                                                                                                                ", wht[SAP_WHT_EMPTY_14_INDEX])
+		assert.Equal(t, "บจก. ออด-อี (ประเทศไทย) จำกัด                                                                                           ", wht[SAP_WHT_COM_NAME])
+		assert.Equal(t, "2549/41-43 พหลโยธิน ลาดยาว จตุจักร กรุงเทพ 10900                                                                                                                ", wht[SAP_WHT_ADDRESS])
+		assert.Equal(t, "                                                                                                                        ", wht[SAP_WHT_EMPTY_17])
+		assert.Equal(t, "                                                                                                                                                                ", wht[SAP_WHT_EMPTY_18])
+		assert.Equal(t, "                    ", wht[SAP_WHT_EMPTY_19])
+		assert.Equal(t, utils.AddBlank("", 938), wht[SAP_WHT_EMPTY_20])
+
+	})
+
 }
 
 func TestModelIncomes(t *testing.T) {
@@ -422,6 +571,25 @@ func TestModelIncomes(t *testing.T) {
 
 		assert.NotNil(t, updatedIncomeIds)
 		assert.Equal(t, 1, len(updatedIncomeIds))
+	})
+
+	t.Run("test transform to SAP format", func(t *testing.T) {
+
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+
+		records := []*models.Income{
+			&incomeMock.MockSoloCorporateIncome,
+			&incomeMock.MockSwardCorporateIncome,
+		}
+		incomes := NewIncomes(records, models.StudentLoanList{})
+
+		i, _ := incomes.toSAP(dateEff)
+
+		assert.Equal(t, "TXNบจก. ออด-อี (ประเทศไทย) จำกัด                                                                                           บจก. โซโล่ เลเวลลิ่ง                                                                                                                                                                                                                                                                                                                                                2909202529092025THB                                                  00011595873         000000054704.000110246         02462737202         0400                                                                                                                                                                                 OUR          DCR                                                                                                                                                                                                                                                                                                                                                                                                                                                       END", strings.Join(i[0], ""))
+		assert.Equal(t, "WHT             0105556110718  000000000000.00                                          000000000000.00000000000000.00                                          000000000000.00                                                                                                                                                บจก. ออด-อี (ประเทศไทย) จำกัด                                                                                           2549/41-43 พหลโยธิน ลาดยาว จตุจักร กรุงเทพ 10900                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ", strings.Join(i[1], ""))
+		assert.Equal(t, "TXNบจก. ออด-อี (ประเทศไทย) จำกัด                                                                                           บจ. ดาบพิฆาตอสูร                                                                                                                                                                                                                                                                                                                                                    2909202529092025THB                                                  00011595873         000000005470.400110110         01102480447         0400                                                                                                                                                                                 OUR          DCR                                                                                                                                                                                                                                                                                                                                                                                                                                                       END", strings.Join(i[2], ""))
+		assert.Equal(t, "WHT             0105556110718  000000000000.00                                          000000000000.00000000000000.00                                          000000000000.00                                                                                                                                                บจก. ออด-อี (ประเทศไทย) จำกัด                                                                                           2549/41-43 พหลโยธิน ลาดยาว จตุจักร กรุงเทพ 10900                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ", strings.Join(i[3], ""))
+
 	})
 }
 

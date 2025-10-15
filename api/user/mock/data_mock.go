@@ -61,6 +61,24 @@ var (
 		StartDate:         "2022-01-01",
 	}
 
+	CorporateSolo = models.User{
+		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39531"),
+		Role:              "corporate",
+		FirstName:         "",
+		LastName:          "",
+		CorporateName:     "บจก. โซโล่ เลเวลลิ่ง",
+		Email:             "email@example.com",
+		BankAccountName:   "บจก. โซโล่ เลเวลลิ่ง",
+		BankAccountNumber: "2462737202",
+		ThaiCitizenID:     "xxxx",
+		Vat:               "Y",
+		SlackAccount:      "test@example.com",
+		DailyIncome:       "2630",
+		StatusTavi:        true,
+		Address:           "address",
+		StartDate:         "2022-01-01",
+	}
+
 	StatusTavi = models.StatusTavi{
 		ID:   bson.ObjectIdHex("5bbcf2f90fd2df527bc39539"),
 		User: &User,
