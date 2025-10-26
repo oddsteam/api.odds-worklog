@@ -2,8 +2,6 @@ package utils
 
 import (
 	"errors"
-	"fmt"
-	"math"
 	"strings"
 	"unicode/utf8"
 )
@@ -22,9 +20,7 @@ func AmountStr(amt float64, n int) string {
 		return "0.00"
 	}
 
-	roundedAmt := math.Ceil(amt*100) / 100
-
-	tempStr := fmt.Sprintf("%.2f", roundedAmt)
+	tempStr := FloatToString(amt)
 
 	l := len(tempStr)
 

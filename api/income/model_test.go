@@ -434,6 +434,30 @@ func TestModelIncome(t *testing.T) {
 
 	})
 
+	t.Run("export จำนวนเงินที่ต้องโอนสำหรับ individual in fomat CSV และ SAP ควรตรงกัน", func(t *testing.T) {
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		dailyIncome := "2000"
+		workDate := "16.5"
+		specialIncome := "250"
+		workingHours := "128.45"
+		u := GivenIndividualUser(uidFromSession, dailyIncome)
+		req := models.IncomeReq{
+			WorkDate:      workDate,
+			SpecialIncome: specialIncome,
+			WorkingHours:  workingHours,
+		}
+		record := CreateIncome(u, req, "note")
+		i := NewIncomeFromRecord(*record)
+
+		csvColumns := i.export2()
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+		txn, _ := i.exportSAP(dateEff)
+
+		assert.Equal(t, "1953.38", csvColumns[WITHHOLDING_TAX_INDEX])
+		assert.Equal(t, "63,159.12", csvColumns[TRANSFER_AMOUNT_INDEX])
+		assert.Equal(t, "000000063159.12", txn[SAP_AMOUNT_INDEX])
+	})
+
 	t.Run("test export to SAP wht should format correctly", func(t *testing.T) {
 		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
 		i := incomeMock.MockSoloCorporateIncome

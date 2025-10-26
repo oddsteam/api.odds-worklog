@@ -57,7 +57,7 @@ func TestAmountStr(t *testing.T) {
 		{
 			name: "rounding carryover",
 			args: args{amount: 9.995, n: 7},
-			want: "0010.00",
+			want: "0009.99", // เพราะว่า WHT ปัดขึ้น จำนวนโอนเลยต้องปัดลง
 		},
 		{
 			name: "zero with truncation",
