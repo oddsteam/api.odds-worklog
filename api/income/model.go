@@ -279,7 +279,7 @@ func (t Transaction) ToTXNLine() []string {
 	return []string{
 		"TXN",
 		utils.AddBlank(t.ComName, 120),
-		utils.AddBlank(t.Payee, 130),
+		utils.AddBlank(utils.FilterOthersThanThaiAndAscii(t.Payee), 130),
 		utils.AddBlank(t.MailTo, 40),
 		utils.AddBlank(t.BenAddr1, 40),
 		utils.AddBlank(t.BenAddr2, 40),
