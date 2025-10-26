@@ -1,6 +1,7 @@
 package income
 
 import (
+	"encoding/json"
 	"errors"
 	"os"
 	"testing"
@@ -92,6 +93,30 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 		incomes := []*models.Income{
 			&incomeMock.MockSoloCorporateIncome,
 			&incomeMock.MockSwardCorporateIncome,
+		}
+		mockRepoIncome := mockIncomeRepository(ctrl)
+		mockRepoIncome.GetAllIncomeByRoleStartDateAndEndDate(incomes, "individual", startDate, endDate)
+
+		usecase := NewUsecase(mockRepoIncome.mock, userMock.NewMockRepository(ctrl))
+		filename, err := usecase.ExportIncomeSAPByStartDateAndEndDate("individual", startDate, endDate, dateEff)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
+
+	t.Run("export individual income SAP works with emoji", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+		startDate := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+		endDate := time.Date(2024, 1, 31, 23, 59, 59, 0, time.UTC)
+		i := deepClone(&incomeMock.MockSoloCorporateIncome)
+		i.Name = "บจก. โซโล่ เลเวลลิ่ง 🦄"
+		incomes := []*models.Income{
+			i,
 		}
 		mockRepoIncome := mockIncomeRepository(ctrl)
 		mockRepoIncome.GetAllIncomeByRoleStartDateAndEndDate(incomes, "individual", startDate, endDate)
@@ -328,4 +353,12 @@ func mockIncomeRepository(ctrl *gomock.Controller) *MockIncomeRepository {
 	mockRepoIncome.mock.EXPECT().AddExport(gomock.Any()).Return(nil)
 	mockRepoIncome.mock.EXPECT().GetStudentLoans()
 	return &mockRepoIncome
+}
+
+func deepClone(income *models.Income) *models.Income {
+	b, _ := json.Marshal(income)
+	var i models.Income
+	json.Unmarshal(b, &i)
+	return &i
+
 }
