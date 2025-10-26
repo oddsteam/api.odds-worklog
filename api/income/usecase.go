@@ -193,7 +193,8 @@ func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, e
 	}
 
 	for _, record := range strWrite {
-		_, err := writer.Write([]byte(strings.Join(record, "") + "\n"))
+		row := createSAPRow(record)
+		_, err := writer.Write([]byte(row))
 		if err != nil {
 			return "", err
 		}
@@ -209,6 +210,24 @@ func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, e
 	}
 
 	return filename, nil
+}
+
+func createSAPRow(record []string) string {
+	r := filterEmojis(record)
+	return strings.Join(r, "") + "\n"
+}
+
+func filterEmojis(record []string) []string {
+	for i, v := range record {
+		runes := []rune(v)
+		for r := range runes {
+			if r < 0xA0 || r > 0xFF {
+				record[i] = ""
+				break
+			}
+		}
+	}
+	return record
 }
 
 /** deprecated **/
