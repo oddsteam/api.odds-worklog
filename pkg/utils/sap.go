@@ -93,3 +93,16 @@ func ReceiveAcCode(bnkCode, acCode string) (string, error) {
 	}
 
 }
+
+func FilterOthersThanThaiAndAscii(s string) string {
+	runes := []rune(s)
+	for j := range runes {
+		r := runes[j]
+		// Keep printable ASCII (32-126), and common Thai characters
+		// Replace control characters and emojis with spaces
+		if r < 32 || (r > 126 && r < 0x0E00) || (r > 0x0E7F && r < 0x2000) || r > 0x206F {
+			runes[j] = 32
+		}
+	}
+	return string(runes)
+}

@@ -213,21 +213,8 @@ func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, e
 }
 
 func createSAPRow(record []string) string {
-	r := filterEmojis(record)
-	return strings.Join(r, "") + "\n"
-}
-
-func filterEmojis(record []string) []string {
-	for i, v := range record {
-		runes := []rune(v)
-		for r := range runes {
-			if r < 0xA0 || r > 0xFF {
-				record[i] = ""
-				break
-			}
-		}
-	}
-	return record
+	// r := filterEmojis(record)
+	return strings.Join(record, "") + "\n"
 }
 
 /** deprecated **/
