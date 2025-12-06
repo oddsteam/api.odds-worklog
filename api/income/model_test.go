@@ -204,7 +204,7 @@ func TestModelIncome(t *testing.T) {
 		record, _ := i.prepareDataForAddIncome(req, user)
 		i = NewIncomeFromRecord(*record)
 
-		csvColumns := i.export2()
+		csvColumns := i.export()
 
 		assert.Equal(t, "first last", csvColumns[NAME_INDEX])
 		assert.Equal(t, "id", csvColumns[ID_CARD_INDEX])
@@ -229,7 +229,7 @@ func TestModelIncome(t *testing.T) {
 		i := NewIncomeFromRecord(*record)
 		i.SetLoan(&models.StudentLoan{})
 
-		csvColumns := i.export2()
+		csvColumns := i.export()
 
 		assert.Equal(t, "97.00", csvColumns[NET_DAILY_INCOME_INDEX])
 		assert.Equal(t, "970.00", csvColumns[NET_SPECIAL_INCOME_INDEX])
@@ -332,7 +332,7 @@ func TestModelIncome(t *testing.T) {
 		err := i.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, i.netSpecialIncome()+270,i.transferAmount())
+		assert.Equal(t, i.netSpecialIncome()+270, i.transferAmount())
 	})
 
 	t.Run("calculate corporate income", func(t *testing.T) {
@@ -421,7 +421,7 @@ func TestModelIncome(t *testing.T) {
 		record := CreateIncome(u, req, "note")
 		i := NewIncomeFromRecord(*record)
 
-		csvColumns := i.export2()
+		csvColumns := i.export()
 		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
 		txn, _ := i.exportSAP(dateEff)
 

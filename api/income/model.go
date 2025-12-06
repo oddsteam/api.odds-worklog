@@ -197,7 +197,7 @@ func calTotalWithLoanDeduction(totalIncomeStr string, loan models.StudentLoan) s
 	return totalIncomeStr
 }
 
-func (i *Income) export2() []string {
+func (i *Income) export() []string {
 	income := *i.data
 	loan := *i.loan
 	d := []string{
@@ -386,7 +386,7 @@ func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
 			updatedIncomeIds = append(updatedIncomeIds, income.ID.Hex())
 			i := NewIncomeFromRecord(income)
 			i.SetLoan(&loan)
-			d := i.export2()
+			d := i.export()
 			d[VENDOR_CODE_INDEX] = ics.getVendorCode(index)
 			strWrite = append(strWrite, d)
 		}
