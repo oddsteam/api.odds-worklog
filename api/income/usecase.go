@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -22,7 +23,7 @@ func NewUsecase(r Repository, ur user.Repository) Usecase {
 	return &usecase{r, ur}
 }
 
-func (u *usecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
+func (u *usecase) AddIncome(req *entity.IncomeReq, uid string) (*models.Income, error) {
 	userDetail, _ := u.userRepo.GetByID(uid)
 	year, month := utils.GetYearMonthNow()
 	_, err := u.repo.GetIncomeUserByYearMonth(uid, year, month)
@@ -41,7 +42,7 @@ func (u *usecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, 
 	return income, nil
 }
 
-func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
+func (u *usecase) UpdateIncome(id string, req *entity.IncomeReq, uid string) (*models.Income, error) {
 	userDetail, _ := u.userRepo.GetByID(uid)
 	income, err := u.repo.GetIncomeByID(id, uid)
 	if err != nil {

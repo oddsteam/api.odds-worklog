@@ -6,6 +6,7 @@ import (
 
 	"github.com/globalsign/mgo/bson"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
@@ -114,7 +115,7 @@ var (
 		IsVATRegistered:   true,
 		BankAccountNumber: "1102480447",
 	}
-	MockIncomeReq = models.IncomeReq{
+	MockIncomeReq = entity.IncomeReq{
 		WorkDate:      "20",
 		Note:          "ข้อมูลที่อยากบอก",
 		SpecialIncome: "2000",

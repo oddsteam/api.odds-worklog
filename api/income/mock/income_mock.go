@@ -9,6 +9,7 @@ import (
 	time "time"
 
 	gomock "github.com/golang/mock/gomock"
+	entity "gitlab.odds.team/worklog/api.odds-worklog/api/entity"
 	models "gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
@@ -262,7 +263,7 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 }
 
 // AddIncome mocks base method.
-func (m *MockUsecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
+func (m *MockUsecase) AddIncome(req *entity.IncomeReq, uid string) (*models.Income, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddIncome", req, uid)
 	ret0, _ := ret[0].(*models.Income)
@@ -306,7 +307,8 @@ func (mr *MockUsecaseMockRecorder) ExportIncomeByStartDateAndEndDate(role, start
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncomeByStartDateAndEndDate", reflect.TypeOf((*MockUsecase)(nil).ExportIncomeByStartDateAndEndDate), role, startDate, endDate)
 }
 
-func (m *MockUsecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate time.Time, dateEff time.Time) (string, error) {
+// ExportIncomeSAPByStartDateAndEndDate mocks base method.
+func (m *MockUsecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate, dateEff time.Time) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ExportIncomeSAPByStartDateAndEndDate", role, startDate, endDate, dateEff)
 	ret0, _ := ret[0].(string)
@@ -314,6 +316,11 @@ func (m *MockUsecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDat
 	return ret0, ret1
 }
 
+// ExportIncomeSAPByStartDateAndEndDate indicates an expected call of ExportIncomeSAPByStartDateAndEndDate.
+func (mr *MockUsecaseMockRecorder) ExportIncomeSAPByStartDateAndEndDate(role, startDate, endDate, dateEff interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncomeSAPByStartDateAndEndDate", reflect.TypeOf((*MockUsecase)(nil).ExportIncomeSAPByStartDateAndEndDate), role, startDate, endDate, dateEff)
+}
 
 // ExportPdf mocks base method.
 func (m *MockUsecase) ExportPdf(id string) (string, error) {
@@ -406,7 +413,7 @@ func (mr *MockUsecaseMockRecorder) GetIncomeStatusList(role, isAdmin interface{}
 }
 
 // UpdateIncome mocks base method.
-func (m *MockUsecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
+func (m *MockUsecase) UpdateIncome(id string, req *entity.IncomeReq, uid string) (*models.Income, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateIncome", id, req, uid)
 	ret0, _ := ret[0].(*models.Income)
@@ -418,10 +425,4 @@ func (m *MockUsecase) UpdateIncome(id string, req *models.IncomeReq, uid string)
 func (mr *MockUsecaseMockRecorder) UpdateIncome(id, req, uid interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateIncome", reflect.TypeOf((*MockUsecase)(nil).UpdateIncome), id, req, uid)
-}
-
-
-func (mr *MockUsecaseMockRecorder) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate time.Time, dateEff time.Time) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportIncomeSAPByStartDateAndEndDate", reflect.TypeOf((*MockUsecase)(nil).ExportIncomeSAPByStartDateAndEndDate), role, startDate, endDate, dateEff)
 }

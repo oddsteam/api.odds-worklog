@@ -6,6 +6,7 @@ import (
 	"log"
 	"strings"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -76,8 +77,8 @@ func (data *IncomeCreatedEvent) id() string {
 	return fmt.Sprintf("friendslog-%s", data.Registration.ThaiCitizenID)
 }
 
-func (data *IncomeCreatedEvent) incomeReq() models.IncomeReq {
-	return models.IncomeReq{
+func (data *IncomeCreatedEvent) incomeReq() entity.IncomeReq {
+	return entity.IncomeReq{
 		WorkDate:      fmt.Sprint(data.Income.WorkDate),
 		SpecialIncome: "0",
 		WorkingHours:  "0",

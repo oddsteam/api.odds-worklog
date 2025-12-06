@@ -10,6 +10,7 @@ import (
 
 	"gitlab.odds.team/worklog/api.odds-worklog/requests"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -25,7 +26,7 @@ type HttpHandler struct {
 	Usecase Usecase
 }
 
-func isRequestValid(m *models.IncomeReq) (bool, error) {
+func isRequestValid(m *entity.IncomeReq) (bool, error) {
 	if err := validator.New().Struct(m); err != nil {
 		return false, err
 	}
@@ -45,7 +46,7 @@ func isRequestValid(m *models.IncomeReq) (bool, error) {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes [post]
 func (h *HttpHandler) AddIncome(c echo.Context) error {
-	var income models.IncomeReq
+	var income entity.IncomeReq
 	if err := c.Bind(&income); err != nil {
 		return utils.NewError(c, http.StatusUnprocessableEntity, err)
 	}
@@ -79,7 +80,7 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 
-	var req models.IncomeReq
+	var req entity.IncomeReq
 	if err := c.Bind(&req); err != nil {
 		return utils.NewError(c, http.StatusUnprocessableEntity, err)
 	}

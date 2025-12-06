@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/globalsign/mgo/bson"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -38,7 +39,7 @@ func NewIncomeFromRecord(data models.Income) *Income {
 		dailyRate:       data.DailyRate,
 		isVATRegistered: data.IsVATRegistered,
 	}
-	i.parse(models.IncomeReq{
+	i.parse(entity.IncomeReq{
 		SpecialIncome: data.SpecialIncome,
 		WorkDate:      data.WorkDate,
 		WorkingHours:  data.WorkingHours,
@@ -50,7 +51,7 @@ func (i *Income) SetLoan(l *models.StudentLoan) {
 	i.loan = l
 }
 
-func (i *Income) parseRequest(req models.IncomeReq, userDetail models.User) error {
+func (i *Income) parseRequest(req entity.IncomeReq, userDetail models.User) error {
 	err := i.parse(req)
 	if err != nil {
 		return err
@@ -61,7 +62,7 @@ func (i *Income) parseRequest(req models.IncomeReq, userDetail models.User) erro
 	return nil
 }
 
-func (i *Income) prepareDataForAddIncome(req models.IncomeReq, userDetail models.User) (*models.Income, error) {
+func (i *Income) prepareDataForAddIncome(req entity.IncomeReq, userDetail models.User) (*models.Income, error) {
 	income := models.Income{}
 	err := i.prepareDataForUpdateIncome(req, userDetail, &income)
 	if err != nil {
@@ -70,7 +71,7 @@ func (i *Income) prepareDataForAddIncome(req models.IncomeReq, userDetail models
 	return &income, nil
 }
 
-func (i *Income) prepareDataForUpdateIncome(req models.IncomeReq, userDetail models.User, income *models.Income) error {
+func (i *Income) prepareDataForUpdateIncome(req entity.IncomeReq, userDetail models.User, income *models.Income) error {
 	err := i.parseRequest(req, userDetail)
 	if err != nil {
 		return err
@@ -101,7 +102,7 @@ func (i *Income) prepareDataForUpdateIncome(req models.IncomeReq, userDetail mod
 	return nil
 }
 
-func (i *Income) parse(req models.IncomeReq) error {
+func (i *Income) parse(req entity.IncomeReq) error {
 	var err error
 	i.workDate, err = utils.StringToFloat64(req.WorkDate)
 	if err != nil {
@@ -384,6 +385,11 @@ func (ics *Incomes) processRecords(process func(index int, i *Income) [][]string
 	return strWrite, updatedIncomeIds
 }
 
+// TODO: Remove this function after moving income.Incomes -> entity.Payroll
+func (ics *Incomes) TempToCSV() ([][]string, []string) {
+	return ics.toCSV()
+}
+
 func (ics *Incomes) toCSV() ([][]string, []string) {
 	rows, ids := ics.processRecords(func(index int, i *Income) [][]string {
 		d := i.export()
@@ -403,7 +409,7 @@ func (ics *Incomes) toSAP(dateEff time.Time) ([][]string, []string) {
 func (ics *Incomes) getVendorCode(i int) string {
 	return VendorCode{index: i}.String()
 }
-func CreateIncome(user models.User, req models.IncomeReq, note string) *models.Income {
+func CreateIncome(user models.User, req entity.IncomeReq, note string) *models.Income {
 	i := NewIncome(string(user.ID))
 	record, err := i.prepareDataForAddIncome(req, user)
 	record.Note = note
@@ -411,7 +417,7 @@ func CreateIncome(user models.User, req models.IncomeReq, note string) *models.I
 	return record
 }
 
-func UpdateIncome(user models.User, req models.IncomeReq, note string, record *models.Income) *models.Income {
+func UpdateIncome(user models.User, req entity.IncomeReq, note string, record *models.Income) *models.Income {
 	i := NewIncomeFromRecord(*record)
 	err := i.prepareDataForUpdateIncome(req, user, record)
 	record.Note = note

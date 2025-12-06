@@ -7,6 +7,7 @@ import (
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/stretchr/testify/assert"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
 	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
@@ -169,7 +170,7 @@ func TestModelIncome(t *testing.T) {
 	t.Run("calculate individual income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := GivenIndividualUser(uidFromSession, "5")
-		req := models.IncomeReq{
+		req := entity.IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
 			WorkingHours:  "10",
@@ -199,7 +200,7 @@ func TestModelIncome(t *testing.T) {
 		user.BankAccountName = "account name"
 		user.BankAccountNumber = "0123456789"
 		user.Email = "test@example.com"
-		req := models.IncomeReq{WorkDate: "20"}
+		req := entity.IncomeReq{WorkDate: "20"}
 		i := NewIncome(uidFromSession)
 		record, _ := i.prepareDataForAddIncome(req, user)
 		i = NewIncomeFromRecord(*record)
@@ -220,7 +221,7 @@ func TestModelIncome(t *testing.T) {
 		specialIncome := "100"
 		workingHours := "10"
 		u := GivenIndividualUser(uidFromSession, dailyIncome)
-		req := models.IncomeReq{
+		req := entity.IncomeReq{
 			WorkDate:      workDate,
 			SpecialIncome: specialIncome,
 			WorkingHours:  workingHours,
@@ -242,7 +243,7 @@ func TestModelIncome(t *testing.T) {
 	t.Run("calculate individual income โดยไม่ได้กรอก special income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := GivenIndividualUser(uidFromSession, "5")
-		req := models.IncomeReq{
+		req := entity.IncomeReq{
 			WorkDate: "20",
 		}
 		i := NewIncome(uidFromSession)
@@ -260,7 +261,7 @@ func TestModelIncome(t *testing.T) {
 	t.Run("calculate individual special income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := GivenIndividualUser(uidFromSession, "5")
-		req := models.IncomeReq{SpecialIncome: "100", WorkingHours: "10"}
+		req := entity.IncomeReq{SpecialIncome: "100", WorkingHours: "10"}
 		i := NewIncome(uidFromSession)
 
 		err := i.parseRequest(req, user)
@@ -285,7 +286,7 @@ func TestModelIncome(t *testing.T) {
 
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := GivenIndividualUser(uidFromSession, "5")
-		req := models.IncomeReq{
+		req := entity.IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
 			WorkingHours:  "10",
@@ -302,7 +303,7 @@ func TestModelIncome(t *testing.T) {
 	t.Run("หัก ณ ที่จ่าย 3% คิดจากรายได้รวม ไม่นับหนี้ กยศ", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := GivenIndividualUser(uidFromSession, "5")
-		req := models.IncomeReq{
+		req := entity.IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
 			WorkingHours:  "10",
@@ -324,7 +325,7 @@ func TestModelIncome(t *testing.T) {
 		i := NewIncome(uidFromSession)
 		i.SetLoan(&models.StudentLoan{Amount: -270})
 		user := GivenIndividualUser(uidFromSession, "5")
-		req := models.IncomeReq{
+		req := entity.IncomeReq{
 			SpecialIncome: "100",
 			WorkingHours:  "10",
 		}
@@ -345,7 +346,7 @@ func TestModelIncome(t *testing.T) {
 			Vat:         "Y",
 			DailyIncome: "5",
 		}
-		req := models.IncomeReq{
+		req := entity.IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
 			WorkingHours:  "10",
@@ -413,7 +414,7 @@ func TestModelIncome(t *testing.T) {
 		specialIncome := "250"
 		workingHours := "128.45"
 		u := GivenIndividualUser(uidFromSession, dailyIncome)
-		req := models.IncomeReq{
+		req := entity.IncomeReq{
 			WorkDate:      workDate,
 			SpecialIncome: specialIncome,
 			WorkingHours:  workingHours,
