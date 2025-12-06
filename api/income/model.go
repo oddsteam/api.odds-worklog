@@ -190,33 +190,6 @@ func (i *Income) VAT(totalIncome float64) float64 {
 	return totalIncome * 0.07
 }
 
-/** deprecated **/
-func (i *Income) export(user models.User) []string {
-	income := *i.data
-	loan := *i.loan
-	t := income.SubmitDate
-	netTotalIncome, _ := calTotal(income.NetDailyIncome, income.NetSpecialIncome)
-	netTotalIncome = calTotalWithLoanDeduction(netTotalIncome, loan)
-	tf := fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
-	d := []string{
-		"",
-		user.BankAccountName,
-		"",
-		utils.SetValueCSV(user.BankAccountNumber),
-		user.GetName(),
-		user.ThaiCitizenID,
-		user.Email,
-		utils.FormatCommas(income.NetDailyIncome),
-		utils.FormatCommas(income.NetSpecialIncome),
-		loan.CSVAmount(),
-		income.WHT,
-		utils.FormatCommas(netTotalIncome),
-		income.Note,
-		tf,
-	}
-	return d
-}
-
 func calTotalWithLoanDeduction(totalIncomeStr string, loan models.StudentLoan) string {
 	totalIncome, _ := utils.StringToFloat64(totalIncomeStr)
 	totalIncome = totalIncome - float64(loan.Amount)

@@ -11,7 +11,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
-	mock_income "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -166,46 +165,6 @@ func TestCSVHeaders(t *testing.T) {
 	}
 }
 
-func TestCSVContentForIndividual(t *testing.T) {
-	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1, models.StudentLoan{})
-	expectedAccountNo := `="0531231231"`
-	expectedNetDailyIncome := "97.00"
-	expectedNetSpecialIncome := "9.70"
-	expectedWHT := "3.30"
-	expectedTransferAmount := "106.70"
-	expected := [...]string{"", "ชื่อ นามสกุล", "", expectedAccountNo, "first last", "ThaiCitizenID",
-		"email@example.com", expectedNetDailyIncome, expectedNetSpecialIncome,
-	}
-	for i := 0; i < len(expected); i++ {
-		assert.Equal(t, expected[i], actual[i])
-	}
-	assert.Equal(t, expectedWHT, actual[WITHHOLDING_TAX_INDEX])
-	assert.Equal(t, expectedTransferAmount, actual[TRANSFER_AMOUNT_INDEX])
-	assert.Equal(t, "note", actual[NOTE_INDEX])
-	assert.Equal(t, "01/12/2022 20:30:00", actual[SUBMIT_DATE_INDEX])
-}
-
-func TestStudentLoanInCSVContent(t *testing.T) {
-	loan := models.StudentLoan{
-		Fullname: userMock.Admin.BankAccountName,
-		Amount:   10,
-	}
-	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1, loan)
-	expectedTransferAmount := "96.70"
-	assert.Equal(t, "10.00", actual[LOAN_DEDUCTION_INDEX])
-	assert.Equal(t, expectedTransferAmount, actual[TRANSFER_AMOUNT_INDEX])
-}
-
-func TestForeignStudentDoesNotRequireSocialSecuritySoWeUseNegativeStudentLoanToAdjust(t *testing.T) {
-	loan := models.StudentLoan{
-		Fullname: userMock.Admin.BankAccountName,
-		Amount:   -270,
-	}
-	actual := createRow(incomeMock.MockIndividualIncome, userMock.IndividualUser1, loan)
-	expectedTransferAmount := "376.70"
-	assert.Equal(t, "-270.00", actual[LOAN_DEDUCTION_INDEX])
-	assert.Equal(t, expectedTransferAmount, actual[TRANSFER_AMOUNT_INDEX])
-}
 
 func TestUsecaseAddIncome(t *testing.T) {
 	t.Run("when a user add income success it should be return income model to show on the screen", func(t *testing.T) {
@@ -329,7 +288,7 @@ func TestUsecaseGetIncomeByUserIdAndAllMonthCaseNoNetSpecialIncome(t *testing.T)
 }
 
 type MockIncomeRepository struct {
-	mock *mock_income.MockRepository
+	mock *incomeMock.MockRepository
 }
 
 func (m *MockIncomeRepository) expectGetAllIncomeOfPreviousMonthByRole(incomes []*models.Income) {

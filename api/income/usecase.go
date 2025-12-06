@@ -217,13 +217,6 @@ func createSAPRow(record []string) string {
 	return strings.Join(record, "") + "\n"
 }
 
-/** deprecated **/
-func createRow(record models.Income, user models.User, loan models.StudentLoan) []string {
-	i := NewIncomeFromRecord(record)
-	i.SetLoan(&loan)
-	return i.export(user)
-}
-
 func (u *usecase) GetAllInComeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
 	return u.repo.GetAllIncomeByStartDateAndEndDate(userIds, startDate, endDate)
 }

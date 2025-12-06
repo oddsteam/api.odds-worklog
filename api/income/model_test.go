@@ -190,7 +190,6 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, i.dailyIncome()+i.specialIncome(), i.totalIncome())
 	})
 
-	// begin obsoleted export will be replaced with new export in Aug release
 	t.Run("export individual income information เพื่อให้บัญชีติดต่อได้เวลามีปัญหา", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := GivenIndividualUser(uidFromSession, "5")
@@ -205,53 +204,6 @@ func TestModelIncome(t *testing.T) {
 		record, _ := i.prepareDataForAddIncome(req, user)
 		i = NewIncomeFromRecord(*record)
 
-		csvColumns := i.export(user)
-
-		assert.Equal(t, "first last", csvColumns[NAME_INDEX])
-		assert.Equal(t, "id", csvColumns[ID_CARD_INDEX])
-		assert.Equal(t, "account name", csvColumns[ACCOUNT_NAME_INDEX])
-		assert.Equal(t, `="0123456789"`, csvColumns[ACCOUNT_NUMBER_INDEX])
-		assert.Equal(t, "test@example.com", csvColumns[EMAIL_INDEX])
-	})
-
-	t.Run("export จำนวนเงินที่ต้องโอนสำหรับ individual income", func(t *testing.T) {
-		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := GivenIndividualUser(uidFromSession, "5")
-		req := models.IncomeReq{
-			WorkDate:      "20",
-			SpecialIncome: "100",
-			WorkingHours:  "10",
-		}
-		i := NewIncome(uidFromSession)
-		record, _ := i.prepareDataForAddIncome(req, user)
-		i = NewIncomeFromRecord(*record)
-		i.SetLoan(&models.StudentLoan{Amount: 50})
-
-		csvColumns := i.export(user)
-
-		assert.Equal(t, "97.00", csvColumns[NET_DAILY_INCOME_INDEX])
-		assert.Equal(t, "970.00", csvColumns[NET_SPECIAL_INCOME_INDEX])
-		assert.Equal(t, "50.00", csvColumns[LOAN_DEDUCTION_INDEX])
-		assert.Equal(t, "33.00", csvColumns[WITHHOLDING_TAX_INDEX])
-		assert.Equal(t, "1,017.00", csvColumns[TRANSFER_AMOUNT_INDEX])
-	})
-
-	// end obsoleted export
-
-	t.Run("new export individual income information เพื่อให้บัญชีติดต่อได้เวลามีปัญหา", func(t *testing.T) {
-		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := GivenIndividualUser(uidFromSession, "5")
-		user.FirstName = "first"
-		user.LastName = "last"
-		user.ThaiCitizenID = "id"
-		user.BankAccountName = "account name"
-		user.BankAccountNumber = "0123456789"
-		user.Email = "test@example.com"
-		req := models.IncomeReq{WorkDate: "20"}
-		i := NewIncome(uidFromSession)
-		record, _ := i.prepareDataForAddIncome(req, user)
-		i = NewIncomeFromRecord(*record)
-
 		csvColumns := i.export2()
 
 		assert.Equal(t, "first last", csvColumns[NAME_INDEX])
@@ -261,7 +213,7 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, "test@example.com", csvColumns[EMAIL_INDEX])
 	})
 
-	t.Run("new export จำนวนเงินที่ต้องโอนสำหรับ individual income", func(t *testing.T) {
+	t.Run("export จำนวนเงินที่ต้องโอนสำหรับ individual income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		dailyIncome := "5"
 		workDate := "20"
@@ -275,15 +227,16 @@ func TestModelIncome(t *testing.T) {
 		}
 		record := CreateIncome(u, req, "note")
 		i := NewIncomeFromRecord(*record)
-		i.SetLoan(&models.StudentLoan{Amount: 50})
+		i.SetLoan(&models.StudentLoan{})
 
 		csvColumns := i.export2()
 
 		assert.Equal(t, "97.00", csvColumns[NET_DAILY_INCOME_INDEX])
 		assert.Equal(t, "970.00", csvColumns[NET_SPECIAL_INCOME_INDEX])
-		assert.Equal(t, "50.00", csvColumns[LOAN_DEDUCTION_INDEX])
+		assert.Equal(t, "0.00", csvColumns[LOAN_DEDUCTION_INDEX])
 		assert.Equal(t, "33.00", csvColumns[WITHHOLDING_TAX_INDEX])
-		assert.Equal(t, "1,017.00", csvColumns[TRANSFER_AMOUNT_INDEX])
+		assert.Equal(t, "1,067.00", csvColumns[TRANSFER_AMOUNT_INDEX])
+		assert.Equal(t, "note", csvColumns[NOTE_INDEX])
 	})
 
 	t.Run("calculate individual income โดยไม่ได้กรอก special income", func(t *testing.T) {
@@ -361,6 +314,25 @@ func TestModelIncome(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, i.totalIncome()*0.03, i.totalWHT())
+	})
+
+	t.Run("student loan is used as deduction for foreign student who does not require social security", func(t *testing.T) {
+		// นักศึกษาต่างด้าวที่ยังไม่บรรจุเป็นพนักงานประจำ จะไม่มีประกันสังคม จึงไม่ต้อง
+		// หักประกันสังคม 270 บาท เหมือนคนไทย เราใส่ช่อง deduction เป็นลบ 270
+		// บาท เพื่อคืนเงินที่หักประกันสังคมคืนไป
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		i := NewIncome(uidFromSession)
+		i.SetLoan(&models.StudentLoan{Amount: -270})
+		user := GivenIndividualUser(uidFromSession, "5")
+		req := models.IncomeReq{
+			SpecialIncome: "100",
+			WorkingHours:  "10",
+		}
+
+		err := i.parseRequest(req, user)
+
+		assert.NoError(t, err)
+		assert.Equal(t, i.netSpecialIncome()+270,i.transferAmount())
 	})
 
 	t.Run("calculate corporate income", func(t *testing.T) {
