@@ -102,10 +102,6 @@ func (u *usecase) GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, er
 	return listIncome, nil
 }
 
-// func (u *usecase) GetAllInComeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
-// 	return u.repo.GetAllIncomeByStartDateAndEndDate(userIds, startDate, endDate)
-// }
-
 func (u *usecase) GetByRole(role string) ([]*models.User, error) {
 	return u.userRepo.GetByRole(role)
 }

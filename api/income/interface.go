@@ -18,9 +18,6 @@ type Repository interface {
 	GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, error)
 	UpdateExportStatus(id string) error
 	SaveStudentLoans(loans models.StudentLoanList) int
-	// GetAllIncomeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error)
-	//GetAllUserIdByRole(role string) ([]string,error)
-
 }
 
 type Usecase interface {
@@ -30,6 +27,5 @@ type Usecase interface {
 	GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error)
 	ExportPdf(id string) (string, error)
 	GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, error)
-	// GetAllInComeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error)
 	GetByRole(role string) ([]*models.User, error)
 }

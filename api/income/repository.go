@@ -52,12 +52,6 @@ func (r *repository) GetIncomeByStartDateAndEndDate(role string, startDate time.
 	return getIncomeByQuery(r, query)
 }
 
-// func (r *repository) GetAllIncomeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
-
-// 	query := createQueryIncomeByStartDateAndEndDate(userIds, startDate, endDate)
-// 	return getAllInComeByQuery(r, query)
-// }
-
 func (r *repository) GetIncomeByUserIdAllMonth(id string) ([]*models.Income, error) {
 	income := make([]*models.Income, 0)
 
@@ -110,19 +104,6 @@ func createQueryByPeriod(startDate time.Time, endDate time.Time) bson.M {
 	return query
 }
 
-func createQueryIncomeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) bson.M {
-	query := bson.M{
-		"userId": bson.M{
-			"$in": userIds,
-		},
-		"submitDate": bson.M{
-			"$gt": startDate,
-			"$lt": endDate,
-		},
-	}
-	return query
-}
-
 func getIncomeByQuery(r *repository, query bson.M) (*models.Income, error) {
 	income := new(models.Income)
 	coll := r.session.GetCollection(incomeColl)
@@ -137,12 +118,6 @@ func getIncomeByQuery(r *repository, query bson.M) (*models.Income, error) {
 
 	return income, nil
 }
-
-//func getAllUserByQuery(r *repository, query bson.M) ([]string,error){
-//
-//
-//}
-//GetAllUserIdByRole
 
 func getIncomeByUserIDWithQuery(r *repository, uID string, fromYear int, fromMonth time.Month, query bson.M) (*models.Income, error) {
 	income := new(models.Income)
