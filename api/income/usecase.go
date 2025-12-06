@@ -30,10 +30,7 @@ func (u *usecase) AddIncome(req *entity.IncomeReq, uid string) (*models.Income, 
 	if err == nil {
 		return nil, errors.New("Sorry, has income data of user " + userDetail.GetName())
 	}
-	income, err := NewIncome(uid).prepareDataForAddIncome(*req, *userDetail)
-	if err != nil {
-		return nil, err
-	}
+	income := entity.CreateIncome(*userDetail, *req, "")
 	err = u.repo.AddIncome(income)
 	if err != nil {
 		return nil, err
@@ -49,10 +46,7 @@ func (u *usecase) UpdateIncome(id string, req *entity.IncomeReq, uid string) (*m
 		return nil, err
 	}
 
-	err = NewIncome(uid).prepareDataForUpdateIncome(*req, *userDetail, income)
-	if err != nil {
-		return nil, err
-	}
+	income = entity.UpdateIncome(*userDetail, *req, "", income)
 	u.repo.UpdateIncome(income)
 
 	return income, nil
@@ -143,8 +137,8 @@ func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, startDate, endD
 
 	studentLoanList := u.repo.GetStudentLoans()
 
-	ics := NewIncomes(incomes, studentLoanList)
-	strWrite, _ := ics.toCSV()
+	ics := entity.NewIncomes(incomes, studentLoanList)
+	strWrite, _ := ics.ToCSV()
 
 	if len(strWrite) == 1 {
 		return "", errors.New("no data for export to CSV file")
@@ -185,9 +179,9 @@ func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, e
 
 	studentLoanList := u.repo.GetStudentLoans()
 
-	ics := NewIncomes(incomes, studentLoanList)
+	ics := entity.NewIncomes(incomes, studentLoanList)
 
-	strWrite, _ := ics.toSAP(dateEff)
+	strWrite, _ := ics.ToSAP(dateEff)
 
 	if len(strWrite) == 0 {
 		return "", errors.New("no data for export to SAP file")
@@ -240,25 +234,4 @@ func calTotal(main string, special string) (string, error) {
 		return "", err
 	}
 	return utils.FloatToString(ma + sp), nil
-}
-
-const (
-	VENDOR_CODE_INDEX = iota
-	ACCOUNT_NAME_INDEX
-	PAYMENT_METHOD_INDEX
-	ACCOUNT_NUMBER_INDEX
-	NAME_INDEX
-	ID_CARD_INDEX
-	EMAIL_INDEX
-	NET_DAILY_INCOME_INDEX
-	NET_SPECIAL_INCOME_INDEX
-	LOAN_DEDUCTION_INDEX
-	WITHHOLDING_TAX_INDEX
-	TRANSFER_AMOUNT_INDEX
-	NOTE_INDEX
-	SUBMIT_DATE_INDEX
-)
-
-func createHeaders() []string {
-	return []string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 }

@@ -1,74 +1,14 @@
-package income
+package entity
 
 import (
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/stretchr/testify/assert"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
-	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
-)
-
-const (
-	SAP_TXN_INDEX             = 0
-	SAP_PAYER_NAME_INDEX      = 1
-	SAP_PAYEE_NAME_INDEX      = 2
-	SAP_MALE_TO_NAME_INDEX    = 3
-	SAP_BENEFICIARY1_INDEX    = 4
-	SAP_BENEFICIARY2_INDEX    = 5
-	SAP_BENEFICIARY3_INDEX    = 6
-	SAP_BENEFICIARY4_INDEX    = 7
-	SAP_ZIPCODE_INDEX         = 8
-	SAP_CUSTOMER_REF_INDEX    = 9
-	SAP_DATE_EFFECTIVE_INDEX  = 10
-	SAP_DATE_PICKUP_INDEX     = 11
-	SAP_CURRENCY_INDEX        = 12
-	SAP_EMPTY_1_INDEX         = 13
-	SAP_COMPANY_ACCNO_INDEX   = 14
-	SAP_AMOUNT_INDEX          = 15
-	SAP_PAYEE_BANK_CODE_INDEX = 16
-	SAP_ACCOUNTNO_INDEX       = 17
-	SAP_UNKNOW_1_INDEX        = 18
-	SAP_EMPTY_2_INDEX         = 19
-	SAP_EMPTY_3_INDEX         = 20
-	SAP_ADVICEMODE2_INDEX     = 21
-	SAP_FAXNO_INDEX           = 22
-	SAP_EMAIL_INDEX           = 23
-	SAP_SMSNO_INDEX           = 24
-	SAP_CHARGE_ON_INDEX       = 25
-	SAP_PRODUCT_INDEX         = 26
-	SAP_SCHEDULE_INDEX        = 27
-	SAP_EMPTY_4_INDEX         = 28
-	SAP_DOCREQ_INDEX          = 29
-	SAP_EMPTY_5_INDEX         = 30
-	SAP_END_INDEX             = 31
-
-	SAP_WHT_WHT_INDEX      = 0
-	SAP_WHT_EMPTY_1_INDEX  = 1
-	SAP_WHT_TAX_ID_INDEX   = 2
-	SAP_WHT_EMPTY_3_INDEX  = 3
-	SAP_WHT_EMPTY_4_INDEX  = 4
-	SAP_WHT_EMPTY_5_INDEX  = 5
-	SAP_WHT_EMPTY_6_INDEX  = 6
-	SAP_WHT_EMPTY_7_INDEX  = 7
-	SAP_WHT_EMPTY_8_INDEX  = 8
-	SAP_WHT_EMPTY_9_INDEX  = 9
-	SAP_WHT_EMPTY_10_INDEX = 10
-	SAP_WHT_EMPTY_11_INDEX = 11
-	SAP_WHT_EMPTY_12_INDEX = 12
-	SAP_WHT_EMPTY_13_INDEX = 13
-	SAP_WHT_EMPTY_14_INDEX = 14
-	SAP_WHT_COM_NAME       = 15
-	SAP_WHT_ADDRESS        = 16
-	SAP_WHT_EMPTY_17       = 17
-	SAP_WHT_EMPTY_18       = 18
-	SAP_WHT_EMPTY_19       = 19
-	SAP_WHT_EMPTY_20       = 20
 )
 
 func TestModelIncome(t *testing.T) {
@@ -77,7 +17,7 @@ func TestModelIncome(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		i := NewIncome(uidFromSession)
 
-		res, err := i.prepareDataForAddIncome(incomeMock.MockIncomeReq, user)
+		res, err := i.prepareDataForAddIncome(MockIncomeReq, user)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
@@ -97,7 +37,7 @@ func TestModelIncome(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		i := NewIncome(uidFromSession)
 
-		res, err := i.prepareDataForAddIncome(incomeMock.MockIncomeReq, user)
+		res, err := i.prepareDataForAddIncome(MockIncomeReq, user)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
@@ -109,7 +49,7 @@ func TestModelIncome(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		i := NewIncome(uidFromSession)
 
-		res, err := i.prepareDataForAddIncome(incomeMock.MockIncomeReq, user)
+		res, err := i.prepareDataForAddIncome(MockIncomeReq, user)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
@@ -122,7 +62,7 @@ func TestModelIncome(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		i := NewIncome(uidFromSession)
 
-		res, err := i.prepareDataForAddIncome(incomeMock.MockIncomeReq, user)
+		res, err := i.prepareDataForAddIncome(MockIncomeReq, user)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
@@ -135,7 +75,7 @@ func TestModelIncome(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		i := NewIncome(uidFromSession)
 
-		res, err := i.prepareDataForAddIncome(incomeMock.MockIncomeReq, user)
+		res, err := i.prepareDataForAddIncome(MockIncomeReq, user)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
@@ -147,11 +87,11 @@ func TestModelIncome(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		i := NewIncome(uidFromSession)
 
-		res, err := i.prepareDataForAddIncome(incomeMock.MockIncomeReq, user)
+		res, err := i.prepareDataForAddIncome(MockIncomeReq, user)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, incomeMock.MockIncomeReq.Note, res.Note)
+		assert.Equal(t, MockIncomeReq.Note, res.Note)
 	})
 
 	t.Run("เวลา Add income ควร total income ด้วยเพราะ iOS, Andriod และหน้า history ใช้", func(t *testing.T) {
@@ -160,7 +100,7 @@ func TestModelIncome(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		i := NewIncome(uidFromSession)
 
-		res, err := i.prepareDataForAddIncome(incomeMock.MockIncomeReq, user)
+		res, err := i.prepareDataForAddIncome(MockIncomeReq, user)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
@@ -170,7 +110,7 @@ func TestModelIncome(t *testing.T) {
 	t.Run("calculate individual income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := GivenIndividualUser(uidFromSession, "5")
-		req := entity.IncomeReq{
+		req := IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
 			WorkingHours:  "10",
@@ -200,7 +140,7 @@ func TestModelIncome(t *testing.T) {
 		user.BankAccountName = "account name"
 		user.BankAccountNumber = "0123456789"
 		user.Email = "test@example.com"
-		req := entity.IncomeReq{WorkDate: "20"}
+		req := IncomeReq{WorkDate: "20"}
 		i := NewIncome(uidFromSession)
 		record, _ := i.prepareDataForAddIncome(req, user)
 		i = NewIncomeFromRecord(*record)
@@ -221,7 +161,7 @@ func TestModelIncome(t *testing.T) {
 		specialIncome := "100"
 		workingHours := "10"
 		u := GivenIndividualUser(uidFromSession, dailyIncome)
-		req := entity.IncomeReq{
+		req := IncomeReq{
 			WorkDate:      workDate,
 			SpecialIncome: specialIncome,
 			WorkingHours:  workingHours,
@@ -243,7 +183,7 @@ func TestModelIncome(t *testing.T) {
 	t.Run("calculate individual income โดยไม่ได้กรอก special income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := GivenIndividualUser(uidFromSession, "5")
-		req := entity.IncomeReq{
+		req := IncomeReq{
 			WorkDate: "20",
 		}
 		i := NewIncome(uidFromSession)
@@ -261,7 +201,7 @@ func TestModelIncome(t *testing.T) {
 	t.Run("calculate individual special income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := GivenIndividualUser(uidFromSession, "5")
-		req := entity.IncomeReq{SpecialIncome: "100", WorkingHours: "10"}
+		req := IncomeReq{SpecialIncome: "100", WorkingHours: "10"}
 		i := NewIncome(uidFromSession)
 
 		err := i.parseRequest(req, user)
@@ -286,7 +226,7 @@ func TestModelIncome(t *testing.T) {
 
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := GivenIndividualUser(uidFromSession, "5")
-		req := entity.IncomeReq{
+		req := IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
 			WorkingHours:  "10",
@@ -303,7 +243,7 @@ func TestModelIncome(t *testing.T) {
 	t.Run("หัก ณ ที่จ่าย 3% คิดจากรายได้รวม ไม่นับหนี้ กยศ", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := GivenIndividualUser(uidFromSession, "5")
-		req := entity.IncomeReq{
+		req := IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
 			WorkingHours:  "10",
@@ -325,7 +265,7 @@ func TestModelIncome(t *testing.T) {
 		i := NewIncome(uidFromSession)
 		i.SetLoan(&models.StudentLoan{Amount: -270})
 		user := GivenIndividualUser(uidFromSession, "5")
-		req := entity.IncomeReq{
+		req := IncomeReq{
 			SpecialIncome: "100",
 			WorkingHours:  "10",
 		}
@@ -346,7 +286,7 @@ func TestModelIncome(t *testing.T) {
 			Vat:         "Y",
 			DailyIncome: "5",
 		}
-		req := entity.IncomeReq{
+		req := IncomeReq{
 			WorkDate:      "20",
 			SpecialIncome: "100",
 			WorkingHours:  "10",
@@ -366,9 +306,66 @@ func TestModelIncome(t *testing.T) {
 		assert.Equal(t, 1000.0+70-30, i.Net(i.specialIncome()))
 	})
 
+	const (
+		SAP_TXN_INDEX             = 0
+		SAP_PAYER_NAME_INDEX      = 1
+		SAP_PAYEE_NAME_INDEX      = 2
+		SAP_MALE_TO_NAME_INDEX    = 3
+		SAP_BENEFICIARY1_INDEX    = 4
+		SAP_BENEFICIARY2_INDEX    = 5
+		SAP_BENEFICIARY3_INDEX    = 6
+		SAP_BENEFICIARY4_INDEX    = 7
+		SAP_ZIPCODE_INDEX         = 8
+		SAP_CUSTOMER_REF_INDEX    = 9
+		SAP_DATE_EFFECTIVE_INDEX  = 10
+		SAP_DATE_PICKUP_INDEX     = 11
+		SAP_CURRENCY_INDEX        = 12
+		SAP_EMPTY_1_INDEX         = 13
+		SAP_COMPANY_ACCNO_INDEX   = 14
+		SAP_AMOUNT_INDEX          = 15
+		SAP_PAYEE_BANK_CODE_INDEX = 16
+		SAP_ACCOUNTNO_INDEX       = 17
+		SAP_UNKNOW_1_INDEX        = 18
+		SAP_EMPTY_2_INDEX         = 19
+		SAP_EMPTY_3_INDEX         = 20
+		SAP_ADVICEMODE2_INDEX     = 21
+		SAP_FAXNO_INDEX           = 22
+		SAP_EMAIL_INDEX           = 23
+		SAP_SMSNO_INDEX           = 24
+		SAP_CHARGE_ON_INDEX       = 25
+		SAP_PRODUCT_INDEX         = 26
+		SAP_SCHEDULE_INDEX        = 27
+		SAP_EMPTY_4_INDEX         = 28
+		SAP_DOCREQ_INDEX          = 29
+		SAP_EMPTY_5_INDEX         = 30
+		SAP_END_INDEX             = 31
+
+		SAP_WHT_WHT_INDEX      = 0
+		SAP_WHT_EMPTY_1_INDEX  = 1
+		SAP_WHT_TAX_ID_INDEX   = 2
+		SAP_WHT_EMPTY_3_INDEX  = 3
+		SAP_WHT_EMPTY_4_INDEX  = 4
+		SAP_WHT_EMPTY_5_INDEX  = 5
+		SAP_WHT_EMPTY_6_INDEX  = 6
+		SAP_WHT_EMPTY_7_INDEX  = 7
+		SAP_WHT_EMPTY_8_INDEX  = 8
+		SAP_WHT_EMPTY_9_INDEX  = 9
+		SAP_WHT_EMPTY_10_INDEX = 10
+		SAP_WHT_EMPTY_11_INDEX = 11
+		SAP_WHT_EMPTY_12_INDEX = 12
+		SAP_WHT_EMPTY_13_INDEX = 13
+		SAP_WHT_EMPTY_14_INDEX = 14
+		SAP_WHT_COM_NAME       = 15
+		SAP_WHT_ADDRESS        = 16
+		SAP_WHT_EMPTY_17       = 17
+		SAP_WHT_EMPTY_18       = 18
+		SAP_WHT_EMPTY_19       = 19
+		SAP_WHT_EMPTY_20       = 20
+	)
+
 	t.Run("test export to SAP transaction should format correctly", func(t *testing.T) {
 		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
-		i := incomeMock.MockSoloCorporateIncome
+		i := MockSoloCorporateIncome
 
 		txn, _ := NewIncomeFromRecord(i).exportSAP(dateEff)
 
@@ -414,7 +411,7 @@ func TestModelIncome(t *testing.T) {
 		specialIncome := "250"
 		workingHours := "128.45"
 		u := GivenIndividualUser(uidFromSession, dailyIncome)
-		req := entity.IncomeReq{
+		req := IncomeReq{
 			WorkDate:      workDate,
 			SpecialIncome: specialIncome,
 			WorkingHours:  workingHours,
@@ -433,7 +430,7 @@ func TestModelIncome(t *testing.T) {
 
 	t.Run("test export to SAP wht should format correctly", func(t *testing.T) {
 		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
-		i := incomeMock.MockSoloCorporateIncome
+		i := MockSoloCorporateIncome
 
 		_, wht := NewIncomeFromRecord(i).exportSAP(dateEff)
 
@@ -461,138 +458,4 @@ func TestModelIncome(t *testing.T) {
 
 	})
 
-}
-
-func TestModelIncomes(t *testing.T) {
-	t.Run("test export to CSV when there is 0 income", func(t *testing.T) {
-		records := []*models.Income{}
-		incomes := NewIncomes(records, models.StudentLoanList{})
-
-		csv, _ := incomes.toCSV()
-
-		assert.NotNil(t, csv)
-		headerLength := 1
-		assert.Equal(t, headerLength, len(csv))
-	})
-
-	t.Run("test export to CSV when there is 1 income", func(t *testing.T) {
-		records := []*models.Income{
-			{ID: "incomeId"},
-		}
-		incomes := NewIncomes(records, models.StudentLoanList{})
-
-		csv, _ := incomes.toCSV()
-
-		assert.NotNil(t, csv)
-		headerLength := 1
-		incomeCount := 1
-		assert.Equal(t, headerLength+incomeCount, len(csv))
-	})
-
-	t.Run("test export to CSV when there is n incomes", func(t *testing.T) {
-		records := []*models.Income{
-			{ID: "incomeId1"},
-			{ID: "incomeId2"},
-		}
-		incomes := NewIncomes(records, models.StudentLoanList{})
-
-		csv, _ := incomes.toCSV()
-
-		assert.NotNil(t, csv)
-		headerLength := 1
-		incomeCount := 2
-		assert.Equal(t, headerLength+incomeCount, len(csv))
-	})
-
-	t.Run("test export to CSV with running vendor codes", func(t *testing.T) {
-		records := []*models.Income{
-			{ID: "incomeId1"},
-			{ID: "incomeId2"},
-		}
-		incomes := NewIncomes(records, models.StudentLoanList{})
-
-		csv, _ := incomes.toCSV()
-
-		assert.NotNil(t, csv)
-		headerLength := 1
-		incomeCount := 2
-		assert.Equal(t, headerLength+incomeCount, len(csv))
-		assert.Equal(t, "AAA", csv[1][VENDOR_CODE_INDEX])
-		assert.Equal(t, "AAB", csv[2][VENDOR_CODE_INDEX])
-	})
-
-	t.Run("test export to CSV when มีคนตกขบวน", func(t *testing.T) {
-		users := []*models.User{
-			{ID: "id1"},
-			{ID: "id2"},
-		}
-		records := []*models.Income{
-			{ID: "incomeId1", UserID: users[0].ID.Hex()},
-		}
-		incomes := NewIncomes(records, models.StudentLoanList{})
-
-		csv, _ := incomes.toCSV()
-
-		assert.NotNil(t, csv)
-		headerLength := 1
-		incomeCount := 1
-		assert.Equal(t, headerLength+incomeCount, len(csv))
-	})
-
-	t.Run("test should also return updatedIncomeIds", func(t *testing.T) {
-		// เราจะได้ mark ว่า income เหล่านี้ถูก export ออกไปแล้ว
-		// เวลา export different individuals (คนที่ยังไม่ถูก export, เพราะตัดรอบไปก่อน)
-		// จะได้รู้ว่าใครบ้างที่ export ไปแล้ว
-		records := []*models.Income{
-			{ID: "incomeId"},
-		}
-		incomes := NewIncomes(records, models.StudentLoanList{})
-
-		_, updatedIncomeIds := incomes.toCSV()
-
-		assert.NotNil(t, updatedIncomeIds)
-		assert.Equal(t, 1, len(updatedIncomeIds))
-	})
-
-	t.Run("test updatedIncomeIds when มีคนตกขบวน", func(t *testing.T) {
-		users := []*models.User{
-			{ID: "id1"},
-			{ID: "id2"},
-		}
-		records := []*models.Income{
-			{ID: "incomeId1", UserID: users[0].ID.Hex()},
-		}
-		incomes := NewIncomes(records, models.StudentLoanList{})
-
-		_, updatedIncomeIds := incomes.toCSV()
-
-		assert.NotNil(t, updatedIncomeIds)
-		assert.Equal(t, 1, len(updatedIncomeIds))
-	})
-
-	t.Run("test transform to SAP format", func(t *testing.T) {
-
-		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
-
-		records := []*models.Income{
-			&incomeMock.MockSoloCorporateIncome,
-			&incomeMock.MockSwardCorporateIncome,
-		}
-		incomes := NewIncomes(records, models.StudentLoanList{})
-
-		i, _ := incomes.toSAP(dateEff)
-
-		assert.Equal(t, "TXNบจก. ออด-อี (ประเทศไทย) จำกัด                                                                                           บจก. โซโล่ เลเวลลิ่ง                                                                                                                                                                                                                                                                                                                                                2909202529092025THB                                                  00011595873         000000054704.000110246         02462737202         0400                                                                                                                                                                                 OUR          DCR                                                                                                                                                                                                                                                                                                                                                                                                                                                       END", strings.Join(i[0], ""))
-		assert.Equal(t, "WHT             0105556110718  000000000000.00                                          000000000000.00000000000000.00                                          000000000000.00                                                                                                                                                บจก. ออด-อี (ประเทศไทย) จำกัด                                                                                           2549/41-43 พหลโยธิน ลาดยาว จตุจักร กรุงเทพ 10900                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ", strings.Join(i[1], ""))
-		assert.Equal(t, "TXNบจก. ออด-อี (ประเทศไทย) จำกัด                                                                                           บจ. ดาบพิฆาตอสูร                                                                                                                                                                                                                                                                                                                                                    2909202529092025THB                                                  00011595873         000000005470.400110110         01102480447         0400                                                                                                                                                                                 OUR          DCR                                                                                                                                                                                                                                                                                                                                                                                                                                                       END", strings.Join(i[2], ""))
-		assert.Equal(t, "WHT             0105556110718  000000000000.00                                          000000000000.00000000000000.00                                          000000000000.00                                                                                                                                                บจก. ออด-อี (ประเทศไทย) จำกัด                                                                                           2549/41-43 พหลโยธิน ลาดยาว จตุจักร กรุงเทพ 10900                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ", strings.Join(i[3], ""))
-
-	})
-}
-
-func TestModelVendorCode(t *testing.T) {
-	t.Run("test large index vendor code", func(t *testing.T) {
-		vc := VendorCode{index: 381}
-		assert.Equal(t, "AOR", vc.String())
-	})
 }

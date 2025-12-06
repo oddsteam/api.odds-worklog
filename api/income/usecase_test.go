@@ -10,7 +10,8 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/income/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
+	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/entity/mock"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -22,8 +23,8 @@ func TestUsecaseExportIncome(t *testing.T) {
 		defer ctrl.Finish()
 
 		incomes := []*models.Income{
-			&incomeMock.MockIncome,
-			&incomeMock.MockIncome2,
+			&entity.MockIncome,
+			&entity.MockIncome2,
 		}
 		mockRepoIncome := mockIncomeRepository(ctrl)
 		mockRepoIncome.expectGetAllIncomeOfCurrentMonthByRole(incomes, time.Now())
@@ -43,8 +44,8 @@ func TestUsecaseExportIncome(t *testing.T) {
 		defer ctrl.Finish()
 
 		incomes := []*models.Income{
-			&incomeMock.MockIncome,
-			&incomeMock.MockIncome2,
+			&entity.MockIncome,
+			&entity.MockIncome2,
 			{ID: bson.ObjectIdHex("5bd1fda30fd2df2a3e41e571"), Role: "individual", WorkDate: "20", DailyRate: 750},
 		}
 		mockRepoIncome := mockIncomeRepository(ctrl)
@@ -65,8 +66,8 @@ func TestUsecaseExportIncome(t *testing.T) {
 		defer ctrl.Finish()
 
 		incomes := []*models.Income{
-			&incomeMock.MockIncome,
-			&incomeMock.MockIncome2,
+			&entity.MockIncome,
+			&entity.MockIncome2,
 		}
 		mockRepoIncome := mockIncomeRepository(ctrl)
 		mockRepoIncome.expectGetAllIncomeOfPreviousMonthByRole(incomes)
@@ -90,8 +91,8 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 		startDate := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 		endDate := time.Date(2024, 1, 31, 23, 59, 59, 0, time.UTC)
 		incomes := []*models.Income{
-			&incomeMock.MockSoloCorporateIncome,
-			&incomeMock.MockSwardCorporateIncome,
+			&entity.MockSoloCorporateIncome,
+			&entity.MockSwardCorporateIncome,
 		}
 		mockRepoIncome := mockIncomeRepository(ctrl)
 		mockRepoIncome.GetAllIncomeByRoleStartDateAndEndDate(incomes, "individual", startDate, endDate)
@@ -112,7 +113,7 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
 		startDate := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 		endDate := time.Date(2024, 1, 31, 23, 59, 59, 0, time.UTC)
-		i := deepClone(&incomeMock.MockSoloCorporateIncome)
+		i := deepClone(&entity.MockSoloCorporateIncome)
 		i.Name = "บจก. โซโล่ เลเวลลิ่ง 🦄"
 		incomes := []*models.Income{
 			i,
@@ -137,8 +138,8 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 		startDate := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 		endDate := time.Date(2024, 1, 31, 23, 59, 59, 0, time.UTC)
 		incomes := []*models.Income{
-			&incomeMock.MockSoloCorporateIncome,
-			&incomeMock.MockSwardCorporateIncome,
+			&entity.MockSoloCorporateIncome,
+			&entity.MockSwardCorporateIncome,
 		}
 		mockRepoIncome := mockIncomeRepository(ctrl)
 		mockRepoIncome.GetAllIncomeByRoleStartDateAndEndDate(incomes, "corporate", startDate, endDate)
@@ -154,18 +155,6 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 	})
 }
 
-func TestCSVHeaders(t *testing.T) {
-	actual := createHeaders()
-	expected := [...]string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน",
-		"อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ",
-		"หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก",
-	}
-	for i := 0; i < len(expected); i++ {
-		assert.Equal(t, expected[i], actual[i])
-	}
-}
-
-
 func TestUsecaseAddIncome(t *testing.T) {
 	t.Run("when a user add income success it should be return income model to show on the screen", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -176,14 +165,14 @@ func TestUsecaseAddIncome(t *testing.T) {
 		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
 		mockRepoIncome.EXPECT().AddIncome(gomock.Any()).Return(nil)
 		year, month := utils.GetYearMonthNow()
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(incomeMock.MockIncome.UserID, year, month).Return(&incomeMock.MockIncome, errors.New(""))
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(entity.MockIncome.UserID, year, month).Return(&entity.MockIncome, errors.New(""))
 
 		uc := NewUsecase(mockRepoIncome, mockUserRepo)
-		res, err := uc.AddIncome(&incomeMock.MockIncomeReq, userMock.User.ID.Hex())
+		res, err := uc.AddIncome(&entity.MockIncomeReq, userMock.User.ID.Hex())
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, incomeMock.MockIncome.UserID, res.UserID)
+		assert.Equal(t, entity.MockIncome.UserID, res.UserID)
 		assert.Equal(t, "116400.00", res.NetIncome)
 		assert.Equal(t, "97000.00", res.NetDailyIncome)
 		assert.Equal(t, "19400.00", res.NetSpecialIncome)
@@ -201,15 +190,15 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		mockRepoUser := userMock.NewMockRepository(ctrl)
 		incomeMockRepo := incomeMock.NewMockRepository(ctrl)
 		mockRepoUser.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
-		incomeMockRepo.EXPECT().UpdateIncome(&incomeMock.MockIncome).Return(nil)
-		incomeMockRepo.EXPECT().GetIncomeByID(incomeMock.MockIncome.ID.Hex(), userMock.User.ID.Hex()).Return(&incomeMock.MockIncome, nil)
+		incomeMockRepo.EXPECT().UpdateIncome(&entity.MockIncome).Return(nil)
+		incomeMockRepo.EXPECT().GetIncomeByID(entity.MockIncome.ID.Hex(), userMock.User.ID.Hex()).Return(&entity.MockIncome, nil)
 
 		uc := NewUsecase(incomeMockRepo, mockRepoUser)
-		res, err := uc.UpdateIncome(incomeMock.MockIncome.ID.Hex(), &incomeMock.MockIncomeReq, userMock.User.ID.Hex())
+		res, err := uc.UpdateIncome(entity.MockIncome.ID.Hex(), &entity.MockIncomeReq, userMock.User.ID.Hex())
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, incomeMock.MockIncome.UserID, res.UserID)
+		assert.Equal(t, entity.MockIncome.UserID, res.UserID)
 	})
 }
 
@@ -220,8 +209,8 @@ func TestUsecaseGetListIncome(t *testing.T) {
 
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
 		year, month := utils.GetYearMonthNow()
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month).Return(&entity.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month).Return(&entity.MockIncome, nil)
 
 		mockUserRepo := userMock.NewMockRepository(ctrl)
 		mockUserRepo.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
@@ -230,7 +219,7 @@ func TestUsecaseGetListIncome(t *testing.T) {
 		res, err := uc.GetIncomeStatusList("corporate", false)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, incomeMock.MockIncomeStatusList[0].Status, res[0].Status)
+		assert.Equal(t, entity.MockIncomeStatusList[0].Status, res[0].Status)
 
 	})
 }
@@ -241,14 +230,14 @@ func TestUsecaseGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
 		year, month := utils.GetYearMonthNow()
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(incomeMock.MockIncome.UserID, year, month).Return(&incomeMock.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(entity.MockIncome.UserID, year, month).Return(&entity.MockIncome, nil)
 		mockUserRepo := userMock.NewMockRepository(ctrl)
 
 		uc := NewUsecase(mockRepoIncome, mockUserRepo)
-		res, err := uc.GetIncomeByUserIdAndCurrentMonth(incomeMock.MockIncome.UserID)
+		res, err := uc.GetIncomeByUserIdAndCurrentMonth(entity.MockIncome.UserID)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, incomeMock.MockIncome.SubmitDate, res.SubmitDate)
+		assert.Equal(t, entity.MockIncome.SubmitDate, res.SubmitDate)
 	})
 }
 func TestUsecaseGetIncomeByUserIdAndAllMonth(t *testing.T) {
@@ -257,14 +246,14 @@ func TestUsecaseGetIncomeByUserIdAndAllMonth(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
-		mockRepoIncome.EXPECT().GetIncomeByUserIdAllMonth(incomeMock.MockIncome.UserID).Return(incomeMock.MockIncomeList, nil)
+		mockRepoIncome.EXPECT().GetIncomeByUserIdAllMonth(entity.MockIncome.UserID).Return(entity.MockIncomeList, nil)
 		mockUserRepo := userMock.NewMockRepository(ctrl)
 
 		uc := NewUsecase(mockRepoIncome, mockUserRepo)
-		res, err := uc.GetIncomeByUserIdAllMonth(incomeMock.MockIncome.UserID)
+		res, err := uc.GetIncomeByUserIdAllMonth(entity.MockIncome.UserID)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, incomeMock.MockIncome.SubmitDate, res[0].SubmitDate)
+		assert.Equal(t, entity.MockIncome.SubmitDate, res[0].SubmitDate)
 		assert.Equal(t, "50440.00", res[1].NetIncome)
 	})
 }
@@ -275,11 +264,11 @@ func TestUsecaseGetIncomeByUserIdAndAllMonthCaseNoNetSpecialIncome(t *testing.T)
 		defer ctrl.Finish()
 
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
-		mockRepoIncome.EXPECT().GetIncomeByUserIdAllMonth(incomeMock.MockIncome.UserID).Return(incomeMock.MockIncomeListNoNetSpecialIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeByUserIdAllMonth(entity.MockIncome.UserID).Return(entity.MockIncomeListNoNetSpecialIncome, nil)
 		mockUserRepo := userMock.NewMockRepository(ctrl)
 
 		uc := NewUsecase(mockRepoIncome, mockUserRepo)
-		res, err := uc.GetIncomeByUserIdAllMonth(incomeMock.MockIncome.UserID)
+		res, err := uc.GetIncomeByUserIdAllMonth(entity.MockIncome.UserID)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, "00.00", res[0].NetIncome)

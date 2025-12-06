@@ -1,4 +1,4 @@
-package income
+package entity
 
 import (
 	"fmt"
@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/globalsign/mgo/bson"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -39,7 +38,7 @@ func NewIncomeFromRecord(data models.Income) *Income {
 		dailyRate:       data.DailyRate,
 		isVATRegistered: data.IsVATRegistered,
 	}
-	i.parse(entity.IncomeReq{
+	i.parse(IncomeReq{
 		SpecialIncome: data.SpecialIncome,
 		WorkDate:      data.WorkDate,
 		WorkingHours:  data.WorkingHours,
@@ -47,11 +46,27 @@ func NewIncomeFromRecord(data models.Income) *Income {
 	return &i
 }
 
+func CreateIncome(user models.User, req IncomeReq, note string) *models.Income {
+	i := NewIncome(user.ID.Hex())
+	record, err := i.prepareDataForAddIncome(req, user)
+	record.Note = note
+	utils.FailOnError(err, "Error prepare data for add income")
+	return record
+}
+
+func UpdateIncome(user models.User, req IncomeReq, note string, record *models.Income) *models.Income {
+	i := NewIncomeFromRecord(*record)
+	err := i.prepareDataForUpdateIncome(req, user, record)
+	record.Note = note
+	utils.FailOnError(err, "Error prepare data for add income")
+	return record
+}
+
 func (i *Income) SetLoan(l *models.StudentLoan) {
 	i.loan = l
 }
 
-func (i *Income) parseRequest(req entity.IncomeReq, userDetail models.User) error {
+func (i *Income) parseRequest(req IncomeReq, userDetail models.User) error {
 	err := i.parse(req)
 	if err != nil {
 		return err
@@ -62,7 +77,7 @@ func (i *Income) parseRequest(req entity.IncomeReq, userDetail models.User) erro
 	return nil
 }
 
-func (i *Income) prepareDataForAddIncome(req entity.IncomeReq, userDetail models.User) (*models.Income, error) {
+func (i *Income) prepareDataForAddIncome(req IncomeReq, userDetail models.User) (*models.Income, error) {
 	income := models.Income{}
 	err := i.prepareDataForUpdateIncome(req, userDetail, &income)
 	if err != nil {
@@ -71,7 +86,7 @@ func (i *Income) prepareDataForAddIncome(req entity.IncomeReq, userDetail models
 	return &income, nil
 }
 
-func (i *Income) prepareDataForUpdateIncome(req entity.IncomeReq, userDetail models.User, income *models.Income) error {
+func (i *Income) prepareDataForUpdateIncome(req IncomeReq, userDetail models.User, income *models.Income) error {
 	err := i.parseRequest(req, userDetail)
 	if err != nil {
 		return err
@@ -102,7 +117,7 @@ func (i *Income) prepareDataForUpdateIncome(req entity.IncomeReq, userDetail mod
 	return nil
 }
 
-func (i *Income) parse(req entity.IncomeReq) error {
+func (i *Income) parse(req IncomeReq) error {
 	var err error
 	i.workDate, err = utils.StringToFloat64(req.WorkDate)
 	if err != nil {
@@ -212,6 +227,45 @@ func (i *Income) export() []string {
 	return d
 }
 
+func (i *Income) submitDateStr() string {
+	t := i.data.SubmitDate
+	return fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
+}
+
+func (t *Income) toTransaction(dateEff time.Time) Transaction {
+	return Transaction{
+		ComName:    "บจก. ออด-อี (ประเทศไทย) จำกัด",
+		Payee:      t.data.Name,
+		MailTo:     "",
+		BenAddr1:   "",
+		BenAddr2:   "",
+		BenAddr3:   "",
+		BenAddr4:   "",
+		ZipCode:    "",
+		Ref:        "",
+		DateEff:    dateEff,
+		ComAccNo:   "0011595873",
+		Amt:        t.transferAmount(),
+		PayYeeBank: "011",
+		RecBRCode:  "",
+		AccNo:      t.data.BankAccountNumber,
+		AdvMode:    "",
+		Fax:        "",
+		Mail:       "",
+		SMS:        "",
+		ChargeOn:   "OUR",
+		Product:    "DCR",
+		Schedule:   "",
+		DocReq:     "",
+		Address:    "2549/41-43 พหลโยธิน ลาดยาว จตุจักร กรุงเทพ 10900",
+		TaxID:      "0105556110718",
+	}
+}
+func (i *Income) exportSAP(dateEff time.Time) ([]string, []string) {
+	txn := i.toTransaction(dateEff)
+	return txn.ToTXNLine(), txn.ToWHTLine()
+}
+
 type Transaction struct {
 	ComName    string
 	Payee      string
@@ -304,127 +358,6 @@ func (t Transaction) ToWHTLine() []string {
 	}
 }
 
-func (t *Income) toTransaction(dateEff time.Time) Transaction {
-	return Transaction{
-		ComName:    "บจก. ออด-อี (ประเทศไทย) จำกัด",
-		Payee:      t.data.Name,
-		MailTo:     "",
-		BenAddr1:   "",
-		BenAddr2:   "",
-		BenAddr3:   "",
-		BenAddr4:   "",
-		ZipCode:    "",
-		Ref:        "",
-		DateEff:    dateEff,
-		ComAccNo:   "0011595873",
-		Amt:        t.transferAmount(),
-		PayYeeBank: "011",
-		RecBRCode:  "",
-		AccNo:      t.data.BankAccountNumber,
-		AdvMode:    "",
-		Fax:        "",
-		Mail:       "",
-		SMS:        "",
-		ChargeOn:   "OUR",
-		Product:    "DCR",
-		Schedule:   "",
-		DocReq:     "",
-		Address:    "2549/41-43 พหลโยธิน ลาดยาว จตุจักร กรุงเทพ 10900",
-		TaxID:      "0105556110718",
-	}
-}
-func (i *Income) exportSAP(dateEff time.Time) ([]string, []string) {
-	txn := i.toTransaction(dateEff)
-	return txn.ToTXNLine(), txn.ToWHTLine()
-}
-
-func (i *Income) submitDateStr() string {
-	t := i.data.SubmitDate
-	return fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
-}
-
-type Incomes struct {
-	records []*models.Income
-	loans   models.StudentLoanList
-}
-
-func NewIncomes(records []*models.Income, loans models.StudentLoanList) *Incomes {
-	return &Incomes{
-		records: records,
-		loans:   loans,
-	}
-}
-
-func NewIncomesWithoutLoans(records []*models.Income) *Incomes {
-	return NewIncomes(records, models.StudentLoanList{})
-}
-
-func (ics *Incomes) FindByUserID(id string) *models.Income {
-	for _, e := range ics.records {
-		if id == e.UserID {
-			return e
-		}
-	}
-	return &models.Income{}
-}
-
-func (ics *Incomes) processRecords(process func(index int, i *Income) [][]string) ([][]string, []string) {
-	strWrite := make([][]string, 0)
-	updatedIncomeIds := []string{}
-	for index, e := range ics.records {
-		income := *e
-		if income.ID.Hex() != "" {
-			updatedIncomeIds = append(updatedIncomeIds, income.ID.Hex())
-			loan := ics.loans.FindLoan(income.BankAccountName)
-			i := NewIncomeFromRecord(income)
-			i.SetLoan(&loan)
-			rows := process(index, i)
-			strWrite = append(strWrite, rows...)
-		}
-	}
-	return strWrite, updatedIncomeIds
-}
-
-// TODO: Remove this function after moving income.Incomes -> entity.Payroll
-func (ics *Incomes) TempToCSV() ([][]string, []string) {
-	return ics.toCSV()
-}
-
-func (ics *Incomes) toCSV() ([][]string, []string) {
-	rows, ids := ics.processRecords(func(index int, i *Income) [][]string {
-		d := i.export()
-		d[VENDOR_CODE_INDEX] = ics.getVendorCode(index)
-		return [][]string{d}
-	})
-	return append([][]string{createHeaders()}, rows...), ids
-}
-
-func (ics *Incomes) toSAP(dateEff time.Time) ([][]string, []string) {
-	return ics.processRecords(func(index int, i *Income) [][]string {
-		txn, wht := i.exportSAP(dateEff)
-		return [][]string{txn, wht}
-	})
-}
-
-func (ics *Incomes) getVendorCode(i int) string {
-	return VendorCode{index: i}.String()
-}
-func CreateIncome(user models.User, req entity.IncomeReq, note string) *models.Income {
-	i := NewIncome(string(user.ID))
-	record, err := i.prepareDataForAddIncome(req, user)
-	record.Note = note
-	utils.FailOnError(err, "Error prepare data for add income")
-	return record
-}
-
-func UpdateIncome(user models.User, req entity.IncomeReq, note string, record *models.Income) *models.Income {
-	i := NewIncomeFromRecord(*record)
-	err := i.prepareDataForUpdateIncome(req, user, record)
-	record.Note = note
-	utils.FailOnError(err, "Error prepare data for add income")
-	return record
-}
-
 func GivenIndividualUser(uidFromSession string, dailyIncome string) models.User {
 	return models.User{
 		ID:          bson.ObjectIdHex(uidFromSession),
@@ -432,25 +365,4 @@ func GivenIndividualUser(uidFromSession string, dailyIncome string) models.User 
 		Vat:         "N",
 		DailyIncome: dailyIncome,
 	}
-}
-
-type VendorCode struct {
-	index int
-}
-
-func (vc VendorCode) String() string {
-	return string([]rune{vc.getFirstLetter(), vc.getSecondLetter(), vc.getThirdLetter()})
-}
-
-func (vc VendorCode) getFirstLetter() rune {
-	first := 'A' + (vc.index / (26 * 26))
-	return rune(first)
-}
-
-func (vc VendorCode) getSecondLetter() rune {
-	return rune('A' + ((vc.index % (26 * 26)) / 26))
-}
-
-func (vc VendorCode) getThirdLetter() rune {
-	return rune('A' + (vc.index % 26))
 }

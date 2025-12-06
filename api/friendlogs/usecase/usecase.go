@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
@@ -24,13 +23,13 @@ func (u *usecase) SaveIncome(allIncomesCurrentMonth []*models.Income, incomeStr,
 	utils.FailOnError(err, "Error parsing JSON")
 	user := data.user()
 	req := data.incomeReq()
-	ics := income.NewIncomesWithoutLoans(allIncomesCurrentMonth)
+	ics := entity.NewIncomesWithoutLoans(allIncomesCurrentMonth)
 	original := ics.FindByUserID(data.id())
 	lastUpdate, _ := utils.ParseDate(data.Income.UpdatedAt)
 	if lastUpdate.Before(original.LastUpdate) {
 		log.Panic("Old event: ignored")
 	}
-	record := income.UpdateIncome(user, req, original.Note, original)
+	record := entity.UpdateIncome(user, req, original.Note, original)
 	record.Note = data.appendNote(original.Note, action)
 	record.SubmitDate, _ = utils.ParseDate(data.Income.CreatedAt)
 	record.LastUpdate = lastUpdate
@@ -62,7 +61,7 @@ type Registration struct {
 
 func (data *IncomeCreatedEvent) user() models.User {
 	uid := "000000000000000000000000"
-	user := income.GivenIndividualUser(uid, data.Registration.DailyIncome)
+	user := entity.GivenIndividualUser(uid, data.Registration.DailyIncome)
 	user.ThaiCitizenID = data.Registration.ThaiCitizenID
 	user.FirstName = data.Registration.FirstName
 	user.LastName = data.Registration.LastName
