@@ -190,13 +190,6 @@ func (i *Income) VAT(totalIncome float64) float64 {
 	return totalIncome * 0.07
 }
 
-func calTotalWithLoanDeduction(totalIncomeStr string, loan models.StudentLoan) string {
-	totalIncome, _ := utils.StringToFloat64(totalIncomeStr)
-	totalIncome = totalIncome - float64(loan.Amount)
-	totalIncomeStr = utils.FloatToString(totalIncome)
-	return totalIncomeStr
-}
-
 func (i *Income) export() []string {
 	income := *i.data
 	loan := *i.loan
