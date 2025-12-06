@@ -6,6 +6,7 @@ import (
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/friendlogs/usecase"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/repositories"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
@@ -24,8 +25,9 @@ func saveIncome(s *mongo.Session, event, action string) {
 	er := NewRepository(s)
 	er.Create(action, event)
 	r := income.NewRepository(s)
+	incomeReader := repositories.NewIncomeReader(s)
 	start, end := utils.GetStartDateAndEndDate(time.Now())
-	incomes, err := r.GetAllIncomeByRoleStartDateAndEndDate("individual", start, end)
+	incomes, err := incomeReader.GetAllIncomeByRoleStartDateAndEndDate("individual", start, end)
 	utils.FailOnError(err, "Fail to retrieve incomes")
 	record := usecase.NewUsecase().SaveIncome(incomes, event, action)
 	if record.ID.Hex() == "" {

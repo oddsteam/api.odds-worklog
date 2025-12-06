@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
 	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/entity/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/api/usecases"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
@@ -33,7 +34,8 @@ func TestAddIncome(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenUser)
 
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		defer ctrl.Finish()
 		handler.AddIncome(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -53,7 +55,8 @@ func TestAddIncome(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues(entity.MockIncome.ID.Hex())
 
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		defer ctrl.Finish()
 		handler.AddIncome(c)
 		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 	})
@@ -77,7 +80,8 @@ func TestUpdateIncome(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues(entity.MockIncome.ID.Hex())
 
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		defer ctrl.Finish()
 		handler.UpdateIncome(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -94,7 +98,8 @@ func TestUpdateIncome(t *testing.T) {
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		defer ctrl.Finish()
 		handler.UpdateIncome(c)
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 	})
@@ -113,7 +118,8 @@ func TestUpdateIncome(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues(entity.MockIncome.ID.Hex())
 
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		defer ctrl.Finish()
 		handler.UpdateIncome(c)
 		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 	})
@@ -137,7 +143,8 @@ func TestGetCorporateIncomeStatus(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenAdmin)
 
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		defer ctrl.Finish()
 		handler.GetCorporateIncomeStatus(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -158,7 +165,8 @@ func TestGetCorporateIncomeStatus(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenAdmin)
 
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		defer ctrl.Finish()
 		handler.GetCorporateIncomeStatus(c)
 		incomeByte, _ := json.Marshal(entity.MockIndividualIncomeStatus)
 		incomeJson := string(incomeByte)
@@ -183,7 +191,8 @@ func TestGetIndividualIncomeStatus(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenAdmin)
 
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		defer ctrl.Finish()
 		handler.GetIndividualIncomeStatus(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -204,7 +213,8 @@ func TestGetIndividualIncomeStatus(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenAdmin)
 
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		defer ctrl.Finish()
 		handler.GetIndividualIncomeStatus(c)
 		incomeByte, _ := json.Marshal(entity.MockCorporateIncomeStatus)
 		incomeJson := string(incomeByte)
@@ -229,7 +239,8 @@ func TestGetIncomeGetIncomeCurrentMonthByUserId(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
 
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		defer ctrl.Finish()
 		handler.GetIncomeCurrentMonthByUserId(c)
 
 		incomeByte, _ := json.Marshal(entity.MockIncome)
@@ -252,7 +263,8 @@ func TestGetIncomeGetIncomeCurrentMonthByUserId(t *testing.T) {
 		mockUser.ID = ""
 		c.Set("user", userMock.TokenUser)
 
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		defer ctrl.Finish()
 		handler.GetIncomeCurrentMonthByUserId(c)
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 	})
@@ -273,7 +285,8 @@ func TestGetIncomeGetIncomeAllMonthByUserId(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
 
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		defer ctrl.Finish()
 		handler.GetIncomeAllMonthByUserId(c)
 
 		incomeByte, _ := json.Marshal(entity.MockIncomeList)
@@ -308,7 +321,6 @@ func TestGetExportCorporateIncomeStatus(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().ExportIncome("corporate", "1").Return("test.csv", nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -317,7 +329,9 @@ func TestGetExportCorporateIncomeStatus(t *testing.T) {
 		c.Set("user", userMock.TokenAdmin)
 		c.SetParamNames("month")
 		c.SetParamValues("1")
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t, mockUsecase)
+		defer ctrl.Finish()
+		mockRepo.ExpectGetAllIncomeOfPreviousMonthByRole(entity.MockIncomeList)
 		handler.GetExportCorporate(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -330,7 +344,6 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().ExportIncome("individual", "1").Return("test.csv", nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -339,7 +352,9 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 		c.Set("user", userMock.TokenAdmin)
 		c.SetParamNames("month")
 		c.SetParamValues("1")
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t, mockUsecase)
+		defer ctrl.Finish()
+		mockRepo.ExpectGetAllIncomeOfPreviousMonthByRole(entity.MockIncomeList)
 		handler.GetExportIndividual(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -368,10 +383,8 @@ func TestPostExportSAPIncome(t *testing.T) {
 		startDate, _ := time.Parse("01/2006", body.StartDate)
 		endDate, _ := time.Parse("01/2006", body.EndDate)
 		endDate = endDate.AddDate(0, 1, 0)
-		dateEff, _ := time.Parse("02/01/2006", body.DateEffective)
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().ExportIncomeSAPByStartDateAndEndDate("corporate", startDate, endDate, dateEff).Return("test.csv", nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", bytes.NewReader(jsonBody))
@@ -379,7 +392,9 @@ func TestPostExportSAPIncome(t *testing.T) {
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t, mockUsecase)
+		defer ctrl.Finish()
+		mockRepo.GetAllIncomeByRoleStartDateAndEndDate(entity.MockIncomeList, body.Role, startDate, endDate)
 		handler.PostExportSAP(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -399,10 +414,8 @@ func TestPostExportSAPIncome(t *testing.T) {
 		startDate, _ := time.Parse("01/2006", body.StartDate)
 		endDate, _ := time.Parse("01/2006", body.EndDate)
 		endDate = endDate.AddDate(0, 1, 0)
-		dateEff, _ := time.Parse("02/01/2006", body.DateEffective)
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().ExportIncomeSAPByStartDateAndEndDate("individual", startDate, endDate, dateEff).Return("test.csv", nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", bytes.NewReader(jsonBody))
@@ -410,9 +423,21 @@ func TestPostExportSAPIncome(t *testing.T) {
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 
-		handler := &HttpHandler{mockUsecase}
+		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t, mockUsecase)
+		defer ctrl.Finish()
+		mockRepo.GetAllIncomeByRoleStartDateAndEndDate(entity.MockIncomeList, body.Role, startDate, endDate)
 		handler.PostExportSAP(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
+}
+
+func createHandlerWithMockUsecases(t *testing.T, mockUsecase *incomeMock.MockUsecase) (*HttpHandler, *gomock.Controller) {
+	export, ctrl, _ := usecases.CreateExportIncomeUsecaseWithMock(t)
+	return &HttpHandler{mockUsecase, export}, ctrl
+}
+
+func createHandlerWithMockUsecasesAndRepo(t *testing.T, mockUsecase *incomeMock.MockUsecase) (*HttpHandler, *gomock.Controller, *usecases.MockIncomeRepository) {
+	export, ctrl, mockRepo := usecases.CreateExportIncomeUsecaseWithMock(t)
+	return &HttpHandler{mockUsecase, export}, ctrl, mockRepo
 }

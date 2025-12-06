@@ -1,4 +1,4 @@
-package income
+package repositories
 
 import (
 	"testing"
