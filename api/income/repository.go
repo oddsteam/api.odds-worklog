@@ -14,7 +14,6 @@ const (
 	incomeColl      = "income"
 	exportColl      = "export"
 	studentLoanColl = "studentloan"
-	userColl        = "user"
 )
 
 type repository struct {
@@ -113,14 +112,6 @@ func createQueryByPeriod(startDate time.Time, endDate time.Time) bson.M {
 			"$gt": startDate,
 			"$lt": endDate,
 		},
-	}
-	return query
-}
-
-func createQueryGetUserByRole(role string) bson.M {
-
-	query := bson.M{
-		"role": role,
 	}
 	return query
 }
