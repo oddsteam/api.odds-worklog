@@ -368,41 +368,37 @@ func (ics *Incomes) FindByUserID(id string) *models.Income {
 	return &models.Income{}
 }
 
-func (ics *Incomes) toCSV() (csv [][]string, updatedIncomeIds []string) {
+func (ics *Incomes) processRecords(process func(index int, i *Income) [][]string) ([][]string, []string) {
 	strWrite := make([][]string, 0)
-	strWrite = append(strWrite, createHeaders())
-	updatedIncomeIds = []string{}
+	updatedIncomeIds := []string{}
 	for index, e := range ics.records {
 		income := *e
-		loan := ics.loans.FindLoan(income.BankAccountName)
 		if income.ID.Hex() != "" {
 			updatedIncomeIds = append(updatedIncomeIds, income.ID.Hex())
+			loan := ics.loans.FindLoan(income.BankAccountName)
 			i := NewIncomeFromRecord(income)
 			i.SetLoan(&loan)
-			d := i.export()
-			d[VENDOR_CODE_INDEX] = ics.getVendorCode(index)
-			strWrite = append(strWrite, d)
+			rows := process(index, i)
+			strWrite = append(strWrite, rows...)
 		}
 	}
 	return strWrite, updatedIncomeIds
 }
 
-func (ics *Incomes) toSAP(dateEff time.Time) (csv [][]string, updatedIncomeIds []string) {
-	strWrite := make([][]string, 0)
-	updatedIncomeIds = []string{}
-	for _, e := range ics.records {
-		income := *e
-		loan := ics.loans.FindLoan(income.BankAccountName)
-		if income.ID.Hex() != "" {
-			updatedIncomeIds = append(updatedIncomeIds, income.ID.Hex())
-			i := NewIncomeFromRecord(income)
-			i.SetLoan(&loan)
-			txn, wht := i.exportSAP(dateEff)
-			strWrite = append(strWrite, txn)
-			strWrite = append(strWrite, wht)
-		}
-	}
-	return strWrite, updatedIncomeIds
+func (ics *Incomes) toCSV() ([][]string, []string) {
+	rows, ids := ics.processRecords(func(index int, i *Income) [][]string {
+		d := i.export()
+		d[VENDOR_CODE_INDEX] = ics.getVendorCode(index)
+		return [][]string{d}
+	})
+	return append([][]string{createHeaders()}, rows...), ids
+}
+
+func (ics *Incomes) toSAP(dateEff time.Time) ([][]string, []string) {
+	return ics.processRecords(func(index int, i *Income) [][]string {
+		txn, wht := i.exportSAP(dateEff)
+		return [][]string{txn, wht}
+	})
 }
 
 func (ics *Incomes) getVendorCode(i int) string {
