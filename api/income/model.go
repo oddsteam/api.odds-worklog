@@ -56,8 +56,7 @@ func (i *Income) parseRequest(req models.IncomeReq, userDetail models.User) erro
 		return err
 	}
 	i.u = user.NewUser(userDetail)
-	i.u.Parse()
-	i.dailyRate = i.u.DailyRate
+	i.dailyRate = i.u.DailyRate()
 	i.isVATRegistered = i.u.IsVATRegistered()
 	return nil
 }
@@ -95,7 +94,7 @@ func (i *Income) prepareDataForUpdateIncome(req models.IncomeReq, userDetail mod
 	income.WorkDate = req.WorkDate
 	income.SpecialIncome = req.SpecialIncome
 	income.WorkingHours = req.WorkingHours
-	income.DailyRate = i.u.DailyRate
+	income.DailyRate = i.u.DailyRate()
 	income.IsVATRegistered = i.u.IsVATRegistered()
 	income.TotalIncome = i.totalIncomeStr()
 
