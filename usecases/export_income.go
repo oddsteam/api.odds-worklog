@@ -15,7 +15,7 @@ import (
 )
 
 type ForUsingExportIncome interface {
-	ExportIncome(role string, beforeMonth string) (string, error)
+	ExportIncome(role string, monthIndex string) (string, error)
 	ExportIncomeByStartDateAndEndDate(role string, startDate, endDate time.Time) (string, error)
 	ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate time.Time, dateEff time.Time) (string, error)
 }
@@ -30,13 +30,9 @@ func NewExportIncomeUsecase(r ForGettingIncomeData, ex ForControllingIncomeData,
 	return &usecase{r, ex, ur}
 }
 
-func (u *usecase) ExportIncome(role string, beforeMonth string) (string, error) {
-	return u.exportIncome(role, beforeMonth)
-}
-
-func (u *usecase) exportIncome(role string, beforeMonth string) (string, error) {
+func (u *usecase) ExportIncome(role string, monthIndex string) (string, error) {
 	var t time.Time
-	if beforeMonth == "0" {
+	if monthIndex == "0" {
 		t = time.Now()
 	} else {
 		t = time.Now().AddDate(0, -1, 0)
@@ -132,6 +128,5 @@ func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, e
 }
 
 func createSAPRow(record []string) string {
-	// r := filterEmojis(record)
 	return strings.Join(record, "") + "\n"
 }
