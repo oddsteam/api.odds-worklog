@@ -1,4 +1,4 @@
-package utils
+package file
 
 import (
 	"os"
@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateCSVFile(t *testing.T) {
-	file, filename, err := CreateCVSFile("corporate")
+func TestCreateFile(t *testing.T) {
+	file, filename, err := CreateFile("corporate")
 	assert.NotNil(t, file)
 	assert.NotEmpty(t, filename)
 	assert.NoError(t, err)

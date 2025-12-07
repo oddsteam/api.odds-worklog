@@ -16,6 +16,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/file"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 	validator "gopkg.in/go-playground/validator.v9"
@@ -261,35 +262,24 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 }
 
 func (h *HttpHandler) PostExportSAP(c echo.Context) error {
-
 	var req = c.Request()
 	defer req.Body.Close()
 	decoder := json.NewDecoder(req.Body)
 
-	var t entity.ExportInComeSAPReq
-	err := decoder.Decode(&t)
+	var exReq entity.ExportInComeSAPReq
+	err := decoder.Decode(&exReq)
 
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("ExportInComeSAPReq: %+v\n", t)
+	fmt.Printf("ExportInComeSAPReq: %+v\n", exReq)
 
-	startDate, err := time.Parse("01/2006", t.StartDate)
+	startDate, endDate, dateEff, err := exReq.ParseDates()
 	if err != nil {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("startDate"))
-	}
-	endDate, err := time.Parse("01/2006", t.EndDate)
-	if err != nil {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("endDate"))
+		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 
-	dateEff, err := time.Parse("02/01/2006", t.DateEffective)
-	if err != nil {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("dateEffective"))
-	}
-
-	endDate = endDate.AddDate(0, 1, 0)
-	filename, err := h.ExportIncomeUsecase.ExportIncomeSAPByStartDateAndEndDate(t.Role, startDate, endDate, dateEff)
+	filename, err := h.ExportIncomeUsecase.ExportIncomeSAPByStartDateAndEndDate(exReq.Role, startDate, endDate, dateEff)
 	if err != nil {
 		log.Println(err.Error())
 		return utils.NewError(c, http.StatusInternalServerError, errors.New("internal Server Error"))
@@ -361,7 +351,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	incomeWriter := repositories.NewIncomeWriter(session)
 	userRepo := user.NewRepository(session)
 	uc := NewUsecase(incomeRepo, userRepo)
-	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, userRepo)
+	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, userRepo, file.NewCSVWriter(), file.NewSAPWriter())
 	handler := &HttpHandler{uc, ex}
 
 	r = r.Group("/incomes")
@@ -384,7 +374,7 @@ func NewHttpHandler2(r *echo.Group, session *mongo.Session) {
 	incomeWriter := repositories.NewIncomeWriter(session)
 	userRepo := user.NewRepository(session)
 	uc := NewUsecase(incomeRepo, userRepo)
-	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, userRepo)
+	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, userRepo, file.NewCSVWriter(), file.NewSAPWriter())
 	handler := &HttpHandler{uc, ex}
 
 	r = r.Group("/incomes")
