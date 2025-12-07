@@ -35,8 +35,8 @@ func (w *csvWriter) WriteFile(name string, ics entity.Incomes) (string, error) {
 }
 
 func ToCSV(ics entity.Incomes) ([][]string, []string) {
-	rows, ids := ics.ProcessRecords(func(index int, i *entity.Income) [][]string {
-		d := export(*i)
+	rows, ids := ics.ProcessRecords(func(index int, i entity.Income) [][]string {
+		d := export(i)
 		d[VENDOR_CODE_INDEX] = getVendorCode(index)
 		return [][]string{d}
 	})

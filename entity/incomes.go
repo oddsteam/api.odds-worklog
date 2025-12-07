@@ -29,7 +29,7 @@ func (ics *Incomes) FindByUserID(id string) *models.Income {
 	return &models.Income{}
 }
 
-func (ics *Incomes) ProcessRecords(process func(index int, i *Income) [][]string) ([][]string, []string) {
+func (ics *Incomes) ProcessRecords(process func(index int, i Income) [][]string) ([][]string, []string) {
 	strWrite := make([][]string, 0)
 	updatedIncomeIds := []string{}
 	for index, e := range ics.records {
@@ -39,7 +39,7 @@ func (ics *Incomes) ProcessRecords(process func(index int, i *Income) [][]string
 			loan := ics.loans.FindLoan(income.BankAccountName)
 			i := NewIncomeFromRecord(income)
 			i.SetLoan(&loan)
-			rows := process(index, i)
+			rows := process(index, *i)
 			strWrite = append(strWrite, rows...)
 		}
 	}

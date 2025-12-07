@@ -46,8 +46,8 @@ func createSAPRow(record []string) string {
 }
 
 func ToSAP(ics entity.Incomes, dateEff time.Time) ([][]string, []string) {
-	return ics.ProcessRecords(func(index int, i *entity.Income) [][]string {
-		txn, wht := exportSAP(*i, dateEff)
+	return ics.ProcessRecords(func(index int, i entity.Income) [][]string {
+		txn, wht := exportSAP(i, dateEff)
 		return [][]string{txn, wht}
 	})
 }
