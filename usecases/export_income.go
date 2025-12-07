@@ -42,13 +42,6 @@ func (u *usecase) ExportIncome(role string, monthIndex string) (string, error) {
 }
 
 func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, startDate, endDate time.Time) (string, error) {
-	file, filename, err := utils.CreateCVSFile(role)
-	defer file.Close()
-
-	if err != nil {
-		return "", err
-	}
-
 	incomes, err := u.repo.GetAllIncomeByRoleStartDateAndEndDate(role, startDate, endDate)
 
 	if err != nil {
@@ -63,6 +56,13 @@ func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, startDate, endD
 	if len(strWrite) == 1 {
 		return "", errors.New("no data for export to CSV file")
 	}
+
+	file, filename, err := utils.CreateCVSFile(role)
+
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
 
 	csvWriter := csv.NewWriter(file)
 	csvWriter.WriteAll(strWrite)
@@ -81,16 +81,6 @@ func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, startDate, endD
 }
 
 func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate time.Time, dateEff time.Time) (string, error) {
-	file, filename, err := utils.CreateCVSFile(role)
-	encoder := charmap.Windows874.NewEncoder()
-	writer := transform.NewWriter(file, encoder)
-	defer file.Close()
-	defer writer.Close()
-
-	if err != nil {
-		return "", err
-	}
-
 	incomes, err := u.repo.GetAllIncomeByRoleStartDateAndEndDate(role, startDate, endDate)
 
 	if err != nil {
@@ -105,6 +95,16 @@ func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, e
 
 	if len(strWrite) == 0 {
 		return "", errors.New("no data for export to SAP file")
+	}
+
+	file, filename, err := utils.CreateCVSFile(role)
+	encoder := charmap.Windows874.NewEncoder()
+	writer := transform.NewWriter(file, encoder)
+	defer file.Close()
+	defer writer.Close()
+
+	if err != nil {
+		return "", err
 	}
 
 	for _, record := range strWrite {
