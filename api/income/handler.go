@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/requests"
-
 	"gitlab.odds.team/worklog/api.odds-worklog/api/repositories"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/entity"
@@ -20,7 +18,6 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
-	_ "gitlab.odds.team/worklog/api.odds-worklog/requests"
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
@@ -269,7 +266,7 @@ func (h *HttpHandler) PostExportSAP(c echo.Context) error {
 	defer req.Body.Close()
 	decoder := json.NewDecoder(req.Body)
 
-	var t requests.ExportInComeSAPReq
+	var t entity.ExportInComeSAPReq
 	err := decoder.Decode(&t)
 
 	if err != nil {
@@ -316,7 +313,7 @@ func (h *HttpHandler) PostExportPdf(c echo.Context) error {
 	defer req.Body.Close()
 	decoder := json.NewDecoder(req.Body)
 
-	var t requests.ExportInComeReq
+	var t entity.ExportInComeReq
 	err := decoder.Decode(&t)
 
 	if err != nil {

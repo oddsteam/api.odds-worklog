@@ -1,4 +1,4 @@
-package requests
+package entity
 
 type ExportInComeReq struct {
 	Role      string `json:"role"`
