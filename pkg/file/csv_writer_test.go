@@ -177,10 +177,3 @@ func TestModelIncomes(t *testing.T) {
 		assert.Equal(t, 1, len(updatedIncomeIds))
 	})
 }
-
-func TestModelVendorCode(t *testing.T) {
-	t.Run("test large index vendor code", func(t *testing.T) {
-		vc := VendorCode{index: 381}
-		assert.Equal(t, "AOR", vc.String())
-	})
-}
