@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/api/repositories"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/entity"
+	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
 	"gitlab.odds.team/worklog/api.odds-worklog/usecases"
 
 	jwt "github.com/dgrijalva/jwt-go"

@@ -6,9 +6,9 @@ import (
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/friendlogs/usecase"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/repositories"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
 )
 
 func CreateIncome(s *mongo.Session, incomeCreatedEvent string) {
