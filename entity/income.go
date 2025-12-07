@@ -2,7 +2,6 @@ package entity
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -101,11 +100,11 @@ func (i *Income) prepareDataForUpdateIncome(req IncomeReq, userDetail models.Use
 	income.BankAccountNumber = userDetail.BankAccountNumber
 	income.Email = userDetail.Email
 	income.Phone = userDetail.Phone
-	income.NetIncome = i.transferAmountStr()
-	income.NetSpecialIncome = i.netSpecialIncomeStr()
-	income.NetDailyIncome = i.netDailyIncomeStr()
+	income.NetIncome = i.TransferAmountStr()
+	income.NetSpecialIncome = i.NetSpecialIncomeStr()
+	income.NetDailyIncome = i.NetDailyIncomeStr()
 	income.VAT = i.totalVatStr()
-	income.WHT = utils.FloatToString(i.totalWHT())
+	income.WHT = i.TotalWHTStr()
 	income.Note = req.Note
 	income.WorkDate = req.WorkDate
 	income.SpecialIncome = req.SpecialIncome
@@ -150,15 +149,15 @@ func (i *Income) totalWHT() float64 {
 	return i.WitholdingTax(i.totalIncome())
 }
 
-func (i *Income) transferAmountStr() string {
-	return utils.FloatToString(i.transferAmount())
+func (i *Income) TransferAmountStr() string {
+	return utils.FloatToString(i.TransferAmount())
 }
 
-func (i *Income) transferAmount() float64 {
+func (i *Income) TransferAmount() float64 {
 	return i.netDailyIncome() + i.netSpecialIncome() - float64(i.loan.Amount)
 }
 
-func (i *Income) netDailyIncomeStr() string {
+func (i *Income) NetDailyIncomeStr() string {
 	return utils.FloatToString(i.netDailyIncome())
 }
 
@@ -178,7 +177,7 @@ func (i *Income) dailyIncome() float64 {
 	return (i.workDate * i.dailyRate)
 }
 
-func (i *Income) netSpecialIncomeStr() string {
+func (i *Income) NetSpecialIncomeStr() string {
 	return utils.FloatToString(i.netSpecialIncome())
 }
 
@@ -205,157 +204,41 @@ func (i *Income) VAT(totalIncome float64) float64 {
 	return totalIncome * 0.07
 }
 
-func (i *Income) export() []string {
-	income := *i.data
-	loan := *i.loan
-	d := []string{
-		"",
-		income.BankAccountName,
-		"",
-		utils.SetValueCSV(income.BankAccountNumber),
-		income.Name,
-		income.ThaiCitizenID,
-		income.Email,
-		utils.FormatCommas(income.NetDailyIncome),
-		utils.FormatCommas(income.NetSpecialIncome),
-		loan.CSVAmount(),
-		income.WHT,
-		utils.FormatCommas(i.transferAmountStr()),
-		income.Note,
-		i.submitDateStr(),
-	}
-	return d
+func (i *Income) TotalWHTStr() string {
+	return utils.FloatToString(i.totalWHT())
 }
 
-func (i *Income) submitDateStr() string {
+func (i *Income) Note() string {
+	return i.data.Note
+}
+
+func (i *Income) SubmitDateStr() string {
 	t := i.data.SubmitDate
 	return fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 }
 
-func (t *Income) toTransaction(dateEff time.Time) Transaction {
-	return Transaction{
-		ComName:    "บจก. ออด-อี (ประเทศไทย) จำกัด",
-		Payee:      t.data.Name,
-		MailTo:     "",
-		BenAddr1:   "",
-		BenAddr2:   "",
-		BenAddr3:   "",
-		BenAddr4:   "",
-		ZipCode:    "",
-		Ref:        "",
-		DateEff:    dateEff,
-		ComAccNo:   "0011595873",
-		Amt:        t.transferAmount(),
-		PayYeeBank: "011",
-		RecBRCode:  "",
-		AccNo:      t.data.BankAccountNumber,
-		AdvMode:    "",
-		Fax:        "",
-		Mail:       "",
-		SMS:        "",
-		ChargeOn:   "OUR",
-		Product:    "DCR",
-		Schedule:   "",
-		DocReq:     "",
-		Address:    "2549/41-43 พหลโยธิน ลาดยาว จตุจักร กรุงเทพ 10900",
-		TaxID:      "0105556110718",
-	}
-}
-func (i *Income) exportSAP(dateEff time.Time) ([]string, []string) {
-	txn := i.toTransaction(dateEff)
-	return txn.ToTXNLine(), txn.ToWHTLine()
+func (i *Income) GetName() string {
+	return i.data.Name
 }
 
-type Transaction struct {
-	ComName    string
-	Payee      string
-	MailTo     string
-	BenAddr1   string
-	BenAddr2   string
-	BenAddr3   string
-	BenAddr4   string
-	ZipCode    string
-	Ref        string
-	DateEff    time.Time
-	ComAccNo   string
-	Amt        float64
-	PayYeeBank string
-	RecBRCode  string
-	AccNo      string
-	AdvMode    string
-	Fax        string
-	Mail       string
-	SMS        string
-	ChargeOn   string
-	Product    string
-	Schedule   string
-	DocReq     string
-	Address    string
-	TaxID      string
+func (i *Income) BankAccountNumber() string {
+	return i.data.BankAccountNumber
 }
 
-func (t Transaction) ToTXNLine() []string {
-	bankAccNo, _ := utils.ReceiveAcCode(t.PayYeeBank, t.AccNo)
-	return []string{
-		"TXN",
-		utils.AddBlank(t.ComName, 120),
-		utils.AddBlank(utils.FilterOthersThanThaiAndAscii(t.Payee), 130),
-		utils.AddBlank(t.MailTo, 40),
-		utils.AddBlank(t.BenAddr1, 40),
-		utils.AddBlank(t.BenAddr2, 40),
-		utils.AddBlank(t.BenAddr3, 40),
-		utils.AddBlank(t.BenAddr4, 40),
-		utils.AddBlank(t.ZipCode, 10),
-		utils.AddBlank(t.Ref, 16),
-		t.DateEff.Format("02012006"), // ddMMyyyy,
-		t.DateEff.Format("02012006"), // Date Pick up,
-		"THB",
-		utils.AddBlank("", 50),
-		"0" + utils.AddBlank(t.ComAccNo, 19),
-		utils.AmountStr(t.Amt, 15),
-		utils.AddBlank(utils.LeftN(t.PayYeeBank, 3), 3) + utils.ReceiveBRCode(t.PayYeeBank, t.AccNo) + utils.AddBlank("", 9),
-		utils.AddBlank(bankAccNo, 20),
-		"04" + "00",
-		utils.AddBlank("", 2),
-		utils.AddBlank("", 20), // Pickup Location,
-		utils.AddBlank(t.AdvMode, 5),
-		utils.AddBlank(strings.ReplaceAll(t.Fax, "-", ""), 50),
-		utils.AddBlank(strings.ReplaceAll(t.Mail, "", ""), 50),
-		utils.AddBlank(strings.ReplaceAll(t.SMS, "-", ""), 50),
-		utils.AddBlank(strings.ToUpper(t.ChargeOn), 13),
-		utils.AddBlank(t.Product, 3),
-		utils.AddBlank(utils.LeftN(t.Schedule, 5), 5),
-		utils.AddBlank("", 34),
-		utils.AddBlank(t.DocReq, 105),
-		utils.AddBlank("", 295),
-		"END",
-	}
+func (i *Income) ThaiCitizenID() string {
+	return i.data.ThaiCitizenID
 }
 
-func (t Transaction) ToWHTLine() []string {
-	return []string{
-		"WHT",
-		utils.AddBlank("", 13),
-		utils.AddBlank(t.TaxID, 13),
-		utils.AddBlank("", 2),
-		utils.AmountStr(0, 15),
-		utils.AddBlank("", 2),
-		utils.AddBlank("", 35),
-		utils.AddBlank("", 5),
-		utils.AmountStr(0, 15),
-		utils.AmountStr(0, 15),
-		utils.AddBlank("", 2),
-		utils.AddBlank("", 35),
-		utils.AddBlank("", 5),
-		utils.AmountStr(0, 15),
-		utils.AddBlank("", 144),
-		utils.AddBlank(t.ComName, 120),
-		utils.AddBlank(t.Address, 160),
-		utils.AddBlank("", 120),
-		utils.AddBlank("", 160),
-		utils.AddBlank("", 20),
-		utils.AddBlank("", 938),
-	}
+func (i *Income) Email() string {
+	return i.data.Email
+}
+
+func (i *Income) GetDeduction() string {
+	return i.loan.CSVAmount()
+}
+
+func (i *Income) GetBankAccountName() string {
+	return i.data.BankAccountName
 }
 
 func GivenIndividualUser(uidFromSession string, dailyIncome string) models.User {

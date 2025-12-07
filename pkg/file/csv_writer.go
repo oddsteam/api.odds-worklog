@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/entity"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 type csvWriter struct{}
@@ -14,7 +15,7 @@ func NewCSVWriter() *csvWriter {
 }
 
 func (w *csvWriter) WriteFile(name string, ics entity.Incomes) (string, error) {
-	strWrite, _ := ics.ToCSV()
+	strWrite, _ := ToCSV(ics)
 
 	if len(strWrite) == 1 {
 		return "", errors.New("no data for export to CSV file")
@@ -31,4 +32,58 @@ func (w *csvWriter) WriteFile(name string, ics entity.Incomes) (string, error) {
 	csvWriter.Flush()
 	defer file.Close()
 	return filename, nil
+}
+
+func ToCSV(ics entity.Incomes) ([][]string, []string) {
+	rows, ids := ics.ProcessRecords(func(index int, i *entity.Income) [][]string {
+		d := export(*i)
+		d[VENDOR_CODE_INDEX] = getVendorCode(index)
+		return [][]string{d}
+	})
+	return append([][]string{createHeaders()}, rows...), ids
+}
+
+func getVendorCode(i int) string {
+	return VendorCode{index: i}.String()
+}
+
+const (
+	VENDOR_CODE_INDEX = iota
+	ACCOUNT_NAME_INDEX
+	PAYMENT_METHOD_INDEX
+	ACCOUNT_NUMBER_INDEX
+	NAME_INDEX
+	ID_CARD_INDEX
+	EMAIL_INDEX
+	NET_DAILY_INCOME_INDEX
+	NET_SPECIAL_INCOME_INDEX
+	LOAN_DEDUCTION_INDEX
+	WITHHOLDING_TAX_INDEX
+	TRANSFER_AMOUNT_INDEX
+	NOTE_INDEX
+	SUBMIT_DATE_INDEX
+)
+
+func createHeaders() []string {
+	return []string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
+}
+
+func export(i entity.Income) []string {
+	d := []string{
+		"",
+		i.GetBankAccountName(),
+		"",
+		utils.SetValueCSV(i.BankAccountNumber()),
+		i.GetName(),
+		i.ThaiCitizenID(),
+		i.Email(),
+		utils.FormatCommas(i.NetDailyIncomeStr()),
+		utils.FormatCommas(i.NetSpecialIncomeStr()),
+		i.GetDeduction(),
+		i.TotalWHTStr(),
+		utils.FormatCommas(i.TransferAmountStr()),
+		i.Note(),
+		i.SubmitDateStr(),
+	}
+	return d
 }

@@ -15,7 +15,7 @@ type sapWriter struct{}
 func NewSAPWriter() *sapWriter { return &sapWriter{} }
 
 func (w *sapWriter) WriteFile(name string, ics entity.Incomes, dateEff time.Time) (string, error) {
-	strWrite, _ := ics.ToSAP(dateEff)
+	strWrite, _ := ToSAP(ics, dateEff)
 
 	if len(strWrite) == 0 {
 		return "", errors.New("no data for export to SAP file")
@@ -43,4 +43,16 @@ func (w *sapWriter) WriteFile(name string, ics entity.Incomes, dateEff time.Time
 
 func createSAPRow(record []string) string {
 	return strings.Join(record, "") + "\n"
+}
+
+func ToSAP(ics entity.Incomes, dateEff time.Time) ([][]string, []string) {
+	return ics.ProcessRecords(func(index int, i *entity.Income) [][]string {
+		txn, wht := exportSAP(*i, dateEff)
+		return [][]string{txn, wht}
+	})
+}
+
+func exportSAP(i entity.Income, dateEff time.Time) ([]string, []string) {
+	txn := toTransaction(i, dateEff)
+	return txn.ToTXNLine(), txn.ToWHTLine()
 }
