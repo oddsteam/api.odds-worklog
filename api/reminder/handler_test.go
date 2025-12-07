@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/reminder"
+	"gitlab.odds.team/worklog/api.odds-worklog/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 
 	"github.com/labstack/echo"

@@ -10,10 +10,10 @@ import (
 
 	"gitlab.odds.team/worklog/api.odds-worklog/requests"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/repositories"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
+	"gitlab.odds.team/worklog/api.odds-worklog/entity"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"

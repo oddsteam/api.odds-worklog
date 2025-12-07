@@ -8,8 +8,8 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 

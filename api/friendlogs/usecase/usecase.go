@@ -6,7 +6,7 @@ import (
 	"log"
 	"strings"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
+	"gitlab.odds.team/worklog/api.odds-worklog/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )

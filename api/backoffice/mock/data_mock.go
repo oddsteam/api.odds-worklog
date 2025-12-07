@@ -6,8 +6,8 @@ import (
 
 	"github.com/globalsign/mgo/bson"
 
-	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/api/entity"
 	siteMock "gitlab.odds.team/worklog/api.odds-worklog/api/site/mock"
+	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/entity"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )

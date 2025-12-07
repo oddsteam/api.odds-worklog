@@ -9,7 +9,7 @@ import (
 	time "time"
 
 	gomock "github.com/golang/mock/gomock"
-	entity "gitlab.odds.team/worklog/api.odds-worklog/api/entity"
+	entity "gitlab.odds.team/worklog/api.odds-worklog/entity"
 	models "gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 

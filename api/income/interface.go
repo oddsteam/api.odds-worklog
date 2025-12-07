@@ -3,7 +3,7 @@ package income
 import (
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/api/entity"
+	"gitlab.odds.team/worklog/api.odds-worklog/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
