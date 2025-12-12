@@ -97,6 +97,16 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+func (h *HttpHandler) getIncomeStatus(c echo.Context, incomeType string) error {
+	isAdmin, _ := IsUserAdmin(c)
+
+	status, err := h.Usecase.GetIncomeStatusList(incomeType, isAdmin)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, status)
+}
+
 // GetCorporateIncomeStatus godoc
 // @Summary Get Corporate Income Status List
 // @Description Get Income Status List
@@ -109,13 +119,7 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/status/corporate [get]
 func (h *HttpHandler) GetCorporateIncomeStatus(c echo.Context) error {
-	isAdmin, _ := IsUserAdmin(c)
-
-	status, err := h.Usecase.GetIncomeStatusList("corporate", isAdmin)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.JSON(http.StatusOK, status)
+	return h.getIncomeStatus(c, "corporate")
 }
 
 // GetIndividualIncomeStatus godoc
@@ -130,13 +134,7 @@ func (h *HttpHandler) GetCorporateIncomeStatus(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/status/individual [get]
 func (h *HttpHandler) GetIndividualIncomeStatus(c echo.Context) error {
-	isAdmin, _ := IsUserAdmin(c)
-
-	status, err := h.Usecase.GetIncomeStatusList("individual", isAdmin)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.JSON(http.StatusOK, status)
+	return h.getIncomeStatus(c, "individual")
 }
 
 // GetIncomeAllMonthByUserId godoc
@@ -230,22 +228,14 @@ func (h *HttpHandler) GetExportPdf(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/corporate/{month} [get]
 func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
-	month := c.Param("month")
-	if month == "" {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
-	}
-	filename, err := h.ExportIncomeUsecase.ExportIncome("corporate", month)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.Attachment(filename, filename)
+	return h.getExportIncome(c, "corporate")
 }
 
 func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
+	return h.getExportIncome(c, "individual")
+}
+
+func (h *HttpHandler) getExportIncome(c echo.Context, incomeType string) error {
 	isAdmin, message := IsUserAdmin(c)
 	if !isAdmin {
 		return c.JSON(http.StatusUnauthorized, message)
@@ -254,7 +244,7 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	if month == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
-	filename, err := h.ExportIncomeUsecase.ExportIncome("individual", month)
+	filename, err := h.ExportIncomeUsecase.ExportIncome(incomeType, month)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
