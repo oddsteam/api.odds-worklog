@@ -56,7 +56,7 @@ func (m *MockIncomeRepository) ExpectGetAllIncomeOfCurrentMonthByRole(incomes []
 		gomock.Any(), startDate, endDate).Return(incomes, nil)
 }
 
-func (m *MockIncomeRepository) GetAllIncomeByRoleStartDateAndEndDate(incomes []*models.Income, role string, startDate, endDate time.Time) {
+func (m *MockIncomeRepository) ExpectGetAllIncomeByRoleStartDateAndEndDate(incomes []*models.Income, role string, startDate, endDate time.Time) {
 	m.mockRead.EXPECT().GetAllIncomeByRoleStartDateAndEndDate(
 		role, startDate, endDate).Return(incomes, nil)
 }

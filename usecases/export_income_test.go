@@ -78,7 +78,7 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 			&models.MockSoloCorporateIncome,
 			&models.MockSwardCorporateIncome,
 		}
-		mockRepoIncome.GetAllIncomeByRoleStartDateAndEndDate(incomes, "individual", startDate, endDate)
+		mockRepoIncome.ExpectGetAllIncomeByRoleStartDateAndEndDate(incomes, "individual", startDate, endDate)
 
 		filename, err := usecase.ExportIncomeSAPByStartDateAndEndDate("individual", startDate, endDate, dateEff)
 
@@ -100,7 +100,7 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 		incomes := []*models.Income{
 			i,
 		}
-		mockRepoIncome.GetAllIncomeByRoleStartDateAndEndDate(incomes, "individual", startDate, endDate)
+		mockRepoIncome.ExpectGetAllIncomeByRoleStartDateAndEndDate(incomes, "individual", startDate, endDate)
 
 		filename, err := usecase.ExportIncomeSAPByStartDateAndEndDate("individual", startDate, endDate, dateEff)
 
@@ -121,7 +121,7 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 			&models.MockSoloCorporateIncome,
 			&models.MockSwardCorporateIncome,
 		}
-		mockRepoIncome.GetAllIncomeByRoleStartDateAndEndDate(incomes, "corporate", startDate, endDate)
+		mockRepoIncome.ExpectGetAllIncomeByRoleStartDateAndEndDate(incomes, "corporate", startDate, endDate)
 
 		filename, err := usecase.ExportIncomeSAPByStartDateAndEndDate("corporate", startDate, endDate, dateEff)
 

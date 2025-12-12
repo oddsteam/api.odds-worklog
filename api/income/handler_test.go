@@ -38,11 +38,6 @@ func TestAddIncome(t *testing.T) {
 	})
 
 	t.Run("when add income but request body is not IncomeReq it should be return status Unprocessable Entity", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-
 		e := echo.New()
 		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(models.MockIncomeResJson))
 		rec := httptest.NewRecorder()
@@ -51,7 +46,7 @@ func TestAddIncome(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues(models.MockIncome.ID.Hex())
 
-		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
 		handler.AddIncome(c)
 		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
@@ -378,7 +373,7 @@ func TestPostExportSAPIncome(t *testing.T) {
 
 		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
-		mockRepo.GetAllIncomeByRoleStartDateAndEndDate(models.MockIncomeList, body.Role, startDate, endDate)
+		mockRepo.ExpectGetAllIncomeByRoleStartDateAndEndDate(models.MockIncomeList, body.Role, startDate, endDate)
 		handler.PostExportSAP(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -404,7 +399,7 @@ func TestPostExportSAPIncome(t *testing.T) {
 
 		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
-		mockRepo.GetAllIncomeByRoleStartDateAndEndDate(models.MockIncomeList, body.Role, startDate, endDate)
+		mockRepo.ExpectGetAllIncomeByRoleStartDateAndEndDate(models.MockIncomeList, body.Role, startDate, endDate)
 		handler.PostExportSAP(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
