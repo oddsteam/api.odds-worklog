@@ -3,7 +3,6 @@ package usecases
 import (
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -12,17 +11,15 @@ import (
 type usecase struct {
 	readRepo  ForGettingIncomeData
 	writeRepo ForControllingIncomeData
-	userRepo  user.Repository
 	csvWriter ForWritingCSVFile
 	sapWriter ForWritingSAPFile
 }
 
 func NewExportIncomeUsecase(r ForGettingIncomeData, ex ForControllingIncomeData,
-	ur user.Repository, csvW ForWritingCSVFile, sapW ForWritingSAPFile) ForUsingExportIncome {
+	csvW ForWritingCSVFile, sapW ForWritingSAPFile) ForUsingExportIncome {
 	return &usecase{
 		readRepo:  r,
 		writeRepo: ex,
-		userRepo:  ur,
 		csvWriter: csvW,
 		sapWriter: sapW,
 	}

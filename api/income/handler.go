@@ -351,7 +351,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	incomeWriter := repositories.NewIncomeWriter(session)
 	userRepo := user.NewRepository(session)
 	uc := NewUsecase(incomeRepo, userRepo)
-	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, userRepo, file.NewCSVWriter(), file.NewSAPWriter())
+	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter())
 	handler := &HttpHandler{uc, ex}
 
 	r = r.Group("/incomes")
@@ -374,7 +374,7 @@ func NewHttpHandler2(r *echo.Group, session *mongo.Session) {
 	incomeWriter := repositories.NewIncomeWriter(session)
 	userRepo := user.NewRepository(session)
 	uc := NewUsecase(incomeRepo, userRepo)
-	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, userRepo, file.NewCSVWriter(), file.NewSAPWriter())
+	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter())
 	handler := &HttpHandler{uc, ex}
 
 	r = r.Group("/incomes")
