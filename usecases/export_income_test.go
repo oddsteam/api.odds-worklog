@@ -19,6 +19,8 @@ func TestUsecaseExportIncome(t *testing.T) {
 			&models.MockIncome2,
 		}
 		mockRepoIncome.ExpectGetAllIncomeOfCurrentMonthByRole(incomes, time.Now())
+		mockRepoIncome.ExpectGetStudentLoans()
+		mockRepoIncome.ExpectAddExport()
 
 		filename, err := usecase.ExportIncome("individual", "0")
 
@@ -38,6 +40,8 @@ func TestUsecaseExportIncome(t *testing.T) {
 			{ID: bson.ObjectIdHex("5bd1fda30fd2df2a3e41e571"), Role: "individual", WorkDate: "20", DailyRate: 750},
 		}
 		mockRepoIncome.ExpectGetAllIncomeOfCurrentMonthByRole(incomes, time.Now())
+		mockRepoIncome.ExpectGetStudentLoans()
+		mockRepoIncome.ExpectAddExport()
 
 		filename, err := usecase.ExportIncome("individual", "0")
 
@@ -56,6 +60,8 @@ func TestUsecaseExportIncome(t *testing.T) {
 			&models.MockIncome2,
 		}
 		mockRepoIncome.ExpectGetAllIncomeOfPreviousMonthByRole(incomes)
+		mockRepoIncome.ExpectGetStudentLoans()
+		mockRepoIncome.ExpectAddExport()
 
 		filename, err := usecase.ExportIncome("corporate", "1")
 
@@ -79,6 +85,8 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 			&models.MockSwardCorporateIncome,
 		}
 		mockRepoIncome.ExpectGetAllIncomeByRoleStartDateAndEndDate(incomes, "individual", startDate, endDate)
+		mockRepoIncome.ExpectGetStudentLoans()
+		mockRepoIncome.ExpectAddExport()
 
 		filename, err := usecase.ExportIncomeSAPByStartDateAndEndDate("individual", startDate, endDate, dateEff)
 
@@ -101,6 +109,8 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 			i,
 		}
 		mockRepoIncome.ExpectGetAllIncomeByRoleStartDateAndEndDate(incomes, "individual", startDate, endDate)
+		mockRepoIncome.ExpectGetStudentLoans()
+		mockRepoIncome.ExpectAddExport()
 
 		filename, err := usecase.ExportIncomeSAPByStartDateAndEndDate("individual", startDate, endDate, dateEff)
 
@@ -122,6 +132,8 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 			&models.MockSwardCorporateIncome,
 		}
 		mockRepoIncome.ExpectGetAllIncomeByRoleStartDateAndEndDate(incomes, "corporate", startDate, endDate)
+		mockRepoIncome.ExpectGetStudentLoans()
+		mockRepoIncome.ExpectAddExport()
 
 		filename, err := usecase.ExportIncomeSAPByStartDateAndEndDate("corporate", startDate, endDate, dateEff)
 

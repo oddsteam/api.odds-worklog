@@ -33,8 +33,6 @@ func mockIncomeRepository(ctrl *gomock.Controller) *MockIncomeRepository {
 		mock_usecases.NewMockForControllingUserIncome(ctrl),
 		mock_usecases.NewMockForGettingIncomeData(ctrl),
 		mock_usecases.NewMockForControllingIncomeData(ctrl)}
-	mockRepoIncome.mockWrite.EXPECT().AddExport(gomock.Any()).Return(nil).AnyTimes()
-	mockRepoIncome.mockRead.EXPECT().GetStudentLoans().AnyTimes()
 	return &mockRepoIncome
 }
 
@@ -48,6 +46,14 @@ type MockIncomeRepository struct {
 func (m *MockIncomeRepository) ExpectGetAllIncomeOfPreviousMonthByRole(incomes []*models.Income) {
 	previousMonth := time.Now().AddDate(0, -1, 0)
 	m.ExpectGetAllIncomeOfCurrentMonthByRole(incomes, previousMonth)
+}
+
+func (m *MockIncomeRepository) ExpectGetStudentLoans() {
+	m.mockRead.EXPECT().GetStudentLoans().Return(models.StudentLoanList{List: []models.StudentLoan{}})
+}
+
+func (m *MockIncomeRepository) ExpectAddExport() {
+	m.mockWrite.EXPECT().AddExport(gomock.Any()).Return(nil)
 }
 
 func (m *MockIncomeRepository) ExpectGetAllIncomeOfCurrentMonthByRole(incomes []*models.Income, now time.Time) {

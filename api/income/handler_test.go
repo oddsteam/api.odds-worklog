@@ -318,6 +318,8 @@ func TestGetExportCorporateIncomeStatus(t *testing.T) {
 		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
 		mockRepo.ExpectGetAllIncomeOfPreviousMonthByRole(models.MockIncomeList)
+		mockRepo.ExpectGetStudentLoans()
+		mockRepo.ExpectAddExport()
 		handler.GetExportCorporate(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -336,6 +338,8 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
 		mockRepo.ExpectGetAllIncomeOfPreviousMonthByRole(models.MockIncomeList)
+		mockRepo.ExpectGetStudentLoans()
+		mockRepo.ExpectAddExport()
 		handler.GetExportIndividual(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -374,6 +378,8 @@ func TestPostExportSAPIncome(t *testing.T) {
 		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
 		mockRepo.ExpectGetAllIncomeByRoleStartDateAndEndDate(models.MockIncomeList, body.Role, startDate, endDate)
+		mockRepo.ExpectGetStudentLoans()
+		mockRepo.ExpectAddExport()
 		handler.PostExportSAP(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -400,6 +406,8 @@ func TestPostExportSAPIncome(t *testing.T) {
 		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
 		mockRepo.ExpectGetAllIncomeByRoleStartDateAndEndDate(models.MockIncomeList, body.Role, startDate, endDate)
+		mockRepo.ExpectGetStudentLoans()
+		mockRepo.ExpectAddExport()
 		handler.PostExportSAP(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
