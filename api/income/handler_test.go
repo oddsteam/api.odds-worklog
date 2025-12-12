@@ -20,11 +20,6 @@ import (
 
 func TestAddIncome(t *testing.T) {
 	t.Run("when request body isRequestValid then got status OK", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(models.MockIncomeReqJson))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -32,10 +27,9 @@ func TestAddIncome(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenUser)
 
-		handler, ctrl, repo := createHandlerWithMockUsecasesAndRepo(t, mockUsecase)
+		handler, ctrl, repo := createHandlerWithMockUsecasesAndRepo(t)
 		repo.ExpectGetUserByID(userMock.User.ID.Hex())
-		year, month := time.Now().Year(), time.Now().Month()
-		repo.ExpectGetIncomeUserByYearMonthNotFound(userMock.User.ID.Hex(), year, month)
+		repo.ExpectGetCurrentUserIncomeNotFound(userMock.User.ID.Hex())
 		repo.ExpectAddIncomeSuccess()
 		defer ctrl.Finish()
 		handler.AddIncome(c)
@@ -319,11 +313,6 @@ func TestGetIncomeGetIncomeAllMonthByUserId(t *testing.T) {
 
 func TestGetExportCorporateIncomeStatus(t *testing.T) {
 	t.Run("when export corporate income success it should be return status OK", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		rec := httptest.NewRecorder()
@@ -331,7 +320,7 @@ func TestGetExportCorporateIncomeStatus(t *testing.T) {
 		c.Set("user", userMock.TokenAdmin)
 		c.SetParamNames("month")
 		c.SetParamValues("1")
-		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t, mockUsecase)
+		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
 		mockRepo.ExpectGetAllIncomeOfPreviousMonthByRole(models.MockIncomeList)
 		handler.GetExportCorporate(c)
@@ -342,11 +331,6 @@ func TestGetExportCorporateIncomeStatus(t *testing.T) {
 
 func TestGetExportIndividualIncomeStatus(t *testing.T) {
 	t.Run("when export individual income success it should be return status OK", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		rec := httptest.NewRecorder()
@@ -354,7 +338,7 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 		c.Set("user", userMock.TokenAdmin)
 		c.SetParamNames("month")
 		c.SetParamValues("1")
-		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t, mockUsecase)
+		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
 		mockRepo.ExpectGetAllIncomeOfPreviousMonthByRole(models.MockIncomeList)
 		handler.GetExportIndividual(c)
@@ -386,15 +370,13 @@ func TestPostExportSAPIncome(t *testing.T) {
 		endDate, _ := time.Parse("01/2006", body.EndDate)
 		endDate = endDate.AddDate(0, 1, 0)
 
-		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", bytes.NewReader(jsonBody))
 		req.Header.Set("Content-Type", "application/json")
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 
-		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t, mockUsecase)
+		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
 		mockRepo.GetAllIncomeByRoleStartDateAndEndDate(models.MockIncomeList, body.Role, startDate, endDate)
 		handler.PostExportSAP(c)
@@ -403,9 +385,6 @@ func TestPostExportSAPIncome(t *testing.T) {
 	})
 
 	t.Run("when export individual income as SAP format by period time success it should be return status OK", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
 		body := ExportInComeSAPReq{
 			Role:          "individual",
 			DateEffective: "30/09/2025",
@@ -417,15 +396,13 @@ func TestPostExportSAPIncome(t *testing.T) {
 		endDate, _ := time.Parse("01/2006", body.EndDate)
 		endDate = endDate.AddDate(0, 1, 0)
 
-		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", bytes.NewReader(jsonBody))
 		req.Header.Set("Content-Type", "application/json")
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 
-		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t, mockUsecase)
+		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
 		mockRepo.GetAllIncomeByRoleStartDateAndEndDate(models.MockIncomeList, body.Role, startDate, endDate)
 		handler.PostExportSAP(c)
@@ -440,8 +417,9 @@ func createHandlerWithMockUsecases(t *testing.T, mockUsecase *incomeMock.MockUse
 	return &HttpHandler{mockUsecase, add, export}, ctrl
 }
 
-func createHandlerWithMockUsecasesAndRepo(t *testing.T, mockUsecase *incomeMock.MockUsecase) (*HttpHandler, *gomock.Controller, *usecases.MockIncomeRepository) {
+func createHandlerWithMockUsecasesAndRepo(t *testing.T) (*HttpHandler, *gomock.Controller, *usecases.MockIncomeRepository) {
 	export, ctrl, mockRepo := usecases.CreateExportIncomeUsecaseWithMock(t)
+	mockUsecase := incomeMock.NewMockUsecase(ctrl)
 	add := usecases.CreateAddIncomeUsecaseWithMock(mockRepo)
 	return &HttpHandler{mockUsecase, add, export}, ctrl, mockRepo
 }

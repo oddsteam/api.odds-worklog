@@ -65,7 +65,8 @@ func (m *MockIncomeRepository) ExpectGetUserByID(id string) {
 	m.mockGettingUserByID.EXPECT().GetByID(id).Return(&models.User{ID: bson.ObjectIdHex(id)}, nil)
 }
 
-func (m *MockIncomeRepository) ExpectGetIncomeUserByYearMonthNotFound(id string, year int, month time.Month) {
+func (m *MockIncomeRepository) ExpectGetCurrentUserIncomeNotFound(id string) {
+	year, month := time.Now().Year(), time.Now().Month()
 	m.mockControllingUserIncome.EXPECT().GetIncomeUserByYearMonth(id, year, month).Return(nil, errors.New("not found"))
 }
 
