@@ -24,7 +24,6 @@ func TestAddIncome(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().AddIncome(&models.MockIncomeReq, userMock.User.ID.Hex()).Return(&models.MockIncome, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(models.MockIncomeReqJson))
@@ -33,7 +32,11 @@ func TestAddIncome(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenUser)
 
-		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		handler, ctrl, repo := createHandlerWithMockUsecasesAndRepo(t, mockUsecase)
+		repo.ExpectGetUserByID(userMock.User.ID.Hex())
+		year, month := time.Now().Year(), time.Now().Month()
+		repo.ExpectGetIncomeUserByYearMonthNotFound(userMock.User.ID.Hex(), year, month)
+		repo.ExpectAddIncomeSuccess()
 		defer ctrl.Finish()
 		handler.AddIncome(c)
 
@@ -432,11 +435,13 @@ func TestPostExportSAPIncome(t *testing.T) {
 }
 
 func createHandlerWithMockUsecases(t *testing.T, mockUsecase *incomeMock.MockUsecase) (*HttpHandler, *gomock.Controller) {
-	export, ctrl, _ := usecases.CreateExportIncomeUsecaseWithMock(t)
-	return &HttpHandler{mockUsecase, export}, ctrl
+	export, ctrl, mockRepo := usecases.CreateExportIncomeUsecaseWithMock(t)
+	add := usecases.CreateAddIncomeUsecaseWithMock(mockRepo)
+	return &HttpHandler{mockUsecase, add, export}, ctrl
 }
 
 func createHandlerWithMockUsecasesAndRepo(t *testing.T, mockUsecase *incomeMock.MockUsecase) (*HttpHandler, *gomock.Controller, *usecases.MockIncomeRepository) {
 	export, ctrl, mockRepo := usecases.CreateExportIncomeUsecaseWithMock(t)
-	return &HttpHandler{mockUsecase, export}, ctrl, mockRepo
+	add := usecases.CreateAddIncomeUsecaseWithMock(mockRepo)
+	return &HttpHandler{mockUsecase, add, export}, ctrl, mockRepo
 }

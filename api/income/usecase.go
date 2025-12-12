@@ -1,7 +1,6 @@
 package income
 
 import (
-	"errors"
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
@@ -16,22 +15,6 @@ type usecase struct {
 
 func NewUsecase(r Repository, ur user.Repository) Usecase {
 	return &usecase{r, ur}
-}
-
-func (u *usecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
-	userDetail, _ := u.userRepo.GetByID(uid)
-	year, month := utils.GetYearMonthNow()
-	_, err := u.repo.GetIncomeUserByYearMonth(uid, year, month)
-	if err == nil {
-		return nil, errors.New("Sorry, has income data of user " + userDetail.GetName())
-	}
-	income := models.CreatePayroll(*userDetail, *req, "")
-	err = u.repo.AddIncome(income)
-	if err != nil {
-		return nil, err
-	}
-
-	return income, nil
 }
 
 func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {

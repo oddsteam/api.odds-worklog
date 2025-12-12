@@ -2,9 +2,11 @@ package usecases
 
 import (
 	"encoding/json"
+	"errors"
 	"testing"
 	"time"
 
+	"github.com/globalsign/mgo/bson"
 	"github.com/golang/mock/gomock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/file"
@@ -20,8 +22,15 @@ func CreateExportIncomeUsecaseWithMock(t *testing.T) (ForUsingExportIncome, *gom
 	return usecase, ctrl, mockRepoIncome
 }
 
+func CreateAddIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsingAddIncome {
+	usecase := NewAddIncomeUsecase(mockRepoIncome.mockControllingUserIncome, mockRepoIncome.mockGettingUserByID)
+	return usecase
+}
+
 func mockIncomeRepository(ctrl *gomock.Controller) *MockIncomeRepository {
 	mockRepoIncome := MockIncomeRepository{
+		mock_usecases.NewMockForGettingUserByID(ctrl),
+		mock_usecases.NewMockForControllingUserIncome(ctrl),
 		mock_usecases.NewMockForGettingIncomeData(ctrl),
 		mock_usecases.NewMockForControllingIncomeData(ctrl)}
 	mockRepoIncome.mockWrite.EXPECT().AddExport(gomock.Any()).Return(nil).AnyTimes()
@@ -30,8 +39,10 @@ func mockIncomeRepository(ctrl *gomock.Controller) *MockIncomeRepository {
 }
 
 type MockIncomeRepository struct {
-	mockRead  *mock_usecases.MockForGettingIncomeData
-	mockWrite *mock_usecases.MockForControllingIncomeData
+	mockGettingUserByID       *mock_usecases.MockForGettingUserByID
+	mockControllingUserIncome *mock_usecases.MockForControllingUserIncome
+	mockRead                  *mock_usecases.MockForGettingIncomeData
+	mockWrite                 *mock_usecases.MockForControllingIncomeData
 }
 
 func (m *MockIncomeRepository) ExpectGetAllIncomeOfPreviousMonthByRole(incomes []*models.Income) {
@@ -50,10 +61,21 @@ func (m *MockIncomeRepository) GetAllIncomeByRoleStartDateAndEndDate(incomes []*
 		role, startDate, endDate).Return(incomes, nil)
 }
 
+func (m *MockIncomeRepository) ExpectGetUserByID(id string) {
+	m.mockGettingUserByID.EXPECT().GetByID(id).Return(&models.User{ID: bson.ObjectIdHex(id)}, nil)
+}
+
+func (m *MockIncomeRepository) ExpectGetIncomeUserByYearMonthNotFound(id string, year int, month time.Month) {
+	m.mockControllingUserIncome.EXPECT().GetIncomeUserByYearMonth(id, year, month).Return(nil, errors.New("not found"))
+}
+
+func (m *MockIncomeRepository) ExpectAddIncomeSuccess() {
+	m.mockControllingUserIncome.EXPECT().AddIncome(gomock.Any()).Return(nil)
+}
+
 func deepClone(income *models.Income) *models.Income {
 	b, _ := json.Marshal(income)
 	var i models.Income
 	json.Unmarshal(b, &i)
 	return &i
-
 }
