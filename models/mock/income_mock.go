@@ -427,3 +427,4 @@ func (mr *MockUsecaseMockRecorder) UpdateIncome(id, req, uid interface{}) *gomoc
 }
 
 
+

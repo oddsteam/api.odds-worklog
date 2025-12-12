@@ -22,8 +22,8 @@ func (u *usecase) SaveIncome(allIncomesCurrentMonth []*models.Income, incomeStr,
 	utils.FailOnError(err, "Error parsing JSON")
 	user := data.user()
 	req := data.incomeReq()
-	ics := models.NewIncomesWithoutLoans(allIncomesCurrentMonth)
-	original := ics.FindByUserID(data.id())
+	pc := models.NewPayrollCycleWithoutLoans(allIncomesCurrentMonth)
+	original := pc.FindByUserID(data.id())
 	lastUpdate, _ := utils.ParseDate(data.Income.UpdatedAt)
 	if lastUpdate.Before(original.LastUpdate) {
 		log.Panic("Old event: ignored")

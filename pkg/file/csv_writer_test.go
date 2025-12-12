@@ -16,9 +16,9 @@ func TestCSVWriter(t *testing.T) {
 		records := []*models.Income{
 			{ID: "incomeId1", UserID: users[0].ID.Hex()},
 		}
-		incomes := models.NewIncomes(records, models.StudentLoanList{})
+		pc := models.NewPayrollCycle(records, models.StudentLoanList{})
 
-		_, updatedIncomeIds := ToCSV(*incomes)
+		_, updatedIncomeIds := ToCSV(*pc)
 
 		assert.NotNil(t, updatedIncomeIds)
 		assert.Equal(t, 1, len(updatedIncomeIds))
@@ -35,9 +35,9 @@ func TestCSVWriter(t *testing.T) {
 		user.Email = "test@example.com"
 		req := models.IncomeReq{WorkDate: "20"}
 		record := models.CreatePayroll(user, req, "note")
-		i := models.NewPayrollFromIncome(*record)
+		p := models.NewPayrollFromIncome(*record)
 
-		csvColumns := export(*i)
+		csvColumns := export(*p)
 
 		assert.Equal(t, "first last", csvColumns[NAME_INDEX])
 		assert.Equal(t, "id", csvColumns[ID_CARD_INDEX])
@@ -59,10 +59,10 @@ func TestCSVWriter(t *testing.T) {
 			WorkingHours:  workingHours,
 		}
 		record := models.CreatePayroll(u, req, "note")
-		i := models.NewPayrollFromIncome(*record)
-		i.SetLoan(&models.StudentLoan{})
+		p := models.NewPayrollFromIncome(*record)
+		p.SetLoan(&models.StudentLoan{})
 
-		csvColumns := export(*i)
+		csvColumns := export(*p)
 
 		assert.Equal(t, "97.00", csvColumns[NET_DAILY_INCOME_INDEX])
 		assert.Equal(t, "970.00", csvColumns[NET_SPECIAL_INCOME_INDEX])
@@ -88,9 +88,9 @@ func TestCSVHeaders(t *testing.T) {
 func TestModelIncomes(t *testing.T) {
 	t.Run("test export to CSV when there is 0 income", func(t *testing.T) {
 		records := []*models.Income{}
-		incomes := models.NewIncomes(records, models.StudentLoanList{})
+		pc := models.NewPayrollCycle(records, models.StudentLoanList{})
 
-		csv, _ := ToCSV(*incomes)
+		csv, _ := ToCSV(*pc)
 
 		assert.NotNil(t, csv)
 		headerLength := 1
@@ -101,9 +101,9 @@ func TestModelIncomes(t *testing.T) {
 		records := []*models.Income{
 			{ID: "incomeId"},
 		}
-		incomes := models.NewIncomes(records, models.StudentLoanList{})
+		pc := models.NewPayrollCycle(records, models.StudentLoanList{})
 
-		csv, _ := ToCSV(*incomes)
+		csv, _ := ToCSV(*pc)
 
 		assert.NotNil(t, csv)
 		headerLength := 1
@@ -116,9 +116,9 @@ func TestModelIncomes(t *testing.T) {
 			{ID: "incomeId1"},
 			{ID: "incomeId2"},
 		}
-		incomes := models.NewIncomes(records, models.StudentLoanList{})
+		pc := models.NewPayrollCycle(records, models.StudentLoanList{})
 
-		csv, _ := ToCSV(*incomes)
+		csv, _ := ToCSV(*pc)
 
 		assert.NotNil(t, csv)
 		headerLength := 1
@@ -131,9 +131,9 @@ func TestModelIncomes(t *testing.T) {
 			{ID: "incomeId1"},
 			{ID: "incomeId2"},
 		}
-		incomes := models.NewIncomes(records, models.StudentLoanList{})
+		pc := models.NewPayrollCycle(records, models.StudentLoanList{})
 
-		csv, _ := ToCSV(*incomes)
+		csv, _ := ToCSV(*pc)
 
 		assert.NotNil(t, csv)
 		headerLength := 1
@@ -151,9 +151,9 @@ func TestModelIncomes(t *testing.T) {
 		records := []*models.Income{
 			{ID: "incomeId1", UserID: users[0].ID.Hex()},
 		}
-		incomes := models.NewIncomes(records, models.StudentLoanList{})
+		pc := models.NewPayrollCycle(records, models.StudentLoanList{})
 
-		csv, _ := ToCSV(*incomes)
+		csv, _ := ToCSV(*pc)
 
 		assert.NotNil(t, csv)
 		headerLength := 1
@@ -168,9 +168,9 @@ func TestModelIncomes(t *testing.T) {
 		records := []*models.Income{
 			{ID: "incomeId"},
 		}
-		incomes := models.NewIncomes(records, models.StudentLoanList{})
+		pc := models.NewPayrollCycle(records, models.StudentLoanList{})
 
-		_, updatedIncomeIds := ToCSV(*incomes)
+		_, updatedIncomeIds := ToCSV(*pc)
 
 		assert.NotNil(t, updatedIncomeIds)
 		assert.Equal(t, 1, len(updatedIncomeIds))

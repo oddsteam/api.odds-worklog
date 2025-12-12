@@ -44,8 +44,8 @@ func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, startDate, endD
 
 	studentLoanList := u.readRepo.GetStudentLoans()
 
-	ics := models.NewIncomes(incomes, studentLoanList)
-	filename, err := u.csvWriter.WriteFile(role, *ics)
+	pc := models.NewPayrollCycle(incomes, studentLoanList)
+	filename, err := u.csvWriter.WriteFile(role, *pc)
 	if err != nil {
 		return "", err
 	}
@@ -71,9 +71,9 @@ func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, e
 
 	studentLoanList := u.readRepo.GetStudentLoans()
 
-	ics := models.NewIncomes(incomes, studentLoanList)
+	pc := models.NewPayrollCycle(incomes, studentLoanList)
 
-	filename, err := u.sapWriter.WriteFile(role, *ics, dateEff)
+	filename, err := u.sapWriter.WriteFile(role, *pc, dateEff)
 	if err != nil {
 		return "", err
 	}

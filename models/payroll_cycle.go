@@ -5,15 +5,15 @@ type PayrollCycle struct {
 	loans   StudentLoanList
 }
 
-func NewIncomes(records []*Income, loans StudentLoanList) *PayrollCycle {
+func NewPayrollCycle(records []*Income, loans StudentLoanList) *PayrollCycle {
 	return &PayrollCycle{
 		records: records,
 		loans:   loans,
 	}
 }
 
-func NewIncomesWithoutLoans(records []*Income) *PayrollCycle {
-	return NewIncomes(records, StudentLoanList{})
+func NewPayrollCycleWithoutLoans(records []*Income) *PayrollCycle {
+	return NewPayrollCycle(records, StudentLoanList{})
 }
 
 func (pc *PayrollCycle) FindByUserID(id string) *Income {
@@ -41,5 +41,3 @@ func (pc *PayrollCycle) ProcessRecords(process func(index int, i Payroll) [][]st
 	}
 	return strWrite, updatedIncomeIds
 }
-
-
