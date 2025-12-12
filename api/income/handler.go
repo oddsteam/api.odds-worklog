@@ -97,16 +97,6 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func (h *HttpHandler) getIncomeStatus(c echo.Context, incomeType string) error {
-	isAdmin, _ := IsUserAdmin(c)
-
-	status, err := h.Usecase.GetIncomeStatusList(incomeType, isAdmin)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.JSON(http.StatusOK, status)
-}
-
 // GetCorporateIncomeStatus godoc
 // @Summary Get Corporate Income Status List
 // @Description Get Income Status List
@@ -135,6 +125,16 @@ func (h *HttpHandler) GetCorporateIncomeStatus(c echo.Context) error {
 // @Router /incomes/status/individual [get]
 func (h *HttpHandler) GetIndividualIncomeStatus(c echo.Context) error {
 	return h.getIncomeStatus(c, "individual")
+}
+
+func (h *HttpHandler) getIncomeStatus(c echo.Context, incomeType string) error {
+	isAdmin, _ := IsUserAdmin(c)
+
+	status, err := h.Usecase.GetIncomeStatusList(incomeType, isAdmin)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, status)
 }
 
 // GetIncomeAllMonthByUserId godoc
