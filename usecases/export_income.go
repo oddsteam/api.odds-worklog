@@ -9,12 +9,6 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
-type ForUsingExportIncome interface {
-	ExportIncome(role string, monthIndex string) (string, error)
-	ExportIncomeByStartDateAndEndDate(role string, startDate, endDate time.Time) (string, error)
-	ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate time.Time, dateEff time.Time) (string, error)
-}
-
 type usecase struct {
 	readRepo  ForGettingIncomeData
 	writeRepo ForControllingIncomeData
