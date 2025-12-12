@@ -29,7 +29,7 @@ func (u *usecase) SaveIncome(allIncomesCurrentMonth []*models.Income, incomeStr,
 	if lastUpdate.Before(original.LastUpdate) {
 		log.Panic("Old event: ignored")
 	}
-	record := entity.UpdateIncome(user, req, original.Note, original)
+	record := entity.UpdatePayroll(user, req, original.Note, original)
 	record.Note = data.appendNote(original.Note, action)
 	record.SubmitDate, _ = utils.ParseDate(data.Income.CreatedAt)
 	record.LastUpdate = lastUpdate

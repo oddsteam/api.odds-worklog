@@ -26,7 +26,7 @@ func (u *usecase) AddIncome(req *entity.IncomeReq, uid string) (*models.Income, 
 	if err == nil {
 		return nil, errors.New("Sorry, has income data of user " + userDetail.GetName())
 	}
-	income := entity.CreateIncome(*userDetail, *req, "")
+	income := entity.CreatePayroll(*userDetail, *req, "")
 	err = u.repo.AddIncome(income)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (u *usecase) UpdateIncome(id string, req *entity.IncomeReq, uid string) (*m
 		return nil, err
 	}
 
-	income = entity.UpdateIncome(*userDetail, *req, "", income)
+	income = entity.UpdatePayroll(*userDetail, *req, "", income)
 	u.repo.UpdateIncome(income)
 
 	return income, nil

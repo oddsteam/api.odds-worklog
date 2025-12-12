@@ -35,8 +35,8 @@ func TestCSVWriter(t *testing.T) {
 		user.BankAccountNumber = "0123456789"
 		user.Email = "test@example.com"
 		req := entity.IncomeReq{WorkDate: "20"}
-		record := entity.CreateIncome(user, req, "note")
-		i := entity.NewIncomeFromRecord(*record)
+		record := entity.CreatePayroll(user, req, "note")
+		i := entity.NewPayrollFromIncome(*record)
 
 		csvColumns := export(*i)
 
@@ -59,8 +59,8 @@ func TestCSVWriter(t *testing.T) {
 			SpecialIncome: specialIncome,
 			WorkingHours:  workingHours,
 		}
-		record := entity.CreateIncome(u, req, "note")
-		i := entity.NewIncomeFromRecord(*record)
+		record := entity.CreatePayroll(u, req, "note")
+		i := entity.NewPayrollFromIncome(*record)
 		i.SetLoan(&models.StudentLoan{})
 
 		csvColumns := export(*i)

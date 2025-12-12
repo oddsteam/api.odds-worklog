@@ -13,9 +13,9 @@ func TestPayroll(t *testing.T) {
 	t.Run("เวลา Add income ควร save ชื่อบัญชี เลขบัญชี และจำนวนเงินด้วย ตอน export จะได้ไม่ต้องคำนวนแล้ว", func(t *testing.T) {
 		user := userMock.IndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		i := NewIncome(uidFromSession)
+		p := NewPayroll(uidFromSession)
 
-		res, err := i.prepareDataForAddIncome(MockIncomeReq, user)
+		res, err := p.prepareDataForAddIncome(MockIncomeReq, user)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
@@ -33,9 +33,9 @@ func TestPayroll(t *testing.T) {
 	t.Run("เวลา Add income ควร save role ด้วย จะได้รู้ว่าเป็น coporate หรือ individual income", func(t *testing.T) {
 		user := userMock.IndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		i := NewIncome(uidFromSession)
+		p := NewPayroll(uidFromSession)
 
-		res, err := i.prepareDataForAddIncome(MockIncomeReq, user)
+		res, err := p.prepareDataForAddIncome(MockIncomeReq, user)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
@@ -45,9 +45,9 @@ func TestPayroll(t *testing.T) {
 	t.Run("เวลา Add income ควร save ชื่อ นามสกุล เลขบัตรประชาชนเวลา export ให้บัญชี เค้าจะได้รู้ว่าจ่ายเงินให้ใคร", func(t *testing.T) {
 		user := userMock.IndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		i := NewIncome(uidFromSession)
+		p := NewPayroll(uidFromSession)
 
-		res, err := i.prepareDataForAddIncome(MockIncomeReq, user)
+		res, err := p.prepareDataForAddIncome(MockIncomeReq, user)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
@@ -58,9 +58,9 @@ func TestPayroll(t *testing.T) {
 	t.Run("เวลา Add income ควร save เบอร์โทรกับ อีเมลด้วยเผื่อตกขบวนเพื่อน ๆ จะได้ช่วยกันตามมากรอกเงินจากหน้า web หน้า individual list ได้", func(t *testing.T) {
 		user := userMock.IndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		i := NewIncome(uidFromSession)
+		p := NewPayroll(uidFromSession)
 
-		res, err := i.prepareDataForAddIncome(MockIncomeReq, user)
+		res, err := p.prepareDataForAddIncome(MockIncomeReq, user)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
@@ -71,9 +71,9 @@ func TestPayroll(t *testing.T) {
 	t.Run("เวลา Add income ควร save วันที่กรอกด้วยจะ เผื่อ export ตอนมีคนตกขบวนจะได้ sort ได้ว่า 2 file รายชื่อต่างกันตรงไหน", func(t *testing.T) {
 		user := userMock.IndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		i := NewIncome(uidFromSession)
+		p := NewPayroll(uidFromSession)
 
-		res, err := i.prepareDataForAddIncome(MockIncomeReq, user)
+		res, err := p.prepareDataForAddIncome(MockIncomeReq, user)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
@@ -83,9 +83,9 @@ func TestPayroll(t *testing.T) {
 	t.Run("เวลา Add income ควร save note ด้วย ไม่รู้ทำไมเหมือนกัน", func(t *testing.T) {
 		user := userMock.IndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		i := NewIncome(uidFromSession)
+		p := NewPayroll(uidFromSession)
 
-		res, err := i.prepareDataForAddIncome(MockIncomeReq, user)
+		res, err := p.prepareDataForAddIncome(MockIncomeReq, user)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
@@ -96,9 +96,9 @@ func TestPayroll(t *testing.T) {
 		// ref: https://3.basecamp.com/4877526/buckets/19693649/card_tables/cards/7638832341#__recording_7639315070
 		user := userMock.IndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		i := NewIncome(uidFromSession)
+		p := NewPayroll(uidFromSession)
 
-		res, err := i.prepareDataForAddIncome(MockIncomeReq, user)
+		res, err := p.prepareDataForAddIncome(MockIncomeReq, user)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
@@ -113,20 +113,20 @@ func TestPayroll(t *testing.T) {
 			SpecialIncome: "100",
 			WorkingHours:  "10",
 		}
-		i := NewIncome(uidFromSession)
+		p := NewPayroll(uidFromSession)
 
-		err := i.parseRequest(req, user)
+		err := p.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 5*20.0, i.dailyIncome())
-		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.dailyIncome()))
-		assert.Equal(t, 0.0, i.VAT(i.dailyIncome()))
-		assert.Equal(t, 100.0+0-3, i.Net(i.dailyIncome()))
-		assert.Equal(t, 10*100.0, i.specialIncome())
-		assert.Equal(t, 10*100.0*0.03, i.WitholdingTax(i.specialIncome()))
-		assert.Equal(t, 0.0, i.VAT(i.specialIncome()))
-		assert.Equal(t, 1000.0+0-30, i.Net(i.specialIncome()))
-		assert.Equal(t, i.dailyIncome()+i.specialIncome(), i.totalIncome())
+		assert.Equal(t, 5*20.0, p.dailyIncome())
+		assert.Equal(t, 5*20.0*0.03, p.WitholdingTax(p.dailyIncome()))
+		assert.Equal(t, 0.0, p.VAT(p.dailyIncome()))
+		assert.Equal(t, 100.0+0-3, p.Net(p.dailyIncome()))
+		assert.Equal(t, 10*100.0, p.specialIncome())
+		assert.Equal(t, 10*100.0*0.03, p.WitholdingTax(p.specialIncome()))
+		assert.Equal(t, 0.0, p.VAT(p.specialIncome()))
+		assert.Equal(t, 1000.0+0-30, p.Net(p.specialIncome()))
+		assert.Equal(t, p.dailyIncome()+p.specialIncome(), p.totalIncome())
 	})
 
 	t.Run("calculate individual income โดยไม่ได้กรอก special income", func(t *testing.T) {
@@ -135,32 +135,32 @@ func TestPayroll(t *testing.T) {
 		req := IncomeReq{
 			WorkDate: "20",
 		}
-		i := NewIncome(uidFromSession)
+		p := NewPayroll(uidFromSession)
 
-		err := i.parseRequest(req, user)
+		err := p.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 5*20.0, i.dailyIncome())
-		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.dailyIncome()))
-		assert.Equal(t, 0.0, i.VAT(i.dailyIncome()))
-		assert.Equal(t, 100.0+0-3, i.netDailyIncome())
-		assert.Equal(t, "97.00", i.NetDailyIncomeStr())
+		assert.Equal(t, 5*20.0, p.dailyIncome())
+		assert.Equal(t, 5*20.0*0.03, p.WitholdingTax(p.dailyIncome()))
+		assert.Equal(t, 0.0, p.VAT(p.dailyIncome()))
+		assert.Equal(t, 100.0+0-3, p.netDailyIncome())
+		assert.Equal(t, "97.00", p.NetDailyIncomeStr())
 	})
 
 	t.Run("calculate individual special income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := GivenIndividualUser(uidFromSession, "5")
 		req := IncomeReq{SpecialIncome: "100", WorkingHours: "10"}
-		i := NewIncome(uidFromSession)
+		p := NewPayroll(uidFromSession)
 
-		err := i.parseRequest(req, user)
+		err := p.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 10*100.0, i.specialIncome())
-		assert.Equal(t, 10*100.0*0.03, i.WitholdingTax(i.specialIncome()))
-		assert.Equal(t, 0.0, i.VAT(i.specialIncome()))
-		assert.Equal(t, 1000.0+0-30, i.Net(i.specialIncome()))
-		assert.Equal(t, "970.00", i.NetSpecialIncomeStr())
+		assert.Equal(t, 10*100.0, p.specialIncome())
+		assert.Equal(t, 10*100.0*0.03, p.WitholdingTax(p.specialIncome()))
+		assert.Equal(t, 0.0, p.VAT(p.specialIncome()))
+		assert.Equal(t, 1000.0+0-30, p.Net(p.specialIncome()))
+		assert.Equal(t, "970.00", p.NetSpecialIncomeStr())
 	})
 
 	t.Run("calculate individual income สำหรับคนที่มีหนี้ กยศ และบริษัทหักและนำส่งไว้", func(t *testing.T) {
@@ -180,13 +180,13 @@ func TestPayroll(t *testing.T) {
 			SpecialIncome: "100",
 			WorkingHours:  "10",
 		}
-		i := NewIncome(uidFromSession)
-		i.SetLoan(&models.StudentLoan{Amount: 50})
+		p := NewPayroll(uidFromSession)
+		p.SetLoan(&models.StudentLoan{Amount: 50})
 
-		err := i.parseRequest(req, user)
+		err := p.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, i.netDailyIncome()+i.netSpecialIncome()-50, i.TransferAmount())
+		assert.Equal(t, p.netDailyIncome()+p.netSpecialIncome()-50, p.TransferAmount())
 	})
 
 	t.Run("หัก ณ ที่จ่าย 3% คิดจากรายได้รวม ไม่นับหนี้ กยศ", func(t *testing.T) {
@@ -197,13 +197,13 @@ func TestPayroll(t *testing.T) {
 			SpecialIncome: "100",
 			WorkingHours:  "10",
 		}
-		i := NewIncome(uidFromSession)
-		i.SetLoan(&models.StudentLoan{Amount: 50})
+		p := NewPayroll(uidFromSession)
+		p.SetLoan(&models.StudentLoan{Amount: 50})
 
-		err := i.parseRequest(req, user)
+		err := p.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, i.totalIncome()*0.03, i.totalWHT())
+		assert.Equal(t, p.totalIncome()*0.03, p.totalWHT())
 	})
 
 	t.Run("student loan is used as deduction for foreign student who does not require social security", func(t *testing.T) {
@@ -211,18 +211,18 @@ func TestPayroll(t *testing.T) {
 		// หักประกันสังคม 270 บาท เหมือนคนไทย เราใส่ช่อง deduction เป็นลบ 270
 		// บาท เพื่อคืนเงินที่หักประกันสังคมคืนไป
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		i := NewIncome(uidFromSession)
-		i.SetLoan(&models.StudentLoan{Amount: -270})
+		p := NewPayroll(uidFromSession)
+		p.SetLoan(&models.StudentLoan{Amount: -270})
 		user := GivenIndividualUser(uidFromSession, "5")
 		req := IncomeReq{
 			SpecialIncome: "100",
 			WorkingHours:  "10",
 		}
 
-		err := i.parseRequest(req, user)
+		err := p.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, i.netSpecialIncome()+270, i.TransferAmount())
+		assert.Equal(t, p.netSpecialIncome()+270, p.TransferAmount())
 	})
 
 	t.Run("calculate corporate income", func(t *testing.T) {
@@ -240,19 +240,18 @@ func TestPayroll(t *testing.T) {
 			SpecialIncome: "100",
 			WorkingHours:  "10",
 		}
-		i := NewIncome(uidFromSession)
+		p := NewPayroll(uidFromSession)
 
-		err := i.parseRequest(req, user)
+		err := p.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 5*20.0, i.dailyIncome())
-		assert.Equal(t, 5*20.0*0.03, i.WitholdingTax(i.dailyIncome()))
-		assert.Equal(t, 7.000000000000001, i.VAT(i.dailyIncome()))
-		assert.Equal(t, 100.0+7-3, i.Net(i.dailyIncome()))
-		assert.Equal(t, 10*100.0, i.specialIncome())
-		assert.Equal(t, 10*100.0*0.03, i.WitholdingTax(i.specialIncome()))
-		assert.Equal(t, 10*100.0*0.07, i.VAT(i.specialIncome()))
-		assert.Equal(t, 1000.0+70-30, i.Net(i.specialIncome()))
+		assert.Equal(t, 5*20.0, p.dailyIncome())
+		assert.Equal(t, 5*20.0*0.03, p.WitholdingTax(p.dailyIncome()))
+		assert.Equal(t, 7.000000000000001, p.VAT(p.dailyIncome()))
+		assert.Equal(t, 100.0+7-3, p.Net(p.dailyIncome()))
+		assert.Equal(t, 10*100.0, p.specialIncome())
+		assert.Equal(t, 10*100.0*0.03, p.WitholdingTax(p.specialIncome()))
+		assert.Equal(t, 10*100.0*0.07, p.VAT(p.specialIncome()))
+		assert.Equal(t, 1000.0+70-30, p.Net(p.specialIncome()))
 	})
-
 }

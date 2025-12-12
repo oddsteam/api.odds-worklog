@@ -20,8 +20,8 @@ func NewIncomesWithoutLoans(records []*models.Income) *PayrollCycle {
 	return NewIncomes(records, models.StudentLoanList{})
 }
 
-func (ics *PayrollCycle) FindByUserID(id string) *models.Income {
-	for _, e := range ics.records {
+func (pc *PayrollCycle) FindByUserID(id string) *models.Income {
+	for _, e := range pc.records {
 		if id == e.UserID {
 			return e
 		}
@@ -29,15 +29,15 @@ func (ics *PayrollCycle) FindByUserID(id string) *models.Income {
 	return &models.Income{}
 }
 
-func (ics *PayrollCycle) ProcessRecords(process func(index int, i Payroll) [][]string) ([][]string, []string) {
+func (pc *PayrollCycle) ProcessRecords(process func(index int, i Payroll) [][]string) ([][]string, []string) {
 	strWrite := make([][]string, 0)
 	updatedIncomeIds := []string{}
-	for index, e := range ics.records {
+	for index, e := range pc.records {
 		income := *e
 		if income.ID.Hex() != "" {
 			updatedIncomeIds = append(updatedIncomeIds, income.ID.Hex())
-			loan := ics.loans.FindLoan(income.BankAccountName)
-			i := NewIncomeFromRecord(income)
+			loan := pc.loans.FindLoan(income.BankAccountName)
+			i := NewPayrollFromIncome(income)
 			i.SetLoan(&loan)
 			rows := process(index, *i)
 			strWrite = append(strWrite, rows...)
