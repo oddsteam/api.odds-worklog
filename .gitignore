@@ -36,3 +36,7 @@ rabbitmq/
 deployment/local/.env
 deployment/ci/ssl/nginx.key
 deployment/ci/ssl/nginx.crt
+
+# vscode
+.vscode
+
