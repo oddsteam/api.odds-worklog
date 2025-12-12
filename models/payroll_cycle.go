@@ -1,32 +1,28 @@
-package entity
-
-import (
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
-)
+package models
 
 type PayrollCycle struct {
-	records []*models.Income
-	loans   models.StudentLoanList
+	records []*Income
+	loans   StudentLoanList
 }
 
-func NewIncomes(records []*models.Income, loans models.StudentLoanList) *PayrollCycle {
+func NewIncomes(records []*Income, loans StudentLoanList) *PayrollCycle {
 	return &PayrollCycle{
 		records: records,
 		loans:   loans,
 	}
 }
 
-func NewIncomesWithoutLoans(records []*models.Income) *PayrollCycle {
-	return NewIncomes(records, models.StudentLoanList{})
+func NewIncomesWithoutLoans(records []*Income) *PayrollCycle {
+	return NewIncomes(records, StudentLoanList{})
 }
 
-func (pc *PayrollCycle) FindByUserID(id string) *models.Income {
+func (pc *PayrollCycle) FindByUserID(id string) *Income {
 	for _, e := range pc.records {
 		if id == e.UserID {
 			return e
 		}
 	}
-	return &models.Income{}
+	return &Income{}
 }
 
 func (pc *PayrollCycle) ProcessRecords(process func(index int, i Payroll) [][]string) ([][]string, []string) {
@@ -45,3 +41,5 @@ func (pc *PayrollCycle) ProcessRecords(process func(index int, i Payroll) [][]st
 	}
 	return strWrite, updatedIncomeIds
 }
+
+

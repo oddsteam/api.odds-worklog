@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
-	"gitlab.odds.team/worklog/api.odds-worklog/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
@@ -19,14 +18,14 @@ func NewUsecase(r Repository, ur user.Repository) Usecase {
 	return &usecase{r, ur}
 }
 
-func (u *usecase) AddIncome(req *entity.IncomeReq, uid string) (*models.Income, error) {
+func (u *usecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
 	userDetail, _ := u.userRepo.GetByID(uid)
 	year, month := utils.GetYearMonthNow()
 	_, err := u.repo.GetIncomeUserByYearMonth(uid, year, month)
 	if err == nil {
 		return nil, errors.New("Sorry, has income data of user " + userDetail.GetName())
 	}
-	income := entity.CreatePayroll(*userDetail, *req, "")
+	income := models.CreatePayroll(*userDetail, *req, "")
 	err = u.repo.AddIncome(income)
 	if err != nil {
 		return nil, err
@@ -35,14 +34,14 @@ func (u *usecase) AddIncome(req *entity.IncomeReq, uid string) (*models.Income, 
 	return income, nil
 }
 
-func (u *usecase) UpdateIncome(id string, req *entity.IncomeReq, uid string) (*models.Income, error) {
+func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
 	userDetail, _ := u.userRepo.GetByID(uid)
 	income, err := u.repo.GetIncomeByID(id, uid)
 	if err != nil {
 		return nil, err
 	}
 
-	income = entity.UpdatePayroll(*userDetail, *req, "", income)
+	income = models.UpdatePayroll(*userDetail, *req, "", income)
 	u.repo.UpdateIncome(income)
 
 	return income, nil

@@ -1,17 +1,34 @@
-package entity
+package models
 
 import (
 	"encoding/json"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
+)
 
-	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+// Mock user data - duplicated here to avoid import cycle with api/user/mock
+var (
+	mockUser = User{
+		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39539"),
+		Role:              "corporate",
+		FirstName:         "Tester",
+		LastName:          "Super",
+		Email:             "test@abc.com",
+		BankAccountName:   "ทดสอบชอบลงทุน",
+		BankAccountNumber: "123123123123",
+		ThaiCitizenID:     "1234567890123",
+		Vat:               "N",
+		SlackAccount:      "test@abc.com",
+		DailyIncome:       "5000",
+		StatusTavi:        true,
+		Address:           "every Where",
+		StartDate:         "2022-01-01",
+	}
 )
 
 var (
-	MockIncome = models.Income{
+	MockIncome = Income{
 		ID:               bson.ObjectIdHex("5bd1fda30fd2df2a3e41e569"),
 		UserID:           "5bbcf2f90fd2df527bc39539",
 		TotalIncome:      "100000",
@@ -27,7 +44,7 @@ var (
 		WorkingHours:     "10",
 		ExportStatus:     false,
 	}
-	MockIncome2 = models.Income{
+	MockIncome2 = Income{
 		ID:               bson.ObjectIdHex("5bd1fda30fd2df2a3e41e570"),
 		UserID:           "5bbcf2f90fd2df527bc39530",
 		TotalIncome:      "100000",
@@ -43,9 +60,9 @@ var (
 		WorkingHours:     "10",
 		ExportStatus:     false,
 	}
-	MockIndividualIncome = models.Income{
+	MockIndividualIncome = Income{
 		ID:               bson.ObjectIdHex("5bd1fda30fd2df2a3e41e568"),
-		UserID:           string(userMock.IndividualUser1.ID),
+		UserID:           "5bbcf2f90fd2df527bc39531",
 		TotalIncome:      "110.00",
 		NetIncome:        "106.70",
 		NetDailyIncome:   "97.00",
@@ -59,7 +76,7 @@ var (
 		WorkingHours:     "1",
 		ExportStatus:     false,
 	}
-	MockIncomeNoNetSpecialIncome = models.Income{
+	MockIncomeNoNetSpecialIncome = Income{
 		ID:             bson.ObjectIdHex("5bd1fda30fd2df2a3e41e569"),
 		UserID:         "5bbcf2f90fd2df527bc39539",
 		TotalIncome:    "100000",
@@ -74,9 +91,9 @@ var (
 		WorkingHours:   "10",
 		ExportStatus:   false,
 	}
-	MockSoloCorporateIncome = models.Income{
+	MockSoloCorporateIncome = Income{
 		ID:                bson.ObjectIdHex("5bd1fda30fd2df2a3e41e568"),
-		UserID:            string(userMock.CorporateSolo.ID),
+		UserID:            "5bbcf2f90fd2df527bc39531",
 		Name:              "บจก. โซโล่ เลเวลลิ่ง",
 		TotalIncome:       "0.00",
 		NetIncome:         "52600.00",
@@ -94,7 +111,7 @@ var (
 		IsVATRegistered:   true,
 		BankAccountNumber: "2462737202",
 	}
-	MockSwardCorporateIncome = models.Income{
+	MockSwardCorporateIncome = Income{
 		ID:                bson.ObjectIdHex("5bd1fda30fd2df2a3e41e568"),
 		UserID:            string(bson.ObjectIdHex("5bbcf2f90fd2df527bc39531")),
 		Name:              "บจ. ดาบพิฆาตอสูร",
@@ -121,24 +138,24 @@ var (
 		WorkingHours:  "10",
 	}
 
-	MockIncomeStatus = models.IncomeStatus{
-		User:       &userMock.User,
+	MockIncomeStatus = IncomeStatus{
+		User:       &mockUser,
 		SubmitDate: "2018-10-24 20:30:40",
 		Status:     "Y",
 		WorkDate:   "20",
 	}
 
-	MockCorporateIncomeStatus = models.IncomeStatus{
-		User:   &userMock.User,
+	MockCorporateIncomeStatus = IncomeStatus{
+		User:   &mockUser,
 		Status: "Y",
 	}
-	MockIndividualIncomeStatus = models.IncomeStatus{
-		User:   &userMock.User,
+	MockIndividualIncomeStatus = IncomeStatus{
+		User:   &mockUser,
 		Status: "N",
 	}
-	MockIncomeList                   = []*models.Income{&MockIncome, &MockIncome2}
-	MockIncomeListNoNetSpecialIncome = []*models.Income{&MockIncomeNoNetSpecialIncome, &MockIncome2}
-	MockIncomeStatusList             = []*models.IncomeStatus{&MockIncomeStatus}
+	MockIncomeList                   = []*Income{&MockIncome, &MockIncome2}
+	MockIncomeListNoNetSpecialIncome = []*Income{&MockIncomeNoNetSpecialIncome, &MockIncome2}
+	MockIncomeStatusList             = []*IncomeStatus{&MockIncomeStatus}
 	IncomeByte, _                    = json.Marshal(MockIncome)
 	MockIncomeJson                   = string(IncomeByte)
 
@@ -148,3 +165,4 @@ var (
 	IncomeResByte, _  = json.Marshal(MockIncomeStatus)
 	MockIncomeResJson = string(IncomeResByte)
 )
+

@@ -3,7 +3,6 @@ package usecases
 import (
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
@@ -17,9 +16,9 @@ type ForControllingIncomeData interface {
 }
 
 type ForWritingCSVFile interface {
-	WriteFile(name string, ics entity.PayrollCycle) (string, error)
+	WriteFile(name string, ics models.PayrollCycle) (string, error)
 }
 
 type ForWritingSAPFile interface {
-	WriteFile(name string, ics entity.PayrollCycle, dateEff time.Time) (string, error)
+	WriteFile(name string, ics models.PayrollCycle, dateEff time.Time) (string, error)
 }

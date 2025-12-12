@@ -3,7 +3,6 @@ package income
 import (
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
@@ -21,8 +20,8 @@ type Repository interface {
 }
 
 type Usecase interface {
-	AddIncome(req *entity.IncomeReq, uid string) (*models.Income, error)
-	UpdateIncome(id string, req *entity.IncomeReq, uid string) (*models.Income, error)
+	AddIncome(req *models.IncomeReq, uid string) (*models.Income, error)
+	UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error)
 	GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error)
 	GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error)
 	ExportPdf(id string) (string, error)

@@ -7,8 +7,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
-	"gitlab.odds.team/worklog/api.odds-worklog/entity"
-	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/entity/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/models/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
@@ -22,14 +22,14 @@ func TestUsecaseAddIncome(t *testing.T) {
 		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
 		mockRepoIncome.EXPECT().AddIncome(gomock.Any()).Return(nil)
 		year, month := utils.GetYearMonthNow()
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(entity.MockIncome.UserID, year, month).Return(&entity.MockIncome, errors.New(""))
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(models.MockIncome.UserID, year, month).Return(&models.MockIncome, errors.New(""))
 
 		uc := NewUsecase(mockRepoIncome, mockUserRepo)
-		res, err := uc.AddIncome(&entity.MockIncomeReq, userMock.User.ID.Hex())
+		res, err := uc.AddIncome(&models.MockIncomeReq, userMock.User.ID.Hex())
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, entity.MockIncome.UserID, res.UserID)
+		assert.Equal(t, models.MockIncome.UserID, res.UserID)
 		assert.Equal(t, "116400.00", res.NetIncome)
 		assert.Equal(t, "97000.00", res.NetDailyIncome)
 		assert.Equal(t, "19400.00", res.NetSpecialIncome)
@@ -47,15 +47,15 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		mockRepoUser := userMock.NewMockRepository(ctrl)
 		incomeMockRepo := incomeMock.NewMockRepository(ctrl)
 		mockRepoUser.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
-		incomeMockRepo.EXPECT().UpdateIncome(&entity.MockIncome).Return(nil)
-		incomeMockRepo.EXPECT().GetIncomeByID(entity.MockIncome.ID.Hex(), userMock.User.ID.Hex()).Return(&entity.MockIncome, nil)
+		incomeMockRepo.EXPECT().UpdateIncome(&models.MockIncome).Return(nil)
+		incomeMockRepo.EXPECT().GetIncomeByID(models.MockIncome.ID.Hex(), userMock.User.ID.Hex()).Return(&models.MockIncome, nil)
 
 		uc := NewUsecase(incomeMockRepo, mockRepoUser)
-		res, err := uc.UpdateIncome(entity.MockIncome.ID.Hex(), &entity.MockIncomeReq, userMock.User.ID.Hex())
+		res, err := uc.UpdateIncome(models.MockIncome.ID.Hex(), &models.MockIncomeReq, userMock.User.ID.Hex())
 
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, entity.MockIncome.UserID, res.UserID)
+		assert.Equal(t, models.MockIncome.UserID, res.UserID)
 	})
 }
 
@@ -66,8 +66,8 @@ func TestUsecaseGetListIncome(t *testing.T) {
 
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
 		year, month := utils.GetYearMonthNow()
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month).Return(&entity.MockIncome, nil)
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month).Return(&entity.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month).Return(&models.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month).Return(&models.MockIncome, nil)
 
 		mockUserRepo := userMock.NewMockRepository(ctrl)
 		mockUserRepo.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
@@ -76,7 +76,7 @@ func TestUsecaseGetListIncome(t *testing.T) {
 		res, err := uc.GetIncomeStatusList("corporate", false)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, entity.MockIncomeStatusList[0].Status, res[0].Status)
+		assert.Equal(t, models.MockIncomeStatusList[0].Status, res[0].Status)
 
 	})
 }
@@ -87,14 +87,14 @@ func TestUsecaseGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
 		year, month := utils.GetYearMonthNow()
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(entity.MockIncome.UserID, year, month).Return(&entity.MockIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(models.MockIncome.UserID, year, month).Return(&models.MockIncome, nil)
 		mockUserRepo := userMock.NewMockRepository(ctrl)
 
 		uc := NewUsecase(mockRepoIncome, mockUserRepo)
-		res, err := uc.GetIncomeByUserIdAndCurrentMonth(entity.MockIncome.UserID)
+		res, err := uc.GetIncomeByUserIdAndCurrentMonth(models.MockIncome.UserID)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, entity.MockIncome.SubmitDate, res.SubmitDate)
+		assert.Equal(t, models.MockIncome.SubmitDate, res.SubmitDate)
 	})
 }
 func TestUsecaseGetIncomeByUserIdAndAllMonth(t *testing.T) {
@@ -103,14 +103,14 @@ func TestUsecaseGetIncomeByUserIdAndAllMonth(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
-		mockRepoIncome.EXPECT().GetIncomeByUserIdAllMonth(entity.MockIncome.UserID).Return(entity.MockIncomeList, nil)
+		mockRepoIncome.EXPECT().GetIncomeByUserIdAllMonth(models.MockIncome.UserID).Return(models.MockIncomeList, nil)
 		mockUserRepo := userMock.NewMockRepository(ctrl)
 
 		uc := NewUsecase(mockRepoIncome, mockUserRepo)
-		res, err := uc.GetIncomeByUserIdAllMonth(entity.MockIncome.UserID)
+		res, err := uc.GetIncomeByUserIdAllMonth(models.MockIncome.UserID)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, entity.MockIncome.SubmitDate, res[0].SubmitDate)
+		assert.Equal(t, models.MockIncome.SubmitDate, res[0].SubmitDate)
 		assert.Equal(t, "50440.00", res[1].NetIncome)
 	})
 }
@@ -121,11 +121,11 @@ func TestUsecaseGetIncomeByUserIdAndAllMonthCaseNoNetSpecialIncome(t *testing.T)
 		defer ctrl.Finish()
 
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
-		mockRepoIncome.EXPECT().GetIncomeByUserIdAllMonth(entity.MockIncome.UserID).Return(entity.MockIncomeListNoNetSpecialIncome, nil)
+		mockRepoIncome.EXPECT().GetIncomeByUserIdAllMonth(models.MockIncome.UserID).Return(models.MockIncomeListNoNetSpecialIncome, nil)
 		mockUserRepo := userMock.NewMockRepository(ctrl)
 
 		uc := NewUsecase(mockRepoIncome, mockUserRepo)
-		res, err := uc.GetIncomeByUserIdAllMonth(entity.MockIncome.UserID)
+		res, err := uc.GetIncomeByUserIdAllMonth(models.MockIncome.UserID)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, "00.00", res[0].NetIncome)

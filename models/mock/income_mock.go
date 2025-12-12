@@ -9,7 +9,6 @@ import (
 	time "time"
 
 	gomock "github.com/golang/mock/gomock"
-	entity "gitlab.odds.team/worklog/api.odds-worklog/entity"
 	models "gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
@@ -263,7 +262,7 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 }
 
 // AddIncome mocks base method.
-func (m *MockUsecase) AddIncome(req *entity.IncomeReq, uid string) (*models.Income, error) {
+func (m *MockUsecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddIncome", req, uid)
 	ret0, _ := ret[0].(*models.Income)
@@ -413,7 +412,7 @@ func (mr *MockUsecaseMockRecorder) GetIncomeStatusList(role, isAdmin interface{}
 }
 
 // UpdateIncome mocks base method.
-func (m *MockUsecase) UpdateIncome(id string, req *entity.IncomeReq, uid string) (*models.Income, error) {
+func (m *MockUsecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateIncome", id, req, uid)
 	ret0, _ := ret[0].(*models.Income)
@@ -426,3 +425,5 @@ func (mr *MockUsecaseMockRecorder) UpdateIncome(id, req, uid interface{}) *gomoc
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateIncome", reflect.TypeOf((*MockUsecase)(nil).UpdateIncome), id, req, uid)
 }
+
+

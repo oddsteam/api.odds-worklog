@@ -7,7 +7,6 @@ import (
 	"github.com/globalsign/mgo/bson"
 
 	siteMock "gitlab.odds.team/worklog/api.odds-worklog/api/site/mock"
-	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/entity"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
@@ -37,7 +36,7 @@ var (
 		DailyIncome:       "3000",
 		Address:           "265/28",
 		StatusTavi:        true,
-		Incomes:           *&incomeMock.MockIncomeList,
+		Incomes:           *&models.MockIncomeList,
 	}
 
 	MockBackOfficeKey = models.BackOfficeKey{

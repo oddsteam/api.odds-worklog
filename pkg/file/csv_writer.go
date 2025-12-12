@@ -4,7 +4,7 @@ import (
 	"encoding/csv"
 	"errors"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/entity"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
@@ -14,7 +14,7 @@ func NewCSVWriter() *csvWriter {
 	return &csvWriter{}
 }
 
-func (w *csvWriter) WriteFile(name string, ics entity.PayrollCycle) (string, error) {
+func (w *csvWriter) WriteFile(name string, ics models.PayrollCycle) (string, error) {
 	strWrite, _ := ToCSV(ics)
 
 	if len(strWrite) == 1 {
@@ -34,8 +34,8 @@ func (w *csvWriter) WriteFile(name string, ics entity.PayrollCycle) (string, err
 	return filename, nil
 }
 
-func ToCSV(ics entity.PayrollCycle) ([][]string, []string) {
-	rows, ids := ics.ProcessRecords(func(index int, i entity.Payroll) [][]string {
+func ToCSV(ics models.PayrollCycle) ([][]string, []string) {
+	rows, ids := ics.ProcessRecords(func(index int, i models.Payroll) [][]string {
 		d := export(i)
 		d[VENDOR_CODE_INDEX] = getVendorCode(index)
 		return [][]string{d}
@@ -68,7 +68,7 @@ func createHeaders() []string {
 	return []string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 }
 
-func export(i entity.Payroll) []string {
+func export(i models.Payroll) []string {
 	d := []string{
 		"",
 		i.GetBankAccountName(),

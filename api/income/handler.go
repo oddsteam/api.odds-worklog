@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
-	"gitlab.odds.team/worklog/api.odds-worklog/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
 	"gitlab.odds.team/worklog/api.odds-worklog/usecases"
 
@@ -27,7 +26,7 @@ type HttpHandler struct {
 	ExportIncomeUsecase usecases.ForUsingExportIncome
 }
 
-func isRequestValid(m *entity.IncomeReq) (bool, error) {
+func isRequestValid(m *models.IncomeReq) (bool, error) {
 	if err := validator.New().Struct(m); err != nil {
 		return false, err
 	}
@@ -47,7 +46,7 @@ func isRequestValid(m *entity.IncomeReq) (bool, error) {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes [post]
 func (h *HttpHandler) AddIncome(c echo.Context) error {
-	var income entity.IncomeReq
+	var income models.IncomeReq
 	if err := c.Bind(&income); err != nil {
 		return utils.NewError(c, http.StatusUnprocessableEntity, err)
 	}
@@ -81,7 +80,7 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
 
-	var req entity.IncomeReq
+	var req models.IncomeReq
 	if err := c.Bind(&req); err != nil {
 		return utils.NewError(c, http.StatusUnprocessableEntity, err)
 	}
@@ -256,7 +255,7 @@ func (h *HttpHandler) PostExportSAP(c echo.Context) error {
 	defer req.Body.Close()
 	decoder := json.NewDecoder(req.Body)
 
-	var exReq entity.ExportInComeSAPReq
+	var exReq models.ExportInComeSAPReq
 	err := decoder.Decode(&exReq)
 
 	if err != nil {
@@ -293,7 +292,7 @@ func (h *HttpHandler) PostExportPdf(c echo.Context) error {
 	defer req.Body.Close()
 	decoder := json.NewDecoder(req.Body)
 
-	var t entity.ExportInComeReq
+	var t models.ExportInComeReq
 	err := decoder.Decode(&t)
 
 	if err != nil {

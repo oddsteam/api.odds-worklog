@@ -1,17 +1,33 @@
-package entity
+package models
 
 import (
 	"testing"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/stretchr/testify/assert"
-	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
+
+// Local test mock for IndividualUser1
+var testIndividualUser1 = User{
+	ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39531"),
+	Role:              "individual",
+	FirstName:         "first",
+	LastName:          "last",
+	Email:             "email@example.com",
+	BankAccountName:   "ชื่อ นามสกุล",
+	BankAccountNumber: "0531231231",
+	ThaiCitizenID:     "ThaiCitizenID",
+	Vat:               "N",
+	SlackAccount:      "test@example.com",
+	DailyIncome:       "2000",
+	StatusTavi:        true,
+	Address:           "address",
+	StartDate:         "2022-01-01",
+}
 
 func TestPayroll(t *testing.T) {
 	t.Run("เวลา Add income ควร save ชื่อบัญชี เลขบัญชี และจำนวนเงินด้วย ตอน export จะได้ไม่ต้องคำนวนแล้ว", func(t *testing.T) {
-		user := userMock.IndividualUser1
+		user := testIndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		p := NewPayroll(uidFromSession)
 
@@ -31,7 +47,7 @@ func TestPayroll(t *testing.T) {
 	})
 
 	t.Run("เวลา Add income ควร save role ด้วย จะได้รู้ว่าเป็น coporate หรือ individual income", func(t *testing.T) {
-		user := userMock.IndividualUser1
+		user := testIndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		p := NewPayroll(uidFromSession)
 
@@ -43,7 +59,7 @@ func TestPayroll(t *testing.T) {
 	})
 
 	t.Run("เวลา Add income ควร save ชื่อ นามสกุล เลขบัตรประชาชนเวลา export ให้บัญชี เค้าจะได้รู้ว่าจ่ายเงินให้ใคร", func(t *testing.T) {
-		user := userMock.IndividualUser1
+		user := testIndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		p := NewPayroll(uidFromSession)
 
@@ -56,7 +72,7 @@ func TestPayroll(t *testing.T) {
 	})
 
 	t.Run("เวลา Add income ควร save เบอร์โทรกับ อีเมลด้วยเผื่อตกขบวนเพื่อน ๆ จะได้ช่วยกันตามมากรอกเงินจากหน้า web หน้า individual list ได้", func(t *testing.T) {
-		user := userMock.IndividualUser1
+		user := testIndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		p := NewPayroll(uidFromSession)
 
@@ -69,7 +85,7 @@ func TestPayroll(t *testing.T) {
 	})
 
 	t.Run("เวลา Add income ควร save วันที่กรอกด้วยจะ เผื่อ export ตอนมีคนตกขบวนจะได้ sort ได้ว่า 2 file รายชื่อต่างกันตรงไหน", func(t *testing.T) {
-		user := userMock.IndividualUser1
+		user := testIndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		p := NewPayroll(uidFromSession)
 
@@ -81,7 +97,7 @@ func TestPayroll(t *testing.T) {
 	})
 
 	t.Run("เวลา Add income ควร save note ด้วย ไม่รู้ทำไมเหมือนกัน", func(t *testing.T) {
-		user := userMock.IndividualUser1
+		user := testIndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		p := NewPayroll(uidFromSession)
 
@@ -94,7 +110,7 @@ func TestPayroll(t *testing.T) {
 
 	t.Run("เวลา Add income ควร total income ด้วยเพราะ iOS, Andriod และหน้า history ใช้", func(t *testing.T) {
 		// ref: https://3.basecamp.com/4877526/buckets/19693649/card_tables/cards/7638832341#__recording_7639315070
-		user := userMock.IndividualUser1
+		user := testIndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		p := NewPayroll(uidFromSession)
 
@@ -181,7 +197,7 @@ func TestPayroll(t *testing.T) {
 			WorkingHours:  "10",
 		}
 		p := NewPayroll(uidFromSession)
-		p.SetLoan(&models.StudentLoan{Amount: 50})
+		p.SetLoan(&StudentLoan{Amount: 50})
 
 		err := p.parseRequest(req, user)
 
@@ -198,7 +214,7 @@ func TestPayroll(t *testing.T) {
 			WorkingHours:  "10",
 		}
 		p := NewPayroll(uidFromSession)
-		p.SetLoan(&models.StudentLoan{Amount: 50})
+		p.SetLoan(&StudentLoan{Amount: 50})
 
 		err := p.parseRequest(req, user)
 
@@ -212,7 +228,7 @@ func TestPayroll(t *testing.T) {
 		// บาท เพื่อคืนเงินที่หักประกันสังคมคืนไป
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		p := NewPayroll(uidFromSession)
-		p.SetLoan(&models.StudentLoan{Amount: -270})
+		p.SetLoan(&StudentLoan{Amount: -270})
 		user := GivenIndividualUser(uidFromSession, "5")
 		req := IncomeReq{
 			SpecialIncome: "100",
@@ -227,7 +243,7 @@ func TestPayroll(t *testing.T) {
 
 	t.Run("calculate corporate income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := models.User{
+		user := User{
 			ID:   bson.ObjectIdHex(uidFromSession),
 			Role: "corporate",
 			// ปรกติเวลารายได้เกิน 1.8 ล้าน/ปี ต้องจด VAT
@@ -255,3 +271,4 @@ func TestPayroll(t *testing.T) {
 		assert.Equal(t, 1000.0+70-30, p.Net(p.specialIncome()))
 	})
 }
+

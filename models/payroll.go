@@ -1,12 +1,10 @@
-package entity
+package models
 
 import (
 	"fmt"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
@@ -17,22 +15,22 @@ type Payroll struct {
 	specialHours      float64
 	specialIncomeRate float64
 	isVATRegistered   bool
-	u                 *user.User
-	loan              *models.StudentLoan
-	record            *models.Income
+	userDetail        *User
+	loan              *StudentLoan
+	record            *Income
 }
 
 func NewPayroll(uidFromSession string) *Payroll {
 	return &Payroll{
 		UserID: uidFromSession,
-		loan:   &models.StudentLoan{},
+		loan:   &StudentLoan{},
 	}
 }
 
-func NewPayrollFromIncome(record models.Income) *Payroll {
+func NewPayrollFromIncome(record Income) *Payroll {
 	p := Payroll{
 		UserID:          "",
-		loan:            &models.StudentLoan{},
+		loan:            &StudentLoan{},
 		record:          &record,
 		dailyRate:       record.DailyRate,
 		isVATRegistered: record.IsVATRegistered,
@@ -45,7 +43,7 @@ func NewPayrollFromIncome(record models.Income) *Payroll {
 	return &p
 }
 
-func CreatePayroll(user models.User, req IncomeReq, note string) *models.Income {
+func CreatePayroll(user User, req IncomeReq, note string) *Income {
 	i := NewPayroll(user.ID.Hex())
 	record, err := i.prepareDataForAddIncome(req, user)
 	record.Note = note
@@ -53,7 +51,7 @@ func CreatePayroll(user models.User, req IncomeReq, note string) *models.Income 
 	return record
 }
 
-func UpdatePayroll(user models.User, req IncomeReq, note string, record *models.Income) *models.Income {
+func UpdatePayroll(user User, req IncomeReq, note string, record *Income) *Income {
 	i := NewPayrollFromIncome(*record)
 	err := i.prepareDataForUpdateIncome(req, user, record)
 	record.Note = note
@@ -61,23 +59,32 @@ func UpdatePayroll(user models.User, req IncomeReq, note string, record *models.
 	return record
 }
 
-func (p *Payroll) SetLoan(l *models.StudentLoan) {
+func (p *Payroll) SetLoan(l *StudentLoan) {
 	p.loan = l
 }
 
-func (p *Payroll) parseRequest(req IncomeReq, userDetail models.User) error {
+func (p *Payroll) parseRequest(req IncomeReq, userDetail User) error {
 	err := p.parse(req)
 	if err != nil {
 		return err
 	}
-	p.u = user.NewUser(userDetail)
-	p.dailyRate = p.u.DailyRate()
-	p.isVATRegistered = p.u.IsVATRegistered()
+	p.userDetail = &userDetail
+	p.dailyRate = p.getUserDailyRate()
+	p.isVATRegistered = p.isUserVATRegistered()
 	return nil
 }
 
-func (p *Payroll) prepareDataForAddIncome(req IncomeReq, userDetail models.User) (*models.Income, error) {
-	income := models.Income{}
+func (p *Payroll) getUserDailyRate() float64 {
+	dr, _ := utils.StringToFloat64(p.userDetail.DailyIncome)
+	return dr
+}
+
+func (p *Payroll) isUserVATRegistered() bool {
+	return p.userDetail.Vat == "Y"
+}
+
+func (p *Payroll) prepareDataForAddIncome(req IncomeReq, userDetail User) (*Income, error) {
+	income := Income{}
 	err := p.prepareDataForUpdateIncome(req, userDetail, &income)
 	if err != nil {
 		return nil, err
@@ -85,7 +92,7 @@ func (p *Payroll) prepareDataForAddIncome(req IncomeReq, userDetail models.User)
 	return &income, nil
 }
 
-func (p *Payroll) prepareDataForUpdateIncome(req IncomeReq, userDetail models.User, income *models.Income) error {
+func (p *Payroll) prepareDataForUpdateIncome(req IncomeReq, userDetail User, income *Income) error {
 	err := p.parseRequest(req, userDetail)
 	if err != nil {
 		return err
@@ -109,8 +116,8 @@ func (p *Payroll) prepareDataForUpdateIncome(req IncomeReq, userDetail models.Us
 	income.WorkDate = req.WorkDate
 	income.SpecialIncome = req.SpecialIncome
 	income.WorkingHours = req.WorkingHours
-	income.DailyRate = p.u.DailyRate()
-	income.IsVATRegistered = p.u.IsVATRegistered()
+	income.DailyRate = p.getUserDailyRate()
+	income.IsVATRegistered = p.isUserVATRegistered()
 	income.TotalIncome = p.totalIncomeStr()
 
 	return nil
@@ -241,11 +248,12 @@ func (p *Payroll) GetBankAccountName() string {
 	return p.record.BankAccountName
 }
 
-func GivenIndividualUser(uidFromSession string, dailyIncome string) models.User {
-	return models.User{
+func GivenIndividualUser(uidFromSession string, dailyIncome string) User {
+	return User{
 		ID:          bson.ObjectIdHex(uidFromSession),
 		Role:        "individual",
 		Vat:         "N",
 		DailyIncome: dailyIncome,
 	}
 }
+

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"gitlab.odds.team/worklog/api.odds-worklog/entity"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
@@ -69,9 +69,9 @@ func TestSAPWriter(t *testing.T) {
 
 	t.Run("test export to SAP transaction should format correctly", func(t *testing.T) {
 		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
-		i := entity.MockSoloCorporateIncome
+		i := models.MockSoloCorporateIncome
 
-		txn, _ := exportSAP(*entity.NewPayrollFromIncome(i), dateEff)
+		txn, _ := exportSAP(*models.NewPayrollFromIncome(i), dateEff)
 
 		assert.Equal(t, "TXN", txn[SAP_TXN_INDEX])
 		assert.Equal(t, "บจก. ออด-อี (ประเทศไทย) จำกัด                                                                                           ", txn[SAP_PAYER_NAME_INDEX])
@@ -134,9 +134,9 @@ func TestSAPWriter(t *testing.T) {
 
 	t.Run("test export to SAP wht should format correctly", func(t *testing.T) {
 		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
-		i := entity.MockSoloCorporateIncome
+		i := models.MockSoloCorporateIncome
 
-		_, wht := exportSAP(*entity.NewPayrollFromIncome(i), dateEff)
+		_, wht := exportSAP(*models.NewPayrollFromIncome(i), dateEff)
 
 		assert.Equal(t, "WHT", wht[SAP_WHT_WHT_INDEX])
 		assert.Equal(t, "             ", wht[SAP_WHT_EMPTY_1_INDEX])

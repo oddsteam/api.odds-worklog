@@ -1,4 +1,4 @@
-package entity
+package models
 
 import (
 	"errors"
@@ -52,3 +52,5 @@ func (req *ExportInComeSAPReq) getDateEffective() (time.Time, error) {
 	}
 	return dateEff, nil
 }
+
+

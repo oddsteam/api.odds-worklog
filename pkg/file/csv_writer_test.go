@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gitlab.odds.team/worklog/api.odds-worklog/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
@@ -17,7 +16,7 @@ func TestCSVWriter(t *testing.T) {
 		records := []*models.Income{
 			{ID: "incomeId1", UserID: users[0].ID.Hex()},
 		}
-		incomes := entity.NewIncomes(records, models.StudentLoanList{})
+		incomes := models.NewIncomes(records, models.StudentLoanList{})
 
 		_, updatedIncomeIds := ToCSV(*incomes)
 
@@ -27,16 +26,16 @@ func TestCSVWriter(t *testing.T) {
 
 	t.Run("export individual income information เพื่อให้บัญชีติดต่อได้เวลามีปัญหา", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
-		user := entity.GivenIndividualUser(uidFromSession, "5")
+		user := models.GivenIndividualUser(uidFromSession, "5")
 		user.FirstName = "first"
 		user.LastName = "last"
 		user.ThaiCitizenID = "id"
 		user.BankAccountName = "account name"
 		user.BankAccountNumber = "0123456789"
 		user.Email = "test@example.com"
-		req := entity.IncomeReq{WorkDate: "20"}
-		record := entity.CreatePayroll(user, req, "note")
-		i := entity.NewPayrollFromIncome(*record)
+		req := models.IncomeReq{WorkDate: "20"}
+		record := models.CreatePayroll(user, req, "note")
+		i := models.NewPayrollFromIncome(*record)
 
 		csvColumns := export(*i)
 
@@ -53,14 +52,14 @@ func TestCSVWriter(t *testing.T) {
 		workDate := "20"
 		specialIncome := "100"
 		workingHours := "10"
-		u := entity.GivenIndividualUser(uidFromSession, dailyIncome)
-		req := entity.IncomeReq{
+		u := models.GivenIndividualUser(uidFromSession, dailyIncome)
+		req := models.IncomeReq{
 			WorkDate:      workDate,
 			SpecialIncome: specialIncome,
 			WorkingHours:  workingHours,
 		}
-		record := entity.CreatePayroll(u, req, "note")
-		i := entity.NewPayrollFromIncome(*record)
+		record := models.CreatePayroll(u, req, "note")
+		i := models.NewPayrollFromIncome(*record)
 		i.SetLoan(&models.StudentLoan{})
 
 		csvColumns := export(*i)
@@ -89,7 +88,7 @@ func TestCSVHeaders(t *testing.T) {
 func TestModelIncomes(t *testing.T) {
 	t.Run("test export to CSV when there is 0 income", func(t *testing.T) {
 		records := []*models.Income{}
-		incomes := entity.NewIncomes(records, models.StudentLoanList{})
+		incomes := models.NewIncomes(records, models.StudentLoanList{})
 
 		csv, _ := ToCSV(*incomes)
 
@@ -102,7 +101,7 @@ func TestModelIncomes(t *testing.T) {
 		records := []*models.Income{
 			{ID: "incomeId"},
 		}
-		incomes := entity.NewIncomes(records, models.StudentLoanList{})
+		incomes := models.NewIncomes(records, models.StudentLoanList{})
 
 		csv, _ := ToCSV(*incomes)
 
@@ -117,7 +116,7 @@ func TestModelIncomes(t *testing.T) {
 			{ID: "incomeId1"},
 			{ID: "incomeId2"},
 		}
-		incomes := entity.NewIncomes(records, models.StudentLoanList{})
+		incomes := models.NewIncomes(records, models.StudentLoanList{})
 
 		csv, _ := ToCSV(*incomes)
 
@@ -132,7 +131,7 @@ func TestModelIncomes(t *testing.T) {
 			{ID: "incomeId1"},
 			{ID: "incomeId2"},
 		}
-		incomes := entity.NewIncomes(records, models.StudentLoanList{})
+		incomes := models.NewIncomes(records, models.StudentLoanList{})
 
 		csv, _ := ToCSV(*incomes)
 
@@ -152,7 +151,7 @@ func TestModelIncomes(t *testing.T) {
 		records := []*models.Income{
 			{ID: "incomeId1", UserID: users[0].ID.Hex()},
 		}
-		incomes := entity.NewIncomes(records, models.StudentLoanList{})
+		incomes := models.NewIncomes(records, models.StudentLoanList{})
 
 		csv, _ := ToCSV(*incomes)
 
@@ -169,7 +168,7 @@ func TestModelIncomes(t *testing.T) {
 		records := []*models.Income{
 			{ID: "incomeId"},
 		}
-		incomes := entity.NewIncomes(records, models.StudentLoanList{})
+		incomes := models.NewIncomes(records, models.StudentLoanList{})
 
 		_, updatedIncomeIds := ToCSV(*incomes)
 

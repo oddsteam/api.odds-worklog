@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/entity"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
@@ -36,7 +36,7 @@ type Transaction struct {
 	TaxID      string
 }
 
-func toTransaction(i entity.Payroll, dateEff time.Time) Transaction {
+func toTransaction(i models.Payroll, dateEff time.Time) Transaction {
 	return Transaction{
 		ComName:    "บจก. ออด-อี (ประเทศไทย) จำกัด",
 		Payee:      i.GetName(),

@@ -3,7 +3,6 @@ package usecases
 import (
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
@@ -45,7 +44,7 @@ func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, startDate, endD
 
 	studentLoanList := u.readRepo.GetStudentLoans()
 
-	ics := entity.NewIncomes(incomes, studentLoanList)
+	ics := models.NewIncomes(incomes, studentLoanList)
 	filename, err := u.csvWriter.WriteFile(role, *ics)
 	if err != nil {
 		return "", err
@@ -72,7 +71,7 @@ func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, e
 
 	studentLoanList := u.readRepo.GetStudentLoans()
 
-	ics := entity.NewIncomes(incomes, studentLoanList)
+	ics := models.NewIncomes(incomes, studentLoanList)
 
 	filename, err := u.sapWriter.WriteFile(role, *ics, dateEff)
 	if err != nil {

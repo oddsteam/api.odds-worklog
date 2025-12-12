@@ -7,7 +7,6 @@ import (
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/stretchr/testify/assert"
-	"gitlab.odds.team/worklog/api.odds-worklog/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
@@ -16,8 +15,8 @@ func TestUsecaseExportIncome(t *testing.T) {
 		usecase, ctrl, mockRepoIncome := CreateExportIncomeUsecaseWithMock(t)
 		defer ctrl.Finish()
 		incomes := []*models.Income{
-			&entity.MockIncome,
-			&entity.MockIncome2,
+			&models.MockIncome,
+			&models.MockIncome2,
 		}
 		mockRepoIncome.ExpectGetAllIncomeOfCurrentMonthByRole(incomes, time.Now())
 
@@ -34,8 +33,8 @@ func TestUsecaseExportIncome(t *testing.T) {
 		usecase, ctrl, mockRepoIncome := CreateExportIncomeUsecaseWithMock(t)
 		defer ctrl.Finish()
 		incomes := []*models.Income{
-			&entity.MockIncome,
-			&entity.MockIncome2,
+			&models.MockIncome,
+			&models.MockIncome2,
 			{ID: bson.ObjectIdHex("5bd1fda30fd2df2a3e41e571"), Role: "individual", WorkDate: "20", DailyRate: 750},
 		}
 		mockRepoIncome.ExpectGetAllIncomeOfCurrentMonthByRole(incomes, time.Now())
@@ -53,8 +52,8 @@ func TestUsecaseExportIncome(t *testing.T) {
 		usecase, ctrl, mockRepoIncome := CreateExportIncomeUsecaseWithMock(t)
 		defer ctrl.Finish()
 		incomes := []*models.Income{
-			&entity.MockIncome,
-			&entity.MockIncome2,
+			&models.MockIncome,
+			&models.MockIncome2,
 		}
 		mockRepoIncome.ExpectGetAllIncomeOfPreviousMonthByRole(incomes)
 
@@ -76,8 +75,8 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 		startDate := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 		endDate := time.Date(2024, 1, 31, 23, 59, 59, 0, time.UTC)
 		incomes := []*models.Income{
-			&entity.MockSoloCorporateIncome,
-			&entity.MockSwardCorporateIncome,
+			&models.MockSoloCorporateIncome,
+			&models.MockSwardCorporateIncome,
 		}
 		mockRepoIncome.GetAllIncomeByRoleStartDateAndEndDate(incomes, "individual", startDate, endDate)
 
@@ -96,7 +95,7 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
 		startDate := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 		endDate := time.Date(2024, 1, 31, 23, 59, 59, 0, time.UTC)
-		i := deepClone(&entity.MockSoloCorporateIncome)
+		i := deepClone(&models.MockSoloCorporateIncome)
 		i.Name = "บจก. โซโล่ เลเวลลิ่ง 🦄"
 		incomes := []*models.Income{
 			i,
@@ -119,8 +118,8 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 		startDate := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 		endDate := time.Date(2024, 1, 31, 23, 59, 59, 0, time.UTC)
 		incomes := []*models.Income{
-			&entity.MockSoloCorporateIncome,
-			&entity.MockSwardCorporateIncome,
+			&models.MockSoloCorporateIncome,
+			&models.MockSwardCorporateIncome,
 		}
 		mockRepoIncome.GetAllIncomeByRoleStartDateAndEndDate(incomes, "corporate", startDate, endDate)
 

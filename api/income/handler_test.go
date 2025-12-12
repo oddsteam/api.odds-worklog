@@ -13,9 +13,8 @@ import (
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
-	"gitlab.odds.team/worklog/api.odds-worklog/entity"
-	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/entity/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/models/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/usecases"
 )
 
@@ -25,10 +24,10 @@ func TestAddIncome(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().AddIncome(&entity.MockIncomeReq, userMock.User.ID.Hex()).Return(&entity.MockIncome, nil)
+		mockUsecase.EXPECT().AddIncome(&models.MockIncomeReq, userMock.User.ID.Hex()).Return(&models.MockIncome, nil)
 
 		e := echo.New()
-		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(entity.MockIncomeReqJson))
+		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(models.MockIncomeReqJson))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
@@ -48,12 +47,12 @@ func TestAddIncome(t *testing.T) {
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 
 		e := echo.New()
-		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(entity.MockIncomeResJson))
+		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(models.MockIncomeResJson))
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenUser)
 		c.SetParamNames("id")
-		c.SetParamValues(entity.MockIncome.ID.Hex())
+		c.SetParamValues(models.MockIncome.ID.Hex())
 
 		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
 		defer ctrl.Finish()
@@ -69,16 +68,16 @@ func TestUpdateIncome(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().UpdateIncome(entity.MockIncome.ID.Hex(), &entity.MockIncomeReq, userMock.User.ID.Hex()).Return(&entity.MockIncome, nil)
+		mockUsecase.EXPECT().UpdateIncome(models.MockIncome.ID.Hex(), &models.MockIncomeReq, userMock.User.ID.Hex()).Return(&models.MockIncome, nil)
 
 		e := echo.New()
-		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(entity.MockIncomeReqJson))
+		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(models.MockIncomeReqJson))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenUser)
 		c.SetParamNames("id")
-		c.SetParamValues(entity.MockIncome.ID.Hex())
+		c.SetParamValues(models.MockIncome.ID.Hex())
 
 		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
 		defer ctrl.Finish()
@@ -111,12 +110,12 @@ func TestUpdateIncome(t *testing.T) {
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 
 		e := echo.New()
-		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(entity.MockIncomeResJson))
+		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(models.MockIncomeResJson))
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenUser)
 		c.SetParamNames("id")
-		c.SetParamValues(entity.MockIncome.ID.Hex())
+		c.SetParamValues(models.MockIncome.ID.Hex())
 
 		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
 		defer ctrl.Finish()
@@ -133,7 +132,7 @@ func TestGetCorporateIncomeStatus(t *testing.T) {
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.IncomeStatus, 0)
-		mockListUser = append(mockListUser, &entity.MockCorporateIncomeStatus)
+		mockListUser = append(mockListUser, &models.MockCorporateIncomeStatus)
 		mockUsecase.EXPECT().GetIncomeStatusList("corporate", true).Return(mockListUser, nil)
 
 		e := echo.New()
@@ -156,7 +155,7 @@ func TestGetCorporateIncomeStatus(t *testing.T) {
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.IncomeStatus, 0)
-		mockListUser = append(mockListUser, &entity.MockIndividualIncomeStatus)
+		mockListUser = append(mockListUser, &models.MockIndividualIncomeStatus)
 		mockUsecase.EXPECT().GetIncomeStatusList("corporate", true).Return(mockListUser, nil)
 
 		e := echo.New()
@@ -168,7 +167,7 @@ func TestGetCorporateIncomeStatus(t *testing.T) {
 		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
 		defer ctrl.Finish()
 		handler.GetCorporateIncomeStatus(c)
-		incomeByte, _ := json.Marshal(entity.MockIndividualIncomeStatus)
+		incomeByte, _ := json.Marshal(models.MockIndividualIncomeStatus)
 		incomeJson := string(incomeByte)
 		assert.NotEqual(t, incomeJson, rec.Body)
 
@@ -182,7 +181,7 @@ func TestGetIndividualIncomeStatus(t *testing.T) {
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.IncomeStatus, 0)
-		mockListUser = append(mockListUser, &entity.MockIndividualIncomeStatus)
+		mockListUser = append(mockListUser, &models.MockIndividualIncomeStatus)
 		mockUsecase.EXPECT().GetIncomeStatusList("individual", true).Return(mockListUser, nil)
 
 		e := echo.New()
@@ -204,7 +203,7 @@ func TestGetIndividualIncomeStatus(t *testing.T) {
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
 		mockListUser := make([]*models.IncomeStatus, 0)
-		mockListUser = append(mockListUser, &entity.MockCorporateIncomeStatus)
+		mockListUser = append(mockListUser, &models.MockCorporateIncomeStatus)
 		mockUsecase.EXPECT().GetIncomeStatusList("individual", true).Return(mockListUser, nil)
 
 		e := echo.New()
@@ -216,7 +215,7 @@ func TestGetIndividualIncomeStatus(t *testing.T) {
 		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
 		defer ctrl.Finish()
 		handler.GetIndividualIncomeStatus(c)
-		incomeByte, _ := json.Marshal(entity.MockCorporateIncomeStatus)
+		incomeByte, _ := json.Marshal(models.MockCorporateIncomeStatus)
 		incomeJson := string(incomeByte)
 		assert.NotEqual(t, incomeJson, rec.Body)
 
@@ -229,7 +228,7 @@ func TestGetIncomeGetIncomeCurrentMonthByUserId(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().GetIncomeByUserIdAndCurrentMonth(entity.MockIncome.UserID).Return(&entity.MockIncome, nil)
+		mockUsecase.EXPECT().GetIncomeByUserIdAndCurrentMonth(models.MockIncome.UserID).Return(&models.MockIncome, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -243,7 +242,7 @@ func TestGetIncomeGetIncomeCurrentMonthByUserId(t *testing.T) {
 		defer ctrl.Finish()
 		handler.GetIncomeCurrentMonthByUserId(c)
 
-		incomeByte, _ := json.Marshal(entity.MockIncome)
+		incomeByte, _ := json.Marshal(models.MockIncome)
 		incomeJson := string(incomeByte)
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.Equal(t, incomeJson, rec.Body.String())
@@ -275,7 +274,7 @@ func TestGetIncomeGetIncomeAllMonthByUserId(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().GetIncomeByUserIdAllMonth(entity.MockIncome.UserID).Return(entity.MockIncomeList, nil)
+		mockUsecase.EXPECT().GetIncomeByUserIdAllMonth(models.MockIncome.UserID).Return(models.MockIncomeList, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -289,7 +288,7 @@ func TestGetIncomeGetIncomeAllMonthByUserId(t *testing.T) {
 		defer ctrl.Finish()
 		handler.GetIncomeAllMonthByUserId(c)
 
-		incomeByte, _ := json.Marshal(entity.MockIncomeList)
+		incomeByte, _ := json.Marshal(models.MockIncomeList)
 		incomeJson := string(incomeByte)
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.Equal(t, incomeJson, rec.Body.String())
@@ -331,7 +330,7 @@ func TestGetExportCorporateIncomeStatus(t *testing.T) {
 		c.SetParamValues("1")
 		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t, mockUsecase)
 		defer ctrl.Finish()
-		mockRepo.ExpectGetAllIncomeOfPreviousMonthByRole(entity.MockIncomeList)
+		mockRepo.ExpectGetAllIncomeOfPreviousMonthByRole(models.MockIncomeList)
 		handler.GetExportCorporate(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -354,7 +353,7 @@ func TestGetExportIndividualIncomeStatus(t *testing.T) {
 		c.SetParamValues("1")
 		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t, mockUsecase)
 		defer ctrl.Finish()
-		mockRepo.ExpectGetAllIncomeOfPreviousMonthByRole(entity.MockIncomeList)
+		mockRepo.ExpectGetAllIncomeOfPreviousMonthByRole(models.MockIncomeList)
 		handler.GetExportIndividual(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -394,7 +393,7 @@ func TestPostExportSAPIncome(t *testing.T) {
 
 		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t, mockUsecase)
 		defer ctrl.Finish()
-		mockRepo.GetAllIncomeByRoleStartDateAndEndDate(entity.MockIncomeList, body.Role, startDate, endDate)
+		mockRepo.GetAllIncomeByRoleStartDateAndEndDate(models.MockIncomeList, body.Role, startDate, endDate)
 		handler.PostExportSAP(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -425,7 +424,7 @@ func TestPostExportSAPIncome(t *testing.T) {
 
 		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t, mockUsecase)
 		defer ctrl.Finish()
-		mockRepo.GetAllIncomeByRoleStartDateAndEndDate(entity.MockIncomeList, body.Role, startDate, endDate)
+		mockRepo.GetAllIncomeByRoleStartDateAndEndDate(models.MockIncomeList, body.Role, startDate, endDate)
 		handler.PostExportSAP(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)

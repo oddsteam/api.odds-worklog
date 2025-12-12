@@ -12,7 +12,6 @@ import (
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/reminder"
-	"gitlab.odds.team/worklog/api.odds-worklog/entity"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 
 	"github.com/labstack/echo"
@@ -332,11 +331,11 @@ func NewMockInComeUsecase() income.Usecase {
 	return MockInComeUsecase{}
 }
 
-func (fs MockInComeUsecase) AddIncome(req *entity.IncomeReq, uid string) (*models.Income, error) {
+func (fs MockInComeUsecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
 	return nil, nil
 }
 
-func (fs MockInComeUsecase) UpdateIncome(id string, req *entity.IncomeReq, uid string) (*models.Income, error) {
+func (fs MockInComeUsecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
 	return nil, nil
 }
 

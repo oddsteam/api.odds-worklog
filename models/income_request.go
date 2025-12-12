@@ -1,4 +1,4 @@
-package entity
+package models
 
 type IncomeReq struct {
 	Note          string `json:"note"`
@@ -6,3 +6,5 @@ type IncomeReq struct {
 	SpecialIncome string `json:"specialIncome"`
 	WorkingHours  string `json:"workingHours"`
 }
+
+
