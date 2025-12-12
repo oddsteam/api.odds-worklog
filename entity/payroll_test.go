@@ -9,7 +9,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
-func TestModelIncome(t *testing.T) {
+func TestPayroll(t *testing.T) {
 	t.Run("เวลา Add income ควร save ชื่อบัญชี เลขบัญชี และจำนวนเงินด้วย ตอน export จะได้ไม่ต้องคำนวนแล้ว", func(t *testing.T) {
 		user := userMock.IndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"

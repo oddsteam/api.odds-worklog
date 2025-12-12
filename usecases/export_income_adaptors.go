@@ -17,9 +17,9 @@ type ForControllingIncomeData interface {
 }
 
 type ForWritingCSVFile interface {
-	WriteFile(name string, ics entity.Incomes) (string, error)
+	WriteFile(name string, ics entity.PayrollCycle) (string, error)
 }
 
 type ForWritingSAPFile interface {
-	WriteFile(name string, ics entity.Incomes, dateEff time.Time) (string, error)
+	WriteFile(name string, ics entity.PayrollCycle, dateEff time.Time) (string, error)
 }

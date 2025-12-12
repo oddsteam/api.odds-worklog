@@ -14,7 +14,7 @@ type sapWriter struct{}
 
 func NewSAPWriter() *sapWriter { return &sapWriter{} }
 
-func (w *sapWriter) WriteFile(name string, ics entity.Incomes, dateEff time.Time) (string, error) {
+func (w *sapWriter) WriteFile(name string, ics entity.PayrollCycle, dateEff time.Time) (string, error) {
 	strWrite, _ := ToSAP(ics, dateEff)
 
 	if len(strWrite) == 0 {
@@ -45,14 +45,14 @@ func createSAPRow(record []string) string {
 	return strings.Join(record, "") + "\n"
 }
 
-func ToSAP(ics entity.Incomes, dateEff time.Time) ([][]string, []string) {
-	return ics.ProcessRecords(func(index int, i entity.Income) [][]string {
+func ToSAP(ics entity.PayrollCycle, dateEff time.Time) ([][]string, []string) {
+	return ics.ProcessRecords(func(index int, i entity.Payroll) [][]string {
 		txn, wht := exportSAP(i, dateEff)
 		return [][]string{txn, wht}
 	})
 }
 
-func exportSAP(i entity.Income, dateEff time.Time) ([]string, []string) {
+func exportSAP(i entity.Payroll, dateEff time.Time) ([]string, []string) {
 	txn := toTransaction(i, dateEff)
 	return txn.ToTXNLine(), txn.ToWHTLine()
 }

@@ -4,23 +4,23 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
-type Incomes struct {
+type PayrollCycle struct {
 	records []*models.Income
 	loans   models.StudentLoanList
 }
 
-func NewIncomes(records []*models.Income, loans models.StudentLoanList) *Incomes {
-	return &Incomes{
+func NewIncomes(records []*models.Income, loans models.StudentLoanList) *PayrollCycle {
+	return &PayrollCycle{
 		records: records,
 		loans:   loans,
 	}
 }
 
-func NewIncomesWithoutLoans(records []*models.Income) *Incomes {
+func NewIncomesWithoutLoans(records []*models.Income) *PayrollCycle {
 	return NewIncomes(records, models.StudentLoanList{})
 }
 
-func (ics *Incomes) FindByUserID(id string) *models.Income {
+func (ics *PayrollCycle) FindByUserID(id string) *models.Income {
 	for _, e := range ics.records {
 		if id == e.UserID {
 			return e
@@ -29,7 +29,7 @@ func (ics *Incomes) FindByUserID(id string) *models.Income {
 	return &models.Income{}
 }
 
-func (ics *Incomes) ProcessRecords(process func(index int, i Income) [][]string) ([][]string, []string) {
+func (ics *PayrollCycle) ProcessRecords(process func(index int, i Payroll) [][]string) ([][]string, []string) {
 	strWrite := make([][]string, 0)
 	updatedIncomeIds := []string{}
 	for index, e := range ics.records {

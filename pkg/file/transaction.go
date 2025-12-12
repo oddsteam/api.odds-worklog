@@ -36,7 +36,7 @@ type Transaction struct {
 	TaxID      string
 }
 
-func toTransaction(i entity.Income, dateEff time.Time) Transaction {
+func toTransaction(i entity.Payroll, dateEff time.Time) Transaction {
 	return Transaction{
 		ComName:    "บจก. ออด-อี (ประเทศไทย) จำกัด",
 		Payee:      i.GetName(),

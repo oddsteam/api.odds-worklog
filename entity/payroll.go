@@ -10,7 +10,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
-type Income struct {
+type Payroll struct {
 	UserID            string
 	dailyRate         float64
 	workDate          float64
@@ -22,15 +22,15 @@ type Income struct {
 	data              *models.Income
 }
 
-func NewIncome(uidFromSession string) *Income {
-	return &Income{
+func NewIncome(uidFromSession string) *Payroll {
+	return &Payroll{
 		UserID: uidFromSession,
 		loan:   &models.StudentLoan{},
 	}
 }
 
-func NewIncomeFromRecord(data models.Income) *Income {
-	i := Income{
+func NewIncomeFromRecord(data models.Income) *Payroll {
+	i := Payroll{
 		UserID:          "",
 		loan:            &models.StudentLoan{},
 		data:            &data,
@@ -61,11 +61,11 @@ func UpdateIncome(user models.User, req IncomeReq, note string, record *models.I
 	return record
 }
 
-func (i *Income) SetLoan(l *models.StudentLoan) {
+func (i *Payroll) SetLoan(l *models.StudentLoan) {
 	i.loan = l
 }
 
-func (i *Income) parseRequest(req IncomeReq, userDetail models.User) error {
+func (i *Payroll) parseRequest(req IncomeReq, userDetail models.User) error {
 	err := i.parse(req)
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func (i *Income) parseRequest(req IncomeReq, userDetail models.User) error {
 	return nil
 }
 
-func (i *Income) prepareDataForAddIncome(req IncomeReq, userDetail models.User) (*models.Income, error) {
+func (i *Payroll) prepareDataForAddIncome(req IncomeReq, userDetail models.User) (*models.Income, error) {
 	income := models.Income{}
 	err := i.prepareDataForUpdateIncome(req, userDetail, &income)
 	if err != nil {
@@ -85,7 +85,7 @@ func (i *Income) prepareDataForAddIncome(req IncomeReq, userDetail models.User) 
 	return &income, nil
 }
 
-func (i *Income) prepareDataForUpdateIncome(req IncomeReq, userDetail models.User, income *models.Income) error {
+func (i *Payroll) prepareDataForUpdateIncome(req IncomeReq, userDetail models.User, income *models.Income) error {
 	err := i.parseRequest(req, userDetail)
 	if err != nil {
 		return err
@@ -116,7 +116,7 @@ func (i *Income) prepareDataForUpdateIncome(req IncomeReq, userDetail models.Use
 	return nil
 }
 
-func (i *Income) parse(req IncomeReq) error {
+func (i *Payroll) parse(req IncomeReq) error {
 	var err error
 	i.workDate, err = utils.StringToFloat64(req.WorkDate)
 	if err != nil {
@@ -133,7 +133,7 @@ func (i *Income) parse(req IncomeReq) error {
 	return nil
 }
 
-func (i *Income) totalVatStr() string {
+func (i *Payroll) totalVatStr() string {
 	v := i.totalVat()
 	if v == 0.0 {
 		return ""
@@ -141,103 +141,103 @@ func (i *Income) totalVatStr() string {
 	return utils.FloatToString(v)
 }
 
-func (i *Income) totalVat() float64 {
+func (i *Payroll) totalVat() float64 {
 	return i.VAT(i.totalIncome())
 }
 
-func (i *Income) totalWHT() float64 {
+func (i *Payroll) totalWHT() float64 {
 	return i.WitholdingTax(i.totalIncome())
 }
 
-func (i *Income) TransferAmountStr() string {
+func (i *Payroll) TransferAmountStr() string {
 	return utils.FloatToString(i.TransferAmount())
 }
 
-func (i *Income) TransferAmount() float64 {
+func (i *Payroll) TransferAmount() float64 {
 	return i.netDailyIncome() + i.netSpecialIncome() - float64(i.loan.Amount)
 }
 
-func (i *Income) NetDailyIncomeStr() string {
+func (i *Payroll) NetDailyIncomeStr() string {
 	return utils.FloatToString(i.netDailyIncome())
 }
 
-func (i *Income) netDailyIncome() float64 {
+func (i *Payroll) netDailyIncome() float64 {
 	return i.Net(i.dailyIncome())
 }
 
-func (i *Income) totalIncomeStr() string {
+func (i *Payroll) totalIncomeStr() string {
 	return utils.FloatToString(i.totalIncome())
 }
 
-func (i *Income) totalIncome() float64 {
+func (i *Payroll) totalIncome() float64 {
 	return i.dailyIncome() + i.specialIncome()
 }
 
-func (i *Income) dailyIncome() float64 {
+func (i *Payroll) dailyIncome() float64 {
 	return (i.workDate * i.dailyRate)
 }
 
-func (i *Income) NetSpecialIncomeStr() string {
+func (i *Payroll) NetSpecialIncomeStr() string {
 	return utils.FloatToString(i.netSpecialIncome())
 }
 
-func (i *Income) netSpecialIncome() float64 {
+func (i *Payroll) netSpecialIncome() float64 {
 	return i.Net(i.specialIncome())
 }
 
-func (i *Income) specialIncome() float64 {
+func (i *Payroll) specialIncome() float64 {
 	return i.specialHours * i.specialIncomeRate
 }
 
-func (i *Income) WitholdingTax(totalIncome float64) float64 {
+func (i *Payroll) WitholdingTax(totalIncome float64) float64 {
 	return totalIncome * 0.03
 }
 
-func (i *Income) Net(totalIncome float64) float64 {
+func (i *Payroll) Net(totalIncome float64) float64 {
 	return totalIncome + i.VAT(totalIncome) - i.WitholdingTax(totalIncome)
 }
 
-func (i *Income) VAT(totalIncome float64) float64 {
+func (i *Payroll) VAT(totalIncome float64) float64 {
 	if !i.isVATRegistered {
 		return 0
 	}
 	return totalIncome * 0.07
 }
 
-func (i *Income) TotalWHTStr() string {
+func (i *Payroll) TotalWHTStr() string {
 	return utils.FloatToString(i.totalWHT())
 }
 
-func (i *Income) Note() string {
+func (i *Payroll) Note() string {
 	return i.data.Note
 }
 
-func (i *Income) SubmitDateStr() string {
+func (i *Payroll) SubmitDateStr() string {
 	t := i.data.SubmitDate
 	return fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 }
 
-func (i *Income) GetName() string {
+func (i *Payroll) GetName() string {
 	return i.data.Name
 }
 
-func (i *Income) BankAccountNumber() string {
+func (i *Payroll) BankAccountNumber() string {
 	return i.data.BankAccountNumber
 }
 
-func (i *Income) ThaiCitizenID() string {
+func (i *Payroll) ThaiCitizenID() string {
 	return i.data.ThaiCitizenID
 }
 
-func (i *Income) Email() string {
+func (i *Payroll) Email() string {
 	return i.data.Email
 }
 
-func (i *Income) GetDeduction() string {
+func (i *Payroll) GetDeduction() string {
 	return i.loan.CSVAmount()
 }
 
-func (i *Income) GetBankAccountName() string {
+func (i *Payroll) GetBankAccountName() string {
 	return i.data.BankAccountName
 }
 

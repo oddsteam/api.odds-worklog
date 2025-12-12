@@ -14,7 +14,7 @@ func NewCSVWriter() *csvWriter {
 	return &csvWriter{}
 }
 
-func (w *csvWriter) WriteFile(name string, ics entity.Incomes) (string, error) {
+func (w *csvWriter) WriteFile(name string, ics entity.PayrollCycle) (string, error) {
 	strWrite, _ := ToCSV(ics)
 
 	if len(strWrite) == 1 {
@@ -34,8 +34,8 @@ func (w *csvWriter) WriteFile(name string, ics entity.Incomes) (string, error) {
 	return filename, nil
 }
 
-func ToCSV(ics entity.Incomes) ([][]string, []string) {
-	rows, ids := ics.ProcessRecords(func(index int, i entity.Income) [][]string {
+func ToCSV(ics entity.PayrollCycle) ([][]string, []string) {
+	rows, ids := ics.ProcessRecords(func(index int, i entity.Payroll) [][]string {
 		d := export(i)
 		d[VENDOR_CODE_INDEX] = getVendorCode(index)
 		return [][]string{d}
@@ -68,7 +68,7 @@ func createHeaders() []string {
 	return []string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 }
 
-func export(i entity.Income) []string {
+func export(i entity.Payroll) []string {
 	d := []string{
 		"",
 		i.GetBankAccountName(),
