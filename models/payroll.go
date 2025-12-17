@@ -256,4 +256,3 @@ func GivenIndividualUser(uidFromSession string, dailyIncome string) User {
 		DailyIncome: dailyIncome,
 	}
 }
-
