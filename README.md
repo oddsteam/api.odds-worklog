@@ -204,7 +204,7 @@ local
 online
 [https://worklog-dev.odds.team/api/v1/swagger/index.html](http://worklog-dev.odds.team/api/v1/swagger/index.html)
 
-### Run test
+### Run tests
 
 Run all test `./runtests.md`
 
@@ -212,6 +212,12 @@ Run all test coverage by package `go test ./... -cover`
 
 Run all test coverage and view with html <br> `go test -coverprofile=cover.out`
 <br> `go test ./... -coverprofile=cover.out && go tool cover -html=cover.out`
+
+### Run tests (using mise)
+
+```bash
+mise r test
+```
 
 ## Cannot login worklog-dev
 
