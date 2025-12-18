@@ -245,10 +245,5 @@ ssh worklog-huawei docker exec -e SESSION="JSESSIONID=dwEi2vEj0qZM5-KNIK5xWfzFAB
 
 ## Contributing
 
-Want to help build ODDS Worklog API?
-
-1. Fork it (https://github.com/oddsteam/api.odds-worklog/fork)
-2. Create your feature branch (`git checkout -b feature/fooBar`)
-3. Commit your changes (`git commit -am 'Add some fooBar'`)
-4. Push to the branch (`git push origin feature/fooBar`)
-5. Create a new Pull Request
+Want to help build ODDS Worklog API? Check out our [contributors'
+guide](./CONTRIBUTING.md).
