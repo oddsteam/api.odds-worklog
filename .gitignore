@@ -42,3 +42,6 @@ deployment/ci/ssl/nginx.crt
 
 # Vim
 *.swp
+
+# lizard code analysis tool
+codecloud.html
