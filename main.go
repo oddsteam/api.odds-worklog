@@ -5,11 +5,9 @@ import (
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/customer"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/file"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/invoice"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	echoSwagger "github.com/swaggo/echo-swagger"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/backoffice"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/login"
@@ -17,7 +15,6 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/api/reminder"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
-	_ "gitlab.odds.team/worklog/api.odds-worklog/docs"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
@@ -49,7 +46,6 @@ func main() {
 	}
 
 	r := e.Group("/v1")
-	r.GET("/swagger/*", echoSwagger.WrapHandler)
 	login.NewHttpHandler(r, session)
 	backoffice.NewHttpHandler(r, session)
 	r.Use(middleware.JWTWithConfig(m))
@@ -61,7 +57,6 @@ func main() {
 	file.NewHttpHandler(r, session)
 	site.NewHttpHandler(r, session)
 	po.NewHttpHandler(r, session)
-	invoice.NewHttpHandler(r, session)
 	customer.NewHttpHandler(r, session)
 
 	r = e.Group("/v2")
