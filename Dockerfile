@@ -1,6 +1,6 @@
 # Build State
 # Base Image
-FROM golang:1.22-alpine AS build-state
+FROM golang:1.25-alpine AS build-state
 
 # Install Git
 RUN apk update && apk upgrade && \
