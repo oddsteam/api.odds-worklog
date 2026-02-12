@@ -13,7 +13,7 @@ reset:
 	docker-compose -f deployment/local/docker-compose.yaml down -v
 
 test:
-	go test ./...
+	./runtests.md	
 
 e2e-ci-build:
 	docker compose -f deployment/ci/docker-compose.yaml build
