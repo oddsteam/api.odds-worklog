@@ -238,7 +238,6 @@ gantt
     section Employee
     กรอก income           :a1, 2025-10-01, 24d
     worklog กรอกครบแล้ว :milestone, 0d
-    friendslog กรอกครบแล้ว :milestone, 0d
     section Admin
     บันทึกหนี้ตามที่ กยศ แจ้งมา: 2025-10-5, 1d
     Export payroll cycle      :e1, 2025-10-25, 0d

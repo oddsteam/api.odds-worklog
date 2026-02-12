@@ -8,7 +8,6 @@ require (
 	github.com/golang/mock v1.4.3
 	github.com/joho/godotenv v1.3.0
 	github.com/labstack/echo v0.0.0-20180911044237-1abaa3049251
-	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/signintech/gopdf v0.8.2
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/text v0.3.0

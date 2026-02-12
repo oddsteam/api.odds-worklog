@@ -13,18 +13,6 @@ services:
       - odds_worklog_api
     restart: always
 
-  friendslog:
-    container_name: "odds-worklog-friendslog-subscriber"
-    image: "844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev-odds-cloud"
-    command: /app/subscribe_friendslog
-    env_file:
-      - .env
-    depends_on:
-      - "mongodb"
-    networks:
-      - odds_worklog_api
-    restart: always
-
   mongodb:
     container_name: "odds-worklog-mongo"
     image: "mongo:4.0.3"

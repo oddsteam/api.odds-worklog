@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/stretchr/testify/assert"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
@@ -17,27 +16,6 @@ func TestUsecaseExportIncome(t *testing.T) {
 		incomes := []*models.Income{
 			&models.MockIncome,
 			&models.MockIncome2,
-		}
-		mockRepoIncome.ExpectGetAllIncomeOfCurrentMonthByRole(incomes, time.Now())
-		mockRepoIncome.ExpectGetStudentLoans()
-		mockRepoIncome.ExpectAddExport()
-
-		filename, err := usecase.ExportIncome("individual", "0")
-
-		assert.NoError(t, err)
-		assert.NotNil(t, filename)
-
-		// remove file after test
-		os.Remove(filename)
-	})
-
-	t.Run("export individual income includes income from friendslog", func(t *testing.T) {
-		usecase, ctrl, mockRepoIncome := CreateExportIncomeUsecaseWithMock(t)
-		defer ctrl.Finish()
-		incomes := []*models.Income{
-			&models.MockIncome,
-			&models.MockIncome2,
-			{ID: bson.ObjectIdHex("5bd1fda30fd2df2a3e41e571"), Role: "individual", WorkDate: "20", DailyRate: 750},
 		}
 		mockRepoIncome.ExpectGetAllIncomeOfCurrentMonthByRole(incomes, time.Now())
 		mockRepoIncome.ExpectGetStudentLoans()

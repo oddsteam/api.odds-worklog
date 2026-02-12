@@ -8,10 +8,6 @@ workspace {
             description "A admin of ODDS Worklog"
         }
 
-        central_queue = softwareSystem "Central Queue" {
-            description "Central RabbitMQ works as Enterprise System Bus"
-        }
-
         worklog = softwareSystem "ODDS-TEAM Worklog" {
             description "The worklog for ODDS members to record their man-day"
 
@@ -30,11 +26,6 @@ workspace {
 
             api_app = container "API Application" {
                 description "The API application"
-                technology "Golang"
-            }
-
-            friends_log_worker = container "FriendsLog Worker" {
-                description "The Subscriber of FriendsLog events"
                 technology "Golang"
             }
 
@@ -71,8 +62,6 @@ workspace {
         android_app -> api_app "Calls API from"
         api_app -> database "Read from and writes to"
         api_app -> google_signin "Integrates with"
-        friends_log_worker -> central_queue "listen incomes_created and incomes_updated events"
-        friends_log_worker -> database "update incomes from FriendsLog"
 
 
 
@@ -110,7 +99,6 @@ workspace {
             include android_app
             include web_app
             include api_app
-            include friends_log_worker
             include database
             autoLayout lr
         }
