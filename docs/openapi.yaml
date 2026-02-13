@@ -31,8 +31,6 @@ tags:
     description: File upload/download operations
   - name: reminder
     description: Reminder settings
-  - name: backoffice
-    description: Backoffice operations
 
 paths:
   # Login endpoints
@@ -1525,42 +1523,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPError'
 
-  # Backoffice endpoints
-  /v1/backoffice:
-    post:
-      tags:
-        - backoffice
-      summary: Get all user income
-      description: Get all user income data (requires valid backoffice key)
-      operationId: getAllUserIncome
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BackOfficeKey'
-      responses:
-        '200':
-          description: User income data
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-        '400':
-          description: Invalid token
-          content:
-            application/json:
-              schema:
-                type: string
-                example: "invalid token"
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPError'
 
 components:
   securitySchemes:
@@ -1892,18 +1854,6 @@ components:
           description: User ID
         user:
           $ref: '#/components/schemas/User'
-
-    BackOfficeKey:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Key ID
-        key:
-          type: string
-          description: Backoffice access key
-      required:
-        - key
 
     Response:
       type: object

@@ -7,7 +7,6 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/backoffice"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/login"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/reminder"
@@ -45,7 +44,6 @@ func main() {
 
 	r := e.Group("/v1")
 	login.NewHttpHandler(r, session)
-	backoffice.NewHttpHandler(r, session)
 	r.Use(middleware.JWTWithConfig(m))
 
 	// Handler
