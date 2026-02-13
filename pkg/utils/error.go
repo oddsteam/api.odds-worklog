@@ -29,7 +29,6 @@ var (
 	ErrInvalidUserVat          = errors.New("Invalid user vat.")
 	ErrNotImageFile            = errors.New("Not image file")
 	ErrInvalidAmount           = errors.New("Invalid amount.")
-	ErrInvalidConsumer         = errors.New("Permission denied.")
 )
 
 func NewError(ctx echo.Context, status int, err error) error {

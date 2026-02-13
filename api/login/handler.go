@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/consumer"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
@@ -20,8 +19,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	siteRepo := site.NewRepository(session)
 	userRepo := user.NewRepository(session)
 	userUsecase := user.NewUsecase(userRepo, siteRepo)
-	consumerUsecase := consumer.NewUsecase(consumer.NewRepository(session))
-	loginUsecase := NewUsecase(userUsecase, consumerUsecase)
+	loginUsecase := NewUsecase(userUsecase)
 	handler := &HttpHandler{loginUsecase}
 
 	r.POST("/login", func(c echo.Context) error {
