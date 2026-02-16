@@ -8,21 +8,23 @@ import (
 	"net/http"
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/requests"
-
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
+	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
+	"gitlab.odds.team/worklog/api.odds-worklog/usecases"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/file"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
-	_ "gitlab.odds.team/worklog/api.odds-worklog/requests"
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
 type HttpHandler struct {
-	Usecase Usecase
+	Usecase             Usecase
+	AddIncomeUsecase    usecases.ForUsingAddIncome
+	ExportIncomeUsecase usecases.ForUsingExportIncome
 }
 
 func isRequestValid(m *models.IncomeReq) (bool, error) {
@@ -53,7 +55,7 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 	user := getUserFromToken(c)
-	res, err := h.Usecase.AddIncome(&income, user.ID)
+	res, err := h.AddIncomeUsecase.AddIncome(&income, user.ID)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -107,13 +109,7 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/status/corporate [get]
 func (h *HttpHandler) GetCorporateIncomeStatus(c echo.Context) error {
-	isAdmin, _ := IsUserAdmin(c)
-
-	status, err := h.Usecase.GetIncomeStatusList("corporate", isAdmin)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.JSON(http.StatusOK, status)
+	return h.getIncomeStatus(c, "corporate")
 }
 
 // GetIndividualIncomeStatus godoc
@@ -128,9 +124,13 @@ func (h *HttpHandler) GetCorporateIncomeStatus(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/status/individual [get]
 func (h *HttpHandler) GetIndividualIncomeStatus(c echo.Context) error {
+	return h.getIncomeStatus(c, "individual")
+}
+
+func (h *HttpHandler) getIncomeStatus(c echo.Context, incomeType string) error {
 	isAdmin, _ := IsUserAdmin(c)
 
-	status, err := h.Usecase.GetIncomeStatusList("individual", isAdmin)
+	status, err := h.Usecase.GetIncomeStatusList(incomeType, isAdmin)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -228,22 +228,14 @@ func (h *HttpHandler) GetExportPdf(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/corporate/{month} [get]
 func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
-	month := c.Param("month")
-	if month == "" {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
-	}
-	filename, err := h.Usecase.ExportIncome("corporate", month)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.Attachment(filename, filename)
+	return h.getExportIncome(c, "corporate")
 }
 
 func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
+	return h.getExportIncome(c, "individual")
+}
+
+func (h *HttpHandler) getExportIncome(c echo.Context, incomeType string) error {
 	isAdmin, message := IsUserAdmin(c)
 	if !isAdmin {
 		return c.JSON(http.StatusUnauthorized, message)
@@ -252,7 +244,7 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	if month == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
 	}
-	filename, err := h.Usecase.ExportIncome("individual", month)
+	filename, err := h.ExportIncomeUsecase.ExportIncome(incomeType, month)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -260,35 +252,24 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 }
 
 func (h *HttpHandler) PostExportSAP(c echo.Context) error {
-
 	var req = c.Request()
 	defer req.Body.Close()
 	decoder := json.NewDecoder(req.Body)
 
-	var t requests.ExportInComeSAPReq
-	err := decoder.Decode(&t)
+	var exReq models.ExportInComeSAPReq
+	err := decoder.Decode(&exReq)
 
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("ExportInComeSAPReq: %+v\n", t)
+	fmt.Printf("ExportInComeSAPReq: %+v\n", exReq)
 
-	startDate, err := time.Parse("01/2006", t.StartDate)
+	startDate, endDate, dateEff, err := exReq.ParseDates()
 	if err != nil {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("startDate"))
-	}
-	endDate, err := time.Parse("01/2006", t.EndDate)
-	if err != nil {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("endDate"))
+		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 
-	dateEff, err := time.Parse("02/01/2006", t.DateEffective)
-	if err != nil {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("dateEffective"))
-	}
-
-	endDate = endDate.AddDate(0, 1, 0)
-	filename, err := h.Usecase.ExportIncomeSAPByStartDateAndEndDate(t.Role, startDate, endDate, dateEff)
+	filename, err := h.ExportIncomeUsecase.ExportIncomeSAPByStartDateAndEndDate(exReq.Role, startDate, endDate, dateEff)
 	if err != nil {
 		log.Println(err.Error())
 		return utils.NewError(c, http.StatusInternalServerError, errors.New("internal Server Error"))
@@ -312,7 +293,7 @@ func (h *HttpHandler) PostExportPdf(c echo.Context) error {
 	defer req.Body.Close()
 	decoder := json.NewDecoder(req.Body)
 
-	var t requests.ExportInComeReq
+	var t models.ExportInComeReq
 	err := decoder.Decode(&t)
 
 	if err != nil {
@@ -323,7 +304,7 @@ func (h *HttpHandler) PostExportPdf(c echo.Context) error {
 	endDate, _ := time.Parse("01/2006", t.EndDate)
 	endDate = endDate.AddDate(0, 1, 0)
 
-	filename, err := h.Usecase.ExportIncomeByStartDateAndEndDate(t.Role, startDate, endDate)
+	filename, err := h.ExportIncomeUsecase.ExportIncomeByStartDateAndEndDate(t.Role, startDate, endDate)
 
 	if err != nil {
 		log.Println(err.Error())
@@ -356,9 +337,13 @@ func getUserFromToken(c echo.Context) *models.UserClaims {
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	incomeRepo := NewRepository(session)
+	incomeReader := repositories.NewIncomeReader(session)
+	incomeWriter := repositories.NewIncomeWriter(session)
 	userRepo := user.NewRepository(session)
 	uc := NewUsecase(incomeRepo, userRepo)
-	handler := &HttpHandler{uc}
+	ad := usecases.NewAddIncomeUsecase(incomeRepo, userRepo)
+	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter())
+	handler := &HttpHandler{uc, ad, ex}
 
 	r = r.Group("/incomes")
 	r.POST("", handler.AddIncome)
@@ -376,9 +361,13 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 
 func NewHttpHandler2(r *echo.Group, session *mongo.Session) {
 	incomeRepo := NewRepository(session)
+	incomeReader := repositories.NewIncomeReader(session)
+	incomeWriter := repositories.NewIncomeWriter(session)
 	userRepo := user.NewRepository(session)
 	uc := NewUsecase(incomeRepo, userRepo)
-	handler := &HttpHandler{uc}
+	ad := usecases.NewAddIncomeUsecase(incomeRepo, userRepo)
+	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter())
+	handler := &HttpHandler{uc, ad, ex}
 
 	r = r.Group("/incomes")
 	r.GET("/export/individual/:month", handler.GetExportIndividual)

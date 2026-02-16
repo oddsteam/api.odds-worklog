@@ -6,7 +6,6 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/consumer"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/auth"
@@ -14,12 +13,11 @@ import (
 )
 
 type usecase struct {
-	UserUsecase     user.Usecase
-	ConsumerUsecase consumer.Usecase
+	UserUsecase user.Usecase
 }
 
-func NewUsecase(uu user.Usecase, cu consumer.Usecase) Usecase {
-	return &usecase{uu, cu}
+func NewUsecase(uu user.Usecase) Usecase {
+	return &usecase{uu}
 }
 
 func (u *usecase) ValidateAndExtractToken(accessToken string) (models.Identity, error) {
@@ -78,11 +76,6 @@ func isOddsTeam(email string) bool {
 
 	host := email[len(email)-10:]
 	return host == "@odds.team"
-}
-
-func (u *usecase) IsValidConsumerClientID(cid string) bool {
-	_, err := u.ConsumerUsecase.GetByClientID(cid)
-	return err == nil
 }
 
 func handleToken(user *models.User) (*models.Token, error) {

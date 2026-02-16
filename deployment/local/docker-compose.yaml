@@ -14,16 +14,6 @@ services:
       MONGO_INITDB_DATABASE: odds_worklog_db
     ports:
       - "27017:27017"
-  queue:
-    image: rabbitmq:3-management
-    hostname: my-rabbit
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
-      - rabbitmq_logs:/var/log/rabbitmq/log
-    ports:
-      - 5672:5672
-      - 15672:15672
-
   keycloak:
     image: quay.io/keycloak/keycloak:26.2
     container_name: keycloak
@@ -48,5 +38,3 @@ services:
 
 volumes:
   mongodbdata_odds_worklog:
-  rabbitmq_data:
-  rabbitmq_logs:

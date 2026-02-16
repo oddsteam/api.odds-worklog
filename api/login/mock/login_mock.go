@@ -64,20 +64,6 @@ func (mr *MockUsecaseMockRecorder) CreateUserAndValidateEmail(email interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUserAndValidateEmail", reflect.TypeOf((*MockUsecase)(nil).CreateUserAndValidateEmail), email)
 }
 
-// IsValidConsumerClientID mocks base method.
-func (m *MockUsecase) IsValidConsumerClientID(cid string) bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsValidConsumerClientID", cid)
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// IsValidConsumerClientID indicates an expected call of IsValidConsumerClientID.
-func (mr *MockUsecaseMockRecorder) IsValidConsumerClientID(cid interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsValidConsumerClientID", reflect.TypeOf((*MockUsecase)(nil).IsValidConsumerClientID), cid)
-}
-
 // ValidateAndExtractToken mocks base method.
 func (m *MockUsecase) ValidateAndExtractToken(idToken string) (models.Identity, error) {
 	m.ctrl.T.Helper()

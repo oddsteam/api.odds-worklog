@@ -12,9 +12,7 @@ import (
 
 const (
 	incomeColl      = "income"
-	exportColl      = "export"
 	studentLoanColl = "studentloan"
-	userColl        = "user"
 )
 
 type repository struct {
@@ -52,17 +50,6 @@ func (r *repository) GetIncomeByStartDateAndEndDate(role string, startDate time.
 
 	query := createQueryByPeriod(startDate, endDate)
 	return getIncomeByQuery(r, query)
-}
-
-func (r *repository) GetAllIncomeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
-
-	query := createQueryIncomeByStartDateAndEndDate(userIds, startDate, endDate)
-	return getAllInComeByQuery(r, query)
-}
-
-func (r *repository) GetAllIncomeByRoleStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
-	query := createQueryIncomeByRoleStartDateAndEndDate(role, startDate, endDate)
-	return getAllInComeByQuery(r, query)
 }
 
 func (r *repository) GetIncomeByUserIdAllMonth(id string) ([]*models.Income, error) {
@@ -117,38 +104,6 @@ func createQueryByPeriod(startDate time.Time, endDate time.Time) bson.M {
 	return query
 }
 
-func createQueryGetUserByRole(role string) bson.M {
-
-	query := bson.M{
-		"role": role,
-	}
-	return query
-}
-
-func createQueryIncomeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) bson.M {
-	query := bson.M{
-		"userId": bson.M{
-			"$in": userIds,
-		},
-		"submitDate": bson.M{
-			"$gt": startDate,
-			"$lt": endDate,
-		},
-	}
-	return query
-}
-
-func createQueryIncomeByRoleStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) bson.M {
-	query := bson.M{
-		"role": role,
-		"submitDate": bson.M{
-			"$gt": startDate,
-			"$lt": endDate,
-		},
-	}
-	return query
-}
-
 func getIncomeByQuery(r *repository, query bson.M) (*models.Income, error) {
 	income := new(models.Income)
 	coll := r.session.GetCollection(incomeColl)
@@ -163,23 +118,6 @@ func getIncomeByQuery(r *repository, query bson.M) (*models.Income, error) {
 
 	return income, nil
 }
-
-func getAllInComeByQuery(r *repository, query bson.M) ([]*models.Income, error) {
-	incomes := make([]*models.Income, 0)
-
-	coll := r.session.GetCollection(incomeColl)
-	err := coll.Find(query).All(&incomes)
-	if err != nil {
-		return nil, err
-	}
-	return incomes, nil
-}
-
-//func getAllUserByQuery(r *repository, query bson.M) ([]string,error){
-//
-//
-//}
-//GetAllUserIdByRole
 
 func getIncomeByUserIDWithQuery(r *repository, uID string, fromYear int, fromMonth time.Month, query bson.M) (*models.Income, error) {
 	income := new(models.Income)
@@ -202,12 +140,6 @@ func (r *repository) UpdateIncome(income *models.Income) error {
 	return nil
 }
 
-func (r *repository) AddExport(ep *models.Export) error {
-	coll := r.session.GetCollection(exportColl)
-	ep.ID = bson.NewObjectId()
-	return coll.Insert(ep)
-}
-
 func (r *repository) DropIncome() error {
 	return r.session.GetCollection(incomeColl).DropCollection()
 }
@@ -226,20 +158,6 @@ func (r *repository) UpdateExportStatus(id string) error {
 		return err
 	}
 	return nil
-}
-
-func (r *repository) GetStudentLoans() models.StudentLoanList {
-	sll := models.StudentLoanList{}
-	loanQuery := sll.GetFilterQuery(time.Now())
-	return getStudentLoans(r.studentLoanCollection().Find(loanQuery).One)
-}
-
-type getOneFn = func(result interface{}) (err error)
-
-func getStudentLoans(getOneLoan getOneFn) models.StudentLoanList {
-	loans := new(models.StudentLoanList)
-	getOneLoan(loans)
-	return *loans
 }
 
 func (r *repository) SaveStudentLoans(loanlist models.StudentLoanList) int {

@@ -8,22 +8,18 @@ import (
 )
 
 type User struct {
-	data      *models.User
-	DailyRate float64
+	data *models.User
 }
 
 func NewUser(data models.User) *User {
-	return &User{data: &data, DailyRate: 0}
+	return &User{data: &data}
 }
 
-func (u *User) Parse() error {
-	var err error
-	u.DailyRate, err = utils.StringToFloat64(u.data.DailyIncome)
-	if err != nil {
-		return err
-	}
-	return nil
+func (u *User) DailyRate() float64 {
+	dr, _ := utils.StringToFloat64(u.data.DailyIncome)
+	return dr
 }
+
 func (u *User) Role() string {
 	return u.data.Role
 }

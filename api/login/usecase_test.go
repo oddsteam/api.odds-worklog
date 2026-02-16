@@ -5,7 +5,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	consumerMock "gitlab.odds.team/worklog/api.odds-worklog/api/consumer/mock"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -55,9 +54,7 @@ func TestCreateUser(t *testing.T) {
 		mockUsecase := userMock.NewMockUsecase(ctrl)
 		mockUsecase.EXPECT().Create(gomock.Any()).Return(user, nil)
 
-		mockConsumerUsecase := consumerMock.NewMockUsecase(ctrl)
-
-		usecase := NewUsecase(mockUsecase, mockConsumerUsecase)
+		usecase := NewUsecase(mockUsecase)
 		userRes, err := usecase.CreateUserAndValidateEmail(email)
 
 		assert.NoError(t, err)
@@ -73,9 +70,8 @@ func TestCreateUser(t *testing.T) {
 		user.Email = email
 
 		mockUsecase := userMock.NewMockUsecase(ctrl)
-		mockConsumerUsecase := consumerMock.NewMockUsecase(ctrl)
 
-		usecase := NewUsecase(mockUsecase, mockConsumerUsecase)
+		usecase := NewUsecase(mockUsecase)
 		userRes, err := usecase.CreateUserAndValidateEmail(email)
 
 		assert.Nil(t, userRes)
@@ -90,32 +86,3 @@ func TestUsecase_isOddsTeam(t *testing.T) {
 	assert.False(t, isOddsTeam("a@gmail.com"))
 }
 
-func TestValidConsumerClientID(t *testing.T) {
-	t.Run("when consumer client id is stored, then return valid", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockUsecase := userMock.NewMockUsecase(ctrl)
-		mockConsumerUsecase := consumerMock.NewMockUsecase(ctrl)
-		mockConsumerUsecase.EXPECT().GetByClientID(gomock.Eq("ThisIsValidClientID")).Return(&models.Consumer{}, nil)
-
-		usecase := NewUsecase(mockUsecase, mockConsumerUsecase)
-		isValid := usecase.IsValidConsumerClientID("ThisIsValidClientID")
-
-		assert.True(t, isValid)
-	})
-
-	t.Run("when consumer client id is NOT stored, then return INvalid", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockUsecase := userMock.NewMockUsecase(ctrl)
-		mockConsumerUsecase := consumerMock.NewMockUsecase(ctrl)
-		mockConsumerUsecase.EXPECT().GetByClientID(gomock.Not(gomock.Eq("ThisIsValidClientID"))).Return(nil, utils.ErrInvalidConsumer)
-
-		usecase := NewUsecase(mockUsecase, mockConsumerUsecase)
-		isValid := usecase.IsValidConsumerClientID("ThisIs InValid ClientID")
-
-		assert.False(t, isValid)
-	})
-}

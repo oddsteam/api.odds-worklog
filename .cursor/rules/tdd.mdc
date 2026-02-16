@@ -1,0 +1,26 @@
+---
+description: Enforce TDD Red-Green-Refactor cycle for all code changes
+alwaysApply: true
+---
+
+# TDD: Red-Green-Refactor
+
+Follow the TDD cycle for every code change. Run `make test` at each step from the `api.odds-worklog/` directory.
+
+## 1. Red -- Write a failing test
+
+- Write a test that describes the desired behavior.
+- Run `make test` and confirm the new test **fails**.
+- Do not write production code yet.
+
+## 2. Green -- Make it pass
+
+- Write the **minimum** production code to make the failing test pass.
+- Run `make test` and confirm **all** tests pass.
+
+## 3. Refactor -- Clean up
+
+- Improve the code (remove duplication, rename, simplify) without changing behavior.
+- Run `make test` and confirm all tests **still pass**.
+
+Repeat the cycle for each incremental change.

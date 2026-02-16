@@ -15,33 +15,10 @@ services:
       - odds_worklog_api
     restart: always
 
-  friendslog:
-    container_name: "odds-worklog-friendslog-subscriber"
-    build: ../..
-    command: /app/subscribe_friendslog
-    env_file:
-      - .env
-    environment:
-      - RABBITMQ_HOST=queue:5672
-    depends_on:
-      - "mongodb"
-      - "queue"
-    networks:
-      - odds_worklog_api
-    restart: always
-
   mongodb:
     extends:
       file: ./docker-compose.yaml
       service: mongodb
-    networks:
-      - odds_worklog_api
-
-  queue:
-    extends:
-      file: ./docker-compose.yaml
-      service: queue
-
     networks:
       - odds_worklog_api
 
@@ -67,8 +44,6 @@ services:
 
 volumes:
   mongodbdata_odds_worklog:
-  rabbitmq_data:
-  rabbitmq_logs:
 
 networks:
   odds_worklog_api:

@@ -1,0 +1,1873 @@
+openapi: 3.0.3
+info:
+  title: Odds-Worklog API
+  description: |
+    API for Odds Worklog system - a worklog and income management platform.
+    
+    ## Authentication
+    Most endpoints require JWT authentication. Obtain a token via `/v1/login` or `/v1/login-keycloak` endpoints.
+    Include the token in the Authorization header: `Authorization: Bearer <token>`
+  version: 2.0.0
+  contact:
+    name: ODDS Team
+    url: https://odds.team
+
+servers:
+  - url: https://worklog-dev.odds.team/api
+    description: Development server
+  - url: https://worklog.odds.team/api
+    description: Production server
+
+tags:
+  - name: login
+    description: Authentication endpoints
+  - name: users
+    description: User management
+  - name: incomes
+    description: Income tracking and export
+  - name: sites
+    description: Site/Team management
+  - name: files
+    description: File upload/download operations
+  - name: reminder
+    description: Reminder settings
+
+paths:
+  # Login endpoints
+  /v1/login:
+    post:
+      tags:
+        - login
+      summary: Login with user ID
+      description: Login and get JWT token using user ID
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/login-keycloak:
+    post:
+      tags:
+        - login
+      summary: Login with Keycloak
+      description: Login with Keycloak token (for users in worklog group)
+      operationId: loginKeycloak
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              token: "keycloak-jwt-token"
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  # User endpoints
+  /v1/users:
+    get:
+      tags:
+        - users
+      summary: List all users
+      description: Get list of all users (admin only)
+      operationId: getUsers
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+    post:
+      tags:
+        - users
+      summary: Create user
+      description: Create a new user (admin only)
+      operationId: createUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/users/{id}:
+    get:
+      tags:
+        - users
+      summary: Get user by ID
+      description: Get a specific user by their ID
+      operationId: getUserById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '204':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+    put:
+      tags:
+        - users
+      summary: Update user
+      description: Update user information
+      operationId: updateUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+    delete:
+      tags:
+        - users
+      summary: Delete user
+      description: Delete a user (admin only)
+      operationId: deleteUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/users/email/{email}:
+    get:
+      tags:
+        - users
+      summary: Get user by email
+      description: Get a specific user by their email
+      operationId: getUserByEmail
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+            format: email
+          description: User email
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '204':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/users/site/{id}:
+    get:
+      tags:
+        - users
+      summary: Get users by site ID
+      description: Get all users belonging to a specific site (admin only)
+      operationId: getUsersBySiteId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Site ID
+      responses:
+        '200':
+          description: Users found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '204':
+          description: No users found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/users/tavi:
+    put:
+      tags:
+        - users
+      summary: Update Tavi status
+      description: Update Tavi status for multiple users (admin only)
+      operationId: updateStatusTavi
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/StatusTavi'
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  # Income endpoints
+  /v1/incomes:
+    post:
+      tags:
+        - incomes
+      summary: Add income
+      description: Add a new income record
+      operationId: addIncome
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncomeRequest'
+      responses:
+        '200':
+          description: Income added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Income'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/incomes/{id}:
+    put:
+      tags:
+        - incomes
+      summary: Update income
+      description: Update an existing income record
+      operationId: updateIncome
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Income ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncomeRequest'
+      responses:
+        '200':
+          description: Income updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Income'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/incomes/status/corporate:
+    get:
+      tags:
+        - incomes
+      summary: Get corporate income status
+      description: Get income status list for corporate users
+      operationId: getCorporateIncomeStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Income status list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IncomeStatus'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/incomes/status/individual:
+    get:
+      tags:
+        - incomes
+      summary: Get individual income status
+      description: Get income status list for individual users
+      operationId: getIndividualIncomeStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Income status list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IncomeStatus'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/incomes/current-month/{id}:
+    get:
+      tags:
+        - incomes
+      summary: Get current month income
+      description: Get income for the current month by user ID
+      operationId: getIncomeCurrentMonth
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: Current month income
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Income'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/incomes/all-month/{id}:
+    get:
+      tags:
+        - incomes
+      summary: Get all month incomes
+      description: Get income for all months by user ID
+      operationId: getIncomeAllMonth
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: All month incomes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Income'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/incomes/export/corporate/{month}:
+    get:
+      tags:
+        - incomes
+      summary: Export corporate income
+      description: Export corporate income to CSV file (admin only, deprecated)
+      operationId: exportCorporateIncome
+      deprecated: true
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Month in MM/YYYY format
+          example: "01/2024"
+      responses:
+        '200':
+          description: CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/incomes/export/individual/{month}:
+    get:
+      tags:
+        - incomes
+      summary: Export individual income
+      description: Export individual income to CSV file (admin only)
+      operationId: exportIndividualIncome
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Month in MM/YYYY format
+          example: "01/2024"
+      responses:
+        '200':
+          description: CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/incomes/export/pdf/{id}:
+    get:
+      tags:
+        - incomes
+      summary: Export PDF
+      description: Export income to PDF file (Tavi status required)
+      operationId: exportPdf
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/incomes/export:
+    post:
+      tags:
+        - incomes
+      summary: Export income by date range
+      description: Export income to PDF file by start and end date
+      operationId: exportIncomeByDateRange
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportIncomeRequest'
+      responses:
+        '200':
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/incomes/export/format/SAP:
+    post:
+      tags:
+        - incomes
+      summary: Export income in SAP format
+      description: Export income to SAP format file
+      operationId: exportIncomeSAP
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportIncomeSAPRequest'
+      responses:
+        '200':
+          description: SAP format file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  # V2 Income endpoints
+  /v2/incomes/export/individual/{month}:
+    get:
+      tags:
+        - incomes
+      summary: Export individual income (V2)
+      description: Export individual income to CSV file (admin only) - Version 2
+      operationId: exportIndividualIncomeV2
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Month in MM/YYYY format
+          example: "01/2024"
+      responses:
+        '200':
+          description: CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  # Site endpoints
+  /v1/sites:
+    get:
+      tags:
+        - sites
+      summary: List all sites
+      description: Get list of all sites/teams
+      operationId: getSites
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of sites
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Site'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+    post:
+      tags:
+        - sites
+      summary: Create site
+      description: Create a new site/team
+      operationId: createSite
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Site'
+      responses:
+        '201':
+          description: Site created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Site'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/sites/{id}:
+    get:
+      tags:
+        - sites
+      summary: Get site by ID
+      description: Get a specific site by ID
+      operationId: getSiteById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Site ID
+      responses:
+        '200':
+          description: Site found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Site'
+        '204':
+          description: Site not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+    put:
+      tags:
+        - sites
+      summary: Update site
+      description: Update site information
+      operationId: updateSite
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Site ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Site'
+      responses:
+        '200':
+          description: Site updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Site'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+    delete:
+      tags:
+        - sites
+      summary: Delete site
+      description: Delete a site
+      operationId: deleteSite
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Site ID
+      responses:
+        '204':
+          description: Site deleted
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  # File endpoints
+  /v1/files/image:
+    post:
+      tags:
+        - files
+      summary: Upload image profile
+      description: Upload user profile image
+      operationId: uploadImageProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image-profile:
+                  type: string
+                  format: binary
+                  description: Image file (PNG, GIF, JPEG)
+              required:
+                - image-profile
+      responses:
+        '200':
+          description: Image uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/files/image/{id}:
+    get:
+      tags:
+        - files
+      summary: Download image profile
+      description: Download user profile image
+      operationId: downloadImageProfile
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: Image file
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+    delete:
+      tags:
+        - files
+      summary: Remove image profile
+      description: Remove user profile image
+      operationId: removeImageProfile
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: Image removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/files/transcript:
+    post:
+      tags:
+        - files
+      summary: Upload transcript
+      description: Upload user transcript (PDF only)
+      operationId: uploadTranscript
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF file
+              required:
+                - file
+      responses:
+        '200':
+          description: Transcript uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/files/transcript/{id}:
+    get:
+      tags:
+        - files
+      summary: Download transcript
+      description: Download user transcript
+      operationId: downloadTranscript
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+    delete:
+      tags:
+        - files
+      summary: Remove transcript
+      description: Remove user transcript
+      operationId: removeTranscript
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: Transcript removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/files/degreecertificate:
+    post:
+      tags:
+        - files
+      summary: Upload degree certificate
+      description: Upload user degree certificate (PDF only)
+      operationId: uploadDegreeCertificate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF file
+              required:
+                - file
+      responses:
+        '200':
+          description: Degree certificate uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/files/degreecertificate/{id}:
+    get:
+      tags:
+        - files
+      summary: Download degree certificate
+      description: Download user degree certificate
+      operationId: downloadDegreeCertificate
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+    delete:
+      tags:
+        - files
+      summary: Remove degree certificate
+      description: Remove user degree certificate
+      operationId: removeDegreeCertificate
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: Degree certificate removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/files/idcard:
+    post:
+      tags:
+        - files
+      summary: Upload ID card
+      description: Upload user ID card (PDF only)
+      operationId: uploadIdCard
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF file
+              required:
+                - file
+      responses:
+        '200':
+          description: ID card uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/files/idcard/{id}:
+    get:
+      tags:
+        - files
+      summary: Download ID card
+      description: Download user ID card
+      operationId: downloadIdCard
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+    delete:
+      tags:
+        - files
+      summary: Remove ID card
+      description: Remove user ID card
+      operationId: removeIdCard
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: ID card removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  # Reminder endpoints
+  /v1/reminder/setting:
+    get:
+      tags:
+        - reminder
+      summary: Get reminder setting
+      description: Get current reminder settings
+      operationId: getReminderSetting
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Reminder settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reminder'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+    post:
+      tags:
+        - reminder
+      summary: Save reminder setting
+      description: Save reminder settings
+      operationId: saveReminderSetting
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reminder'
+      responses:
+        '200':
+          description: Reminder settings saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reminder'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/reminder/mail/{id}:
+    post:
+      tags:
+        - reminder
+      summary: Send mail
+      description: Send notification mail for a user
+      operationId: sendMail
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: Mail sent
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Send Mail Success"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from login endpoint
+
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          description: User ID or Keycloak token
+      required:
+        - token
+
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT token
+        firstLogin:
+          type: string
+          description: First login indicator
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: User ID (MongoDB ObjectId)
+        role:
+          type: string
+          description: User role
+          enum:
+            - admin
+            - individual
+            - corporate
+        firstName:
+          type: string
+          description: First name
+        lastName:
+          type: string
+          description: Last name
+        corporateName:
+          type: string
+          description: Corporate name (for corporate users)
+        email:
+          type: string
+          format: email
+          description: Email address
+        bankAccountName:
+          type: string
+          description: Bank account name
+        bankAccountNumber:
+          type: string
+          description: Bank account number
+        thaiCitizenId:
+          type: string
+          description: Thai citizen ID
+        vat:
+          type: string
+          description: VAT registration status (Y/N)
+          enum:
+            - "Y"
+            - "N"
+        slackAccount:
+          type: string
+          description: Slack account
+        transcript:
+          type: string
+          description: Transcript file path
+        siteId:
+          type: string
+          description: Site ID
+        project:
+          type: string
+          description: Project name
+        imageProfile:
+          type: string
+          description: Profile image path
+        degreeCertificate:
+          type: string
+          description: Degree certificate file path
+        idCard:
+          type: string
+          description: ID card file path
+        site:
+          $ref: '#/components/schemas/Site'
+        create:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        lastUpdate:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        dailyIncome:
+          type: string
+          description: Daily income rate
+        address:
+          type: string
+          description: Address
+        statusTavi:
+          type: boolean
+          description: Tavi status
+        phone:
+          type: string
+          description: Phone number
+        startDate:
+          type: string
+          description: Start date
+
+    Income:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Income ID (MongoDB ObjectId)
+        userId:
+          type: string
+          description: User ID
+        totalIncome:
+          type: string
+          description: Total income
+        netIncome:
+          type: string
+          description: Net income
+        netDailyIncome:
+          type: string
+          description: Net daily income
+        workDate:
+          type: string
+          description: Work date
+        submitDate:
+          type: string
+          format: date-time
+          description: Submit date
+        lastUpdate:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        note:
+          type: string
+          description: Note
+        vat:
+          type: string
+          description: VAT amount
+        wht:
+          type: string
+          description: Withholding tax
+        specialIncome:
+          type: string
+          description: Special income
+        netSpecialIncome:
+          type: string
+          description: Net special income
+        workingHours:
+          type: string
+          description: Working hours
+        exportStatus:
+          type: boolean
+          description: Export status
+        thaiCitizenId:
+          type: string
+          description: Thai citizen ID
+        name:
+          type: string
+          description: Name
+        bankAccountName:
+          type: string
+          description: Bank account name
+        bankAccountNumber:
+          type: string
+          description: Bank account number
+        email:
+          type: string
+          description: Email
+        phone:
+          type: string
+          description: Phone
+        role:
+          type: string
+          description: User role
+
+    IncomeRequest:
+      type: object
+      properties:
+        note:
+          type: string
+          description: Note
+        workDate:
+          type: string
+          description: Work date (MM/YYYY format)
+        specialIncome:
+          type: string
+          description: Special income amount
+        workingHours:
+          type: string
+          description: Working hours
+
+    IncomeStatus:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        submitDate:
+          type: string
+          description: Submit date
+        status:
+          type: string
+          description: Status (Y/N)
+        workDate:
+          type: string
+          description: Work date
+        workingHours:
+          type: string
+          description: Working hours
+
+    ExportIncomeRequest:
+      type: object
+      properties:
+        role:
+          type: string
+          description: User role filter
+          enum:
+            - individual
+            - corporate
+        startDate:
+          type: string
+          description: Start date (MM/YYYY format)
+          example: "01/2024"
+        endDate:
+          type: string
+          description: End date (MM/YYYY format)
+          example: "12/2024"
+      required:
+        - role
+        - startDate
+        - endDate
+
+    ExportIncomeSAPRequest:
+      type: object
+      properties:
+        role:
+          type: string
+          description: User role filter
+          enum:
+            - individual
+            - corporate
+        dateEffective:
+          type: string
+          description: Effective date (DD/MM/YYYY format)
+          example: "15/01/2024"
+        startDate:
+          type: string
+          description: Start date (MM/YYYY format)
+          example: "01/2024"
+        endDate:
+          type: string
+          description: End date (MM/YYYY format)
+          example: "12/2024"
+      required:
+        - role
+        - dateEffective
+        - startDate
+        - endDate
+
+    Site:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Site ID (MongoDB ObjectId)
+        name:
+          type: string
+          description: Site name
+        color:
+          type: string
+          description: Site color (hex)
+
+    Reminder:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Reminder name (must be "reminder")
+          example: "reminder"
+        setting:
+          $ref: '#/components/schemas/ReminderSetting'
+
+    ReminderSetting:
+      type: object
+      properties:
+        date:
+          type: string
+          description: Day of month (25-27)
+          enum:
+            - "25"
+            - "26"
+            - "27"
+        message:
+          type: string
+          description: Reminder message
+        time:
+          type: string
+          description: Time to send reminder
+        slack:
+          type: boolean
+          description: Send via Slack
+        line:
+          type: boolean
+          description: Send via LINE
+        facebook:
+          type: boolean
+          description: Send via Facebook
+
+    StatusTavi:
+      type: object
+      properties:
+        id:
+          type: string
+          description: User ID
+        user:
+          $ref: '#/components/schemas/User'
+
+    Response:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Response message
+
+    HTTPError:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: HTTP status code
+        message:
+          type: string
+          description: Error message

@@ -181,14 +181,6 @@ file
 site
 `mockgen -source="api/site/interface.go" -destination="api/site/mock/site_mock.go"`
 
-customer
-`mockgen -source="api/customer/interface.go" -destination="api/customer/mock/customer_mock.go"`
-
-po `mockgen -source="api/po/interface.go" -destination="api/po/mock/po_mock.go"`
-
-invoice
-`mockgen -source="api/invoice/interface.go" -destination="api/invoice/mock/invoice_mock.go"`
-
 ### Swagger
 
 After fill comments to each handler, you must be run `swag init` to generate
@@ -204,7 +196,7 @@ local
 online
 [https://worklog-dev.odds.team/api/v1/swagger/index.html](http://worklog-dev.odds.team/api/v1/swagger/index.html)
 
-### Run test
+### Run tests
 
 Run all test `./runtests.md`
 
@@ -212,6 +204,12 @@ Run all test coverage by package `go test ./... -cover`
 
 Run all test coverage and view with html <br> `go test -coverprofile=cover.out`
 <br> `go test ./... -coverprofile=cover.out && go tool cover -html=cover.out`
+
+### Run tests (using mise)
+
+```bash
+mise r test
+```
 
 ## Cannot login worklog-dev
 
@@ -239,10 +237,5 @@ ssh worklog-huawei docker exec -e SESSION="JSESSIONID=dwEi2vEj0qZM5-KNIK5xWfzFAB
 
 ## Contributing
 
-Want to help build ODDS Worklog API?
-
-1. Fork it (https://github.com/oddsteam/api.odds-worklog/fork)
-2. Create your feature branch (`git checkout -b feature/fooBar`)
-3. Commit your changes (`git commit -am 'Add some fooBar'`)
-4. Push to the branch (`git push origin feature/fooBar`)
-5. Create a new Pull Request
+Want to help build ODDS Worklog API? Check out our [contributors'
+guide](./CONTRIBUTING.md).

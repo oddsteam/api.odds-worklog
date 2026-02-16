@@ -36,3 +36,12 @@ rabbitmq/
 deployment/local/.env
 deployment/ci/ssl/nginx.key
 deployment/ci/ssl/nginx.crt
+
+# vscode
+.vscode
+
+# Vim
+*.swp
+
+# lizard code analysis tool
+codecloud.html
