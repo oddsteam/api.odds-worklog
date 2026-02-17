@@ -9,7 +9,7 @@ import (
 	time "time"
 
 	gomock "github.com/golang/mock/gomock"
-	models "gitlab.odds.team/worklog/api.odds-worklog/models"
+	models "gitlab.odds.team/worklog/api.odds-worklog/business/models"
 )
 
 // MockForGettingIncomeData is a mock of ForGettingIncomeData interface.

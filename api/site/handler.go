@@ -8,7 +8,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
 	"github.com/labstack/echo"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	validator "gopkg.in/go-playground/validator.v9"
 	"github.com/globalsign/mgo/bson"
 )

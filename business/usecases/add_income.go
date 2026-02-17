@@ -3,7 +3,7 @@ package usecases
 import (
 	"errors"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 )
 
 type addIncomeUsecase struct {

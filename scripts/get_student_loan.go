@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 )

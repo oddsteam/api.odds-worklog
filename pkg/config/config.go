@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/joho/godotenv"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 )
 
 func Config() *models.Config {

@@ -10,11 +10,11 @@ import (
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
-	"gitlab.odds.team/worklog/api.odds-worklog/usecases"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/file"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"

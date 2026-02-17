@@ -6,8 +6,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
-	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/models/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/business/models/mock"
 )
 
 func TestUsecaseUpdateIncome(t *testing.T) {

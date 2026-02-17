@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 )
 
 func TestCreate(t *testing.T) {

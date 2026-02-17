@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 )
 
 type usecase struct {

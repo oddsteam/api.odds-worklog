@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/globalsign/mgo/bson"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
-	"gitlab.odds.team/worklog/api.odds-worklog/usecases"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 )
 
 const (

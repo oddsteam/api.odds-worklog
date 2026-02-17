@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/transform"
 )

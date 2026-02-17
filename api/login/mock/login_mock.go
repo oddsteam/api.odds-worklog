@@ -8,7 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	models "gitlab.odds.team/worklog/api.odds-worklog/models"
+	models "gitlab.odds.team/worklog/api.odds-worklog/business/models"
 )
 
 // MockUsecase is a mock of Usecase interface.

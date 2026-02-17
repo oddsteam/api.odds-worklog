@@ -7,7 +7,7 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/auth"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )

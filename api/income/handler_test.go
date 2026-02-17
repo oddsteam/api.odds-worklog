@@ -13,9 +13,9 @@ import (
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
-	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/models/mock"
-	"gitlab.odds.team/worklog/api.odds-worklog/usecases"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/business/models/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 )
 
 func TestAddIncome(t *testing.T) {
