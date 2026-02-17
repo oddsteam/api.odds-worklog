@@ -13,7 +13,6 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 func main() {
@@ -44,7 +43,7 @@ func getStudentLoans(sessionId string, csrf string) ([]byte, error) {
 	url := "https://slfrd.dsl.studentloan.or.th/SLFRD/EmployeeReport/getDataByPage"
 	method := "POST"
 
-	y, m := utils.GetYearMonthStringInBuddistEra(time.Now())
+	y, m := models.GetYearMonthStringInBuddistEra(time.Now())
 	payload := strings.NewReader(fmt.Sprintf(`deleteFlag=&month=%s&year=%s`, m, y))
 
 	req, err := http.NewRequest(method, url, payload)
