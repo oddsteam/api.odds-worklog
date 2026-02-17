@@ -8,7 +8,6 @@ import (
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/models/mock"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 func TestUsecaseUpdateIncome(t *testing.T) {
@@ -38,7 +37,7 @@ func TestUsecaseGetListIncome(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
-		year, month := utils.GetYearMonthNow()
+		year, month := models.GetYearMonthNow()
 		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month).Return(&models.MockIncome, nil)
 		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month).Return(&models.MockIncome, nil)
 
@@ -59,7 +58,7 @@ func TestUsecaseGetIncomeByUserIdAndCurrentMonth(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
-		year, month := utils.GetYearMonthNow()
+		year, month := models.GetYearMonthNow()
 		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(models.MockIncome.UserID, year, month).Return(&models.MockIncome, nil)
 		mockUserRepo := userMock.NewMockRepository(ctrl)
 

@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/signintech/gopdf"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+	"gitlab.odds.team/worklog/api.odds-worklog/models"
 )
 
 var gofpdfDir string
@@ -26,7 +26,7 @@ func (u *usecase) ExportPdf(id string) (string, error) {
 	// pdf := gofpdf.New("P", "mm", "A4", "")
 
 	userId := id
-	year, month := utils.GetYearMonthNow()
+	year, month := models.GetYearMonthNow()
 	var fileNames []string
 	var months []int
 	var days []string
@@ -307,18 +307,18 @@ func ZipFiles(filename string, files []string) error {
 
 func ConvertIntToThaiBath(txt string) string {
 	var bahtTH = ""
-	amonth, err := utils.StringToFloat64(txt)
+	amonth, err := models.StringToFloat64(txt)
 	if err != nil {
 		amonth = 0
 	}
-	bahtTxt := utils.FloatToString(amonth)
+	bahtTxt := models.FloatToString(amonth)
 	num := [11]string{"ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า", "สิบ"}
 	rank := [7]string{"", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"}
 	var temp []string
 	temp = strings.Split(bahtTxt, ".")
 	intVal := temp[0]
 	decVal := temp[1]
-	bathThai, _ := utils.StringToFloat64(bahtTxt)
+	bathThai, _ := models.StringToFloat64(bahtTxt)
 	if bathThai == 0 {
 		bahtTH = "ศูนย์บาทถ้วน"
 	} else {

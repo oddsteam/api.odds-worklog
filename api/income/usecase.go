@@ -5,7 +5,6 @@ import (
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 type usecase struct {
@@ -37,7 +36,7 @@ func (u *usecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.Inco
 		return nil, err
 	}
 
-	year, month := utils.GetYearMonthNow()
+	year, month := models.GetYearMonthNow()
 	for index, element := range users {
 		element.ThaiCitizenID = ""
 		element.DailyIncome = ""
@@ -61,7 +60,7 @@ func (u *usecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.Inco
 }
 
 func (u *usecase) GetIncomeByUserIdAndCurrentMonth(userId string) (*models.Income, error) {
-	year, month := utils.GetYearMonthNow()
+	year, month := models.GetYearMonthNow()
 	return u.repo.GetIncomeUserByYearMonth(userId, year, month)
 }
 
@@ -93,13 +92,13 @@ func (u *usecase) GetUserByID(userId string) (*models.User, error) {
 }
 
 func calTotal(main string, special string) (string, error) {
-	ma, err := utils.StringToFloat64(main)
+	ma, err := models.StringToFloat64(main)
 	if err != nil {
 		return "", err
 	}
-	sp, err := utils.StringToFloat64(special)
+	sp, err := models.StringToFloat64(special)
 	if err != nil {
 		return "", err
 	}
-	return utils.FloatToString(ma + sp), nil
+	return models.FloatToString(ma + sp), nil
 }

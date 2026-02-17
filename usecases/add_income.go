@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 type addIncomeUsecase struct {
@@ -18,7 +17,7 @@ func NewAddIncomeUsecase(r ForControllingUserIncome, ur ForGettingUserByID) ForU
 
 func (u *addIncomeUsecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
 	userDetail, _ := u.userRepo.GetByID(uid)
-	year, month := utils.GetYearMonthNow()
+	year, month := models.GetYearMonthNow()
 	_, err := u.repo.GetIncomeUserByYearMonth(uid, year, month)
 	if err == nil {
 		return nil, errors.New("Sorry, has income data of user " + userDetail.GetName())

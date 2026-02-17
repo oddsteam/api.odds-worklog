@@ -10,7 +10,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"gitlab.odds.team/worklog/api.odds-worklog/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/file"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 	mock_usecases "gitlab.odds.team/worklog/api.odds-worklog/usecases/mock"
 )
 
@@ -57,7 +56,7 @@ func (m *MockIncomeRepository) ExpectAddExport() {
 }
 
 func (m *MockIncomeRepository) ExpectGetAllIncomeOfCurrentMonthByRole(incomes []*models.Income, now time.Time) {
-	startDate, endDate := utils.GetStartDateAndEndDate(now)
+	startDate, endDate := models.GetStartDateAndEndDate(now)
 	m.mockRead.EXPECT().GetAllIncomeByRoleStartDateAndEndDate(
 		gomock.Any(), startDate, endDate).Return(incomes, nil)
 }
