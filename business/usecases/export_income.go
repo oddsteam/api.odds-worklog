@@ -3,8 +3,7 @@ package usecases
 import (
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 )
 
 type usecase struct {
@@ -31,7 +30,7 @@ func (u *usecase) ExportIncome(role string, monthIndex string) (string, error) {
 	} else {
 		t = time.Now().AddDate(0, -1, 0)
 	}
-	startDate, endDate := utils.GetStartDateAndEndDate(t)
+	startDate, endDate := models.GetStartDateAndEndDate(t)
 	return u.ExportIncomeByStartDateAndEndDate(role, startDate, endDate)
 }
 

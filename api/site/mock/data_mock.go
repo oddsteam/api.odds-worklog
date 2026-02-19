@@ -1,7 +1,7 @@
 package mock_site
 
 import (
-	models "gitlab.odds.team/worklog/api.odds-worklog/models"
+	models "gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"github.com/globalsign/mgo/bson"
 )
 

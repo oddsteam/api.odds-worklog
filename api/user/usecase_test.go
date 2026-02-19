@@ -3,7 +3,7 @@ package user
 import (
 	"testing"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
 	siteMock "gitlab.odds.team/worklog/api.odds-worklog/api/site/mock"

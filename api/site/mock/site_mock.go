@@ -6,7 +6,7 @@ package mock_site
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	models "gitlab.odds.team/worklog/api.odds-worklog/models"
+	models "gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	reflect "reflect"
 )
 

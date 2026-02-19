@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/elgs/cron"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/slack"
 )
 

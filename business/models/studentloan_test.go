@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	mock_user "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 )
 
 func TestFindLoanForUserUsingBankAccountName(t *testing.T) {

@@ -7,9 +7,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
-	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/models/mock"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/business/models/mock"
 )
 
 func TestUsecaseAddIncome(t *testing.T) {
@@ -21,7 +20,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
 		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
 		mockRepoIncome.EXPECT().AddIncome(gomock.Any()).Return(nil)
-		year, month := utils.GetYearMonthNow()
+		year, month := models.GetYearMonthNow()
 		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(models.MockIncome.UserID, year, month).Return(&models.MockIncome, errors.New(""))
 
 		uc := NewAddIncomeUsecase(mockRepoIncome, mockUserRepo)

@@ -1,7 +1,7 @@
 package reminder
 
 import (
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"github.com/globalsign/mgo/bson"
 )

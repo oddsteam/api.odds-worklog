@@ -1,6 +1,6 @@
 package file
 
-import "gitlab.odds.team/worklog/api.odds-worklog/models"
+import "gitlab.odds.team/worklog/api.odds-worklog/business/models"
 
 type Usecase interface {
 	UpdateUser(id, filename string) error

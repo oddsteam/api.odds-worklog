@@ -3,8 +3,6 @@ package models
 import (
 	"testing"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -48,10 +46,10 @@ func TestUser(t *testing.T) {
 	assert.Nil(t, u.ValidateRole())
 
 	u.Role = ""
-	assert.EqualError(t, u.ValidateRole(), utils.ErrInvalidUserRole.Error())
+	assert.EqualError(t, u.ValidateRole(), ErrInvalidUserRole.Error())
 
 	u.Role = "abc"
-	assert.EqualError(t, u.ValidateRole(), utils.ErrInvalidUserRole.Error())
+	assert.EqualError(t, u.ValidateRole(), ErrInvalidUserRole.Error())
 
 	u.Vat = "N"
 	assert.Nil(t, u.ValidateVat())
@@ -60,10 +58,10 @@ func TestUser(t *testing.T) {
 	assert.Nil(t, u.ValidateVat())
 
 	u.Vat = ""
-	assert.EqualError(t, u.ValidateVat(), utils.ErrInvalidUserVat.Error())
+	assert.EqualError(t, u.ValidateVat(), ErrInvalidUserVat.Error())
 
 	u.Vat = "abc"
-	assert.EqualError(t, u.ValidateVat(), utils.ErrInvalidUserVat.Error())
+	assert.EqualError(t, u.ValidateVat(), ErrInvalidUserVat.Error())
 
 	u.CorporateName = "abc"
 	u.Role = individual

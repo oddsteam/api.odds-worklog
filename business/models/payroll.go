@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/globalsign/mgo/bson"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 type Payroll struct {
@@ -47,7 +46,7 @@ func CreatePayroll(user User, req IncomeReq, note string) *Income {
 	i := NewPayroll(user.ID.Hex())
 	record, err := i.prepareDataForAddIncome(req, user)
 	record.Note = note
-	utils.FailOnError(err, "Error prepare data for add income")
+	FailOnError(err, "Error prepare data for add income")
 	return record
 }
 
@@ -55,7 +54,7 @@ func UpdatePayroll(user User, req IncomeReq, note string, record *Income) *Incom
 	i := NewPayrollFromIncome(*record)
 	err := i.prepareDataForUpdateIncome(req, user, record)
 	record.Note = note
-	utils.FailOnError(err, "Error prepare data for add income")
+	FailOnError(err, "Error prepare data for add income")
 	return record
 }
 
@@ -75,7 +74,7 @@ func (p *Payroll) parseRequest(req IncomeReq, userDetail User) error {
 }
 
 func (p *Payroll) getUserDailyRate() float64 {
-	dr, _ := utils.StringToFloat64(p.userDetail.DailyIncome)
+	dr, _ := StringToFloat64(p.userDetail.DailyIncome)
 	return dr
 }
 
@@ -125,15 +124,15 @@ func (p *Payroll) prepareDataForUpdateIncome(req IncomeReq, userDetail User, inc
 
 func (p *Payroll) parse(req IncomeReq) error {
 	var err error
-	p.workDate, err = utils.StringToFloat64(req.WorkDate)
+	p.workDate, err = StringToFloat64(req.WorkDate)
 	if err != nil {
 		p.workDate = 0
 	}
-	p.specialHours, err = utils.StringToFloat64(req.WorkingHours)
+	p.specialHours, err = StringToFloat64(req.WorkingHours)
 	if err != nil {
 		p.specialHours = 0
 	}
-	p.specialIncomeRate, err = utils.StringToFloat64(req.SpecialIncome)
+	p.specialIncomeRate, err = StringToFloat64(req.SpecialIncome)
 	if err != nil {
 		p.specialIncomeRate = 0
 	}
@@ -145,7 +144,7 @@ func (p *Payroll) totalVatStr() string {
 	if v == 0.0 {
 		return ""
 	}
-	return utils.FloatToString(v)
+	return FloatToString(v)
 }
 
 func (p *Payroll) totalVat() float64 {
@@ -157,7 +156,7 @@ func (p *Payroll) totalWHT() float64 {
 }
 
 func (p *Payroll) TransferAmountStr() string {
-	return utils.FloatToString(p.TransferAmount())
+	return FloatToString(p.TransferAmount())
 }
 
 func (p *Payroll) TransferAmount() float64 {
@@ -165,7 +164,7 @@ func (p *Payroll) TransferAmount() float64 {
 }
 
 func (p *Payroll) NetDailyIncomeStr() string {
-	return utils.FloatToString(p.netDailyIncome())
+	return FloatToString(p.netDailyIncome())
 }
 
 func (p *Payroll) netDailyIncome() float64 {
@@ -173,7 +172,7 @@ func (p *Payroll) netDailyIncome() float64 {
 }
 
 func (p *Payroll) totalIncomeStr() string {
-	return utils.FloatToString(p.totalIncome())
+	return FloatToString(p.totalIncome())
 }
 
 func (p *Payroll) totalIncome() float64 {
@@ -185,7 +184,7 @@ func (p *Payroll) dailyIncome() float64 {
 }
 
 func (p *Payroll) NetSpecialIncomeStr() string {
-	return utils.FloatToString(p.netSpecialIncome())
+	return FloatToString(p.netSpecialIncome())
 }
 
 func (p *Payroll) netSpecialIncome() float64 {
@@ -212,7 +211,7 @@ func (p *Payroll) VAT(totalIncome float64) float64 {
 }
 
 func (p *Payroll) TotalWHTStr() string {
-	return utils.FloatToString(p.totalWHT())
+	return FloatToString(p.totalWHT())
 }
 
 func (p *Payroll) Note() string {

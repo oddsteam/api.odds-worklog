@@ -5,7 +5,7 @@ import (
 	"unicode"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 

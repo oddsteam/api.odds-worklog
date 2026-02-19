@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"

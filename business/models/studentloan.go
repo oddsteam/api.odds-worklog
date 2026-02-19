@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/globalsign/mgo/bson"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 type StudentLoanList struct {
@@ -48,9 +47,9 @@ func (sll *StudentLoanList) GetUpdateQuery() bson.M {
 }
 
 func (sll *StudentLoanList) GetFilterQuery(now time.Time) bson.M {
-	return bson.M{"monthYear": utils.GetCurrentMonthInBuddistEra(now)}
+	return bson.M{"monthYear": GetCurrentMonthInBuddistEra(now)}
 }
 
 func (sl *StudentLoan) CSVAmount() string {
-	return utils.FormatCommas(fmt.Sprint(sl.Amount))
+	return FormatCommas(fmt.Sprint(sl.Amount))
 }

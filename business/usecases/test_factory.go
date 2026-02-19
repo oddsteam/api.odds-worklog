@@ -8,10 +8,9 @@ import (
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/golang/mock/gomock"
-	"gitlab.odds.team/worklog/api.odds-worklog/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/file"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
-	mock_usecases "gitlab.odds.team/worklog/api.odds-worklog/usecases/mock"
+	mock_usecases "gitlab.odds.team/worklog/api.odds-worklog/business/usecases/mock"
 )
 
 func CreateExportIncomeUsecaseWithMock(t *testing.T) (ForUsingExportIncome, *gomock.Controller, *MockIncomeRepository) {
@@ -57,7 +56,7 @@ func (m *MockIncomeRepository) ExpectAddExport() {
 }
 
 func (m *MockIncomeRepository) ExpectGetAllIncomeOfCurrentMonthByRole(incomes []*models.Income, now time.Time) {
-	startDate, endDate := utils.GetStartDateAndEndDate(now)
+	startDate, endDate := models.GetStartDateAndEndDate(now)
 	m.mockRead.EXPECT().GetAllIncomeByRoleStartDateAndEndDate(
 		gomock.Any(), startDate, endDate).Return(incomes, nil)
 }

@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/globalsign/mgo/bson"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 type User struct {
@@ -90,14 +89,14 @@ func (u *User) IsFullnameEmpty() bool {
 
 func (u *User) ValidateRole() error {
 	if u.Role != corporate && u.Role != individual && u.Role != admin {
-		return utils.ErrInvalidUserRole
+		return ErrInvalidUserRole
 	}
 	return nil
 }
 
 func (u *User) ValidateVat() error {
 	if u.Vat != "N" && u.Vat != "Y" {
-		return utils.ErrInvalidUserVat
+		return ErrInvalidUserVat
 	}
 	return nil
 }
