@@ -1,4 +1,7 @@
 [![Build Status](https://github.com/oddsteam/api.odds-worklog/actions/workflows/deployment-odds-cloud.yml/badge.svg)](https://github.com/oddsteam/api.odds-worklog/actions)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=oddsteam_api.odds-worklog&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=oddsteam_api.odds-worklog)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=oddsteam_api.odds-worklog&metric=coverage)](https://sonarcloud.io/summary/new_code?id=oddsteam_api.odds-worklog)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=oddsteam_api.odds-worklog&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=oddsteam_api.odds-worklog)
 
 # ODDS Worklog API
 
