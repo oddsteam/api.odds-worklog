@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"unicode/utf8"
 )
@@ -20,7 +21,7 @@ func AmountStr(amt float64, n int) string {
 		return "0.00"
 	}
 
-	tempStr := FloatToString(amt)
+	tempStr := fmt.Sprintf("%.2f", amt)
 
 	l := len(tempStr)
 

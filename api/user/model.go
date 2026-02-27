@@ -16,7 +16,7 @@ func NewUser(data models.User) *User {
 }
 
 func (u *User) DailyRate() float64 {
-	dr, _ := utils.StringToFloat64(u.data.DailyIncome)
+	dr, _ := models.StringToFloat64(u.data.DailyIncome)
 	return dr
 }
 
