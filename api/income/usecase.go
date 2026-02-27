@@ -46,46 +46,10 @@ func (u *usecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.Inco
 	return incomeList, nil
 }
 
-func (u *usecase) GetIncomeByUserIdAndCurrentMonth(userId string) (*models.Income, error) {
-	year, month := models.GetYearMonthNow()
-	return u.repo.GetIncomeUserByYearMonth(userId, year, month)
-}
-
-func (u *usecase) GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, error) {
-	listIncome, err := u.repo.GetIncomeByUserIdAllMonth(userId)
-	if err != nil {
-		return nil, err
-	}
-	if len(listIncome) == 0 {
-		return nil, nil
-	}
-	for index := range listIncome {
-		if listIncome[index].NetSpecialIncome != "" && listIncome[index].NetDailyIncome != "" {
-			listIncome[index].NetIncome, err = calTotal(listIncome[index].NetDailyIncome, listIncome[index].NetSpecialIncome)
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
-	return listIncome, nil
-}
-
 func (u *usecase) GetByRole(role string) ([]*models.User, error) {
 	return u.userRepo.GetByRole(role)
 }
 
 func (u *usecase) GetUserByID(userId string) (*models.User, error) {
 	return u.userRepo.GetByID(userId)
-}
-
-func calTotal(main string, special string) (string, error) {
-	ma, err := models.StringToFloat64(main)
-	if err != nil {
-		return "", err
-	}
-	sp, err := models.StringToFloat64(special)
-	if err != nil {
-		return "", err
-	}
-	return models.FloatToString(ma + sp), nil
 }

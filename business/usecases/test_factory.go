@@ -26,6 +26,11 @@ func CreateAddIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsi
 	return usecase
 }
 
+func CreateGetIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsingGetIncome {
+	usecase := NewGetIncomeUsecase(mockRepoIncome.mockReadingUserIncome)
+	return usecase
+}
+
 func CreateUpdateIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsingUpdateIncome {
 	usecase := NewUpdateIncomeUsecase(mockRepoIncome.mockUpdatingUserIncome, mockRepoIncome.mockGettingUserByID)
 	return usecase
@@ -35,6 +40,7 @@ func mockIncomeRepository(ctrl *gomock.Controller) *MockIncomeRepository {
 	mockRepoIncome := MockIncomeRepository{
 		mock_usecases.NewMockForGettingUserByID(ctrl),
 		mock_usecases.NewMockForControllingUserIncome(ctrl),
+		mock_usecases.NewMockForReadingUserIncome(ctrl),
 		mock_usecases.NewMockForUpdatingUserIncome(ctrl),
 		mock_usecases.NewMockForGettingIncomeData(ctrl),
 		mock_usecases.NewMockForControllingIncomeData(ctrl)}
@@ -44,6 +50,7 @@ func mockIncomeRepository(ctrl *gomock.Controller) *MockIncomeRepository {
 type MockIncomeRepository struct {
 	mockGettingUserByID       *mock_usecases.MockForGettingUserByID
 	mockControllingUserIncome *mock_usecases.MockForControllingUserIncome
+	mockReadingUserIncome     *mock_usecases.MockForReadingUserIncome
 	mockUpdatingUserIncome    *mock_usecases.MockForUpdatingUserIncome
 	mockRead                  *mock_usecases.MockForGettingIncomeData
 	mockWrite                 *mock_usecases.MockForControllingIncomeData

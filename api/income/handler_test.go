@@ -16,6 +16,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/business/models/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
+	ucmock "gitlab.odds.team/worklog/api.odds-worklog/business/usecases/mock"
 )
 
 func TestAddIncome(t *testing.T) {
@@ -121,7 +122,7 @@ func TestGetCorporateIncomeStatus(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenAdmin)
 
-		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase, ucmock.NewMockForUsingGetIncome(ctrl))
 		defer ctrl.Finish()
 		handler.GetCorporateIncomeStatus(c)
 
@@ -143,7 +144,7 @@ func TestGetCorporateIncomeStatus(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenAdmin)
 
-		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase, ucmock.NewMockForUsingGetIncome(ctrl))
 		defer ctrl.Finish()
 		handler.GetCorporateIncomeStatus(c)
 		incomeByte, _ := json.Marshal(models.MockIndividualIncomeStatus)
@@ -169,7 +170,7 @@ func TestGetIndividualIncomeStatus(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenAdmin)
 
-		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase, ucmock.NewMockForUsingGetIncome(ctrl))
 		defer ctrl.Finish()
 		handler.GetIndividualIncomeStatus(c)
 
@@ -191,7 +192,7 @@ func TestGetIndividualIncomeStatus(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.Set("user", userMock.TokenAdmin)
 
-		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase, ucmock.NewMockForUsingGetIncome(ctrl))
 		defer ctrl.Finish()
 		handler.GetIndividualIncomeStatus(c)
 		incomeByte, _ := json.Marshal(models.MockCorporateIncomeStatus)
@@ -206,8 +207,8 @@ func TestGetIncomeGetIncomeCurrentMonthByUserId(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().GetIncomeByUserIdAndCurrentMonth(models.MockIncome.UserID).Return(&models.MockIncome, nil)
+		mockGetIncomeUsecase := ucmock.NewMockForUsingGetIncome(ctrl)
+		mockGetIncomeUsecase.EXPECT().GetIncomeByCurrentMonth(models.MockIncome.UserID).Return(&models.MockIncome, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -217,7 +218,7 @@ func TestGetIncomeGetIncomeCurrentMonthByUserId(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
 
-		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		handler, ctrl := createHandlerWithMockUsecases(t, incomeMock.NewMockUsecase(ctrl), mockGetIncomeUsecase)
 		defer ctrl.Finish()
 		handler.GetIncomeCurrentMonthByUserId(c)
 
@@ -231,8 +232,6 @@ func TestGetIncomeGetIncomeCurrentMonthByUserId(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
 		rec := httptest.NewRecorder()
@@ -241,7 +240,7 @@ func TestGetIncomeGetIncomeCurrentMonthByUserId(t *testing.T) {
 		mockUser.ID = ""
 		c.Set("user", userMock.TokenUser)
 
-		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		handler, ctrl := createHandlerWithMockUsecases(t, incomeMock.NewMockUsecase(ctrl), ucmock.NewMockForUsingGetIncome(ctrl))
 		defer ctrl.Finish()
 		handler.GetIncomeCurrentMonthByUserId(c)
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
@@ -252,8 +251,8 @@ func TestGetIncomeGetIncomeAllMonthByUserId(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().GetIncomeByUserIdAllMonth(models.MockIncome.UserID).Return(models.MockIncomeList, nil)
+		mockGetIncomeUsecase := ucmock.NewMockForUsingGetIncome(ctrl)
+		mockGetIncomeUsecase.EXPECT().GetIncomeByAllMonth(models.MockIncome.UserID).Return(models.MockIncomeList, nil)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -263,7 +262,7 @@ func TestGetIncomeGetIncomeAllMonthByUserId(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
 
-		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		handler, ctrl := createHandlerWithMockUsecases(t, incomeMock.NewMockUsecase(ctrl), mockGetIncomeUsecase)
 		defer ctrl.Finish()
 		handler.GetIncomeAllMonthByUserId(c)
 
@@ -401,17 +400,18 @@ func TestPostExportSAPIncome(t *testing.T) {
 	})
 }
 
-func createHandlerWithMockUsecases(t *testing.T, mockUsecase *incomeMock.MockUsecase) (*HttpHandler, *gomock.Controller) {
+func createHandlerWithMockUsecases(t *testing.T, mockUsecase *incomeMock.MockUsecase, mockGetIncome usecases.ForUsingGetIncome) (*HttpHandler, *gomock.Controller) {
 	export, ctrl, mockRepo := usecases.CreateExportIncomeUsecaseWithMock(t)
 	add := usecases.CreateAddIncomeUsecaseWithMock(mockRepo)
 	update := usecases.CreateUpdateIncomeUsecaseWithMock(mockRepo)
-	return &HttpHandler{mockUsecase, add, update, export}, ctrl
+	return &HttpHandler{mockUsecase, add, mockGetIncome, update, export}, ctrl
 }
 
 func createHandlerWithMockUsecasesAndRepo(t *testing.T) (*HttpHandler, *gomock.Controller, *usecases.MockIncomeRepository) {
 	export, ctrl, mockRepo := usecases.CreateExportIncomeUsecaseWithMock(t)
 	mockUsecase := incomeMock.NewMockUsecase(ctrl)
 	add := usecases.CreateAddIncomeUsecaseWithMock(mockRepo)
+	gi := usecases.CreateGetIncomeUsecaseWithMock(mockRepo)
 	update := usecases.CreateUpdateIncomeUsecaseWithMock(mockRepo)
-	return &HttpHandler{mockUsecase, add, update, export}, ctrl, mockRepo
+	return &HttpHandler{mockUsecase, add, gi, update, export}, ctrl, mockRepo
 }

@@ -366,36 +366,6 @@ func (mr *MockUsecaseMockRecorder) GetByRole(role interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByRole", reflect.TypeOf((*MockUsecase)(nil).GetByRole), role)
 }
 
-// GetIncomeByUserIdAllMonth mocks base method.
-func (m *MockUsecase) GetIncomeByUserIdAllMonth(userId string) ([]*models.Income, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetIncomeByUserIdAllMonth", userId)
-	ret0, _ := ret[0].([]*models.Income)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetIncomeByUserIdAllMonth indicates an expected call of GetIncomeByUserIdAllMonth.
-func (mr *MockUsecaseMockRecorder) GetIncomeByUserIdAllMonth(userId interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByUserIdAllMonth", reflect.TypeOf((*MockUsecase)(nil).GetIncomeByUserIdAllMonth), userId)
-}
-
-// GetIncomeByUserIdAndCurrentMonth mocks base method.
-func (m *MockUsecase) GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetIncomeByUserIdAndCurrentMonth", userID)
-	ret0, _ := ret[0].(*models.Income)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetIncomeByUserIdAndCurrentMonth indicates an expected call of GetIncomeByUserIdAndCurrentMonth.
-func (mr *MockUsecaseMockRecorder) GetIncomeByUserIdAndCurrentMonth(userID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncomeByUserIdAndCurrentMonth", reflect.TypeOf((*MockUsecase)(nil).GetIncomeByUserIdAndCurrentMonth), userID)
-}
-
 // GetIncomeStatusList mocks base method.
 func (m *MockUsecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
 	m.ctrl.T.Helper()
