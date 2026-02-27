@@ -10,27 +10,6 @@ import (
 	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/business/models/mock"
 )
 
-func TestUsecaseUpdateIncome(t *testing.T) {
-	t.Run("when update income success it should return income model", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-		user := userMock.User
-
-		mockRepoUser := userMock.NewMockRepository(ctrl)
-		incomeMockRepo := incomeMock.NewMockRepository(ctrl)
-		mockRepoUser.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
-		incomeMockRepo.EXPECT().UpdateIncome(&models.MockIncome).Return(nil)
-		incomeMockRepo.EXPECT().GetIncomeByID(models.MockIncome.ID.Hex(), userMock.User.ID.Hex()).Return(&models.MockIncome, nil)
-
-		uc := NewUsecase(incomeMockRepo, mockRepoUser)
-		res, err := uc.UpdateIncome(models.MockIncome.ID.Hex(), &models.MockIncomeReq, userMock.User.ID.Hex())
-
-		assert.NoError(t, err)
-		assert.NotNil(t, res)
-		assert.Equal(t, models.MockIncome.UserID, res.UserID)
-	})
-}
-
 func TestUsecaseGetListIncome(t *testing.T) {
 	t.Run("when get list income success it should be return list income where status is Y", func(t *testing.T) {
 		ctrl := gomock.NewController(t)

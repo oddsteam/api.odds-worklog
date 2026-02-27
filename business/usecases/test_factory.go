@@ -26,10 +26,16 @@ func CreateAddIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsi
 	return usecase
 }
 
+func CreateUpdateIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsingUpdateIncome {
+	usecase := NewUpdateIncomeUsecase(mockRepoIncome.mockUpdatingUserIncome, mockRepoIncome.mockGettingUserByID)
+	return usecase
+}
+
 func mockIncomeRepository(ctrl *gomock.Controller) *MockIncomeRepository {
 	mockRepoIncome := MockIncomeRepository{
 		mock_usecases.NewMockForGettingUserByID(ctrl),
 		mock_usecases.NewMockForControllingUserIncome(ctrl),
+		mock_usecases.NewMockForUpdatingUserIncome(ctrl),
 		mock_usecases.NewMockForGettingIncomeData(ctrl),
 		mock_usecases.NewMockForControllingIncomeData(ctrl)}
 	return &mockRepoIncome
@@ -38,6 +44,7 @@ func mockIncomeRepository(ctrl *gomock.Controller) *MockIncomeRepository {
 type MockIncomeRepository struct {
 	mockGettingUserByID       *mock_usecases.MockForGettingUserByID
 	mockControllingUserIncome *mock_usecases.MockForControllingUserIncome
+	mockUpdatingUserIncome    *mock_usecases.MockForUpdatingUserIncome
 	mockRead                  *mock_usecases.MockForGettingIncomeData
 	mockWrite                 *mock_usecases.MockForControllingIncomeData
 }
@@ -77,6 +84,14 @@ func (m *MockIncomeRepository) ExpectGetCurrentUserIncomeNotFound(id string) {
 
 func (m *MockIncomeRepository) ExpectAddIncomeSuccess() {
 	m.mockControllingUserIncome.EXPECT().AddIncome(gomock.Any()).Return(nil)
+}
+
+func (m *MockIncomeRepository) ExpectGetIncomeByID(incID, uID string, income *models.Income) {
+	m.mockUpdatingUserIncome.EXPECT().GetIncomeByID(incID, uID).Return(income, nil)
+}
+
+func (m *MockIncomeRepository) ExpectUpdateIncomeSuccess() {
+	m.mockUpdatingUserIncome.EXPECT().UpdateIncome(gomock.Any()).Return(nil)
 }
 
 func deepClone(income *models.Income) *models.Income {

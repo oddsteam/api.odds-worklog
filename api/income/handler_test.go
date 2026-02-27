@@ -56,12 +56,6 @@ func TestAddIncome(t *testing.T) {
 
 func TestUpdateIncome(t *testing.T) {
 	t.Run("when update income success it should be return status OK", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().UpdateIncome(models.MockIncome.ID.Hex(), &models.MockIncomeReq, userMock.User.ID.Hex()).Return(&models.MockIncome, nil)
-
 		e := echo.New()
 		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(models.MockIncomeReqJson))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -71,36 +65,29 @@ func TestUpdateIncome(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues(models.MockIncome.ID.Hex())
 
-		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
+		mockRepo.ExpectGetUserByID(userMock.User.ID.Hex())
+		mockRepo.ExpectGetIncomeByID(models.MockIncome.ID.Hex(), userMock.User.ID.Hex(), &models.MockIncome)
+		mockRepo.ExpectUpdateIncomeSuccess()
 		handler.UpdateIncome(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 
 	t.Run("when update income but no have id it should be return status Bad Request", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-
 		e := echo.New()
 		req := httptest.NewRequest(echo.PUT, "/", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 
-		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
 		handler.UpdateIncome(c)
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 	})
 
 	t.Run("when update income but request body is not IncomeReq it should be return status Unprocessable Entity", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockUsecase := incomeMock.NewMockUsecase(ctrl)
-
 		e := echo.New()
 		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(models.MockIncomeResJson))
 		rec := httptest.NewRecorder()
@@ -109,7 +96,7 @@ func TestUpdateIncome(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues(models.MockIncome.ID.Hex())
 
-		handler, ctrl := createHandlerWithMockUsecases(t, mockUsecase)
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
 		handler.UpdateIncome(c)
 		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
@@ -417,12 +404,14 @@ func TestPostExportSAPIncome(t *testing.T) {
 func createHandlerWithMockUsecases(t *testing.T, mockUsecase *incomeMock.MockUsecase) (*HttpHandler, *gomock.Controller) {
 	export, ctrl, mockRepo := usecases.CreateExportIncomeUsecaseWithMock(t)
 	add := usecases.CreateAddIncomeUsecaseWithMock(mockRepo)
-	return &HttpHandler{mockUsecase, add, export}, ctrl
+	update := usecases.CreateUpdateIncomeUsecaseWithMock(mockRepo)
+	return &HttpHandler{mockUsecase, add, update, export}, ctrl
 }
 
 func createHandlerWithMockUsecasesAndRepo(t *testing.T) (*HttpHandler, *gomock.Controller, *usecases.MockIncomeRepository) {
 	export, ctrl, mockRepo := usecases.CreateExportIncomeUsecaseWithMock(t)
 	mockUsecase := incomeMock.NewMockUsecase(ctrl)
 	add := usecases.CreateAddIncomeUsecaseWithMock(mockRepo)
-	return &HttpHandler{mockUsecase, add, export}, ctrl, mockRepo
+	update := usecases.CreateUpdateIncomeUsecaseWithMock(mockRepo)
+	return &HttpHandler{mockUsecase, add, update, export}, ctrl, mockRepo
 }

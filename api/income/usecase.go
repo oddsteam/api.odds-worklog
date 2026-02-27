@@ -16,19 +16,6 @@ func NewUsecase(r Repository, ur user.Repository) Usecase {
 	return &usecase{r, ur}
 }
 
-func (u *usecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
-	userDetail, _ := u.userRepo.GetByID(uid)
-	income, err := u.repo.GetIncomeByID(id, uid)
-	if err != nil {
-		return nil, err
-	}
-
-	income = models.UpdatePayroll(*userDetail, *req, "", income)
-	u.repo.UpdateIncome(income)
-
-	return income, nil
-}
-
 func (u *usecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
 	var incomeList []*models.IncomeStatus
 	users, err := u.userRepo.GetByRole(role)

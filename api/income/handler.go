@@ -24,6 +24,7 @@ import (
 type HttpHandler struct {
 	Usecase             Usecase
 	AddIncomeUsecase    usecases.ForUsingAddIncome
+	UpdateIncomeUsecase usecases.ForUsingUpdateIncome
 	ExportIncomeUsecase usecases.ForUsingExportIncome
 }
 
@@ -90,7 +91,7 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 	user := getUserFromToken(c)
-	res, err := h.Usecase.UpdateIncome(id, &req, user.ID)
+	res, err := h.UpdateIncomeUsecase.UpdateIncome(id, &req, user.ID)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -342,8 +343,9 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	userRepo := user.NewRepository(session)
 	uc := NewUsecase(incomeRepo, userRepo)
 	ad := usecases.NewAddIncomeUsecase(incomeRepo, userRepo)
+	up := usecases.NewUpdateIncomeUsecase(incomeRepo, userRepo)
 	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter())
-	handler := &HttpHandler{uc, ad, ex}
+	handler := &HttpHandler{uc, ad, up, ex}
 
 	r = r.Group("/incomes")
 	r.POST("", handler.AddIncome)
@@ -366,8 +368,9 @@ func NewHttpHandler2(r *echo.Group, session *mongo.Session) {
 	userRepo := user.NewRepository(session)
 	uc := NewUsecase(incomeRepo, userRepo)
 	ad := usecases.NewAddIncomeUsecase(incomeRepo, userRepo)
+	up := usecases.NewUpdateIncomeUsecase(incomeRepo, userRepo)
 	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter())
-	handler := &HttpHandler{uc, ad, ex}
+	handler := &HttpHandler{uc, ad, up, ex}
 
 	r = r.Group("/incomes")
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
