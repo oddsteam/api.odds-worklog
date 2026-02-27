@@ -3,16 +3,14 @@ services:
     extends:
       file: ../base/docker-compose.yaml
       service: mongodb
-    volumes:
-      - mongodbdata_odds_worklog:/data/db
-      - ../../data/:/fixture/data/
-    env_file:
-      - .env
+    healthcheck:
+      test: ["CMD", "mongo", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
 
   keycloak:
     extends:
       file: ../base/docker-compose.yaml
       service: keycloak
-
-volumes:
-  mongodbdata_odds_worklog:
