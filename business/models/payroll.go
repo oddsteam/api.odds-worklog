@@ -28,7 +28,7 @@ func NewPayroll(uidFromSession string) *Payroll {
 
 func NewPayrollFromIncome(record Income) *Payroll {
 	p := Payroll{
-		UserID:          "",
+		UserID:          record.UserID,
 		loan:            &StudentLoan{},
 		record:          &record,
 		dailyRate:       record.DailyRate,

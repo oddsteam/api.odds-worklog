@@ -6,4 +6,4 @@ cd "$(dirname "$0")" || return
 
 #### Run the tests from the current package and its subfolder
 
-go test ./...
+go test ./... -coverprofile=coverage.out

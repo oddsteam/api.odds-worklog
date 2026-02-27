@@ -1,4 +1,4 @@
-.PHONY: up down reset test e2e-ci-up e2e-ci-down e2e-ci-ps
+.PHONY: up down reset test run e2e-ci-up e2e-ci-down e2e-ci-ps
 
 up: deployment/local/.env
 	docker-compose -f deployment/local/docker-compose.yaml up -d
@@ -14,6 +14,9 @@ reset:
 
 test:
 	./runtests.md	
+
+run:
+	go run main.go
 
 e2e-ci-build:
 	docker compose -f deployment/ci/docker-compose.yaml build

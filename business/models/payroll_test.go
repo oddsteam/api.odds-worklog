@@ -241,6 +241,20 @@ func TestPayroll(t *testing.T) {
 		assert.Equal(t, p.netSpecialIncome()+270, p.TransferAmount())
 	})
 
+	t.Run("เวลา Update income ควรเก็บ UserID ไว้เหมือนเดิม ไม่งั้น user จะหายไปจาก income", func(t *testing.T) {
+		// ส่งผลให้ที่หน้า web user เห็นว่ายังไ่ม่ได้กรอก income และจะกรอกซ้ำ
+		// ซ้ำร้าย เวลา export payroll จะมี income ซ้ำกัน (ทั้ง record ที่มีและไม่มี user)
+		user := testIndividualUser1
+		existingIncome := Income{
+			UserID:   user.ID.Hex(),
+			WorkDate: "20",
+		}
+
+		result := UpdatePayroll(user, MockIncomeReq, "", &existingIncome)
+
+		assert.Equal(t, user.ID.Hex(), result.UserID)
+	})
+
 	t.Run("calculate corporate income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := User{
@@ -271,4 +285,3 @@ func TestPayroll(t *testing.T) {
 		assert.Equal(t, 1000.0+70-30, p.Net(p.specialIncome()))
 	})
 }
-
