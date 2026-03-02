@@ -94,6 +94,7 @@ var (
 		ID:                bson.ObjectIdHex("5bd1fda30fd2df2a3e41e568"),
 		UserID:            "5bbcf2f90fd2df527bc39531",
 		Name:              "บจก. โซโล่ เลเวลลิ่ง",
+		BankAccountName:   "บริษัท โซโล่ เลเวลลิ่ง จำกัด",
 		TotalIncome:       "0.00",
 		NetIncome:         "52600.00",
 		NetDailyIncome:    "0.00",
@@ -164,4 +165,3 @@ var (
 	IncomeResByte, _  = json.Marshal(MockIncomeStatus)
 	MockIncomeResJson = string(IncomeResByte)
 )
-
