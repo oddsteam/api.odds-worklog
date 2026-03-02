@@ -75,7 +75,7 @@ func TestSAPWriter(t *testing.T) {
 
 		assert.Equal(t, "TXN", txn[SAP_TXN_INDEX])
 		assert.Equal(t, "บจก. ออด-อี (ประเทศไทย) จำกัด                                                                                           ", txn[SAP_PAYER_NAME_INDEX])
-		assert.Equal(t, "บจก. โซโล่ เลเวลลิ่ง                                                                                                              ", txn[SAP_PAYEE_NAME_INDEX])
+		assert.Equal(t, "บริษัท โซโล่ เลเวลลิ่ง จำกัด                                                                                                      ", txn[SAP_PAYEE_NAME_INDEX])
 		assert.Equal(t, "                                        ", txn[SAP_MALE_TO_NAME_INDEX])
 		assert.Equal(t, "                                        ", txn[SAP_BENEFICIARY1_INDEX])
 		assert.Equal(t, "                                        ", txn[SAP_BENEFICIARY2_INDEX])
