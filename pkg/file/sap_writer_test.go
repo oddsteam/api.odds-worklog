@@ -75,7 +75,7 @@ func TestSAPWriter(t *testing.T) {
 
 		assert.Equal(t, "TXN", txn[SAP_TXN_INDEX])
 		assert.Equal(t, "บจก. ออด-อี (ประเทศไทย) จำกัด                                                                                           ", txn[SAP_PAYER_NAME_INDEX])
-		assert.Equal(t, "บจก. โซโล่ เลเวลลิ่ง                                                                                                              ", txn[SAP_PAYEE_NAME_INDEX])
+		assert.Equal(t, "บริษัท โซโล่ เลเวลลิ่ง จำกัด                                                                                                      ", txn[SAP_PAYEE_NAME_INDEX])
 		assert.Equal(t, "                                        ", txn[SAP_MALE_TO_NAME_INDEX])
 		assert.Equal(t, "                                        ", txn[SAP_BENEFICIARY1_INDEX])
 		assert.Equal(t, "                                        ", txn[SAP_BENEFICIARY2_INDEX])
@@ -108,29 +108,29 @@ func TestSAPWriter(t *testing.T) {
 
 	})
 
-	// t.Run("export จำนวนเงินที่ต้องโอนสำหรับ individual in fomat CSV และ SAP ควรตรงกัน", func(t *testing.T) {
-	// 	uidFromSession := "5bbcf2f90fd2df527bc39539"
-	// 	dailyIncome := "2000"
-	// 	workDate := "16.5"
-	// 	specialIncome := "250"
-	// 	workingHours := "128.45"
-	// 	u := entity.GivenIndividualUser(uidFromSession, dailyIncome)
-	// 	req := entity.IncomeReq{
-	// 		WorkDate:      workDate,
-	// 		SpecialIncome: specialIncome,
-	// 		WorkingHours:  workingHours,
-	// 	}
-	// 	record := entity.CreateIncome(u, req, "note")
-	// 	i := entity.NewIncomeFromRecord(*record)
+	t.Run("export จำนวนเงินที่ต้องโอนสำหรับ individual in fomat CSV และ SAP ควรตรงกัน", func(t *testing.T) {
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		dailyIncome := "2000"
+		workDate := "16.5"
+		specialIncome := "250"
+		workingHours := "128.45"
+		u := models.GivenIndividualUser(uidFromSession, dailyIncome)
+		req := models.IncomeReq{
+			WorkDate:      workDate,
+			SpecialIncome: specialIncome,
+			WorkingHours:  workingHours,
+		}
+		record := models.CreatePayroll(u, req, "note")
+		i := models.NewPayrollFromIncome(*record)
 
-	// 	csvColumns := i.export()
-	// 	dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
-	// 	txn, _ := exportSAP(*i, dateEff)
+		csvColumns := export(*i)
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+		txn, _ := exportSAP(*i, dateEff)
 
-	// 	assert.Equal(t, "1953.38", csvColumns[WITHHOLDING_TAX_INDEX])
-	// 	assert.Equal(t, "63,159.12", csvColumns[TRANSFER_AMOUNT_INDEX])
-	// 	assert.Equal(t, "000000063159.12", txn[SAP_AMOUNT_INDEX])
-	// })
+		assert.Equal(t, "1953.38", csvColumns[WITHHOLDING_TAX_INDEX])
+		assert.Equal(t, "63,159.12", csvColumns[TRANSFER_AMOUNT_INDEX])
+		assert.Equal(t, "000000063159.12", txn[SAP_AMOUNT_INDEX])
+	})
 
 	t.Run("test export to SAP wht should format correctly", func(t *testing.T) {
 		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)

@@ -483,6 +483,34 @@
       "clientRoles": {
         "worklog": ["journeyman"]
       }
+    },
+    {
+      "id": "b8b9fe5e-6ed6-54d1-c862-eef7fb52bb02",
+      "username": "e2e-admin",
+      "firstName": "admin",
+      "lastName": "user",
+      "email": "e2e-admin@odds.team",
+      "emailVerified": false,
+      "createdTimestamp": 1741513129991,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "ddfecf93-b95f-5686-be01-0870a32e3469",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1741515079644,
+          "secretData": "{\"value\":\"UDFAEXopf1B4gXiS0YJNVGkE7TFUaWl281Caa+Yg508=\",\"salt\":\"gJsMjZufToJOh1QM7k9COA==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "notBefore": 0,
+      "groups": ["/worklog"],
+      "clientRoles": {
+        "worklog": ["journeyman"]
+      }
     }
   ],
   "scopeMappings": [
