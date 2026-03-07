@@ -745,45 +745,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPError'
 
-  # V2 Income endpoints
-  /v2/incomes/export/individual/{month}:
-    get:
-      tags:
-        - incomes
-      summary: Export individual income (V2)
-      description: Export individual income to CSV file (admin only) - Version 2
-      operationId: exportIndividualIncomeV2
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: month
-          in: path
-          required: true
-          schema:
-            type: string
-          description: Month in MM/YYYY format
-          example: "01/2024"
-      responses:
-        '200':
-          description: CSV file
-          content:
-            text/csv:
-              schema:
-                type: string
-                format: binary
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPError'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPError'
-
   # Site endpoints
   /v1/sites:
     get:

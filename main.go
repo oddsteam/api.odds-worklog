@@ -53,10 +53,6 @@ func main() {
 	file.NewHttpHandler(r, session)
 	site.NewHttpHandler(r, session)
 
-	r = e.Group("/v2")
-	r.Use(middleware.JWTWithConfig(m))
-	income.NewHttpHandler2(r, session)
-
 	reminderRepo := reminder.NewRepository(session)
 	s, err := reminderRepo.GetReminder()
 	if err != nil {

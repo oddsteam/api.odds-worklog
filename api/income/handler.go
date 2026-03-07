@@ -339,23 +339,3 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.POST("/export", handler.PostExportPdf)
 	r.POST("/export/format/SAP", handler.PostExportSAP)
 }
-
-func NewHttpHandler2(r *echo.Group, session *mongo.Session) {
-	userIncomeReader := repositories.NewUserIncomeReader(session)
-	incomeReader := repositories.NewIncomeReader(session)
-	userIncomeWriter := repositories.NewUserIncomeWriter(session)
-	userIncomeUpdater := repositories.NewUserIncomeUpdater(session)
-	incomeWriter := repositories.NewIncomeWriter(session)
-	userRepo := user.NewRepository(session)
-	listStatus := usecases.NewListIncomeStatusUsecase(userIncomeReader, userRepo)
-	ad := usecases.NewAddIncomeUsecase(userIncomeWriter, userRepo)
-	gi := usecases.NewGetIncomeUsecase(userIncomeReader)
-	up := usecases.NewUpdateIncomeUsecase(userIncomeUpdater, userRepo)
-	studentLoanRepo := repositories.NewStudentLoanRepository(session)
-	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter(), studentLoanRepo)
-	handler := &HttpHandler{listStatus, ad, gi, up, ex}
-
-	r = r.Group("/incomes")
-	r.GET("/export/individual/:month", handler.GetExportIndividual)
-
-}
