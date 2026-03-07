@@ -375,10 +375,6 @@ func (fs MockInComeUsecase) GetAllInComeByStartDateAndEndDate(userIds []string, 
 	return nil, nil
 }
 
-func (fs MockInComeUsecase) GetByRole(role string) ([]*models.User, error) {
-	return nil, nil
-}
-
 func (fs MockInComeUsecase) ExportIncomeNew(role string, beforeMonth string) (string, error) {
 	return "", nil
 }

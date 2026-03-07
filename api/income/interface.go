@@ -21,5 +21,4 @@ type Repository interface {
 
 type Usecase interface {
 	ExportPdf(id string) (string, error)
-	GetByRole(role string) ([]*models.User, error)
 }

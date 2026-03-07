@@ -217,18 +217,3 @@ func (mr *MockUsecaseMockRecorder) ExportPdf(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExportPdf", reflect.TypeOf((*MockUsecase)(nil).ExportPdf), id)
 }
-
-// GetByRole mocks base method.
-func (m *MockUsecase) GetByRole(role string) ([]*models.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByRole", role)
-	ret0, _ := ret[0].([]*models.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetByRole indicates an expected call of GetByRole.
-func (mr *MockUsecaseMockRecorder) GetByRole(role interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByRole", reflect.TypeOf((*MockUsecase)(nil).GetByRole), role)
-}
