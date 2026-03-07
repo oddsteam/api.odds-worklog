@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
-	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
+	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -22,11 +22,11 @@ import (
 )
 
 type HttpHandler struct {
-	ListIncomeStatusUsecase  usecases.ForUsingListIncomeStatus
-	AddIncomeUsecase         usecases.ForUsingAddIncome
-	GetIncomeUsecase         usecases.ForUsingGetIncome
-	UpdateIncomeUsecase      usecases.ForUsingUpdateIncome
-	ExportIncomeUsecase      usecases.ForUsingExportIncome
+	ListIncomeStatusUsecase usecases.ForUsingListIncomeStatus
+	AddIncomeUsecase        usecases.ForUsingAddIncome
+	GetIncomeUsecase        usecases.ForUsingGetIncome
+	UpdateIncomeUsecase     usecases.ForUsingUpdateIncome
+	ExportIncomeUsecase     usecases.ForUsingExportIncome
 }
 
 func isRequestValid(m *models.IncomeReq) (bool, error) {
@@ -313,15 +313,18 @@ func getUserFromToken(c echo.Context) *models.UserClaims {
 }
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
-	incomeRepo := NewRepository(session)
+	userIncomeReader := repositories.NewUserIncomeReader(session)
 	incomeReader := repositories.NewIncomeReader(session)
+	userIncomeWriter := repositories.NewUserIncomeWriter(session)
+	userIncomeUpdater := repositories.NewUserIncomeUpdater(session)
 	incomeWriter := repositories.NewIncomeWriter(session)
 	userRepo := user.NewRepository(session)
-	listStatus := usecases.NewListIncomeStatusUsecase(incomeRepo, userRepo)
-	ad := usecases.NewAddIncomeUsecase(incomeRepo, userRepo)
-	gi := usecases.NewGetIncomeUsecase(incomeRepo)
-	up := usecases.NewUpdateIncomeUsecase(incomeRepo, userRepo)
-	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter())
+	listStatus := usecases.NewListIncomeStatusUsecase(userIncomeReader, userRepo)
+	ad := usecases.NewAddIncomeUsecase(userIncomeWriter, userRepo)
+	gi := usecases.NewGetIncomeUsecase(userIncomeReader)
+	up := usecases.NewUpdateIncomeUsecase(userIncomeUpdater, userRepo)
+	studentLoanRepo := repositories.NewStudentLoanRepository(session)
+	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter(), studentLoanRepo)
 	handler := &HttpHandler{listStatus, ad, gi, up, ex}
 
 	r = r.Group("/incomes")
@@ -338,15 +341,18 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 }
 
 func NewHttpHandler2(r *echo.Group, session *mongo.Session) {
-	incomeRepo := NewRepository(session)
+	userIncomeReader := repositories.NewUserIncomeReader(session)
 	incomeReader := repositories.NewIncomeReader(session)
+	userIncomeWriter := repositories.NewUserIncomeWriter(session)
+	userIncomeUpdater := repositories.NewUserIncomeUpdater(session)
 	incomeWriter := repositories.NewIncomeWriter(session)
 	userRepo := user.NewRepository(session)
-	listStatus := usecases.NewListIncomeStatusUsecase(incomeRepo, userRepo)
-	ad := usecases.NewAddIncomeUsecase(incomeRepo, userRepo)
-	gi := usecases.NewGetIncomeUsecase(incomeRepo)
-	up := usecases.NewUpdateIncomeUsecase(incomeRepo, userRepo)
-	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter())
+	listStatus := usecases.NewListIncomeStatusUsecase(userIncomeReader, userRepo)
+	ad := usecases.NewAddIncomeUsecase(userIncomeWriter, userRepo)
+	gi := usecases.NewGetIncomeUsecase(userIncomeReader)
+	up := usecases.NewUpdateIncomeUsecase(userIncomeUpdater, userRepo)
+	studentLoanRepo := repositories.NewStudentLoanRepository(session)
+	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter(), studentLoanRepo)
 	handler := &HttpHandler{listStatus, ad, gi, up, ex}
 
 	r = r.Group("/incomes")

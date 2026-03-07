@@ -8,6 +8,9 @@ import (
 
 type ForGettingIncomeData interface {
 	GetAllIncomeByRoleStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) ([]*models.Income, error)
+}
+
+type ForReadingStudentLoanData interface {
 	GetStudentLoans() models.StudentLoanList
 }
 

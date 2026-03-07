@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
+	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
 )
 
 func main() {
@@ -34,9 +34,9 @@ func main() {
 	session := setUpMongo()
 	defer session.Close()
 
-	r := income.NewRepository(session)
+	studentLoanRepo := repositories.NewStudentLoanRepository(session)
 	loanlist.CreateIDForLoans()
-	r.SaveStudentLoans(loanlist)
+	studentLoanRepo.SaveStudentLoans(loanlist)
 }
 
 func getStudentLoans(sessionId string, csrf string) ([]byte, error) {

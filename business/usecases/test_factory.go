@@ -9,15 +9,15 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"github.com/golang/mock/gomock"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/file"
 	mock_usecases "gitlab.odds.team/worklog/api.odds-worklog/business/usecases/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/file"
 )
 
 func CreateExportIncomeUsecaseWithMock(t *testing.T) (ForUsingExportIncome, *gomock.Controller, *MockIncomeRepository) {
 	ctrl := gomock.NewController(t)
 	mockRepoIncome := mockIncomeRepository(ctrl)
 
-	usecase := NewExportIncomeUsecase(mockRepoIncome.mockRead, mockRepoIncome.mockWrite, file.NewCSVWriter(), file.NewSAPWriter())
+	usecase := NewExportIncomeUsecase(mockRepoIncome.mockRead, mockRepoIncome.mockWrite, file.NewCSVWriter(), file.NewSAPWriter(), mockRepoIncome.mockRead)
 	return usecase, ctrl, mockRepoIncome
 }
 
