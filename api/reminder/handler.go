@@ -14,9 +14,9 @@ import (
 
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/file"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 	"gitlab.odds.team/worklog/api.odds-worklog/worker"
@@ -95,13 +95,13 @@ func GetReminder(c echo.Context, reminderRepo Repository) error {
 	return c.JSON(http.StatusOK, r)
 }
 
-func ListEmailUserIncomeStatusIsNo(incomeUsecase income.Usecase) ([]string, error) {
+func ListEmailUserIncomeStatusIsNo(listIncomeStatusUsecase usecases.ForUsingListIncomeStatus) ([]string, error) {
 	emails := []string{}
-	incomeIndividualStatusList, err := incomeUsecase.GetIncomeStatusList("individual", false)
+	incomeIndividualStatusList, err := listIncomeStatusUsecase.GetIncomeStatusList("individual", false)
 	if err != nil {
 		return nil, err
 	}
-	incomeCorpStatusList, err := incomeUsecase.GetIncomeStatusList("corporate", false)
+	incomeCorpStatusList, err := listIncomeStatusUsecase.GetIncomeStatusList("corporate", false)
 	if err != nil {
 		return nil, err
 	}

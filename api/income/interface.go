@@ -20,7 +20,6 @@ type Repository interface {
 }
 
 type Usecase interface {
-	GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error)
 	ExportPdf(id string) (string, error)
 	GetByRole(role string) ([]*models.User, error)
 }

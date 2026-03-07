@@ -22,11 +22,12 @@ import (
 )
 
 type HttpHandler struct {
-	Usecase             Usecase
-	AddIncomeUsecase    usecases.ForUsingAddIncome
-	GetIncomeUsecase    usecases.ForUsingGetIncome
-	UpdateIncomeUsecase usecases.ForUsingUpdateIncome
-	ExportIncomeUsecase usecases.ForUsingExportIncome
+	Usecase                  Usecase
+	ListIncomeStatusUsecase  usecases.ForUsingListIncomeStatus
+	AddIncomeUsecase         usecases.ForUsingAddIncome
+	GetIncomeUsecase         usecases.ForUsingGetIncome
+	UpdateIncomeUsecase      usecases.ForUsingUpdateIncome
+	ExportIncomeUsecase      usecases.ForUsingExportIncome
 }
 
 func isRequestValid(m *models.IncomeReq) (bool, error) {
@@ -132,7 +133,7 @@ func (h *HttpHandler) GetIndividualIncomeStatus(c echo.Context) error {
 func (h *HttpHandler) getIncomeStatus(c echo.Context, incomeType string) error {
 	isAdmin, _ := IsUserAdmin(c)
 
-	status, err := h.Usecase.GetIncomeStatusList(incomeType, isAdmin)
+	status, err := h.ListIncomeStatusUsecase.GetIncomeStatusList(incomeType, isAdmin)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -343,11 +344,12 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	incomeWriter := repositories.NewIncomeWriter(session)
 	userRepo := user.NewRepository(session)
 	uc := NewUsecase(incomeRepo, userRepo)
+	listStatus := usecases.NewListIncomeStatusUsecase(incomeRepo, userRepo)
 	ad := usecases.NewAddIncomeUsecase(incomeRepo, userRepo)
 	gi := usecases.NewGetIncomeUsecase(incomeRepo)
 	up := usecases.NewUpdateIncomeUsecase(incomeRepo, userRepo)
 	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter())
-	handler := &HttpHandler{uc, ad, gi, up, ex}
+	handler := &HttpHandler{uc, listStatus, ad, gi, up, ex}
 
 	r = r.Group("/incomes")
 	r.POST("", handler.AddIncome)
@@ -369,11 +371,12 @@ func NewHttpHandler2(r *echo.Group, session *mongo.Session) {
 	incomeWriter := repositories.NewIncomeWriter(session)
 	userRepo := user.NewRepository(session)
 	uc := NewUsecase(incomeRepo, userRepo)
+	listStatus := usecases.NewListIncomeStatusUsecase(incomeRepo, userRepo)
 	ad := usecases.NewAddIncomeUsecase(incomeRepo, userRepo)
 	gi := usecases.NewGetIncomeUsecase(incomeRepo)
 	up := usecases.NewUpdateIncomeUsecase(incomeRepo, userRepo)
 	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter())
-	handler := &HttpHandler{uc, ad, gi, up, ex}
+	handler := &HttpHandler{uc, listStatus, ad, gi, up, ex}
 
 	r = r.Group("/incomes")
 	r.GET("/export/individual/:month", handler.GetExportIndividual)

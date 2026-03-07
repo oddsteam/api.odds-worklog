@@ -13,6 +13,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/reminder"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 
 	"github.com/labstack/echo"
 )
@@ -339,19 +340,6 @@ func (fs MockInComeUsecase) UpdateIncome(id string, req *models.IncomeReq, uid s
 	return nil, nil
 }
 
-func (fs MockInComeUsecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
-	mockIncomeStatus := new(models.IncomeStatus)
-
-	if role == "individual" {
-		mockUser := new(models.User)
-		mockUser.Email = "test1@test.com"
-		mockUser.Role = role
-		mockIncomeStatus.User = mockUser
-		mockIncomeStatus.Status = "N"
-	}
-	return []*models.IncomeStatus{mockIncomeStatus}, nil
-}
-
 func (fs MockInComeUsecase) GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error) {
 	return nil, nil
 }
@@ -403,10 +391,28 @@ func (fs MockInComeUsecase) ExportIncomeSAPByStartDateAndEndDate(role string, st
 	return "", nil
 }
 
+type MockListIncomeStatusUsecase struct{}
+
+func NewMockListIncomeStatusUsecase() usecases.ForUsingListIncomeStatus {
+	return MockListIncomeStatusUsecase{}
+}
+
+func (fs MockListIncomeStatusUsecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
+	mockIncomeStatus := new(models.IncomeStatus)
+	if role == "individual" {
+		mockUser := new(models.User)
+		mockUser.Email = "test1@test.com"
+		mockUser.Role = role
+		mockIncomeStatus.User = mockUser
+		mockIncomeStatus.Status = "N"
+	}
+	return []*models.IncomeStatus{mockIncomeStatus}, nil
+}
+
 // func TestListEmailUserIncomeStatusIsNoShouldFail_WhenGetIncomeStatusListWithCorpFlagNIsEmpty(t *testing.T) {
-// 	mockIncomeUsecase := NewMockInComeUsecase()
+// 	mockListIncomeStatusUsecase := NewMockListIncomeStatusUsecase()
 // 	expected := []string{"test1@test.com"}
-// 	r, _ := reminder.ListEmailUserIncomeStatusIsNo(mockIncomeUsecase)
+// 	r, _ := reminder.ListEmailUserIncomeStatusIsNo(mockListIncomeStatusUsecase)
 // 	if ok := reflect.DeepEqual(r, expected); !ok {
 // 		t.Errorf("emails returned wrong result: got %v want %v",
 // 			r, expected)

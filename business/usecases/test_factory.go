@@ -36,14 +36,21 @@ func CreateUpdateIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) For
 	return usecase
 }
 
+func CreateListIncomeStatusUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsingListIncomeStatus {
+	usecase := NewListIncomeStatusUsecase(mockRepoIncome.mockReadingUserIncome, mockRepoIncome.mockGettingUsersByRole)
+	return usecase
+}
+
 func mockIncomeRepository(ctrl *gomock.Controller) *MockIncomeRepository {
 	mockRepoIncome := MockIncomeRepository{
-		mock_usecases.NewMockForGettingUserByID(ctrl),
-		mock_usecases.NewMockForControllingUserIncome(ctrl),
-		mock_usecases.NewMockForReadingUserIncome(ctrl),
-		mock_usecases.NewMockForUpdatingUserIncome(ctrl),
-		mock_usecases.NewMockForGettingIncomeData(ctrl),
-		mock_usecases.NewMockForControllingIncomeData(ctrl)}
+		mockGettingUserByID:       mock_usecases.NewMockForGettingUserByID(ctrl),
+		mockControllingUserIncome: mock_usecases.NewMockForControllingUserIncome(ctrl),
+		mockReadingUserIncome:     mock_usecases.NewMockForReadingUserIncome(ctrl),
+		mockUpdatingUserIncome:    mock_usecases.NewMockForUpdatingUserIncome(ctrl),
+		mockGettingUsersByRole:    mock_usecases.NewMockForGettingUsersByRole(ctrl),
+		mockRead:                  mock_usecases.NewMockForGettingIncomeData(ctrl),
+		mockWrite:                 mock_usecases.NewMockForControllingIncomeData(ctrl),
+	}
 	return &mockRepoIncome
 }
 
@@ -52,6 +59,7 @@ type MockIncomeRepository struct {
 	mockControllingUserIncome *mock_usecases.MockForControllingUserIncome
 	mockReadingUserIncome     *mock_usecases.MockForReadingUserIncome
 	mockUpdatingUserIncome    *mock_usecases.MockForUpdatingUserIncome
+	mockGettingUsersByRole    *mock_usecases.MockForGettingUsersByRole
 	mockRead                  *mock_usecases.MockForGettingIncomeData
 	mockWrite                 *mock_usecases.MockForControllingIncomeData
 }
