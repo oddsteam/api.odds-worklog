@@ -18,7 +18,3 @@ type Repository interface {
 	UpdateExportStatus(id string) error
 	SaveStudentLoans(loans models.StudentLoanList) int
 }
-
-type Usecase interface {
-	ExportPdf(id string) (string, error)
-}

@@ -22,7 +22,6 @@ import (
 )
 
 type HttpHandler struct {
-	Usecase                  Usecase
 	ListIncomeStatusUsecase  usecases.ForUsingListIncomeStatus
 	AddIncomeUsecase         usecases.ForUsingAddIncome
 	GetIncomeUsecase         usecases.ForUsingGetIncome
@@ -195,31 +194,6 @@ func (h *HttpHandler) GetIncomeCurrentMonthByUserId(c echo.Context) error {
 	return c.JSON(http.StatusOK, income)
 }
 
-// GetExportPdf godoc
-// @Summary Get Export Pdf
-// @Description Get Export to Pdf file.
-// @Tags incomes
-// @Accept json
-// @Produce json
-// @Success 200 {array} string
-// @Failure 500 {object} utils.HTTPError
-// @Router /incomes/export/pdf [get]
-func (h *HttpHandler) GetExportPdf(c echo.Context) error {
-	isStatusTavi, message := IsStatusTavi(c)
-	if !isStatusTavi {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
-	id := c.Param("id")
-	if id == "" {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
-	}
-	filename, err := h.Usecase.ExportPdf(id)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.Attachment(filename, filename)
-}
-
 // GetExportCorporate godoc
 // @Summary Get Corporate Export Income (unused deprecate soon)
 // @Description Get Corporate Export Income to csv file.
@@ -343,13 +317,12 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	incomeReader := repositories.NewIncomeReader(session)
 	incomeWriter := repositories.NewIncomeWriter(session)
 	userRepo := user.NewRepository(session)
-	uc := NewUsecase(incomeRepo, userRepo)
 	listStatus := usecases.NewListIncomeStatusUsecase(incomeRepo, userRepo)
 	ad := usecases.NewAddIncomeUsecase(incomeRepo, userRepo)
 	gi := usecases.NewGetIncomeUsecase(incomeRepo)
 	up := usecases.NewUpdateIncomeUsecase(incomeRepo, userRepo)
 	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter())
-	handler := &HttpHandler{uc, listStatus, ad, gi, up, ex}
+	handler := &HttpHandler{listStatus, ad, gi, up, ex}
 
 	r = r.Group("/incomes")
 	r.POST("", handler.AddIncome)
@@ -360,7 +333,6 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/all-month/:id", handler.GetIncomeAllMonthByUserId)
 	r.GET("/export/corporate/:month", handler.GetExportCorporate)
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
-	r.GET("/export/pdf/:id", handler.GetExportPdf)
 	r.POST("/export", handler.PostExportPdf)
 	r.POST("/export/format/SAP", handler.PostExportSAP)
 }
@@ -370,13 +342,12 @@ func NewHttpHandler2(r *echo.Group, session *mongo.Session) {
 	incomeReader := repositories.NewIncomeReader(session)
 	incomeWriter := repositories.NewIncomeWriter(session)
 	userRepo := user.NewRepository(session)
-	uc := NewUsecase(incomeRepo, userRepo)
 	listStatus := usecases.NewListIncomeStatusUsecase(incomeRepo, userRepo)
 	ad := usecases.NewAddIncomeUsecase(incomeRepo, userRepo)
 	gi := usecases.NewGetIncomeUsecase(incomeRepo)
 	up := usecases.NewUpdateIncomeUsecase(incomeRepo, userRepo)
 	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter())
-	handler := &HttpHandler{uc, listStatus, ad, gi, up, ex}
+	handler := &HttpHandler{listStatus, ad, gi, up, ex}
 
 	r = r.Group("/incomes")
 	r.GET("/export/individual/:month", handler.GetExportIndividual)

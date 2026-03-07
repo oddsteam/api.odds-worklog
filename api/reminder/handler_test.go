@@ -8,9 +8,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/reminder"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
@@ -324,67 +322,6 @@ func createMockUser() models.User {
 		BankAccountName: "นาย ชื่อไทย นามสกุล",
 		Email:           "mail@odds.team",
 	}
-}
-
-type MockInComeUsecase struct{}
-
-func NewMockInComeUsecase() income.Usecase {
-	return MockInComeUsecase{}
-}
-
-func (fs MockInComeUsecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
-	return nil, nil
-}
-
-func (fs MockInComeUsecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
-	return nil, nil
-}
-
-func (fs MockInComeUsecase) GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error) {
-	return nil, nil
-}
-func (fs MockInComeUsecase) GetIncomeByUserIdAllMonth(userID string) ([]*models.Income, error) {
-	return nil, nil
-}
-
-func (fs MockInComeUsecase) ExportIncome(role string, beforeMonth string) (string, error) {
-	return "", nil
-}
-
-func (fs MockInComeUsecase) ExportPdf(id string) (string, error) {
-	return "", nil
-}
-
-func (fs MockInComeUsecase) DropIncome() error {
-	return nil
-}
-
-func (fs MockInComeUsecase) ExportIncomeNotExport(role string) (string, error) {
-	return "", nil
-}
-
-func (fs MockInComeUsecase) GetIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) (*models.Income, error) {
-	return nil, nil
-}
-
-func (fs MockInComeUsecase) ExportIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) (string, error) {
-	return "", nil
-}
-
-func (fs MockInComeUsecase) GetAllInComeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
-	return nil, nil
-}
-
-func (fs MockInComeUsecase) ExportIncomeNew(role string, beforeMonth string) (string, error) {
-	return "", nil
-}
-
-func (fs MockInComeUsecase) ExportIncomeSAP(role string, beforeMonth string, dateEff time.Time) (string, error) {
-	return "", nil
-}
-
-func (fs MockInComeUsecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate time.Time, dateEff time.Time) (string, error) {
-	return "", nil
 }
 
 type MockListIncomeStatusUsecase struct{}

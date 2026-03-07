@@ -679,43 +679,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPError'
 
-  /v1/incomes/export/pdf/{id}:
-    get:
-      tags:
-        - incomes
-      summary: Export PDF
-      description: Export income to PDF file (Tavi status required)
-      operationId: exportPdf
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: User ID
-      responses:
-        '200':
-          description: PDF file
-          content:
-            application/pdf:
-              schema:
-                type: string
-                format: binary
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPError'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPError'
-
   /v1/incomes/export:
     post:
       tags:
