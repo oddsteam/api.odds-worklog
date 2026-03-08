@@ -8,10 +8,10 @@ import (
 
 type listIncomeStatusUsecase struct {
 	incomeRepo ForReadingUserIncome
-	userRepo   ForGettingUsersByRole
+	userRepo   ForListingUsersByRole
 }
 
-func NewListIncomeStatusUsecase(incomeRepo ForReadingUserIncome, userRepo ForGettingUsersByRole) ForUsingListIncomeStatus {
+func NewListIncomeStatusUsecase(incomeRepo ForReadingUserIncome, userRepo ForListingUsersByRole) ForUsingListIncomeStatus {
 	return &listIncomeStatusUsecase{incomeRepo: incomeRepo, userRepo: userRepo}
 }
 

@@ -7,15 +7,15 @@ import (
 )
 
 type usecase struct {
-	readRepo            ForGettingIncomeData
-	writeRepo           ForControllingIncomeData
+	readRepo            ForGettingIncomeDataInTheMonth
+	writeRepo           ForLoggingExport
 	csvWriter           ForWritingCSVFile
 	sapWriter           ForWritingSAPFile
-	readStudentLoanRepo ForReadingStudentLoanData
+	readStudentLoanRepo ForListStudentLoansInTheMonth
 }
 
-func NewExportIncomeUsecase(r ForGettingIncomeData, ex ForControllingIncomeData,
-	csvW ForWritingCSVFile, sapW ForWritingSAPFile, rsl ForReadingStudentLoanData) ForUsingExportIncome {
+func NewExportIncomeUsecase(r ForGettingIncomeDataInTheMonth, ex ForLoggingExport,
+	csvW ForWritingCSVFile, sapW ForWritingSAPFile, rsl ForListStudentLoansInTheMonth) ForUsingExportIncome {
 	return &usecase{
 		readRepo:            r,
 		writeRepo:           ex,

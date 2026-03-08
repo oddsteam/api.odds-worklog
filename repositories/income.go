@@ -22,19 +22,19 @@ func NewUserIncomeReader(session *mongo.Session) usecases.ForReadingUserIncome {
 	return &incomeRepository{session}
 }
 
-func NewUserIncomeWriter(session *mongo.Session) usecases.ForControllingUserIncome {
+func NewUserIncomeWriter(session *mongo.Session) usecases.ForControllingUserMonthlyIncome {
 	return &incomeRepository{session}
 }
 
-func NewUserIncomeUpdater(session *mongo.Session) usecases.ForUpdatingUserIncome {
+func NewUserIncomeUpdater(session *mongo.Session) usecases.ForUpdatingUserMonthlyIncome {
 	return &incomeRepository{session}
 }
 
-func NewIncomeReader(session *mongo.Session) usecases.ForGettingIncomeData {
+func NewIncomeReader(session *mongo.Session) usecases.ForGettingIncomeDataInTheMonth {
 	return &incomeRepository{session}
 }
 
-func NewIncomeWriter(session *mongo.Session) usecases.ForControllingIncomeData {
+func NewIncomeWriter(session *mongo.Session) usecases.ForLoggingExport {
 	return &incomeRepository{session}
 }
 
