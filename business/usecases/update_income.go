@@ -3,11 +3,11 @@ package usecases
 import "gitlab.odds.team/worklog/api.odds-worklog/business/models"
 
 type updateIncomeUsecase struct {
-	repo     ForUpdatingUserIncome
+	repo     ForUpdatingUserMonthlyIncome
 	userRepo ForGettingUserByID
 }
 
-func NewUpdateIncomeUsecase(r ForUpdatingUserIncome, ur ForGettingUserByID) ForUsingUpdateIncome {
+func NewUpdateIncomeUsecase(r ForUpdatingUserMonthlyIncome, ur ForGettingUserByID) ForUsingUpdateIncome {
 	return &updateIncomeUsecase{r, ur}
 }
 

@@ -6,7 +6,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 )
 
-type ForControllingUserIncome interface {
+type ForControllingUserMonthlyIncome interface {
 	GetIncomeUserByYearMonth(id string, fromYear int, fromMonth time.Month) (*models.Income, error)
 	AddIncome(u *models.Income) error
 }

@@ -1,4 +1,4 @@
-package income
+package usecases
 
 import (
 	"testing"
@@ -7,27 +7,26 @@ import (
 	"github.com/stretchr/testify/assert"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
-	incomeMock "gitlab.odds.team/worklog/api.odds-worklog/business/models/mock"
+	mock_usecases "gitlab.odds.team/worklog/api.odds-worklog/business/usecases/mock"
 )
 
-func TestUsecaseGetListIncome(t *testing.T) {
+func TestListIncomeStatusUsecase_GetIncomeStatusList(t *testing.T) {
 	t.Run("when get list income success it should be return list income where status is Y", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockIncomeRepo := mock_usecases.NewMockForReadingUserIncome(ctrl)
 		year, month := models.GetYearMonthNow()
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month).Return(&models.MockIncome, nil)
-		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month).Return(&models.MockIncome, nil)
+		mockIncomeRepo.EXPECT().GetIncomeUserByYearMonth(userMock.User.ID.Hex(), year, month).Return(&models.MockIncome, nil)
+		mockIncomeRepo.EXPECT().GetIncomeUserByYearMonth(userMock.User2.ID.Hex(), year, month).Return(&models.MockIncome, nil)
 
-		mockUserRepo := userMock.NewMockRepository(ctrl)
+		mockUserRepo := mock_usecases.NewMockForGettingUsersByRole(ctrl)
 		mockUserRepo.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
 
-		uc := NewUsecase(mockRepoIncome, mockUserRepo)
+		uc := NewListIncomeStatusUsecase(mockIncomeRepo, mockUserRepo)
 		res, err := uc.GetIncomeStatusList("corporate", false)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, models.MockIncomeStatusList[0].Status, res[0].Status)
-
 	})
 }

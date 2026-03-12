@@ -6,12 +6,15 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 )
 
-type ForGettingIncomeData interface {
+type ForGettingIncomeDataInTheMonth interface {
 	GetAllIncomeByRoleStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) ([]*models.Income, error)
+}
+
+type ForListStudentLoansInTheMonth interface {
 	GetStudentLoans() models.StudentLoanList
 }
 
-type ForControllingIncomeData interface {
+type ForLoggingExport interface {
 	AddExport(ep *models.Export) error
 }
 

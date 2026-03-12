@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
-	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
+	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -22,11 +22,11 @@ import (
 )
 
 type HttpHandler struct {
-	Usecase             Usecase
-	AddIncomeUsecase    usecases.ForUsingAddIncome
-	GetIncomeUsecase    usecases.ForUsingGetIncome
-	UpdateIncomeUsecase usecases.ForUsingUpdateIncome
-	ExportIncomeUsecase usecases.ForUsingExportIncome
+	ListIncomeStatusUsecase usecases.ForUsingListIncomeStatus
+	AddIncomeUsecase        usecases.ForUsingAddIncome
+	GetIncomeUsecase        usecases.ForUsingGetIncome
+	UpdateIncomeUsecase     usecases.ForUsingUpdateIncome
+	ExportIncomeUsecase     usecases.ForUsingExportIncome
 }
 
 func isRequestValid(m *models.IncomeReq) (bool, error) {
@@ -132,7 +132,7 @@ func (h *HttpHandler) GetIndividualIncomeStatus(c echo.Context) error {
 func (h *HttpHandler) getIncomeStatus(c echo.Context, incomeType string) error {
 	isAdmin, _ := IsUserAdmin(c)
 
-	status, err := h.Usecase.GetIncomeStatusList(incomeType, isAdmin)
+	status, err := h.ListIncomeStatusUsecase.GetIncomeStatusList(incomeType, isAdmin)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
@@ -192,31 +192,6 @@ func (h *HttpHandler) GetIncomeCurrentMonthByUserId(c echo.Context) error {
 		return c.JSON(http.StatusOK, nil)
 	}
 	return c.JSON(http.StatusOK, income)
-}
-
-// GetExportPdf godoc
-// @Summary Get Export Pdf
-// @Description Get Export to Pdf file.
-// @Tags incomes
-// @Accept json
-// @Produce json
-// @Success 200 {array} string
-// @Failure 500 {object} utils.HTTPError
-// @Router /incomes/export/pdf [get]
-func (h *HttpHandler) GetExportPdf(c echo.Context) error {
-	isStatusTavi, message := IsStatusTavi(c)
-	if !isStatusTavi {
-		return c.JSON(http.StatusUnauthorized, message)
-	}
-	id := c.Param("id")
-	if id == "" {
-		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
-	}
-	filename, err := h.Usecase.ExportPdf(id)
-	if err != nil {
-		return utils.NewError(c, http.StatusInternalServerError, err)
-	}
-	return c.Attachment(filename, filename)
 }
 
 // GetExportCorporate godoc
@@ -338,16 +313,19 @@ func getUserFromToken(c echo.Context) *models.UserClaims {
 }
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
-	incomeRepo := NewRepository(session)
+	userIncomeReader := repositories.NewUserIncomeReader(session)
 	incomeReader := repositories.NewIncomeReader(session)
+	userIncomeWriter := repositories.NewUserIncomeWriter(session)
+	userIncomeUpdater := repositories.NewUserIncomeUpdater(session)
 	incomeWriter := repositories.NewIncomeWriter(session)
 	userRepo := user.NewRepository(session)
-	uc := NewUsecase(incomeRepo, userRepo)
-	ad := usecases.NewAddIncomeUsecase(incomeRepo, userRepo)
-	gi := usecases.NewGetIncomeUsecase(incomeRepo)
-	up := usecases.NewUpdateIncomeUsecase(incomeRepo, userRepo)
-	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter())
-	handler := &HttpHandler{uc, ad, gi, up, ex}
+	listStatus := usecases.NewListIncomeStatusUsecase(userIncomeReader, userRepo)
+	ad := usecases.NewAddIncomeUsecase(userIncomeWriter, userRepo)
+	gi := usecases.NewGetIncomeUsecase(userIncomeReader)
+	up := usecases.NewUpdateIncomeUsecase(userIncomeUpdater, userRepo)
+	studentLoanRepo := repositories.NewStudentLoanRepository(session)
+	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter(), studentLoanRepo)
+	handler := &HttpHandler{listStatus, ad, gi, up, ex}
 
 	r = r.Group("/incomes")
 	r.POST("", handler.AddIncome)
@@ -358,24 +336,6 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/all-month/:id", handler.GetIncomeAllMonthByUserId)
 	r.GET("/export/corporate/:month", handler.GetExportCorporate)
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
-	r.GET("/export/pdf/:id", handler.GetExportPdf)
 	r.POST("/export", handler.PostExportPdf)
 	r.POST("/export/format/SAP", handler.PostExportSAP)
-}
-
-func NewHttpHandler2(r *echo.Group, session *mongo.Session) {
-	incomeRepo := NewRepository(session)
-	incomeReader := repositories.NewIncomeReader(session)
-	incomeWriter := repositories.NewIncomeWriter(session)
-	userRepo := user.NewRepository(session)
-	uc := NewUsecase(incomeRepo, userRepo)
-	ad := usecases.NewAddIncomeUsecase(incomeRepo, userRepo)
-	gi := usecases.NewGetIncomeUsecase(incomeRepo)
-	up := usecases.NewUpdateIncomeUsecase(incomeRepo, userRepo)
-	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, file.NewCSVWriter(), file.NewSAPWriter())
-	handler := &HttpHandler{uc, ad, gi, up, ex}
-
-	r = r.Group("/incomes")
-	r.GET("/export/individual/:month", handler.GetExportIndividual)
-
 }

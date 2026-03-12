@@ -7,11 +7,11 @@ import (
 )
 
 type addIncomeUsecase struct {
-	repo     ForControllingUserIncome
+	repo     ForControllingUserMonthlyIncome
 	userRepo ForGettingUserByID
 }
 
-func NewAddIncomeUsecase(r ForControllingUserIncome, ur ForGettingUserByID) ForUsingAddIncome {
+func NewAddIncomeUsecase(r ForControllingUserMonthlyIncome, ur ForGettingUserByID) ForUsingAddIncome {
 	return &addIncomeUsecase{r, ur}
 }
 

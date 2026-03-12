@@ -8,11 +8,10 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/reminder"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 
 	"github.com/labstack/echo"
 )
@@ -325,23 +324,14 @@ func createMockUser() models.User {
 	}
 }
 
-type MockInComeUsecase struct{}
+type MockListIncomeStatusUsecase struct{}
 
-func NewMockInComeUsecase() income.Usecase {
-	return MockInComeUsecase{}
+func NewMockListIncomeStatusUsecase() usecases.ForUsingListIncomeStatus {
+	return MockListIncomeStatusUsecase{}
 }
 
-func (fs MockInComeUsecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
-	return nil, nil
-}
-
-func (fs MockInComeUsecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
-	return nil, nil
-}
-
-func (fs MockInComeUsecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
+func (fs MockListIncomeStatusUsecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
 	mockIncomeStatus := new(models.IncomeStatus)
-
 	if role == "individual" {
 		mockUser := new(models.User)
 		mockUser.Email = "test1@test.com"
@@ -352,61 +342,10 @@ func (fs MockInComeUsecase) GetIncomeStatusList(role string, isAdmin bool) ([]*m
 	return []*models.IncomeStatus{mockIncomeStatus}, nil
 }
 
-func (fs MockInComeUsecase) GetIncomeByUserIdAndCurrentMonth(userID string) (*models.Income, error) {
-	return nil, nil
-}
-func (fs MockInComeUsecase) GetIncomeByUserIdAllMonth(userID string) ([]*models.Income, error) {
-	return nil, nil
-}
-
-func (fs MockInComeUsecase) ExportIncome(role string, beforeMonth string) (string, error) {
-	return "", nil
-}
-
-func (fs MockInComeUsecase) ExportPdf(id string) (string, error) {
-	return "", nil
-}
-
-func (fs MockInComeUsecase) DropIncome() error {
-	return nil
-}
-
-func (fs MockInComeUsecase) ExportIncomeNotExport(role string) (string, error) {
-	return "", nil
-}
-
-func (fs MockInComeUsecase) GetIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) (*models.Income, error) {
-	return nil, nil
-}
-
-func (fs MockInComeUsecase) ExportIncomeByStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) (string, error) {
-	return "", nil
-}
-
-func (fs MockInComeUsecase) GetAllInComeByStartDateAndEndDate(userIds []string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
-	return nil, nil
-}
-
-func (fs MockInComeUsecase) GetByRole(role string) ([]*models.User, error) {
-	return nil, nil
-}
-
-func (fs MockInComeUsecase) ExportIncomeNew(role string, beforeMonth string) (string, error) {
-	return "", nil
-}
-
-func (fs MockInComeUsecase) ExportIncomeSAP(role string, beforeMonth string, dateEff time.Time) (string, error) {
-	return "", nil
-}
-
-func (fs MockInComeUsecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, endDate time.Time, dateEff time.Time) (string, error) {
-	return "", nil
-}
-
 // func TestListEmailUserIncomeStatusIsNoShouldFail_WhenGetIncomeStatusListWithCorpFlagNIsEmpty(t *testing.T) {
-// 	mockIncomeUsecase := NewMockInComeUsecase()
+// 	mockListIncomeStatusUsecase := NewMockListIncomeStatusUsecase()
 // 	expected := []string{"test1@test.com"}
-// 	r, _ := reminder.ListEmailUserIncomeStatusIsNo(mockIncomeUsecase)
+// 	r, _ := reminder.ListEmailUserIncomeStatusIsNo(mockListIncomeStatusUsecase)
 // 	if ok := reflect.DeepEqual(r, expected); !ok {
 // 		t.Errorf("emails returned wrong result: got %v want %v",
 // 			r, expected)

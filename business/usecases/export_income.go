@@ -7,19 +7,21 @@ import (
 )
 
 type usecase struct {
-	readRepo  ForGettingIncomeData
-	writeRepo ForControllingIncomeData
-	csvWriter ForWritingCSVFile
-	sapWriter ForWritingSAPFile
+	readRepo            ForGettingIncomeDataInTheMonth
+	writeRepo           ForLoggingExport
+	csvWriter           ForWritingCSVFile
+	sapWriter           ForWritingSAPFile
+	readStudentLoanRepo ForListStudentLoansInTheMonth
 }
 
-func NewExportIncomeUsecase(r ForGettingIncomeData, ex ForControllingIncomeData,
-	csvW ForWritingCSVFile, sapW ForWritingSAPFile) ForUsingExportIncome {
+func NewExportIncomeUsecase(r ForGettingIncomeDataInTheMonth, ex ForLoggingExport,
+	csvW ForWritingCSVFile, sapW ForWritingSAPFile, rsl ForListStudentLoansInTheMonth) ForUsingExportIncome {
 	return &usecase{
-		readRepo:  r,
-		writeRepo: ex,
-		csvWriter: csvW,
-		sapWriter: sapW,
+		readRepo:            r,
+		writeRepo:           ex,
+		csvWriter:           csvW,
+		sapWriter:           sapW,
+		readStudentLoanRepo: rsl,
 	}
 }
 
@@ -41,7 +43,7 @@ func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, startDate, endD
 		return "", err
 	}
 
-	studentLoanList := u.readRepo.GetStudentLoans()
+	studentLoanList := u.readStudentLoanRepo.GetStudentLoans()
 
 	pc := models.NewPayrollCycle(incomes, studentLoanList)
 	filename, err := u.csvWriter.WriteFile(role, *pc)
@@ -68,7 +70,7 @@ func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, e
 		return "", err
 	}
 
-	studentLoanList := u.readRepo.GetStudentLoans()
+	studentLoanList := u.readStudentLoanRepo.GetStudentLoans()
 
 	pc := models.NewPayrollCycle(incomes, studentLoanList)
 

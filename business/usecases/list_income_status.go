@@ -1,22 +1,21 @@
-package income
+package usecases
 
 import (
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 )
 
-type usecase struct {
-	repo     Repository
-	userRepo user.Repository
+type listIncomeStatusUsecase struct {
+	incomeRepo ForReadingUserIncome
+	userRepo   ForListingUsersByRole
 }
 
-func NewUsecase(r Repository, ur user.Repository) Usecase {
-	return &usecase{r, ur}
+func NewListIncomeStatusUsecase(incomeRepo ForReadingUserIncome, userRepo ForListingUsersByRole) ForUsingListIncomeStatus {
+	return &listIncomeStatusUsecase{incomeRepo: incomeRepo, userRepo: userRepo}
 }
 
-func (u *usecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
+func (u *listIncomeStatusUsecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.IncomeStatus, error) {
 	var incomeList []*models.IncomeStatus
 	users, err := u.userRepo.GetByRole(role)
 	if err != nil {
@@ -28,7 +27,7 @@ func (u *usecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.Inco
 		element.ThaiCitizenID = ""
 		element.DailyIncome = ""
 
-		incomeUser, err := u.repo.GetIncomeUserByYearMonth(element.ID.Hex(), year, month)
+		incomeUser, err := u.incomeRepo.GetIncomeUserByYearMonth(element.ID.Hex(), year, month)
 		income := models.IncomeStatus{User: element}
 		incomeList = append(incomeList, &income)
 		if !isAdmin {
@@ -44,12 +43,4 @@ func (u *usecase) GetIncomeStatusList(role string, isAdmin bool) ([]*models.Inco
 		}
 	}
 	return incomeList, nil
-}
-
-func (u *usecase) GetByRole(role string) ([]*models.User, error) {
-	return u.userRepo.GetByRole(role)
-}
-
-func (u *usecase) GetUserByID(userId string) (*models.User, error) {
-	return u.userRepo.GetByID(userId)
 }
