@@ -54,3 +54,63 @@ func createMockUser() models.User {
 		Email:           "mail@odds.team",
 	}
 }
+
+func TestNewSender_FailsWhenSMTPUserMissing(t *testing.T) {
+	origUser := os.Getenv("SMTP_USER")
+	origPass := os.Getenv("SMTP_PASSWORD")
+	defer func() {
+		os.Setenv("SMTP_USER", origUser)
+		os.Setenv("SMTP_PASSWORD", origPass)
+	}()
+
+	os.Unsetenv("SMTP_USER")
+	os.Setenv("SMTP_PASSWORD", "test")
+
+	_, err := reminder.NewSender()
+	if err == nil || !strings.Contains(err.Error(), "SMTP_USER") {
+		t.Errorf("expected error about SMTP_USER, got: %v", err)
+	}
+}
+
+func TestNewSender_FailsWhenSMTPPasswordMissing(t *testing.T) {
+	origUser := os.Getenv("SMTP_USER")
+	origPass := os.Getenv("SMTP_PASSWORD")
+	defer func() {
+		os.Setenv("SMTP_USER", origUser)
+		os.Setenv("SMTP_PASSWORD", origPass)
+	}()
+
+	os.Setenv("SMTP_USER", "test@example.com")
+	os.Unsetenv("SMTP_PASSWORD")
+
+	_, err := reminder.NewSender()
+	if err == nil || !strings.Contains(err.Error(), "SMTP_PASSWORD") {
+		t.Errorf("expected error about SMTP_PASSWORD, got: %v", err)
+	}
+}
+
+func TestNewSender_SucceedsWhenConfigPresent(t *testing.T) {
+	origUser := os.Getenv("SMTP_USER")
+	origPass := os.Getenv("SMTP_PASSWORD")
+	origHost := os.Getenv("SMTP_HOST")
+	origPort := os.Getenv("SMTP_PORT")
+	defer func() {
+		os.Setenv("SMTP_USER", origUser)
+		os.Setenv("SMTP_PASSWORD", origPass)
+		os.Setenv("SMTP_HOST", origHost)
+		os.Setenv("SMTP_PORT", origPort)
+	}()
+
+	os.Setenv("SMTP_USER", "test@example.com")
+	os.Setenv("SMTP_PASSWORD", "testpassword")
+	os.Unsetenv("SMTP_HOST")
+	os.Unsetenv("SMTP_PORT")
+
+	sender, err := reminder.NewSender()
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+	if sender == nil {
+		t.Error("expected non-nil sender")
+	}
+}

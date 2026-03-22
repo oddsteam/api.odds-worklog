@@ -45,7 +45,10 @@ func SendMail(c echo.Context, userRepo user.Repository, usecaseFile file.Usecase
 	if len(m.To) == 0 {
 		return utils.NewError(c, http.StatusInternalServerError, errors.New("SMTP_REMINDER_RECEIVERS is required for reminder emails"))
 	}
-	sender := New()
+	sender, err := NewSender()
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
 	fmt.Println(sender.Send(m))
 	return c.JSON(http.StatusOK, "Send Mail Success")
 }
@@ -66,13 +69,41 @@ func getReminderReceivers() []string {
 	return strings.Split(strings.ReplaceAll(receivers, " ", ""), ",")
 }
 
-func New() *Sender {
-	auth := smtp.PlainAuth("", "oddsnotify@gmail.com", "wvquzrqfmiuckurw", "smtp.gmail.com")
-	return &Sender{auth}
+type smtpConfig struct {
+	user     string
+	password string
+	host     string
+	port     string
+}
+
+func getSMTPConfig() (smtpConfig, error) {
+	user := os.Getenv("SMTP_USER")
+	password := os.Getenv("SMTP_PASSWORD")
+	if user == "" || password == "" {
+		return smtpConfig{}, errors.New("SMTP_USER and SMTP_PASSWORD are required")
+	}
+	host := os.Getenv("SMTP_HOST")
+	if host == "" {
+		host = "smtp.gmail.com"
+	}
+	port := os.Getenv("SMTP_PORT")
+	if port == "" {
+		port = "587"
+	}
+	return smtpConfig{user: user, password: password, host: host, port: port}, nil
+}
+
+func NewSender() (*Sender, error) {
+	cfg, err := getSMTPConfig()
+	if err != nil {
+		return nil, err
+	}
+	auth := smtp.PlainAuth("", cfg.user, cfg.password, cfg.host)
+	return &Sender{auth: auth, cfg: cfg}, nil
 }
 
 func (s *Sender) Send(m *Message) error {
-	return smtp.SendMail(fmt.Sprintf("%s:%s", "smtp.gmail.com", "587"), s.auth, "oddsnotify@gmail.com", m.To, m.ToBytes())
+	return smtp.SendMail(fmt.Sprintf("%s:%s", s.cfg.host, s.cfg.port), s.auth, s.cfg.user, m.To, m.ToBytes())
 }
 
 func NewMessage(s, b string) *Message {
@@ -134,6 +165,7 @@ func (m *Message) ToBytes() []byte {
 
 type Sender struct {
 	auth smtp.Auth
+	cfg  smtpConfig
 }
 
 type Message struct {
