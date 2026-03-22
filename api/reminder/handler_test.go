@@ -1,6 +1,7 @@
 package reminder_test
 
 import (
+	"os"
 	"strings"
 	"testing"
 
@@ -18,22 +19,30 @@ func TestMailMessageShouldContainsBankAccountNameSoWeCanFindTheOldMailInMailboxU
 }
 
 func TestMailIsSentToFinance(t *testing.T) {
+	origReceivers := os.Getenv("SMTP_REMINDER_RECEIVERS")
+	defer os.Setenv("SMTP_REMINDER_RECEIVERS", origReceivers)
+	os.Setenv("SMTP_REMINDER_RECEIVERS", "juacompe+worklog@odds.team,nalada@odds.team")
+
 	u := createMockUser()
 	m := reminder.CreateMailMessage(u, "id_copy_file_path.pdf")
 	expected := "nalada@odds.team"
 
-	if m.To[1] != expected {
-		t.Errorf("expected %v but got %v", expected, m.To[1])
+	if len(m.To) < 2 || m.To[1] != expected {
+		t.Errorf("expected %v but got %v", expected, m.To)
 	}
 }
 
 func TestMailIsAlsoSentToJuaToMonitor(t *testing.T) {
+	origReceivers := os.Getenv("SMTP_REMINDER_RECEIVERS")
+	defer os.Setenv("SMTP_REMINDER_RECEIVERS", origReceivers)
+	os.Setenv("SMTP_REMINDER_RECEIVERS", "juacompe+worklog@odds.team,nalada@odds.team")
+
 	u := createMockUser()
 	m := reminder.CreateMailMessage(u, "id_copy_file_path.pdf")
 	expected := "juacompe+worklog@odds.team"
 
-	if m.To[0] != expected {
-		t.Errorf("expected %v but got %v", expected, m.To[0])
+	if len(m.To) < 1 || m.To[0] != expected {
+		t.Errorf("expected %v but got %v", expected, m.To)
 	}
 }
 

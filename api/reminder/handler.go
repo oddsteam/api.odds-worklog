@@ -3,11 +3,13 @@ package reminder
 import (
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/smtp"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -16,6 +18,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 // NewHttpHandler for reminder resource godoc
@@ -39,17 +42,28 @@ func SendMail(c echo.Context, userRepo user.Repository, usecaseFile file.Usecase
 		return err
 	}
 	m := CreateMailMessage(*user, fileName)
+	if len(m.To) == 0 {
+		return utils.NewError(c, http.StatusInternalServerError, errors.New("SMTP_REMINDER_RECEIVERS is required for reminder emails"))
+	}
 	sender := New()
 	fmt.Println(sender.Send(m))
-	return c.JSON(http.StatusOK, "Send Mail Success ")
+	return c.JSON(http.StatusOK, "Send Mail Success")
 }
 
 func CreateMailMessage(user models.User, fileName string) *Message {
 	m := NewMessage("[ODDS] แจ้ง User ใหม่เข้าใช้งานระบบ Worklog", "File PDF ID Card ของคุณ "+user.BankAccountName+" ("+user.FirstName+" "+user.LastName+") เป็น User ใหม่ที่เข้าใช้งานในระบบ worklog.odds.team \n สามารถติดต่อได้ที่ Email : "+user.Email)
-	receive := []string{"juacompe+worklog@odds.team", "nalada@odds.team"}
+	receive := getReminderReceivers()
 	m.To = receive
 	m.AttachFile(fileName)
 	return m
+}
+
+func getReminderReceivers() []string {
+	receivers := os.Getenv("SMTP_REMINDER_RECEIVERS")
+	if receivers == "" {
+		return []string{}
+	}
+	return strings.Split(strings.ReplaceAll(receivers, " ", ""), ",")
 }
 
 func New() *Sender {
