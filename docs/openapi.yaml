@@ -30,7 +30,7 @@ tags:
   - name: files
     description: File upload/download operations
   - name: reminder
-    description: Reminder settings
+    description: ID card email notification (new user registration)
 
 paths:
   # Login endpoints
@@ -1365,57 +1365,6 @@ paths:
                 $ref: '#/components/schemas/HTTPError'
 
   # Reminder endpoints
-  /v1/reminder/setting:
-    get:
-      tags:
-        - reminder
-      summary: Get reminder setting
-      description: Get current reminder settings
-      operationId: getReminderSetting
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Reminder settings
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Reminder'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPError'
-
-    post:
-      tags:
-        - reminder
-      summary: Save reminder setting
-      description: Save reminder settings
-      operationId: saveReminderSetting
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Reminder'
-      responses:
-        '200':
-          description: Reminder settings saved
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Reminder'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPError'
-
   /v1/reminder/mail/{id}:
     post:
       tags:
@@ -1519,9 +1468,6 @@ components:
           enum:
             - "Y"
             - "N"
-        slackAccount:
-          type: string
-          description: Slack account
         transcript:
           type: string
           description: Transcript file path
@@ -1733,42 +1679,6 @@ components:
         color:
           type: string
           description: Site color (hex)
-
-    Reminder:
-      type: object
-      properties:
-        name:
-          type: string
-          description: Reminder name (must be "reminder")
-          example: "reminder"
-        setting:
-          $ref: '#/components/schemas/ReminderSetting'
-
-    ReminderSetting:
-      type: object
-      properties:
-        date:
-          type: string
-          description: Day of month (25-27)
-          enum:
-            - "25"
-            - "26"
-            - "27"
-        message:
-          type: string
-          description: Reminder message
-        time:
-          type: string
-          description: Time to send reminder
-        slack:
-          type: boolean
-          description: Send via Slack
-        line:
-          type: boolean
-          description: Send via LINE
-        facebook:
-          type: boolean
-          description: Send via Facebook
 
     StatusTavi:
       type: object

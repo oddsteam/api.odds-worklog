@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"gitlab.odds.team/worklog/api.odds-worklog/api/file"
 
 	"github.com/labstack/echo"
@@ -15,7 +13,6 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
-	"gitlab.odds.team/worklog/api.odds-worklog/worker"
 )
 
 // @title Odds-Worklog Example API
@@ -53,13 +50,6 @@ func main() {
 	file.NewHttpHandler(r, session)
 	site.NewHttpHandler(r, session)
 
-	reminderRepo := reminder.NewRepository(session)
-	s, err := reminderRepo.GetReminder()
-	if err != nil {
-		log.Println(err)
-	} else {
-		worker.StartWorker(s)
-	}
 	// Start server
 	c := config.Config()
 	e.Logger.Fatal(e.Start(c.APIPort))

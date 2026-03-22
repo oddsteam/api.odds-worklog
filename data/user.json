@@ -11,7 +11,6 @@
         "bankAccountNumber": "12345678901",
         "thaiCitizenId": "1234567890001",
         "vat": "N",
-        "slackAccount": "",
         "transcript": "",
         "siteId": "5c0fca4f0fd2df79d4adc2ca",
         "project": ""
@@ -28,7 +27,6 @@
         "bankAccountNumber": "12345678901",
         "thaiCitizenId": "1234567890001",
         "vat": "N",
-        "slackAccount": "",
         "transcript": "",
         "siteId": "5c0fca4f0fd2df79d4adc2ca",
         "project": ""
@@ -45,7 +43,6 @@
         "bankAccountNumber": "12345678901",
         "thaiCitizenId": "1234567890001",
         "vat": "Y",
-        "slackAccount": "",
         "transcript": "",
         "siteId": "5c0fcd3c0fd2df79d4adc2cb",
         "project": ""
@@ -62,7 +59,6 @@
         "bankAccountNumber": "12345678902",
         "thaiCitizenId": "1234567890002",
         "vat": "Y",
-        "slackAccount": "",
         "transcript": "",
         "siteId": "5c0fcd3c0fd2df79d4adc2cc",
         "project": ""
@@ -79,7 +75,6 @@
         "bankAccountNumber": "12345678903",
         "thaiCitizenId": "1234567890003",
         "vat": "N",
-        "slackAccount": "",
         "transcript": "",
         "siteId": "5c0fcd3c0fd2df79d4adc2cd",
         "project": ""
@@ -96,7 +91,6 @@
         "bankAccountNumber": "12345678904",
         "thaiCitizenId": "1234567890004",
         "vat": "N",
-        "slackAccount": "",
         "transcript": "",
         "siteId": "5c0fcd3c0fd2df79d4adc2ce",
         "project": ""

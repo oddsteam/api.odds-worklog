@@ -19,7 +19,6 @@ var (
 		BankAccountNumber: "123123123123",
 		ThaiCitizenID:     "1234567890123",
 		Vat:               "N",
-		SlackAccount:      "test@abc.com",
 		DailyIncome:       "5000",
 		StatusTavi:        true,
 		Address:           "every Where",

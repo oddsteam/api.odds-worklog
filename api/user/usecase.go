@@ -1,7 +1,6 @@
 package user
 
 import (
-	"errors"
 	"unicode"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
@@ -148,12 +147,6 @@ func (u *usecase) UpdateStatusTavi(m []*models.StatusTavi, isAdmin bool) ([]*mod
 		}
 		if m[i].User.ThaiCitizenID != "" {
 			user.ThaiCitizenID = user.ThaiCitizenID
-		}
-		if m[i].User.SlackAccount != "" {
-			if err := utils.ValidateEmail(m[i].User.SlackAccount); err != nil {
-				return nil, errors.New("Invalid slack acount.")
-			}
-			user.SlackAccount = user.SlackAccount
 		}
 		if m[i].User.SiteID != "" {
 			user.SiteID = user.SiteID

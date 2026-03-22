@@ -1,8 +1,6 @@
 package user
 
 import (
-	"errors"
-
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
@@ -46,12 +44,6 @@ func (u *User) prepareDataForUpdateFrom(m models.User) error {
 	}
 	if m.ThaiCitizenID != "" {
 		u.data.ThaiCitizenID = m.ThaiCitizenID
-	}
-	if m.SlackAccount != "" {
-		if err := utils.ValidateEmail(m.SlackAccount); err != nil {
-			return errors.New("Invalid Slack acount")
-		}
-		u.data.SlackAccount = m.SlackAccount
 	}
 	if m.SiteID != "" {
 		u.data.SiteID = m.SiteID

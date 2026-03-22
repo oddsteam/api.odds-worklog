@@ -17,7 +17,6 @@ type User struct {
 	BankAccountNumber string        `bson:"bankAccountNumber" json:"bankAccountNumber"`
 	ThaiCitizenID     string        `bson:"thaiCitizenId" json:"thaiCitizenId,omitempty"`
 	Vat               string        `bson:"vat" json:"vat,omitempty"`
-	SlackAccount      string        `bson:"slackAccount" json:"slackAccount"`
 	Transcript        string        `bson:"transcript" json:"transcript,omitempty"`
 	SiteID            string        `bson:"siteId" json:"siteId,omitempty"`
 	Project           string        `bson:"project" json:"project,omitempty"`
