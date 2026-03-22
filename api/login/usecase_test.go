@@ -1,6 +1,7 @@
 package login
 
 import (
+	"os"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -11,6 +12,10 @@ import (
 )
 
 func TestHandleToken(t *testing.T) {
+	origKey := os.Getenv("JWT_SIGNING_KEY")
+	os.Setenv("JWT_SIGNING_KEY", "test-signing-key")
+	defer os.Setenv("JWT_SIGNING_KEY", origKey)
+
 	t.Run("when user is first login got FirstLogin = 'Y'", func(t *testing.T) {
 		user := new(models.User)
 		token, err := handleToken(user)
@@ -28,6 +33,10 @@ func TestHandleToken(t *testing.T) {
 }
 
 func TestGenToken(t *testing.T) {
+	origKey := os.Getenv("JWT_SIGNING_KEY")
+	os.Setenv("JWT_SIGNING_KEY", "test-signing-key")
+	defer os.Setenv("JWT_SIGNING_KEY", origKey)
+
 	t.Run("generate token success", func(t *testing.T) {
 		token, err := genToken(
 			&models.UserClaims{

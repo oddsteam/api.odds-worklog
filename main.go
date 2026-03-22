@@ -1,6 +1,9 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	"gitlab.odds.team/worklog/api.odds-worklog/api/file"
 
 	"github.com/labstack/echo"
@@ -21,6 +24,11 @@ import (
 // @host http://worklog-dev.odds.team/api
 // @BasePath /v1
 func main() {
+	jwtSigningKey := os.Getenv("JWT_SIGNING_KEY")
+	if jwtSigningKey == "" {
+		log.Fatal("JWT_SIGNING_KEY environment variable is required")
+	}
+
 	session := mongo.Setup()
 	defer session.Close()
 
@@ -36,7 +44,7 @@ func main() {
 	// Middleware
 	m := middleware.JWTConfig{
 		Claims:     &models.JwtCustomClaims{},
-		SigningKey: []byte("GmkZGF3CmpZNs88dLvbV"),
+		SigningKey: []byte(jwtSigningKey),
 	}
 
 	r := e.Group("/v1")

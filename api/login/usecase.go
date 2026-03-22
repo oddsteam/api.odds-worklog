@@ -112,8 +112,12 @@ func genToken(user *models.UserClaims) (string, error) {
 		},
 	}
 
+	signingKey := os.Getenv("JWT_SIGNING_KEY")
+	if signingKey == "" {
+		return "", fmt.Errorf("JWT_SIGNING_KEY environment variable is required")
+	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tok, err := token.SignedString([]byte("GmkZGF3CmpZNs88dLvbV"))
+	tok, err := token.SignedString([]byte(signingKey))
 	if err != nil {
 		return "", fmt.Errorf("Generate token error: %s", err.Error())
 	}
