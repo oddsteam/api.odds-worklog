@@ -49,7 +49,10 @@ func SendMail(c echo.Context, userRepo user.Repository, usecaseFile file.Usecase
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	fmt.Println(sender.Send(m))
+	if err := sender.Send(m); err != nil {
+		c.Logger().Error(err)
+		return utils.NewError(c, http.StatusInternalServerError, errors.New("failed to send email"))
+	}
 	return c.JSON(http.StatusOK, "Send Mail Success")
 }
 
