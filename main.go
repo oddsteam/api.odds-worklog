@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/file"
 
 	"github.com/labstack/echo"
@@ -23,6 +24,7 @@ import (
 // @host http://worklog-dev.odds.team/api
 // @BasePath /v1
 func main() {
+	_ = godotenv.Load()
 	jwtSigningKey := os.Getenv("JWT_SIGNING_KEY")
 	if jwtSigningKey == "" {
 		log.Fatal("JWT_SIGNING_KEY environment variable is required")
