@@ -39,7 +39,7 @@ type Transaction struct {
 func toTransaction(i models.Payroll, dateEff time.Time) Transaction {
 	return Transaction{
 		ComName:    "บจก. ออด-อี (ประเทศไทย) จำกัด",
-		Payee:      i.GetBankAccountName(),
+		Payee:      i.GetName(),
 		MailTo:     "",
 		BenAddr1:   "",
 		BenAddr2:   "",
