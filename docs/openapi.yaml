@@ -1363,40 +1363,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPError'
-
-  # Reminder endpoints
-  /v1/reminder/mail/{id}:
-    post:
-      tags:
-        - reminder
-      summary: Send mail
-      description: Send notification mail for a user
-      operationId: sendMail
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: User ID
-      responses:
-        '200':
-          description: Mail sent
-          content:
-            application/json:
-              schema:
-                type: string
-                example: "Send Mail Success"
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPError'
-
-
 components:
   securitySchemes:
     bearerAuth:

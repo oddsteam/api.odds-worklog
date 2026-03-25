@@ -9,7 +9,7 @@ Accepted
 The project is structured in layers:
 
 - **`business/`** — domain models (`business/models`) and application use cases (`business/usecases`). This is the core of the system.
-- **`api/`** — HTTP handlers and API-specific logic (`api/file`, `api/income`, `api/login`, `api/reminder`, `api/site`, `api/user`).
+- **`api/`** — HTTP handlers and API-specific logic (`api/file`, `api/income`, `api/login`, `api/site`, `api/user`).
 - **`pkg/`** — infrastructure concerns: database sessions (`pkg/mongo`), authentication (`pkg/auth`), configuration (`pkg/config`), file export (`pkg/file`), and shared utilities (`pkg/utils`).
 - **`repositories/`** — data access implementations.
 
@@ -43,7 +43,6 @@ graph TD
         api_file["api/file"]
         api_income["api/income"]
         api_login["api/login"]
-        api_reminder["api/reminder"]
         api_site["api/site"]
         api_user["api/user"]
     end
@@ -66,7 +65,6 @@ graph TD
     main --> api_file
     main --> api_income
     main --> api_login
-    main --> api_reminder
     main --> api_site
     main --> api_user
     main --> biz_models
@@ -99,10 +97,6 @@ graph TD
     api_login --> pkg_auth
     api_login --> pkg_mongo
     api_login --> pkg_utils
-
-    api_reminder --> api_file
-    api_reminder --> api_user
-    api_reminder --> biz_models
 
     api_site --> biz_models
     api_site --> pkg_mongo

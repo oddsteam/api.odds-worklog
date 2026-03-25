@@ -143,13 +143,6 @@ The API requires the following environment variables. See `deployment/local/.env
 | `KEYCLOAK_SERVER_URL` | Yes | Keycloak server URL |
 | `KEYCLOAK_REALM` | Yes | Keycloak realm name |
 | `KEYCLOAK_CLIENT_ID` | Yes | Keycloak client ID |
-| `SMTP_USER` | Yes* | SMTP username (for reminder emails) |
-| `SMTP_PASSWORD` | Yes* | SMTP password / app password (for reminder emails) |
-| `SMTP_HOST` | No | SMTP host (default: `smtp.gmail.com`) |
-| `SMTP_PORT` | No | SMTP port (default: `587`) |
-| `SMTP_REMINDER_RECEIVERS` | Yes* | Comma-separated list of email addresses to receive reminder notifications |
-
-\* Required only if using the reminder mail feature (`POST /v1/reminder/mail/:id`).
 
 ### Starting Worklog API on Local Machine
 
