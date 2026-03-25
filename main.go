@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/file"
 
@@ -9,13 +10,11 @@ import (
 	"github.com/labstack/echo/middleware"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/login"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/reminder"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
-	"gitlab.odds.team/worklog/api.odds-worklog/worker"
 )
 
 // @title Odds-Worklog Example API
@@ -24,6 +23,11 @@ import (
 // @host http://worklog-dev.odds.team/api
 // @BasePath /v1
 func main() {
+	jwtSigningKey := os.Getenv("JWT_SIGNING_KEY")
+	if jwtSigningKey == "" {
+		log.Fatal("JWT_SIGNING_KEY environment variable is required")
+	}
+
 	session := mongo.Setup()
 	defer session.Close()
 
@@ -39,7 +43,7 @@ func main() {
 	// Middleware
 	m := middleware.JWTConfig{
 		Claims:     &models.JwtCustomClaims{},
-		SigningKey: []byte("sMJuczqQPYzocl1s6SLj"),
+		SigningKey: []byte(jwtSigningKey),
 	}
 
 	r := e.Group("/v1")
@@ -49,17 +53,9 @@ func main() {
 	// Handler
 	user.NewHttpHandler(r, session)
 	income.NewHttpHandler(r, session)
-	reminder.NewHttpHandler(r, session)
 	file.NewHttpHandler(r, session)
 	site.NewHttpHandler(r, session)
 
-	reminderRepo := reminder.NewRepository(session)
-	s, err := reminderRepo.GetReminder()
-	if err != nil {
-		log.Println(err)
-	} else {
-		worker.StartWorker(s)
-	}
 	// Start server
 	c := config.Config()
 	e.Logger.Fatal(e.Start(c.APIPort))

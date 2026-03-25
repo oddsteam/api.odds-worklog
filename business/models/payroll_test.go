@@ -18,7 +18,6 @@ var testIndividualUser1 = User{
 	BankAccountNumber: "0531231231",
 	ThaiCitizenID:     "ThaiCitizenID",
 	Vat:               "N",
-	SlackAccount:      "test@example.com",
 	DailyIncome:       "2000",
 	StatusTavi:        true,
 	Address:           "address",

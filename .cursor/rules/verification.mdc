@@ -1,0 +1,13 @@
+---
+description: Run tests before completing any code change to catch regressions
+alwaysApply: true
+---
+
+# Verification before completion
+
+Before considering any code change complete:
+
+- Run `make test` from `api.odds-worklog/` to verify no regressions.
+- Fix any failing tests before marking the task done.
+
+This applies to all changes, including refactors, security fixes, and non-TDD implementations.

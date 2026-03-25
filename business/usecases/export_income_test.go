@@ -82,7 +82,7 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 		startDate := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 		endDate := time.Date(2024, 1, 31, 23, 59, 59, 0, time.UTC)
 		i := deepClone(&models.MockSoloCorporateIncome)
-		i.Name = "บจก. โซโล่ เลเวลลิ่ง 🦄"
+		i.BankAccountName = "บจก. โซโล่ เลเวลลิ่ง 🦄"
 		incomes := []*models.Income{
 			i,
 		}

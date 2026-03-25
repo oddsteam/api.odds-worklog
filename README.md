@@ -128,6 +128,22 @@ password: admin
    7.2 Filter roles by name `worklog`<br>
    7.3 Assign role `worklog`
 
+### Environment Variables
+
+The API requires the following environment variables. See `deployment/local/.env` for a full example.
+
+| Variable | Required | Description |
+| -------- | -------- | ----------- |
+| `MONGO_DB_HOST` | Yes | MongoDB connection host |
+| `MONGO_DB_NAME` | Yes | MongoDB database name |
+| `MONGO_DB_USERNAME` | Yes | MongoDB username |
+| `MONGO_DB_PASSWORD` | Yes | MongoDB password |
+| `API_PORT` | Yes | API server port (e.g. `:8080`) |
+| `JWT_SIGNING_KEY` | Yes | Secret key for JWT token signing and validation |
+| `KEYCLOAK_SERVER_URL` | Yes | Keycloak server URL |
+| `KEYCLOAK_REALM` | Yes | Keycloak realm name |
+| `KEYCLOAK_CLIENT_ID` | Yes | Keycloak client ID |
+
 ### Starting Worklog API on Local Machine
 
 Run the following command at the project path.

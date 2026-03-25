@@ -31,6 +31,7 @@ services:
       - "80:80"
     networks:
       - odds_worklog_api
+    restart: always
 
 volumes:
   mongodbdata_odds_worklog:
