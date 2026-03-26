@@ -162,6 +162,46 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPError'
 
+  /v1/sap-export-failures:
+    get:
+      tags:
+        - admin
+      summary: List SAP export failure logs
+      description: Recent SAP export encoding failures (admin only)
+      operationId: listSapExportFailures
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 100
+            maximum: 200
+          description: Max rows to return (clamped to 200)
+      responses:
+        '200':
+          description: List of failure logs, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SAPExportFailureLog'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
   /v1/users/{id}:
     get:
       tags:
@@ -1661,6 +1701,40 @@ components:
         message:
           type: string
           description: Response message
+
+    SAPExportFailureLog:
+      type: object
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        role:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        dateEffective:
+          type: string
+          format: date-time
+        incomeId:
+          type: string
+        userId:
+          type: string
+        bankAccountName:
+          type: string
+        rowIndex:
+          type: integer
+        lineKind:
+          type: string
+        errorMessage:
+          type: string
+        underlyingError:
+          type: string
 
     HTTPError:
       type: object

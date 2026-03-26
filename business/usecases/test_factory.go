@@ -17,7 +17,7 @@ func CreateExportIncomeUsecaseWithMock(t *testing.T) (ForUsingExportIncome, *gom
 	ctrl := gomock.NewController(t)
 	mockRepoIncome := mockIncomeRepository(ctrl)
 
-	usecase := NewExportIncomeUsecase(mockRepoIncome.mockRead, mockRepoIncome.mockWrite, file.NewCSVWriter(), file.NewSAPWriter(), mockRepoIncome.mockRead)
+	usecase := NewExportIncomeUsecase(mockRepoIncome.mockRead, mockRepoIncome.mockWrite, mockRepoIncome.mockSapExportFailure, file.NewCSVWriter(), file.NewSAPWriter(), mockRepoIncome.mockRead)
 	return usecase, ctrl, mockRepoIncome
 }
 
@@ -50,6 +50,7 @@ func mockIncomeRepository(ctrl *gomock.Controller) *MockIncomeRepository {
 		mockGettingUsersByRole:    mock_usecases.NewMockForGettingUsersByRole(ctrl),
 		mockRead:                  mock_usecases.NewMockForGettingIncomeData(ctrl),
 		mockWrite:                 mock_usecases.NewMockForControllingIncomeData(ctrl),
+		mockSapExportFailure:      mock_usecases.NewMockForLoggingSAPExportFailure(ctrl),
 	}
 	return &mockRepoIncome
 }
@@ -62,6 +63,7 @@ type MockIncomeRepository struct {
 	mockGettingUsersByRole    *mock_usecases.MockForGettingUsersByRole
 	mockRead                  *mock_usecases.MockForGettingIncomeData
 	mockWrite                 *mock_usecases.MockForControllingIncomeData
+	mockSapExportFailure      *mock_usecases.MockForLoggingSAPExportFailure
 }
 
 func (m *MockIncomeRepository) ExpectGetAllIncomeOfPreviousMonthByRole(incomes []*models.Income) {

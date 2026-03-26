@@ -1,6 +1,8 @@
 package usecases
 
 import (
+	"errors"
+	"log"
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
@@ -9,16 +11,18 @@ import (
 type usecase struct {
 	readRepo            ForGettingIncomeDataInTheMonth
 	writeRepo           ForLoggingExport
+	sapExportFailureLog ForLoggingSAPExportFailure
 	csvWriter           ForWritingCSVFile
 	sapWriter           ForWritingSAPFile
 	readStudentLoanRepo ForListStudentLoansInTheMonth
 }
 
-func NewExportIncomeUsecase(r ForGettingIncomeDataInTheMonth, ex ForLoggingExport,
+func NewExportIncomeUsecase(r ForGettingIncomeDataInTheMonth, ex ForLoggingExport, sapFail ForLoggingSAPExportFailure,
 	csvW ForWritingCSVFile, sapW ForWritingSAPFile, rsl ForListStudentLoansInTheMonth) ForUsingExportIncome {
 	return &usecase{
 		readRepo:            r,
 		writeRepo:           ex,
+		sapExportFailureLog: sapFail,
 		csvWriter:           csvW,
 		sapWriter:           sapW,
 		readStudentLoanRepo: rsl,
@@ -76,6 +80,30 @@ func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, e
 
 	filename, err := u.sapWriter.WriteFile(role, *pc, dateEff)
 	if err != nil {
+		var rowErr *models.SAPExportRowError
+		if errors.As(err, &rowErr) {
+			underlying := ""
+			if rowErr.Err != nil {
+				underlying = rowErr.Err.Error()
+			}
+			logEntry := &models.SAPExportFailureLog{
+				CreatedAt:       time.Now(),
+				Role:            role,
+				StartDate:       startDate,
+				EndDate:         endDate,
+				DateEffective:   dateEff,
+				IncomeID:        rowErr.IncomeID,
+				UserID:          rowErr.UserID,
+				BankAccountName: rowErr.BankAccountName,
+				RowIndex:        rowErr.RowIndex,
+				LineKind:        rowErr.LineKind,
+				ErrorMessage:    rowErr.Error(),
+				UnderlyingError: underlying,
+			}
+			if logErr := u.sapExportFailureLog.LogSAPExportFailure(logEntry); logErr != nil {
+				log.Printf("sap export failure log: %v", logErr)
+			}
+		}
 		return "", err
 	}
 

@@ -4,12 +4,14 @@ import (
 	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/file"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/login"
+	sap_export_failure "gitlab.odds.team/worklog/api.odds-worklog/api/sap_export_failure"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
@@ -23,6 +25,7 @@ import (
 // @host http://worklog-dev.odds.team/api
 // @BasePath /v1
 func main() {
+	_ = godotenv.Load()
 	jwtSigningKey := os.Getenv("JWT_SIGNING_KEY")
 	if jwtSigningKey == "" {
 		log.Fatal("JWT_SIGNING_KEY environment variable is required")
@@ -55,6 +58,7 @@ func main() {
 	income.NewHttpHandler(r, session)
 	file.NewHttpHandler(r, session)
 	site.NewHttpHandler(r, session)
+	sap_export_failure.NewHttpHandler(r, session)
 
 	// Start server
 	c := config.Config()

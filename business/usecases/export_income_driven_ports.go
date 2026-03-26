@@ -18,6 +18,10 @@ type ForLoggingExport interface {
 	AddExport(ep *models.Export) error
 }
 
+type ForLoggingSAPExportFailure interface {
+	LogSAPExportFailure(log *models.SAPExportFailureLog) error
+}
+
 type ForWritingCSVFile interface {
 	WriteFile(name string, ics models.PayrollCycle) (string, error)
 }
