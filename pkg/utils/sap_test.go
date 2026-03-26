@@ -158,6 +158,15 @@ func TestReceiveAcCode(t *testing.T) {
 	}
 }
 
+func TestFilterOthersThanThaiAndAscii(t *testing.T) {
+	t.Run("strips zero-width space U+200B for Windows-874 SAP export", func(t *testing.T) {
+		in := "บจก. โซโล่ เลเวลลิ่ง \u200B"
+		got := FilterOthersThanThaiAndAscii(in)
+		// ZWSP becomes ASCII space; input already had a space before ZWSP
+		assert.Equal(t, "บจก. โซโล่ เลเวลลิ่ง  ", got)
+	})
+}
+
 func TestReceiveBRCode(t *testing.T) {
 	type args struct {
 		bnkCode  string
