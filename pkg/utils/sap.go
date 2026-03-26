@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 )
 
@@ -95,6 +96,10 @@ func FilterOthersThanThaiAndAscii(s string) string {
 	runes := []rune(s)
 	for j := range runes {
 		r := runes[j]
+		if unicode.Is(unicode.Cf, r) {
+			runes[j] = 32
+			continue
+		}
 		// Keep printable ASCII (32-126), and common Thai characters
 		// Replace control characters and emojis with spaces
 		if r < 32 || (r > 126 && r < 0x0E00) || (r > 0x0E7F && r < 0x2000) || r > 0x206F {

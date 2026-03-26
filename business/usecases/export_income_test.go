@@ -110,6 +110,29 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 		// remove file after test
 		os.Remove(filename)
 	})
+	t.Run("export individual income SAP works with unseen unicode", func(t *testing.T) {
+		usecase, ctrl, mockRepoIncome := CreateExportIncomeUsecaseWithMock(t)
+		defer ctrl.Finish()
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+		startDate := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+		endDate := time.Date(2024, 1, 31, 23, 59, 59, 0, time.UTC)
+		i := deepClone(&models.MockSoloCorporateIncome)
+		i.BankAccountName = "บจก. โซโล่ เลเวลลิ่ง \u200B"
+		incomes := []*models.Income{
+			i,
+		}
+		mockRepoIncome.ExpectGetAllIncomeByRoleStartDateAndEndDate(incomes, "individual", startDate, endDate)
+		mockRepoIncome.ExpectGetStudentLoans()
+		mockRepoIncome.ExpectAddExport()
+
+		filename, err := usecase.ExportIncomeSAPByStartDateAndEndDate("individual", startDate, endDate, dateEff)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		// remove file after test
+		os.Remove(filename)
+	})
 
 	t.Run("export corporate income SAP by start date and end date success", func(t *testing.T) {
 		usecase, ctrl, mockRepoIncome := CreateExportIncomeUsecaseWithMock(t)
