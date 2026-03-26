@@ -11,6 +11,7 @@ import (
 	"github.com/labstack/echo/middleware"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/login"
+	sap_export_failure "gitlab.odds.team/worklog/api.odds-worklog/api/sap_export_failure"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
@@ -57,6 +58,7 @@ func main() {
 	income.NewHttpHandler(r, session)
 	file.NewHttpHandler(r, session)
 	site.NewHttpHandler(r, session)
+	sap_export_failure.NewHttpHandler(r, session)
 
 	// Start server
 	c := config.Config()
