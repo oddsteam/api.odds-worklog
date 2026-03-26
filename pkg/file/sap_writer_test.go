@@ -162,4 +162,17 @@ func TestSAPWriter(t *testing.T) {
 
 	})
 
+	t.Run("ToSAP returns two rows per income and matching IncomeRowMeta", func(t *testing.T) {
+		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
+		pc := models.NewPayrollCycle([]*models.Income{
+			&models.MockSoloCorporateIncome,
+			&models.MockSwardCorporateIncome,
+		}, models.StudentLoanList{})
+		rows, metas := ToSAP(*pc, dateEff)
+		assert.Len(t, metas, 2)
+		assert.Len(t, rows, 4)
+		assert.Equal(t, models.MockSoloCorporateIncome.ID.Hex(), metas[0].IncomeID)
+		assert.Equal(t, models.MockSwardCorporateIncome.ID.Hex(), metas[1].IncomeID)
+	})
+
 }

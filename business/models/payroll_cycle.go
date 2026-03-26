@@ -1,5 +1,12 @@
 package models
 
+// IncomeRowMeta identifies the income record that produced one or more export rows (e.g. two SAP lines per income).
+type IncomeRowMeta struct {
+	IncomeID        string
+	UserID          string
+	BankAccountName string
+}
+
 type PayrollCycle struct {
 	records []*Income
 	loans   StudentLoanList
@@ -25,13 +32,17 @@ func (pc *PayrollCycle) FindByUserID(id string) *Income {
 	return &Income{}
 }
 
-func (pc *PayrollCycle) ProcessRecords(process func(index int, i Payroll) [][]string) ([][]string, []string) {
+func (pc *PayrollCycle) ProcessRecords(process func(index int, i Payroll) [][]string) ([][]string, []IncomeRowMeta) {
 	strWrite := make([][]string, 0)
-	updatedIncomeIds := []string{}
+	meta := make([]IncomeRowMeta, 0)
 	for index, e := range pc.records {
 		income := *e
 		if income.ID.Hex() != "" {
-			updatedIncomeIds = append(updatedIncomeIds, income.ID.Hex())
+			meta = append(meta, IncomeRowMeta{
+				IncomeID:        income.ID.Hex(),
+				UserID:          income.UserID,
+				BankAccountName: income.BankAccountName,
+			})
 			loan := pc.loans.FindLoan(income.BankAccountName)
 			i := NewPayrollFromIncome(income)
 			i.SetLoan(&loan)
@@ -39,5 +50,5 @@ func (pc *PayrollCycle) ProcessRecords(process func(index int, i Payroll) [][]st
 			strWrite = append(strWrite, rows...)
 		}
 	}
-	return strWrite, updatedIncomeIds
+	return strWrite, meta
 }

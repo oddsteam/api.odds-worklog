@@ -35,11 +35,15 @@ func (w *csvWriter) WriteFile(name string, ics models.PayrollCycle) (string, err
 }
 
 func ToCSV(ics models.PayrollCycle) ([][]string, []string) {
-	rows, ids := ics.ProcessRecords(func(index int, i models.Payroll) [][]string {
+	rows, metas := ics.ProcessRecords(func(index int, i models.Payroll) [][]string {
 		d := export(i)
 		d[VENDOR_CODE_INDEX] = getVendorCode(index)
 		return [][]string{d}
 	})
+	ids := make([]string, len(metas))
+	for i, m := range metas {
+		ids[i] = m.IncomeID
+	}
 	return append([][]string{createHeaders()}, rows...), ids
 }
 
