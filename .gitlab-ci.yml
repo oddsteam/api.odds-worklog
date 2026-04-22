@@ -17,7 +17,7 @@ variables:
   FULL_IMAGE_NAME: "$ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
   SONAR_SCANNER_VERSION: "6.2.1.4610"
   GOMODCACHE: $CI_PROJECT_DIR/.cache/go-mod
-  # GOCACHE: $CI_PROJECT_DIR/.cache/go-build
+  GOCACHE: $CI_PROJECT_DIR/.cache/go-build
 
 cache:
   key:
@@ -27,13 +27,13 @@ cache:
   paths:
     - $GOMODCACHE
 
-  prepare:
-    stage: prepare
-    image: cacher.odds.team/docker-hub-cache/golang:1.25.1
+prepare:
+  stage: prepare
+  image: cacher.odds.team/docker-hub-cache/golang:1.25.1
 
-    script:
-      - go env
-      - go mod download
+  script:
+    - go env
+    - go mod download
 
 test:
   stage: test
