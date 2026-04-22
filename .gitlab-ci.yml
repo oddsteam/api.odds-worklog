@@ -6,6 +6,8 @@ workflow:
 stages:
   - prepare
   - test
+  - build_and_tag
+  - sqa
   - build
   - deploy
 
@@ -53,6 +55,69 @@ test:
         coverage_format: cobertura
         path: coverage/cover.xml
   coverage: "/coverage: \\d+.\\d+% of statements/"
+
+build_scan_and_tag:
+  stage: build_and_tag
+  image: cacher.odds.team/image/trivy-dind:1.0.0
+  variables:
+    TRIVY_EXIT_CODE: "0" 
+    TRIVY_SEVERITY: "HIGH,CRITICAL"
+    TRIVY_SERVER: "https://trivy.odd.works"
+    TRIVY_TOKEN: $TRIVY_TOKEN
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --build-arg REG_URL=$CI_REGISTRY_IMAGE -f Dockerfile .
+    - trivy --cache-dir /tmp/trivy/ image --skip-java-db-update --server $TRIVY_SERVER --token $TRIVY_TOKEN $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --exit-code $TRIVY_EXIT_CODE --severity $TRIVY_SEVERITY
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - |
+      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
+        docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
+        docker push $CI_REGISTRY_IMAGE:latest
+      fi
+    - |
+      if [[ "$CI_COMMIT_TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "Tagging image for version $CI_COMMIT_TAG"
+        # Tag with specific version
+        docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA  $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+        docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+
+        # Tag major version (X)
+        major=$(echo $CI_COMMIT_TAG | cut -d. -f1)
+        docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA  $CI_REGISTRY_IMAGE:$major
+        docker push $CI_REGISTRY_IMAGE:$major
+
+        # Tag major.minor version (X.Y)
+        minor=$(echo $CI_COMMIT_TAG | cut -d. -f1,2)
+        docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA  $CI_REGISTRY_IMAGE:$minor
+        docker push $CI_REGISTRY_IMAGE:$minor
+
+        # Tag as latest
+        docker push $CI_REGISTRY_IMAGE:latest
+      else
+        echo "Not a valid semantic version tag, skipped tagging"
+      fi
+  only:
+    - main
+    - tags
+
+sonarqube-check:
+  stage: sqa
+  tags:
+    - x86
+  image:
+    name: cacher.odds.team/docker-hub-cache/sonarsource/sonar-scanner-cli:11
+    entrypoint: [""]
+  script:
+    - sonar-scanner -Dsonar.host.url="${SONAR_HOST_URL}"
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
+  dependencies:
+    - test
 
 build:
   stage: build
