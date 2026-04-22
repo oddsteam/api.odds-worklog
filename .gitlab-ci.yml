@@ -17,7 +17,7 @@ variables:
   FULL_IMAGE_NAME: "$ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
   SONAR_SCANNER_VERSION: "6.2.1.4610"
   GOMODCACHE: $CI_PROJECT_DIR/.cache/go-mod
-  GOCACHE: $CI_PROJECT_DIR/.cache/go-build
+  # GOCACHE: $CI_PROJECT_DIR/.cache/go-build
 
 cache:
   key:
