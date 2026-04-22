@@ -4,6 +4,7 @@ workflow:
     - when: never
 
 stages:
+  - prepare
   - test
   - build
   - deploy
@@ -15,21 +16,43 @@ variables:
   IMAGE_TAG: "dev-odds-cloud"
   FULL_IMAGE_NAME: "$ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
   SONAR_SCANNER_VERSION: "6.2.1.4610"
+  GOMODCACHE: $CI_PROJECT_DIR/.cache/go-mod
+  GOCACHE: $CI_PROJECT_DIR/.cache/go-build
+
+cache:
+  key:
+    files:
+      - go.mod
+      - go.sum
+  paths:
+    - $GOMODCACHE
+
+  prepare:
+    stage: prepare
+    image: cacher.odds.team/docker-hub-cache/golang:1.25.1
+
+    script:
+      - go env
+      - go mod download
 
 test:
   stage: test
-  image: golang:1.22
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+  image: cacher.odds.team/docker-hub-cache/golang:1.25.1
   before_script:
-    - apt-get update
-    - apt-get install -y --no-install-recommends curl unzip default-jre ca-certificates
-    - curl -sSLo /tmp/sonar-scanner.zip "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux-x64.zip"
-    - unzip -q /tmp/sonar-scanner.zip -d /opt
-    - ln -s "/opt/sonar-scanner-${SONAR_SCANNER_VERSION}-linux-x64/bin/sonar-scanner" /usr/local/bin/sonar-scanner
+    - mkdir -p coverage
   script:
-    - make test
-    - sonar-scanner -Dsonar.token="$SONAR_TOKEN"
+    - go test -v -race -coverprofile=coverage/cover.out -covermode=atomic ./...
+    - go get github.com/boumenot/gocover-cobertura
+    - go run github.com/boumenot/gocover-cobertura < coverage/cover.out > coverage/coverage.xml
+  artifacts:
+    paths:
+      - coverage
+    expire_in: 1 hour
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cover.xml
+  coverage: "/coverage: \\d+.\\d+% of statements/"
 
 build:
   stage: build
