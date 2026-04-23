@@ -214,6 +214,10 @@ func (p *Payroll) TotalWHTStr() string {
 	return FloatToString(p.totalWHT())
 }
 
+func (p *Payroll) TotalVATStr() string {
+	return p.totalVatStr()
+}
+
 func (p *Payroll) Note() string {
 	return p.record.Note
 }

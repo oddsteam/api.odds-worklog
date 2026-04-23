@@ -62,6 +62,7 @@ const (
 	NET_DAILY_INCOME_INDEX
 	NET_SPECIAL_INCOME_INDEX
 	LOAN_DEDUCTION_INDEX
+	VAT_INDEX
 	WITHHOLDING_TAX_INDEX
 	TRANSFER_AMOUNT_INDEX
 	NOTE_INDEX
@@ -69,7 +70,7 @@ const (
 )
 
 func createHeaders() []string {
-	return []string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
+	return []string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "VAT", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 }
 
 func export(i models.Payroll) []string {
@@ -84,6 +85,7 @@ func export(i models.Payroll) []string {
 		models.FormatCommas(i.NetDailyIncomeStr()),
 		models.FormatCommas(i.NetSpecialIncomeStr()),
 		i.GetDeduction(),
+		models.FormatCommas(i.TotalVATStr()),
 		i.TotalWHTStr(),
 		models.FormatCommas(i.TransferAmountStr()),
 		i.Note(),

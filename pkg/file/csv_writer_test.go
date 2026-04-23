@@ -67,6 +67,7 @@ func TestCSVWriter(t *testing.T) {
 		assert.Equal(t, "97.00", csvColumns[NET_DAILY_INCOME_INDEX])
 		assert.Equal(t, "970.00", csvColumns[NET_SPECIAL_INCOME_INDEX])
 		assert.Equal(t, "0.00", csvColumns[LOAN_DEDUCTION_INDEX])
+		assert.Equal(t, "", csvColumns[VAT_INDEX])
 		assert.Equal(t, "33.00", csvColumns[WITHHOLDING_TAX_INDEX])
 		assert.Equal(t, "1,067.00", csvColumns[TRANSFER_AMOUNT_INDEX])
 		assert.Equal(t, "note", csvColumns[NOTE_INDEX])
@@ -78,7 +79,7 @@ func TestCSVHeaders(t *testing.T) {
 	actual := createHeaders()
 	expected := [...]string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน",
 		"อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ",
-		"หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก",
+		"VAT", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก",
 	}
 	for i := 0; i < len(expected); i++ {
 		assert.Equal(t, expected[i], actual[i])
