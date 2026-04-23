@@ -19,6 +19,16 @@ func (u *UserClaims) IsAdmin() bool {
 	return u.Role == admin
 }
 
+// IsUserManager is true for JWTs issued to full admins or user-admins.
+func (u *UserClaims) IsUserManager() bool {
+	return u.Role == admin || u.Role == userAdmin
+}
+
+// CanExportIncome is true only for full admins (income export endpoints).
+func (u *UserClaims) CanExportIncome() bool {
+	return u.IsAdmin()
+}
+
 func (u *UserClaims) GetStatusTavi() bool {
 	return u.StatusTavi
 }

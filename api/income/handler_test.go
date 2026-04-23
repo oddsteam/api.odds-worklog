@@ -333,6 +333,7 @@ func TestPostExportSAPIncome(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
 
 		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
@@ -361,6 +362,7 @@ func TestPostExportSAPIncome(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
 
 		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
 		defer ctrl.Finish()
@@ -370,6 +372,79 @@ func TestPostExportSAPIncome(t *testing.T) {
 		handler.PostExportSAP(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+}
+
+func TestExportIncomeDeniedForUserAdmin(t *testing.T) {
+	t.Run("GET corporate export returns 401 for user-admin", func(t *testing.T) {
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUserManager)
+		c.SetParamNames("month")
+		c.SetParamValues("1")
+
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		handler.GetExportCorporate(c)
+
+		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+	})
+
+	t.Run("GET individual export returns 401 for user-admin", func(t *testing.T) {
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUserManager)
+		c.SetParamNames("month")
+		c.SetParamValues("1")
+
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		handler.GetExportIndividual(c)
+
+		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+	})
+
+	t.Run("POST SAP export returns 401 for user-admin", func(t *testing.T) {
+		body := ExportInComeSAPReq{
+			Role:          "corporate",
+			DateEffective: "30/09/2025",
+			StartDate:     "09/2025",
+			EndDate:       "10/2025",
+		}
+		jsonBody, _ := json.Marshal(body)
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", bytes.NewReader(jsonBody))
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUserManager)
+
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		handler.PostExportSAP(c)
+
+		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+	})
+
+	t.Run("POST pdf export returns 401 for user-admin", func(t *testing.T) {
+		body := models.ExportInComeReq{Role: "corporate", StartDate: "01/2025", EndDate: "02/2025"}
+		jsonBody, _ := json.Marshal(body)
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", bytes.NewReader(jsonBody))
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUserManager)
+
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		handler.PostExportPdf(c)
+
+		assert.Equal(t, http.StatusUnauthorized, rec.Code)
 	})
 }
 
