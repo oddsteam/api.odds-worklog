@@ -109,6 +109,7 @@ func (p *Payroll) prepareDataForUpdateIncome(req IncomeReq, userDetail User, inc
 	income.NetIncome = p.TransferAmountStr()
 	income.NetSpecialIncome = p.NetSpecialIncomeStr()
 	income.DailyIncomeBeforeTax = p.DailyIncomeBeforeTaxStr()
+	income.SpecialIncomeBeforeTax = p.SpecialIncomeBeforeTaxStr()
 	income.NetDailyIncome = p.NetDailyIncomeStr()
 	income.VAT = p.totalVatStr()
 	income.WHT = p.TotalWHTStr()
@@ -170,6 +171,10 @@ func (p *Payroll) NetDailyIncomeStr() string {
 
 func (p *Payroll) DailyIncomeBeforeTaxStr() string {
 	return FloatToString(p.dailyIncome())
+}
+
+func (p *Payroll) SpecialIncomeBeforeTaxStr() string {
+	return FloatToString(p.specialIncome())
 }
 
 func (p *Payroll) netDailyIncome() float64 {
