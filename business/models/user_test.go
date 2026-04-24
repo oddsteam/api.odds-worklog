@@ -45,6 +45,11 @@ func TestUser(t *testing.T) {
 	u.Role = "individual"
 	assert.Nil(t, u.ValidateRole())
 
+	u.Role = "user-admin"
+	assert.Nil(t, u.ValidateRole())
+	assert.False(t, u.IsAdmin())
+	assert.True(t, u.IsUserManager())
+
 	u.Role = ""
 	assert.EqualError(t, u.ValidateRole(), ErrInvalidUserRole.Error())
 
@@ -71,4 +76,20 @@ func TestUser(t *testing.T) {
 
 	u.Role = corporate
 	assert.Equal(t, "abc", u.GetName())
+}
+
+func TestUserClaims_Permissions(t *testing.T) {
+	uc := &UserClaims{Role: "user-admin"}
+	assert.False(t, uc.IsAdmin())
+	assert.True(t, uc.IsUserManager())
+	assert.False(t, uc.CanExportIncome())
+
+	uc.Role = "admin"
+	assert.True(t, uc.IsAdmin())
+	assert.True(t, uc.IsUserManager())
+	assert.True(t, uc.CanExportIncome())
+
+	uc.Role = "individual"
+	assert.False(t, uc.IsUserManager())
+	assert.False(t, uc.CanExportIncome())
 }

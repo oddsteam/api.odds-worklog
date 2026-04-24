@@ -96,7 +96,7 @@ paths:
       tags:
         - users
       summary: List all users
-      description: Get list of all users (admin only)
+      description: Get list of all users (admin or user-admin)
       operationId: getUsers
       security:
         - bearerAuth: []
@@ -126,7 +126,7 @@ paths:
       tags:
         - users
       summary: Create user
-      description: Create a new user (admin only)
+      description: Create a new user (admin or user-admin). Only a full admin may create users with role admin.
       operationId: createUser
       security:
         - bearerAuth: []
@@ -283,7 +283,7 @@ paths:
       tags:
         - users
       summary: Delete user
-      description: Delete a user (admin only)
+      description: Delete a user (admin or user-admin)
       operationId: deleteUser
       security:
         - bearerAuth: []
@@ -303,6 +303,12 @@ paths:
                 $ref: '#/components/schemas/Response'
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '403':
+          description: Permission denied
           content:
             application/json:
               schema:
@@ -356,7 +362,7 @@ paths:
       tags:
         - users
       summary: Get users by site ID
-      description: Get all users belonging to a specific site (admin only)
+      description: Get all users belonging to a specific site (admin or user-admin)
       operationId: getUsersBySiteId
       security:
         - bearerAuth: []
@@ -647,7 +653,7 @@ paths:
       tags:
         - incomes
       summary: Export corporate income
-      description: Export corporate income to CSV file (admin only, deprecated)
+      description: Export corporate income to CSV file (full admin only, deprecated)
       operationId: exportCorporateIncome
       deprecated: true
       security:
@@ -686,7 +692,7 @@ paths:
       tags:
         - incomes
       summary: Export individual income
-      description: Export individual income to CSV file (admin only)
+      description: Export individual income to CSV file (full admin only)
       operationId: exportIndividualIncome
       security:
         - bearerAuth: []
@@ -724,7 +730,7 @@ paths:
       tags:
         - incomes
       summary: Export income by date range
-      description: Export income to PDF file by start and end date
+      description: Export income to PDF file by start and end date (full admin only)
       operationId: exportIncomeByDateRange
       security:
         - bearerAuth: []
@@ -742,6 +748,12 @@ paths:
               schema:
                 type: string
                 format: binary
+        '401':
+          description: Not allowed to export (full admin only)
+          content:
+            application/json:
+              schema:
+                type: string
         '500':
           description: Internal server error
           content:
@@ -754,7 +766,7 @@ paths:
       tags:
         - incomes
       summary: Export income in SAP format
-      description: Export income to SAP format file
+      description: Export income to SAP format file (full admin only)
       operationId: exportIncomeSAP
       security:
         - bearerAuth: []
@@ -772,6 +784,12 @@ paths:
               schema:
                 type: string
                 format: binary
+        '401':
+          description: Not allowed to export (full admin only)
+          content:
+            application/json:
+              schema:
+                type: string
         '400':
           description: Bad request
           content:
@@ -1444,6 +1462,7 @@ components:
           description: User role
           enum:
             - admin
+            - user-admin
             - individual
             - corporate
         firstName:
@@ -1533,6 +1552,12 @@ components:
         netIncome:
           type: string
           description: Net income
+        dailyIncomeBeforeTax:
+          type: string
+          description: Daily income before tax
+        specialIncomeBeforeTax:
+          type: string
+          description: Special income before tax
         netDailyIncome:
           type: string
           description: Net daily income

@@ -59,9 +59,15 @@ const (
 	NAME_INDEX
 	ID_CARD_INDEX
 	EMAIL_INDEX
+	WORK_DATE_INDEX
+	DAILY_INCOME_BEFORE_TAX_INDEX
 	NET_DAILY_INCOME_INDEX
+	WORKING_HOURS_INDEX
+	HOURLY_RATE_INDEX
+	SPECIAL_INCOME_BEFORE_TAX_INDEX
 	NET_SPECIAL_INCOME_INDEX
 	LOAN_DEDUCTION_INDEX
+	VAT_INDEX
 	WITHHOLDING_TAX_INDEX
 	TRANSFER_AMOUNT_INDEX
 	NOTE_INDEX
@@ -69,7 +75,7 @@ const (
 )
 
 func createHeaders() []string {
-	return []string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
+	return []string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน", "อีเมล", "จำนวนวันทำงาน", "รายได้หลักก่อนคำนวนภาษี", "จำนวนเงินรายได้หลัก", "จำนวนชั่วโมงงานพิเศษ", "อัตราต่อชั่วโมง", "รายได้พิเศษก่อนคำนวนภาษี", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "VAT", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 }
 
 func export(i models.Payroll) []string {
@@ -81,9 +87,15 @@ func export(i models.Payroll) []string {
 		i.GetName(),
 		i.ThaiCitizenID(),
 		i.Email(),
+		i.WorkDate(),
+		models.FormatCommas(i.DailyIncomeBeforeTaxStr()),
 		models.FormatCommas(i.NetDailyIncomeStr()),
+		i.WorkingHours(),
+		models.FormatCommas(i.SpecialIncomeRateStr()),
+		models.FormatCommas(i.SpecialIncomeBeforeTaxStr()),
 		models.FormatCommas(i.NetSpecialIncomeStr()),
 		i.GetDeduction(),
+		models.FormatCommas(i.TotalVATStr()),
 		i.TotalWHTStr(),
 		models.FormatCommas(i.TransferAmountStr()),
 		i.Note(),

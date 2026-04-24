@@ -1,6 +1,7 @@
 package user
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -93,6 +94,46 @@ func TestCreate(t *testing.T) {
 
 		assert.Equal(t, http.StatusForbidden, rec.Code)
 	})
+
+	t.Run("when request is user-admin, create user succeeds", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().Create(&userMock.User).Return(&userMock.User, nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(userMock.UserJson))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUserManager)
+
+		handler := &HttpHandler{mockUsecase}
+		handler.Create(c)
+
+		assert.Equal(t, http.StatusCreated, rec.Code)
+	})
+
+	t.Run("when user-admin tries to create admin role, return 403", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+
+		adminBody, _ := json.Marshal(&userMock.Admin)
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(string(adminBody)))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUserManager)
+
+		handler := &HttpHandler{mockUsecase}
+		handler.Create(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
+	})
 }
 
 func TestGet(t *testing.T) {
@@ -137,6 +178,28 @@ func TestGet(t *testing.T) {
 		handler.Get(c)
 
 		assert.Equal(t, http.StatusForbidden, rec.Code)
+	})
+
+	t.Run("when current user is user-admin it should return StatusOK", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockListUser := make([]*models.User, 0)
+		mockListUser = append(mockListUser, &userMock.User)
+		mockUsecase.EXPECT().Get().Return(mockListUser, nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUserManager)
+
+		handler := &HttpHandler{mockUsecase}
+		handler.Get(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 
 	t.Run("when getUser in usecase is have error  it should return StatusInternalServerError", func(t *testing.T) {
@@ -286,6 +349,30 @@ func TestGetBySiteId(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	c.Set("user", userMock.TokenAdmin)
+	c.SetParamNames("id")
+	c.SetParamValues("12345")
+
+	handler := &HttpHandler{mockUsecase}
+	handler.GetBySiteID(c)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+}
+
+func TestGetBySiteIdAsUserAdmin(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockUsecase := userMock.NewMockUsecase(ctrl)
+	mockListUser := make([]*models.User, 0)
+	mockListUser = append(mockListUser, &userMock.User)
+	mockUsecase.EXPECT().GetBySiteID("12345").Return(mockListUser, nil)
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.GET, "/", nil)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.Set("user", userMock.TokenUserManager)
 	c.SetParamNames("id")
 	c.SetParamValues("12345")
 
@@ -468,6 +555,28 @@ func TestDelete(t *testing.T) {
 		handler.Delete(c)
 
 		assert.Equal(t, http.StatusForbidden, rec.Code)
+	})
+
+	t.Run("when request is user-admin delete succeeds", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().Delete(userMock.User.ID.Hex()).Return(nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUserManager)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.Delete(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 
 	t.Run("when delete error, then return json models.HTTPError with status code 500", func(t *testing.T) {

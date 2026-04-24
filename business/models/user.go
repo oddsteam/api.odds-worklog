@@ -40,12 +40,18 @@ type ArchivedUser struct {
 
 const (
 	admin      = "admin"
+	userAdmin  = "user-admin"
 	individual = "individual"
 	corporate  = "corporate"
 )
 
 func (u *User) IsAdmin() bool {
 	return u.Role == admin
+}
+
+// IsUserManager is true for full admins and user-admins (user lifecycle management).
+func (u *User) IsUserManager() bool {
+	return u.Role == admin || u.Role == userAdmin
 }
 
 func (u *User) GetFullname() string {
@@ -87,7 +93,7 @@ func (u *User) IsFullnameEmpty() bool {
 }
 
 func (u *User) ValidateRole() error {
-	if u.Role != corporate && u.Role != individual && u.Role != admin {
+	if u.Role != corporate && u.Role != individual && u.Role != admin && u.Role != userAdmin {
 		return ErrInvalidUserRole
 	}
 	return nil

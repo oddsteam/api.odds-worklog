@@ -1,0 +1,160 @@
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - when: never
+
+stages:
+  - prepare
+  - test
+  - build_and_tag
+  - sqa
+  - build
+  - deploy
+
+variables:
+  AWS_DEFAULT_REGION: "ap-southeast-1"
+  ECR_REGISTRY: "844772501268.dkr.ecr.ap-southeast-1.amazonaws.com"
+  IMAGE_NAME: "api-worklog"
+  IMAGE_TAG: "dev-odds-cloud"
+  FULL_IMAGE_NAME: "$ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
+  SONAR_SCANNER_VERSION: "6.2.1.4610"
+  GOMODCACHE: $CI_PROJECT_DIR/.cache/go-mod
+  GOCACHE: $CI_PROJECT_DIR/.cache/go-build
+
+cache:
+  key:
+    files:
+      - go.mod
+      - go.sum
+  paths:
+    - $GOMODCACHE
+
+prepare:
+  stage: prepare
+  image: cacher.odds.team/docker-hub-cache/golang:1.25.1
+
+  script:
+    - go env
+    - go mod download
+
+test:
+  stage: test
+  image: cacher.odds.team/docker-hub-cache/golang:1.25.1
+  before_script:
+    - mkdir -p coverage
+  script:
+    - go test -v -race -coverprofile=coverage/cover.out -covermode=atomic ./...
+    - go get github.com/boumenot/gocover-cobertura
+    - go run github.com/boumenot/gocover-cobertura < coverage/cover.out > coverage/coverage.xml
+  artifacts:
+    paths:
+      - coverage
+    expire_in: 1 hour
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cover.xml
+  coverage: "/coverage: \\d+.\\d+% of statements/"
+
+build_scan_and_tag:
+  stage: build_and_tag
+  image: cacher.odds.team/image/trivy-dind:1.0.0
+  variables:
+    TRIVY_EXIT_CODE: "0" 
+    TRIVY_SEVERITY: "HIGH,CRITICAL"
+    TRIVY_SERVER: "https://trivy.odd.works"
+    TRIVY_TOKEN: $TRIVY_TOKEN
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --build-arg REG_URL=$CI_REGISTRY_IMAGE -f Dockerfile .
+    - trivy --cache-dir /tmp/trivy/ image --skip-java-db-update --server $TRIVY_SERVER --token $TRIVY_TOKEN $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --exit-code $TRIVY_EXIT_CODE --severity $TRIVY_SEVERITY
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - |
+      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
+        docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
+        docker push $CI_REGISTRY_IMAGE:latest
+      fi
+    - |
+      if [[ "$CI_COMMIT_TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "Tagging image for version $CI_COMMIT_TAG"
+        # Tag with specific version
+        docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA  $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+        docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+
+        # Tag major version (X)
+        major=$(echo $CI_COMMIT_TAG | cut -d. -f1)
+        docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA  $CI_REGISTRY_IMAGE:$major
+        docker push $CI_REGISTRY_IMAGE:$major
+
+        # Tag major.minor version (X.Y)
+        minor=$(echo $CI_COMMIT_TAG | cut -d. -f1,2)
+        docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA  $CI_REGISTRY_IMAGE:$minor
+        docker push $CI_REGISTRY_IMAGE:$minor
+
+        # Tag as latest
+        docker push $CI_REGISTRY_IMAGE:latest
+      else
+        echo "Not a valid semantic version tag, skipped tagging"
+      fi
+  only:
+    - develop
+
+sonarqube-check:
+  stage: sqa
+  tags:
+    - x86
+  image:
+    name: cacher.odds.team/docker-hub-cache/sonarsource/sonar-scanner-cli:11
+    entrypoint: [""]
+  script:
+    - sonar-scanner -Dsonar.host.url="${SONAR_HOST_URL}"
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
+  dependencies:
+    - test
+
+build:
+  stage: build
+  image: docker:27
+  services:
+    - name: docker:27-dind
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+  needs:
+    - job: test
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - apk add --no-cache aws-cli
+    - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
+  script:
+    - docker build -t "$FULL_IMAGE_NAME" .
+    - docker push "$FULL_IMAGE_NAME"
+
+deploy:
+  stage: deploy
+  image: docker:27
+  tags:
+    - self-hosted
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+  needs:
+    - job: build
+  before_script:
+    - apk add --no-cache aws-cli openssh-client
+    - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
+    - eval "$(ssh-agent -s)"
+    - echo "$ODDS_CLOUD_DEV_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H "$ODDS_CLOUD_DEV_HOST" >> ~/.ssh/known_hosts
+  script:
+    - docker pull "$FULL_IMAGE_NAME"
+    - scp "deployment/dev/docker-compose.yaml" "ubuntu@${ODDS_CLOUD_DEV_HOST}:/home/ubuntu/worklog/docker-compose.yaml"
+    - ssh "ubuntu@${ODDS_CLOUD_DEV_HOST}" 'cd /home/ubuntu/worklog && docker compose pull && docker compose down && docker compose up -d'

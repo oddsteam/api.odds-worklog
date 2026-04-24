@@ -55,13 +55,19 @@ func getUserFromToken(c echo.Context) *models.UserClaims {
 // @Router /users [post]
 func (h *HttpHandler) Create(c echo.Context) error {
 	user := getUserFromToken(c)
-	if !user.IsAdmin() {
+	if !user.IsUserManager() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
 	var u models.User
 	if err := c.Bind(&u); err != nil {
 		return utils.NewError(c, http.StatusBadRequest, err)
+	}
+	if err := u.ValidateRole(); err != nil {
+		return utils.NewError(c, http.StatusBadRequest, err)
+	}
+	if u.Role == "admin" && !user.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
 	nu, err := h.Usecase.Create(&u)
@@ -83,7 +89,7 @@ func (h *HttpHandler) Create(c echo.Context) error {
 // @Router /users [get]
 func (h *HttpHandler) Get(c echo.Context) error {
 	user := getUserFromToken(c)
-	if !user.IsAdmin() {
+	if !user.IsUserManager() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 	users, err := h.Usecase.Get()
@@ -126,7 +132,7 @@ func (h *HttpHandler) GetByID(c echo.Context) error {
 // @Router /users/site/{id} [get]
 func (h *HttpHandler) GetBySiteID(c echo.Context) error {
 	u := getUserFromToken(c)
-	if !u.IsAdmin() {
+	if !u.IsUserManager() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
@@ -227,7 +233,7 @@ func (h *HttpHandler) UpdateStatusTavi(c echo.Context) error {
 // @Router /users/{id} [delete]
 func (h *HttpHandler) Delete(c echo.Context) error {
 	u := getUserFromToken(c)
-	if !u.IsAdmin() {
+	if !u.IsUserManager() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 

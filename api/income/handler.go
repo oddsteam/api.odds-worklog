@@ -130,7 +130,8 @@ func (h *HttpHandler) GetIndividualIncomeStatus(c echo.Context) error {
 }
 
 func (h *HttpHandler) getIncomeStatus(c echo.Context, incomeType string) error {
-	isAdmin, _ := IsUserAdmin(c)
+	u := getUserFromToken(c)
+	isAdmin := u.CanExportIncome()
 
 	status, err := h.ListIncomeStatusUsecase.GetIncomeStatusList(incomeType, isAdmin)
 	if err != nil {
@@ -213,8 +214,8 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 }
 
 func (h *HttpHandler) getExportIncome(c echo.Context, incomeType string) error {
-	isAdmin, message := IsUserAdmin(c)
-	if !isAdmin {
+	allowed, message := IsIncomeExportAllowed(c)
+	if !allowed {
 		return c.JSON(http.StatusUnauthorized, message)
 	}
 	month := c.Param("month")
@@ -229,6 +230,9 @@ func (h *HttpHandler) getExportIncome(c echo.Context, incomeType string) error {
 }
 
 func (h *HttpHandler) PostExportSAP(c echo.Context) error {
+	if allowed, message := IsIncomeExportAllowed(c); !allowed {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
 	var req = c.Request()
 	defer req.Body.Close()
 	decoder := json.NewDecoder(req.Body)
@@ -265,6 +269,9 @@ func (h *HttpHandler) PostExportSAP(c echo.Context) error {
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/export/pdf [post]
 func (h *HttpHandler) PostExportPdf(c echo.Context) error {
+	if allowed, message := IsIncomeExportAllowed(c); !allowed {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
 
 	var req = c.Request()
 	defer req.Body.Close()
@@ -290,9 +297,10 @@ func (h *HttpHandler) PostExportPdf(c echo.Context) error {
 	return c.Attachment(filename, filename)
 }
 
-func IsUserAdmin(c echo.Context) (bool, string) {
+// IsIncomeExportAllowed returns true only when the caller is a full admin (not user-admin).
+func IsIncomeExportAllowed(c echo.Context) (bool, string) {
 	u := getUserFromToken(c)
-	if u.IsAdmin() {
+	if u.CanExportIncome() {
 		return true, ""
 	}
 	return false, "ไม่มีสิทธิในการใช้งาน"

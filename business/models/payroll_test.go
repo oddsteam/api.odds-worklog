@@ -38,6 +38,8 @@ func TestPayroll(t *testing.T) {
 		assert.Equal(t, user.BankAccountNumber, res.BankAccountNumber)
 		assert.Equal(t, user.Email, res.Email)
 		assert.Equal(t, 2000.0, res.DailyRate)
+		assert.Equal(t, "40000.00", res.DailyIncomeBeforeTax)
+		assert.Equal(t, "20000.00", res.SpecialIncomeBeforeTax)
 		assert.Equal(t, "38800.00", res.NetDailyIncome)
 		assert.Equal(t, "19400.00", res.NetSpecialIncome)
 		assert.Equal(t, "58200.00", res.NetIncome)

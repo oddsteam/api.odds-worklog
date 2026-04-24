@@ -143,4 +143,31 @@ var (
 		},
 	}
 	TokenAdmin = jwt.NewWithClaims(jwt.SigningMethodHS256, claimsAdmin)
+
+	UserManager = models.User{
+		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39536"),
+		Role:              "user-admin",
+		FirstName:         "User",
+		LastName:          "Manager",
+		Email:             "useradmin@odds.team",
+		BankAccountName:   "User Manager",
+		BankAccountNumber: "123123123124",
+		ThaiCitizenID:     "1234567890124",
+		Vat:               "Y",
+		DailyIncome:       "",
+		StatusTavi:        true,
+		Address:           "every Where",
+	}
+
+	claimsUserManager = &models.JwtCustomClaims{
+		&models.UserClaims{
+			ID:         UserManager.ID.Hex(),
+			Role:       UserManager.Role,
+			StatusTavi: UserManager.StatusTavi,
+		},
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+		},
+	}
+	TokenUserManager = jwt.NewWithClaims(jwt.SigningMethodHS256, claimsUserManager)
 )
