@@ -59,6 +59,7 @@ const (
 	NAME_INDEX
 	ID_CARD_INDEX
 	EMAIL_INDEX
+	DAILY_INCOME_BEFORE_TAX_INDEX
 	NET_DAILY_INCOME_INDEX
 	NET_SPECIAL_INCOME_INDEX
 	LOAN_DEDUCTION_INDEX
@@ -70,7 +71,7 @@ const (
 )
 
 func createHeaders() []string {
-	return []string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน", "อีเมล", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "VAT", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
+	return []string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน", "อีเมล", "รายได้หลักก่อนคำนวนภาษี", "จำนวนเงินรายได้หลัก", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "VAT", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 }
 
 func export(i models.Payroll) []string {
@@ -82,6 +83,7 @@ func export(i models.Payroll) []string {
 		i.GetName(),
 		i.ThaiCitizenID(),
 		i.Email(),
+		models.FormatCommas(i.DailyIncomeBeforeTaxStr()),
 		models.FormatCommas(i.NetDailyIncomeStr()),
 		models.FormatCommas(i.NetSpecialIncomeStr()),
 		i.GetDeduction(),

@@ -1552,6 +1552,9 @@ components:
         netIncome:
           type: string
           description: Net income
+        dailyIncomeBeforeTax:
+          type: string
+          description: Daily income before tax
         netDailyIncome:
           type: string
           description: Net daily income
