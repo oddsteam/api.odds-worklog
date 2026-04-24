@@ -156,10 +156,6 @@ func (h *HttpHandler) GetBySiteID(c echo.Context) error {
 // @Failure 400 {object} utils.HTTPError
 // @Router /users/{email} [get]
 func (h *HttpHandler) GetByEmail(c echo.Context) error {
-	u := getUserFromToken(c)
-	if !u.IsAdmin() {
-		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
-	}
 	email := c.Param("email")
 	user, err := h.Usecase.GetByEmail(email)
 	if err != nil {

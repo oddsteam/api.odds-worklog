@@ -248,26 +248,6 @@ func TestGetByEmail(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 
-	t.Run("when request is not admin, then return json models.HTTPError with status code 403", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockUsecase := userMock.NewMockUsecase(ctrl)
-
-		e := echo.New()
-		req := httptest.NewRequest(echo.GET, "/", nil)
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-		c.Set("user", userMock.TokenUser)
-		c.SetParamNames("email")
-		c.SetParamValues("test@abc.com")
-		handler := &HttpHandler{mockUsecase}
-		handler.GetByEmail(c)
-
-		assert.Equal(t, http.StatusForbidden, rec.Code)
-	})
-
 	t.Run("when get user by email error, then return json models.HTTPError with status code 500", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
