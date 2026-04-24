@@ -64,7 +64,10 @@ func TestCSVWriter(t *testing.T) {
 
 		csvColumns := export(*p)
 
+		assert.Equal(t, "20", csvColumns[WORK_DATE_INDEX])
 		assert.Equal(t, "100.00", csvColumns[DAILY_INCOME_BEFORE_TAX_INDEX])
+		assert.Equal(t, "10", csvColumns[WORKING_HOURS_INDEX])
+		assert.Equal(t, "100.00", csvColumns[HOURLY_RATE_INDEX])
 		assert.Equal(t, "1,000.00", csvColumns[SPECIAL_INCOME_BEFORE_TAX_INDEX])
 		assert.Equal(t, "97.00", csvColumns[NET_DAILY_INCOME_INDEX])
 		assert.Equal(t, "970.00", csvColumns[NET_SPECIAL_INCOME_INDEX])
@@ -80,7 +83,7 @@ func TestCSVWriter(t *testing.T) {
 func TestCSVHeaders(t *testing.T) {
 	actual := createHeaders()
 	expected := [...]string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน",
-		"อีเมล", "รายได้หลักก่อนคำนวนภาษี", "จำนวนเงินรายได้หลัก", "รายได้พิเศษก่อนคำนวนภาษี", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ",
+		"อีเมล", "จำนวนวันทำงาน", "รายได้หลักก่อนคำนวนภาษี", "จำนวนเงินรายได้หลัก", "จำนวนชั่วโมงงานพิเศษ", "อัตราต่อชั่วโมง", "รายได้พิเศษก่อนคำนวนภาษี", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ",
 		"VAT", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก",
 	}
 	for i := 0; i < len(expected); i++ {

@@ -253,6 +253,18 @@ func (p *Payroll) Email() string {
 	return p.record.Email
 }
 
+func (p *Payroll) WorkDate() string {
+	return p.record.WorkDate
+}
+
+func (p *Payroll) WorkingHours() string {
+	return p.record.WorkingHours
+}
+
+func (p *Payroll) SpecialIncomeRateStr() string {
+	return p.record.SpecialIncome
+}
+
 func (p *Payroll) GetDeduction() string {
 	return p.loan.CSVAmount()
 }
