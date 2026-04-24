@@ -21,7 +21,7 @@ ODDS Worklog API is tested with:
 
 |         | Main version                |
 | ------- | --------------------------- |
-| Go      | 1.13, 1.20.5 (darwin/arm64) |
+| Go      | 1.25.1 (darwin/arm64) |
 | MongoDB | 4.0.3                       |
 
 ## Architecture
