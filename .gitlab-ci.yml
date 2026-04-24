@@ -8,8 +8,7 @@ stages:
   - test
   - build_and_tag
   - sqa
-  - build
-  - deploy
+  - update_tag_deployment
 
 variables:
   AWS_DEFAULT_REGION: "ap-southeast-1"
@@ -118,43 +117,10 @@ sonarqube-check:
   dependencies:
     - test
 
-build:
-  stage: build
-  image: docker:27
-  services:
-    - name: docker:27-dind
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-  needs:
-    - job: test
+update_tag_deployment:
+  stage: update_tag_deployment
   variables:
-    DOCKER_HOST: "tcp://docker:2375"
-    DOCKER_TLS_CERTDIR: ""
-  before_script:
-    - apk add --no-cache aws-cli
-    - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
-  script:
-    - docker build -t "$FULL_IMAGE_NAME" .
-    - docker push "$FULL_IMAGE_NAME"
-
-deploy:
-  stage: deploy
-  image: docker:27
-  tags:
-    - self-hosted
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-  needs:
-    - job: build
-  before_script:
-    - apk add --no-cache aws-cli openssh-client
-    - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
-    - eval "$(ssh-agent -s)"
-    - echo "$ODDS_CLOUD_DEV_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan -H "$ODDS_CLOUD_DEV_HOST" >> ~/.ssh/known_hosts
-  script:
-    - docker pull "$FULL_IMAGE_NAME"
-    - scp "deployment/dev/docker-compose.yaml" "ubuntu@${ODDS_CLOUD_DEV_HOST}:/home/ubuntu/worklog/docker-compose.yaml"
-    - ssh "ubuntu@${ODDS_CLOUD_DEV_HOST}" 'cd /home/ubuntu/worklog && docker compose pull && docker compose down && docker compose up -d'
+    UPSTREAM_TAG: $CI_COMMIT_SHA
+  trigger:
+    project: ODDS/internal/butler-deployment
+    branch: develop
