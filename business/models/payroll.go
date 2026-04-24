@@ -10,13 +10,13 @@ import (
 type Payroll struct {
 	UserID            string
 	dailyRate         float64
-	workDate          float64
-	specialHours      float64
-	specialIncomeRate float64
+	workedDays        float64
+	specialWorkingHours float64
+	specialHourlyRate float64
 	isVATRegistered   bool
-	userDetail        *User
+	userProfile       *User
 	loan              *StudentLoan
-	record            *Income
+	incomeRecord      *Income
 }
 
 func NewPayroll(uidFromSession string) *Payroll {
@@ -30,7 +30,7 @@ func NewPayrollFromIncome(record Income) *Payroll {
 	p := Payroll{
 		UserID:          record.UserID,
 		loan:            &StudentLoan{},
-		record:          &record,
+		incomeRecord:    &record,
 		dailyRate:       record.DailyRate,
 		isVATRegistered: record.IsVATRegistered,
 	}
@@ -67,19 +67,19 @@ func (p *Payroll) parseRequest(req IncomeReq, userDetail User) error {
 	if err != nil {
 		return err
 	}
-	p.userDetail = &userDetail
+	p.userProfile = &userDetail
 	p.dailyRate = p.getUserDailyRate()
 	p.isVATRegistered = p.isUserVATRegistered()
 	return nil
 }
 
 func (p *Payroll) getUserDailyRate() float64 {
-	dr, _ := StringToFloat64(p.userDetail.DailyIncome)
+	dr, _ := StringToFloat64(p.userProfile.DailyIncome)
 	return dr
 }
 
 func (p *Payroll) isUserVATRegistered() bool {
-	return p.userDetail.Vat == "Y"
+	return p.userProfile.Vat == "Y"
 }
 
 func (p *Payroll) prepareDataForAddIncome(req IncomeReq, userDetail User) (*Income, error) {
@@ -126,17 +126,17 @@ func (p *Payroll) prepareDataForUpdateIncome(req IncomeReq, userDetail User, inc
 
 func (p *Payroll) parse(req IncomeReq) error {
 	var err error
-	p.workDate, err = StringToFloat64(req.WorkDate)
+	p.workedDays, err = StringToFloat64(req.WorkDate)
 	if err != nil {
-		p.workDate = 0
+		p.workedDays = 0
 	}
-	p.specialHours, err = StringToFloat64(req.WorkingHours)
+	p.specialWorkingHours, err = StringToFloat64(req.WorkingHours)
 	if err != nil {
-		p.specialHours = 0
+		p.specialWorkingHours = 0
 	}
-	p.specialIncomeRate, err = StringToFloat64(req.SpecialIncome)
+	p.specialHourlyRate, err = StringToFloat64(req.SpecialIncome)
 	if err != nil {
-		p.specialIncomeRate = 0
+		p.specialHourlyRate = 0
 	}
 	return nil
 }
@@ -190,7 +190,7 @@ func (p *Payroll) totalIncome() float64 {
 }
 
 func (p *Payroll) dailyIncome() float64 {
-	return (p.workDate * p.dailyRate)
+	return (p.workedDays * p.dailyRate)
 }
 
 func (p *Payroll) NetSpecialIncomeStr() string {
@@ -202,7 +202,7 @@ func (p *Payroll) netSpecialIncome() float64 {
 }
 
 func (p *Payroll) specialIncome() float64 {
-	return p.specialHours * p.specialIncomeRate
+	return p.specialWorkingHours * p.specialHourlyRate
 }
 
 func (p *Payroll) WitholdingTax(totalIncome float64) float64 {
@@ -229,40 +229,40 @@ func (p *Payroll) TotalVATStr() string {
 }
 
 func (p *Payroll) Note() string {
-	return p.record.Note
+	return p.incomeRecord.Note
 }
 
 func (p *Payroll) SubmitDateStr() string {
-	t := p.record.SubmitDate
+	t := p.incomeRecord.SubmitDate
 	return fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", t.Day(), int(t.Month()), t.Year(), (t.Hour() + 7), t.Minute(), t.Second())
 }
 
 func (p *Payroll) GetName() string {
-	return p.record.Name
+	return p.incomeRecord.Name
 }
 
 func (p *Payroll) BankAccountNumber() string {
-	return p.record.BankAccountNumber
+	return p.incomeRecord.BankAccountNumber
 }
 
 func (p *Payroll) ThaiCitizenID() string {
-	return p.record.ThaiCitizenID
+	return p.incomeRecord.ThaiCitizenID
 }
 
 func (p *Payroll) Email() string {
-	return p.record.Email
+	return p.incomeRecord.Email
 }
 
 func (p *Payroll) WorkDate() string {
-	return p.record.WorkDate
+	return p.incomeRecord.WorkDate
 }
 
 func (p *Payroll) WorkingHours() string {
-	return p.record.WorkingHours
+	return p.incomeRecord.WorkingHours
 }
 
 func (p *Payroll) SpecialIncomeRateStr() string {
-	return p.record.SpecialIncome
+	return p.incomeRecord.SpecialIncome
 }
 
 func (p *Payroll) GetDeduction() string {
@@ -270,7 +270,7 @@ func (p *Payroll) GetDeduction() string {
 }
 
 func (p *Payroll) GetBankAccountName() string {
-	return p.record.BankAccountName
+	return p.incomeRecord.BankAccountName
 }
 
 func GivenIndividualUser(uidFromSession string, dailyIncome string) User {
