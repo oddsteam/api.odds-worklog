@@ -122,5 +122,5 @@ update_tag_deployment:
   variables:
     UPSTREAM_TAG: $CI_COMMIT_SHA
   trigger:
-    project: ODDS/internal/butler-deployment
+    project: ODDS/api-odds-worklog-deployment
     branch: develop
