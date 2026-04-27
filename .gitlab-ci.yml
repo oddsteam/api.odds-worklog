@@ -123,4 +123,4 @@ update_tag_deployment:
     UPSTREAM_TAG: $CI_COMMIT_SHA
   trigger:
     project: ODDS/api-odds-worklog-deployment
-    branch: develop
+    branch: main
