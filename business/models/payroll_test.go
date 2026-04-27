@@ -180,6 +180,30 @@ func TestPayroll(t *testing.T) {
 		assert.Equal(t, "970.00", p.NetSpecialIncomeStr())
 	})
 
+	t.Run("calculate decimal daily and special income and apply 3 percent withholding tax to both", func(t *testing.T) {
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		user := GivenIndividualUser(uidFromSession, "100")
+		req := IncomeReq{
+			WorkDate:      "20.50",
+			SpecialIncome: "100.50",
+			WorkingHours:  "10",
+		}
+		p := NewPayroll(uidFromSession)
+
+		err := p.parseRequest(req, user)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 2050.0, p.dailyIncome())
+		assert.Equal(t, 61.5, p.WitholdingTax(p.dailyIncome()))
+		assert.Equal(t, "1988.50", p.NetDailyIncomeStr())
+		assert.Equal(t, 1005.0, p.specialIncome())
+		assert.Equal(t, 30.15, p.WitholdingTax(p.specialIncome()))
+		assert.Equal(t, "974.85", p.NetSpecialIncomeStr())
+		assert.Equal(t, "91.65", p.TotalWHTStr())
+		assert.Equal(t, "3055.00", p.totalIncomeStr())
+		assert.Equal(t, "2963.35", p.TransferAmountStr())
+	})
+
 	t.Run("calculate individual income สำหรับคนที่มีหนี้ กยศ และบริษัทหักและนำส่งไว้", func(t *testing.T) {
 		// เพื่อแก้ปัญหาที่คนไทยหลายคนไม่ยอมใช้หนี้ กยศ ทาง กยศ เลยมีมาตรการให้บริษัท
 		// ชำระหนี้ กยศ แทนพนักงาน โดยให้ทางบริษัทหักหนี้ กยศ ออกจากรายได้เลย
