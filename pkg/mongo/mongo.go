@@ -1,7 +1,9 @@
 package mongo
 
 import (
+	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	mgo "github.com/globalsign/mgo"
@@ -23,6 +25,22 @@ func Setup() *Session {
 	return session
 }
 
+// redactedMongoDialDescription returns a mongodb:// URL shape for logs only; password is never included.
+func redactedMongoDialDescription(info *mgo.DialInfo) string {
+	addrs := strings.Join(info.Addrs, ",")
+	if addrs == "" {
+		addrs = "(no addresses)"
+	}
+	db := info.Database
+	if db == "" {
+		db = "(no database)"
+	}
+	if info.Username != "" {
+		return fmt.Sprintf("mongodb://%s:***@%s/%s", info.Username, addrs, db)
+	}
+	return fmt.Sprintf("mongodb://%s/%s", addrs, db)
+}
+
 func NewSession(config *models.Config) (*Session, error) {
 	dialInfo := &mgo.DialInfo{
 		Addrs:    []string{config.MongoDBHost},
@@ -33,7 +51,8 @@ func NewSession(config *models.Config) (*Session, error) {
 	}
 	session, err := mgo.DialWithInfo(dialInfo)
 	if err != nil {
-		return nil, err
+		desc := redactedMongoDialDescription(dialInfo)
+		return nil, fmt.Errorf("%w (attempted: %s)", err, desc)
 	}
 	session.SetMode(mgo.Monotonic, true)
 	session.SetPoolLimit(config.MongoDBConectionPool)
