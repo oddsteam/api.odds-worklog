@@ -11,12 +11,6 @@ stages:
   - update_tag_deployment
 
 variables:
-  AWS_DEFAULT_REGION: "ap-southeast-1"
-  ECR_REGISTRY: "844772501268.dkr.ecr.ap-southeast-1.amazonaws.com"
-  IMAGE_NAME: "api-worklog"
-  IMAGE_TAG: "dev-odds-cloud"
-  FULL_IMAGE_NAME: "$ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
-  SONAR_SCANNER_VERSION: "6.2.1.4610"
   GOMODCACHE: $CI_PROJECT_DIR/.cache/go-mod
   GOCACHE: $CI_PROJECT_DIR/.cache/go-build
 
