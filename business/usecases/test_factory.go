@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"github.com/golang/mock/gomock"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	mock_usecases "gitlab.odds.team/worklog/api.odds-worklog/business/usecases/mock"
@@ -91,7 +91,7 @@ func (m *MockIncomeRepository) ExpectGetAllIncomeByRoleStartDateAndEndDate(incom
 }
 
 func (m *MockIncomeRepository) ExpectGetUserByID(id string) {
-	m.mockGettingUserByID.EXPECT().GetByID(id).Return(&models.User{ID: bson.ObjectIdHex(id)}, nil)
+	m.mockGettingUserByID.EXPECT().GetByID(id).Return(&models.User{ID: bsonutil.MustObjectIDFromHex(id)}, nil)
 }
 
 func (m *MockIncomeRepository) ExpectGetCurrentUserIncomeNotFound(id string) {

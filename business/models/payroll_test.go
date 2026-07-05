@@ -3,13 +3,13 @@ package models
 import (
 	"testing"
 
-	"github.com/globalsign/mgo/bson"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"github.com/stretchr/testify/assert"
 )
 
 // Local test mock for IndividualUser1
 var testIndividualUser1 = User{
-	ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39531"),
+	ID:                bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39531"),
 	Role:              "individual",
 	FirstName:         "first",
 	LastName:          "last",
@@ -283,7 +283,7 @@ func TestPayroll(t *testing.T) {
 	t.Run("calculate corporate income", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := User{
-			ID:   bson.ObjectIdHex(uidFromSession),
+			ID:   bsonutil.MustObjectIDFromHex(uidFromSession),
 			Role: "corporate",
 			// ปรกติเวลารายได้เกิน 1.8 ล้าน/ปี ต้องจด VAT
 			// ref: https://www.rd.go.th/fileadmin/user_upload/SMEs/infographic/SME_lv1_3.pdf

@@ -3,11 +3,11 @@ package models
 import (
 	"time"
 
-	"github.com/globalsign/mgo/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Export struct {
-	ID       bson.ObjectId `bson:"_id" json:"id"`
+	ID       primitive.ObjectID `bson:"_id" json:"id"`
 	Filename string        `bson:"filename" json:"filename"`
 	Date     time.Time     `bson:"date" json:"date"`
 }

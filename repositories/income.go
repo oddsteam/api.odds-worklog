@@ -3,9 +3,11 @@ package repositories
 import (
 	"time"
 
-	"github.com/globalsign/mgo/bson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 )
 
@@ -46,14 +48,12 @@ func (r *incomeRepository) AddIncome(income *models.Income) error {
 func (r *incomeRepository) AddIncomeOnSpecificTime(income *models.Income, t time.Time) error {
 	income.SubmitDate = t
 	income.LastUpdate = t
-	income.ID = bson.NewObjectId()
+	income.ID = primitive.NewObjectID()
 	income.ExportStatus = false
 	coll := r.session.GetCollection(incomeColl)
-	err := coll.Insert(income)
-	if err != nil {
-		return err
-	}
-	return nil
+	ctx := r.session.Ctx()
+	_, err := coll.InsertOne(ctx, income)
+	return err
 }
 
 func (r *incomeRepository) GetIncomeUserByYearMonth(id string, fromYear int, fromMonth time.Month) (*models.Income, error) {
@@ -70,8 +70,13 @@ func (r *incomeRepository) GetIncomeByUserIdAllMonth(id string) ([]*models.Incom
 	income := make([]*models.Income, 0)
 
 	coll := r.session.GetCollection(incomeColl)
-	err := coll.Find(bson.M{"userId": id}).All(&income)
+	ctx := r.session.Ctx()
+	cursor, err := coll.Find(ctx, bson.M{"userId": id})
 	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+	if err := cursor.All(ctx, &income); err != nil {
 		return nil, err
 	}
 	return income, nil
@@ -80,7 +85,11 @@ func (r *incomeRepository) GetIncomeByUserIdAllMonth(id string) ([]*models.Incom
 func (r *incomeRepository) GetIncomeByID(incID, uID string) (*models.Income, error) {
 	income := new(models.Income)
 	coll := r.session.GetCollection(incomeColl)
-	err := coll.Find(bson.M{"_id": bson.ObjectIdHex(incID), "userId": uID}).One(&income)
+	ctx := r.session.Ctx()
+	err := coll.FindOne(ctx, bson.M{
+		"_id":    bsonutil.MustObjectIDFromHex(incID),
+		"userId": uID,
+	}).Decode(income)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +130,8 @@ func createQueryByPeriod(startDate time.Time, endDate time.Time) bson.M {
 func getIncomeByQuery(r *incomeRepository, query bson.M) (*models.Income, error) {
 	income := new(models.Income)
 	coll := r.session.GetCollection(incomeColl)
-	err := coll.Find(query).One(&income)
+	ctx := r.session.Ctx()
+	err := coll.FindOne(ctx, query).Decode(income)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +141,8 @@ func getIncomeByQuery(r *incomeRepository, query bson.M) (*models.Income, error)
 func getIncomeByUserIDWithQuery(r *incomeRepository, uID string, fromYear int, fromMonth time.Month, query bson.M) (*models.Income, error) {
 	income := new(models.Income)
 	coll := r.session.GetCollection(incomeColl)
-	err := coll.Find(query).One(&income)
+	ctx := r.session.Ctx()
+	err := coll.FindOne(ctx, query).Decode(income)
 	if err != nil {
 		return nil, err
 	}
@@ -142,31 +153,27 @@ func (r *incomeRepository) UpdateIncome(income *models.Income) error {
 	income.LastUpdate = time.Now()
 	income.ExportStatus = false
 	coll := r.session.GetCollection(incomeColl)
-	err := coll.UpdateId(income.ID, &income)
-	if err != nil {
-		return err
-	}
-	return nil
+	ctx := r.session.Ctx()
+	_, err := coll.UpdateOne(ctx, bson.M{"_id": income.ID}, bson.M{"$set": income})
+	return err
 }
 
 func (r *incomeRepository) DropIncome() error {
-	return r.session.GetCollection(incomeColl).DropCollection()
+	coll := r.session.GetCollection(incomeColl)
+	return coll.Drop(r.session.Ctx())
 }
 
 func (r *incomeRepository) UpdateExportStatus(id string) error {
 	income := new(models.Income)
 	coll := r.session.GetCollection(incomeColl)
-	err := coll.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&income)
-
+	ctx := r.session.Ctx()
+	err := coll.FindOne(ctx, bson.M{"_id": bsonutil.MustObjectIDFromHex(id)}).Decode(income)
 	if err != nil {
 		return err
 	}
 
-	err = coll.Update(bson.M{"_id": income.ID}, bson.M{"$set": bson.M{"exportStatus": true}})
-	if err != nil {
-		return err
-	}
-	return nil
+	_, err = coll.UpdateOne(ctx, bson.M{"_id": income.ID}, bson.M{"$set": bson.M{"exportStatus": true}})
+	return err
 }
 
 func (r *incomeRepository) GetAllIncomeByRoleStartDateAndEndDate(role string, startDate time.Time, endDate time.Time) ([]*models.Income, error) {
@@ -189,8 +196,13 @@ func getAllInComeByQuery(r *incomeRepository, query bson.M) ([]*models.Income, e
 	incomes := make([]*models.Income, 0)
 
 	coll := r.session.GetCollection(incomeColl)
-	err := coll.Find(query).All(&incomes)
+	ctx := r.session.Ctx()
+	cursor, err := coll.Find(ctx, query)
 	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+	if err := cursor.All(ctx, &incomes); err != nil {
 		return nil, err
 	}
 	return incomes, nil
@@ -198,6 +210,8 @@ func getAllInComeByQuery(r *incomeRepository, query bson.M) ([]*models.Income, e
 
 func (r *incomeRepository) AddExport(ep *models.Export) error {
 	coll := r.session.GetCollection(exportColl)
-	ep.ID = bson.NewObjectId()
-	return coll.Insert(ep)
+	ep.ID = primitive.NewObjectID()
+	ctx := r.session.Ctx()
+	_, err := coll.InsertOne(ctx, ep)
+	return err
 }

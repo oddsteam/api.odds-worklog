@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 )
 
 // Mock user data - duplicated here to avoid import cycle with api/user/mock
 var (
 	mockUser = User{
-		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39539"),
+		ID:                bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39539"),
 		Role:              "corporate",
 		FirstName:         "Tester",
 		LastName:          "Super",
@@ -28,7 +28,7 @@ var (
 
 var (
 	MockIncome = Income{
-		ID:               bson.ObjectIdHex("5bd1fda30fd2df2a3e41e569"),
+		ID:               bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e569"),
 		UserID:           "5bbcf2f90fd2df527bc39539",
 		TotalIncome:      "100000",
 		NetIncome:        "116400.00",
@@ -44,7 +44,7 @@ var (
 		ExportStatus:     false,
 	}
 	MockIncome2 = Income{
-		ID:               bson.ObjectIdHex("5bd1fda30fd2df2a3e41e570"),
+		ID:               bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e570"),
 		UserID:           "5bbcf2f90fd2df527bc39530",
 		TotalIncome:      "100000",
 		NetIncome:        "00.00",
@@ -60,7 +60,7 @@ var (
 		ExportStatus:     false,
 	}
 	MockIndividualIncome = Income{
-		ID:               bson.ObjectIdHex("5bd1fda30fd2df2a3e41e568"),
+		ID:               bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e568"),
 		UserID:           "5bbcf2f90fd2df527bc39531",
 		TotalIncome:      "110.00",
 		NetIncome:        "106.70",
@@ -76,7 +76,7 @@ var (
 		ExportStatus:     false,
 	}
 	MockIncomeNoNetSpecialIncome = Income{
-		ID:             bson.ObjectIdHex("5bd1fda30fd2df2a3e41e569"),
+		ID:             bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e569"),
 		UserID:         "5bbcf2f90fd2df527bc39539",
 		TotalIncome:    "100000",
 		NetIncome:      "00.00",
@@ -91,7 +91,7 @@ var (
 		ExportStatus:   false,
 	}
 	MockSoloCorporateIncome = Income{
-		ID:                bson.ObjectIdHex("5bd1fda30fd2df2a3e41e568"),
+		ID:                bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e568"),
 		UserID:            "5bbcf2f90fd2df527bc39531",
 		Name:              "บจก. โซโล่ เลเวลลิ่ง",
 		BankAccountName:   "บริษัท โซโล่ เลเวลลิ่ง จำกัด",
@@ -112,8 +112,8 @@ var (
 		BankAccountNumber: "2462737202",
 	}
 	MockSwardCorporateIncome = Income{
-		ID:                bson.ObjectIdHex("5bd1fda30fd2df2a3e41e568"),
-		UserID:            string(bson.ObjectIdHex("5bbcf2f90fd2df527bc39531")),
+		ID:                bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e568"),
+		UserID:            bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39531").Hex(),
 		Name:              "บจ. ดาบพิฆาตอสูร",
 		TotalIncome:       "0.00",
 		NetIncome:         "5260.00",

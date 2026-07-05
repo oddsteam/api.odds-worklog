@@ -5,16 +5,17 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 )
 
 func TestCSVWriter(t *testing.T) {
 	t.Run("test updatedIncomeIds when มีคนตกขบวน", func(t *testing.T) {
 		users := []*models.User{
-			{ID: "id1"},
-			{ID: "id2"},
+			{ID: bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39501")},
+			{ID: bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39502")},
 		}
 		records := []*models.Income{
-			{ID: "incomeId1", UserID: users[0].ID.Hex()},
+			{ID: bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e601"), UserID: users[0].ID.Hex()},
 		}
 		pc := models.NewPayrollCycle(records, models.StudentLoanList{})
 
@@ -105,7 +106,7 @@ func TestModelIncomes(t *testing.T) {
 
 	t.Run("test export to CSV when there is 1 income", func(t *testing.T) {
 		records := []*models.Income{
-			{ID: "incomeId"},
+			{ID: bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e602")},
 		}
 		pc := models.NewPayrollCycle(records, models.StudentLoanList{})
 
@@ -119,8 +120,8 @@ func TestModelIncomes(t *testing.T) {
 
 	t.Run("test export to CSV when there is n incomes", func(t *testing.T) {
 		records := []*models.Income{
-			{ID: "incomeId1"},
-			{ID: "incomeId2"},
+			{ID: bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e603")},
+			{ID: bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e604")},
 		}
 		pc := models.NewPayrollCycle(records, models.StudentLoanList{})
 
@@ -134,8 +135,8 @@ func TestModelIncomes(t *testing.T) {
 
 	t.Run("test export to CSV with running vendor codes", func(t *testing.T) {
 		records := []*models.Income{
-			{ID: "incomeId1"},
-			{ID: "incomeId2"},
+			{ID: bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e603")},
+			{ID: bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e604")},
 		}
 		pc := models.NewPayrollCycle(records, models.StudentLoanList{})
 
@@ -151,11 +152,11 @@ func TestModelIncomes(t *testing.T) {
 
 	t.Run("test export to CSV when มีคนตกขบวน", func(t *testing.T) {
 		users := []*models.User{
-			{ID: "id1"},
-			{ID: "id2"},
+			{ID: bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39501")},
+			{ID: bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39502")},
 		}
 		records := []*models.Income{
-			{ID: "incomeId1", UserID: users[0].ID.Hex()},
+			{ID: bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e601"), UserID: users[0].ID.Hex()},
 		}
 		pc := models.NewPayrollCycle(records, models.StudentLoanList{})
 
@@ -172,7 +173,7 @@ func TestModelIncomes(t *testing.T) {
 		// เวลา export different individuals (คนที่ยังไม่ถูก export, เพราะตัดรอบไปก่อน)
 		// จะได้รู้ว่าใครบ้างที่ export ไปแล้ว
 		records := []*models.Income{
-			{ID: "incomeId"},
+			{ID: bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e602")},
 		}
 		pc := models.NewPayrollCycle(records, models.StudentLoanList{})
 

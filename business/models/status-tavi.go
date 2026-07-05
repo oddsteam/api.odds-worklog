@@ -1,10 +1,10 @@
 package models
 
 import (
-	"github.com/globalsign/mgo/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type StatusTavi struct {
-	ID   bson.ObjectId `bson:"_id" json:"id"`
+	ID   primitive.ObjectID `bson:"_id" json:"id"`
 	User *User         `bson:"user" json:"user,omitempty"`
 }

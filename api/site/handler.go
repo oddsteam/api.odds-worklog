@@ -4,13 +4,13 @@ import (
 	"errors"
 	"net/http"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	validator "gopkg.in/go-playground/validator.v9"
-	"github.com/globalsign/mgo/bson"
 )
 
 type HttpHandler struct {
@@ -73,7 +73,7 @@ func (h *HttpHandler) UpdateSiteGroup(c echo.Context) error {
 	}
 
 	site := models.Site{
-		ID: bson.ObjectIdHex(id),
+		ID: bsonutil.MustObjectIDFromHex(id),
 	}
 	if err := c.Bind(&site); err != nil {
 		return utils.NewError(c, http.StatusUnprocessableEntity, err)

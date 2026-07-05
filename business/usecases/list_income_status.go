@@ -3,6 +3,7 @@ package usecases
 import (
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 )
 
@@ -31,7 +32,7 @@ func (u *listIncomeStatusUsecase) GetIncomeStatusList(role string, isAdmin bool)
 		income := models.IncomeStatus{User: element}
 		incomeList = append(incomeList, &income)
 		if !isAdmin {
-			element.ID = ""
+			element.ID = primitive.NilObjectID
 		}
 		if err != nil {
 			incomeList[index].Status = "N"

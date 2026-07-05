@@ -1,19 +1,20 @@
 package mongo
 
 import (
+	"context"
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
-	mgo "github.com/globalsign/mgo"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
 )
 
 type Session struct {
-	MgoSession *mgo.Session
-	DBName     string
+	client *mongo.Client
+	dbName string
 }
 
 func Setup() *Session {
@@ -25,58 +26,82 @@ func Setup() *Session {
 	return session
 }
 
+type dialInfo struct {
+	host     string
+	database string
+	username string
+	password string
+}
+
 // redactedMongoDialDescription returns a mongodb:// URL shape for logs only; password is never included.
-func redactedMongoDialDescription(info *mgo.DialInfo) string {
-	addrs := strings.Join(info.Addrs, ",")
-	if addrs == "" {
-		addrs = "(no addresses)"
+func redactedMongoDialDescription(info dialInfo) string {
+	host := info.host
+	if host == "" {
+		host = "(no addresses)"
 	}
-	db := info.Database
+	db := info.database
 	if db == "" {
 		db = "(no database)"
 	}
-	if info.Username != "" {
-		return fmt.Sprintf("mongodb://%s:***@%s/%s", info.Username, addrs, db)
+	if info.username != "" {
+		return fmt.Sprintf("mongodb://%s:***@%s/%s", info.username, host, db)
 	}
-	return fmt.Sprintf("mongodb://%s/%s", addrs, db)
+	return fmt.Sprintf("mongodb://%s/%s", host, db)
 }
 
 func NewSession(config *models.Config) (*Session, error) {
-	dialInfo := &mgo.DialInfo{
-		Addrs:    []string{config.MongoDBHost},
-		Timeout:  60 * time.Second,
-		Database: config.MongoDBName,
-		Username: config.Username,
-		Password: config.Password,
+	info := dialInfo{
+		host:     config.MongoDBHost,
+		database: config.MongoDBName,
+		username: config.Username,
+		password: config.Password,
 	}
-	session, err := mgo.DialWithInfo(dialInfo)
+
+	clientOpts := options.Client().
+		ApplyURI(fmt.Sprintf("mongodb://%s", config.MongoDBHost)).
+		SetAuth(options.Credential{
+			AuthSource: config.MongoDBName,
+			Username:   config.Username,
+			Password:   config.Password,
+		}).
+		SetConnectTimeout(60 * time.Second).
+		SetMaxPoolSize(uint64(config.MongoDBConectionPool))
+
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	client, err := mongo.Connect(ctx, clientOpts)
 	if err != nil {
-		desc := redactedMongoDialDescription(dialInfo)
+		desc := redactedMongoDialDescription(info)
 		return nil, fmt.Errorf("%w (attempted: %s)", err, desc)
 	}
-	session.SetMode(mgo.Monotonic, true)
-	session.SetPoolLimit(config.MongoDBConectionPool)
 
-	return &Session{session, config.MongoDBName}, err
+	if err := client.Ping(ctx, nil); err != nil {
+		desc := redactedMongoDialDescription(info)
+		_ = client.Disconnect(context.Background())
+		return nil, fmt.Errorf("%w (attempted: %s)", err, desc)
+	}
+
+	return &Session{client: client, dbName: config.MongoDBName}, nil
 }
 
-func (s *Session) Copy() *Session {
-	return &Session{s.MgoSession.Copy(), s.DBName}
+func (s *Session) Ctx() context.Context {
+	return context.Background()
 }
 
-func (s *Session) GetCollection(col string) *mgo.Collection {
-	return s.MgoSession.DB(s.DBName).C(col)
+func (s *Session) GetCollection(col string) *mongo.Collection {
+	return s.client.Database(s.dbName).Collection(col)
 }
 
 func (s *Session) Close() {
-	if s.MgoSession != nil {
-		s.MgoSession.Close()
+	if s.client != nil {
+		_ = s.client.Disconnect(context.Background())
 	}
 }
 
 func (s *Session) DropDatabase(db string) error {
-	if s.MgoSession != nil {
-		return s.MgoSession.DB(db).DropDatabase()
+	if s.client != nil {
+		return s.client.Database(db).Drop(s.Ctx())
 	}
 	return nil
 }

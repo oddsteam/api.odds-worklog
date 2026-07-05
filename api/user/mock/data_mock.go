@@ -5,13 +5,13 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/globalsign/mgo/bson"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 )
 
 var (
 	User = models.User{
-		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39539"),
+		ID:                bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39539"),
 		Role:              "corporate",
 		FirstName:         "Tester",
 		LastName:          "Super",
@@ -27,7 +27,7 @@ var (
 	}
 
 	User2 = models.User{
-		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39530"),
+		ID:                bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39530"),
 		Role:              "corporate",
 		FirstName:         "Tester",
 		LastName:          "Super",
@@ -43,7 +43,7 @@ var (
 	}
 
 	IndividualUser1 = models.User{
-		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39531"),
+		ID:                bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39531"),
 		Role:              "individual",
 		FirstName:         "first",
 		LastName:          "last",
@@ -59,7 +59,7 @@ var (
 	}
 
 	CorporateSolo = models.User{
-		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39531"),
+		ID:                bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39531"),
 		Role:              "corporate",
 		FirstName:         "",
 		LastName:          "",
@@ -76,16 +76,16 @@ var (
 	}
 
 	StatusTavi = models.StatusTavi{
-		ID:   bson.ObjectIdHex("5bbcf2f90fd2df527bc39539"),
+		ID:   bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39539"),
 		User: &User,
 	}
 	StatusTavi2 = models.StatusTavi{
-		ID:   bson.ObjectIdHex("5bbcf2f90fd2df527bc39535"),
+		ID:   bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39535"),
 		User: &User2,
 	}
 
 	Admin = models.User{
-		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39535"),
+		ID:                bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39535"),
 		Role:              "admin",
 		FirstName:         "Tester",
 		LastName:          "Super",
@@ -145,7 +145,7 @@ var (
 	TokenAdmin = jwt.NewWithClaims(jwt.SigningMethodHS256, claimsAdmin)
 
 	UserManager = models.User{
-		ID:                bson.ObjectIdHex("5bbcf2f90fd2df527bc39536"),
+		ID:                bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39536"),
 		Role:              "user-admin",
 		FirstName:         "User",
 		LastName:          "Manager",

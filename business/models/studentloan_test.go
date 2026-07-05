@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	mock_user "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 )
@@ -12,8 +13,8 @@ import (
 func TestFindLoanForUserUsingBankAccountName(t *testing.T) {
 	sll := models.StudentLoanList{
 		List: []models.StudentLoan{
-			{ID: "", Fullname: "คนอื่น ที่ไม่ใช่", Amount: 943},
-			{ID: "", Fullname: "ชื่อ นามสกุล", Amount: 1579},
+			{ID: primitive.NilObjectID, Fullname: "คนอื่น ที่ไม่ใช่", Amount: 943},
+			{ID: primitive.NilObjectID, Fullname: "ชื่อ นามสกุล", Amount: 1579},
 		}}
 	acc := mock_user.IndividualUser1.BankAccountName
 	actual := sll.FindLoan(acc)
@@ -24,7 +25,7 @@ func TestFindLoanForUserUsingBankAccountName(t *testing.T) {
 func TestFindLoanForUserWhoseBankAccountNameContainsTitle(t *testing.T) {
 	sll := models.StudentLoanList{
 		List: []models.StudentLoan{
-			{ID: "", Fullname: "ชื่อ นามสกุล", Amount: 1579},
+			{ID: primitive.NilObjectID, Fullname: "ชื่อ นามสกุล", Amount: 1579},
 		}}
 	acc := "นายชื่อ นามสกุล"
 	actual := sll.FindLoan(acc)
@@ -34,7 +35,7 @@ func TestFindLoanForUserWhoseBankAccountNameContainsTitle(t *testing.T) {
 func TestAmountIs0WhenCannotFindLoanForUser(t *testing.T) {
 	sll := models.StudentLoanList{
 		List: []models.StudentLoan{
-			{ID: "", Fullname: "คนอื่น ที่ไม่ใช่", Amount: 943},
+			{ID: primitive.NilObjectID, Fullname: "คนอื่น ที่ไม่ใช่", Amount: 943},
 		}}
 	acc := mock_user.IndividualUser1.BankAccountName
 	actual := sll.FindLoan(acc)

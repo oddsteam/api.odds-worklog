@@ -8,6 +8,7 @@ report/
 *.dll
 *.so
 *.dylib
+api.odds-worklog
 
 # Test binary, build with `go test -c`
 *.test

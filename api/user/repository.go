@@ -3,8 +3,10 @@ package user
 import (
 	"time"
 
-	"github.com/globalsign/mgo/bson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 )
 
@@ -21,12 +23,13 @@ func NewRepository(session *mongo.Session) Repository {
 
 func (r *repository) Create(u *models.User) (*models.User, error) {
 	t := time.Now()
-	u.ID = bson.NewObjectId()
+	u.ID = primitive.NewObjectID()
 	u.Create = t
 	u.LastUpdate = t
 
 	coll := r.session.GetCollection(userColl)
-	err := coll.Insert(u)
+	ctx := r.session.Ctx()
+	_, err := coll.InsertOne(ctx, u)
 	if err != nil {
 		return nil, err
 	}
@@ -37,8 +40,13 @@ func (r *repository) Get() ([]*models.User, error) {
 	users := make([]*models.User, 0)
 
 	coll := r.session.GetCollection(userColl)
-	err := coll.Find(bson.M{}).All(&users)
+	ctx := r.session.Ctx()
+	cursor, err := coll.Find(ctx, bson.M{})
 	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+	if err := cursor.All(ctx, &users); err != nil {
 		return nil, err
 	}
 	return users, nil
@@ -48,8 +56,13 @@ func (r *repository) GetByRole(role string) ([]*models.User, error) {
 	users := make([]*models.User, 0)
 
 	coll := r.session.GetCollection(userColl)
-	err := coll.Find(bson.M{"role": role}).All(&users)
+	ctx := r.session.Ctx()
+	cursor, err := coll.Find(ctx, bson.M{"role": role})
 	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+	if err := cursor.All(ctx, &users); err != nil {
 		return nil, err
 	}
 	return users, nil
@@ -58,7 +71,8 @@ func (r *repository) GetByRole(role string) ([]*models.User, error) {
 func (r *repository) GetByID(id string) (*models.User, error) {
 	user := new(models.User)
 	coll := r.session.GetCollection(userColl)
-	err := coll.FindId(bson.ObjectIdHex(id)).One(&user)
+	ctx := r.session.Ctx()
+	err := coll.FindOne(ctx, bson.M{"_id": bsonutil.MustObjectIDFromHex(id)}).Decode(user)
 	if err != nil {
 		return nil, err
 	}
@@ -69,8 +83,13 @@ func (r *repository) GetBySiteID(id string) ([]*models.User, error) {
 	users := make([]*models.User, 0)
 
 	coll := r.session.GetCollection(userColl)
-	err := coll.Find(bson.M{"siteId": id}).All(&users)
+	ctx := r.session.Ctx()
+	cursor, err := coll.Find(ctx, bson.M{"siteId": id})
 	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+	if err := cursor.All(ctx, &users); err != nil {
 		return nil, err
 	}
 	return users, nil
@@ -79,7 +98,8 @@ func (r *repository) GetBySiteID(id string) ([]*models.User, error) {
 func (r *repository) GetByEmail(email string) (*models.User, error) {
 	user := new(models.User)
 	coll := r.session.GetCollection(userColl)
-	err := coll.Find(bson.M{"email": email}).One(&user)
+	ctx := r.session.Ctx()
+	err := coll.FindOne(ctx, bson.M{"email": email}).Decode(user)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +109,8 @@ func (r *repository) GetByEmail(email string) (*models.User, error) {
 func (r *repository) Update(user *models.User) (*models.User, error) {
 	user.LastUpdate = time.Now()
 	coll := r.session.GetCollection(userColl)
-	err := coll.UpdateId(user.ID, &user)
+	ctx := r.session.Ctx()
+	_, err := coll.UpdateOne(ctx, bson.M{"_id": user.ID}, bson.M{"$set": user})
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +119,9 @@ func (r *repository) Update(user *models.User) (*models.User, error) {
 
 func (r *repository) Delete(id string) error {
 	coll := r.session.GetCollection(userColl)
-	return coll.Remove(bson.M{"_id": bson.ObjectIdHex(id)})
+	ctx := r.session.Ctx()
+	_, err := coll.DeleteOne(ctx, bson.M{"_id": bsonutil.MustObjectIDFromHex(id)})
+	return err
 }
 
 func (r *repository) CreateArchivedUser(user models.User) (*models.ArchivedUser, error) {
@@ -107,10 +130,11 @@ func (r *repository) CreateArchivedUser(user models.User) (*models.ArchivedUser,
 		ArchivedDate: t,
 		User:         user,
 	}
-	a.ID = bson.NewObjectId()
+	a.ID = primitive.NewObjectID()
 
 	coll := r.session.GetCollection(archivedColl)
-	err := coll.Insert(a)
+	ctx := r.session.Ctx()
+	_, err := coll.InsertOne(ctx, a)
 	if err != nil {
 		return nil, err
 	}
