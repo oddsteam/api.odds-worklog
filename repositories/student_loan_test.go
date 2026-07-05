@@ -3,8 +3,8 @@ package repositories
 import (
 	"testing"
 
-	"github.com/globalsign/mgo"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func TestAdminCanExportIndividualIncomeWithoutStudentLoans(t *testing.T) {
@@ -22,5 +22,5 @@ func TestExportIncomeIgnoresStudentLoansCalculationWhenLoansDoesNotExist(t *test
 }
 
 func getLoanOfThisMonthWhichDoesNotExist(result interface{}) error {
-	return mgo.ErrNotFound
+	return mongo.ErrNoDocuments
 }

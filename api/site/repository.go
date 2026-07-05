@@ -2,8 +2,10 @@ package site
 
 import (
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
-	"github.com/globalsign/mgo/bson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const siteColl = "site"
@@ -18,8 +20,9 @@ func NewRepository(session *mongo.Session) Repository {
 
 func (r *repository) CreateSiteGroup(site *models.Site) (*models.Site, error) {
 	coll := r.session.GetCollection(siteColl)
-	site.ID = bson.NewObjectId()
-	err := coll.Insert(site)
+	site.ID = primitive.NewObjectID()
+	ctx := r.session.Ctx()
+	_, err := coll.InsertOne(ctx, site)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +31,8 @@ func (r *repository) CreateSiteGroup(site *models.Site) (*models.Site, error) {
 
 func (r *repository) UpdateSiteGroup(site *models.Site) (*models.Site, error) {
 	coll := r.session.GetCollection(siteColl)
-	err := coll.UpdateId(site.ID, &site)
+	ctx := r.session.Ctx()
+	_, err := coll.UpdateOne(ctx, bson.M{"_id": site.ID}, bson.M{"$set": site})
 	if err != nil {
 		return nil, err
 	}
@@ -38,8 +42,13 @@ func (r *repository) UpdateSiteGroup(site *models.Site) (*models.Site, error) {
 func (r *repository) GetSiteGroup() ([]*models.Site, error) {
 	sites := make([]*models.Site, 0)
 	coll := r.session.GetCollection(siteColl)
-	err := coll.Find(bson.M{}).All(&sites)
+	ctx := r.session.Ctx()
+	cursor, err := coll.Find(ctx, bson.M{})
 	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+	if err := cursor.All(ctx, &sites); err != nil {
 		return nil, err
 	}
 	return sites, nil
@@ -48,7 +57,8 @@ func (r *repository) GetSiteGroup() ([]*models.Site, error) {
 func (r *repository) GetSiteGroupByID(id string) (*models.Site, error) {
 	site := new(models.Site)
 	coll := r.session.GetCollection(siteColl)
-	err := coll.FindId(bson.ObjectIdHex(id)).One(&site)
+	ctx := r.session.Ctx()
+	err := coll.FindOne(ctx, bson.M{"_id": bsonutil.MustObjectIDFromHex(id)}).Decode(site)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +68,8 @@ func (r *repository) GetSiteGroupByID(id string) (*models.Site, error) {
 func (r *repository) GetSiteGroupByName(name string) (*models.Site, error) {
 	site := new(models.Site)
 	coll := r.session.GetCollection(siteColl)
-	err := coll.Find(bson.M{"name": name}).One(&site)
+	ctx := r.session.Ctx()
+	err := coll.FindOne(ctx, bson.M{"name": name}).Decode(site)
 	if err != nil {
 		return nil, err
 	}
@@ -67,5 +78,7 @@ func (r *repository) GetSiteGroupByName(name string) (*models.Site, error) {
 
 func (r *repository) DeleteSiteGroup(id string) error {
 	coll := r.session.GetCollection(siteColl)
-	return coll.Remove(bson.M{"_id": bson.ObjectIdHex(id)})
+	ctx := r.session.Ctx()
+	_, err := coll.DeleteOne(ctx, bson.M{"_id": bsonutil.MustObjectIDFromHex(id)})
+	return err
 }

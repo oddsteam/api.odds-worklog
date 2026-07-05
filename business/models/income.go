@@ -3,11 +3,11 @@ package models
 import (
 	"time"
 
-	"github.com/globalsign/mgo/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Income struct {
-	ID                     bson.ObjectId `bson:"_id" json:"id"`
+	ID                     primitive.ObjectID `bson:"_id" json:"id"`
 	UserID                 string        `bson:"userId" json:"userId"`
 	TotalIncome            string        `bson:"totalIncome" json:"totalIncome"`
 	NetIncome              string        `bson:"netIncome" json:"netIncome"`

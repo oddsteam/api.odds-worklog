@@ -12,6 +12,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
@@ -229,7 +230,7 @@ func TestGetIncomeGetIncomeCurrentMonthByUserId(t *testing.T) {
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 		mockUser := userMock.User
-		mockUser.ID = ""
+		mockUser.ID = primitive.NilObjectID
 		c.Set("user", userMock.TokenUser)
 
 		handler, ctrl := createHandlerWithMockUsecases(t, ucmock.NewMockForUsingListIncomeStatus(ctrl), ucmock.NewMockForUsingGetIncome(ctrl))

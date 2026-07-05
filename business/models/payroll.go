@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 )
 
 type Payroll struct {
@@ -275,7 +275,7 @@ func (p *Payroll) GetBankAccountName() string {
 
 func GivenIndividualUser(uidFromSession string, dailyIncome string) User {
 	return User{
-		ID:          bson.ObjectIdHex(uidFromSession),
+		ID:          bsonutil.MustObjectIDFromHex(uidFromSession),
 		Role:        "individual",
 		Vat:         "N",
 		DailyIncome: dailyIncome,

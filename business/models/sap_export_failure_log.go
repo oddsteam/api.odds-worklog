@@ -3,12 +3,12 @@ package models
 import (
 	"time"
 
-	"github.com/globalsign/mgo/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // SAPExportFailureLog is stored when SAP file export fails (e.g. Windows-874 encoding error) for operations debugging.
 type SAPExportFailureLog struct {
-	ID              bson.ObjectId `bson:"_id" json:"id"`
+	ID              primitive.ObjectID `bson:"_id" json:"id"`
 	CreatedAt       time.Time     `bson:"createdAt" json:"createdAt"`
 	Role            string        `bson:"role" json:"role"`
 	StartDate       time.Time     `bson:"startDate" json:"startDate"`

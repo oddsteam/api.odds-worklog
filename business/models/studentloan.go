@@ -6,7 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type StudentLoanList struct {
@@ -14,7 +15,7 @@ type StudentLoanList struct {
 }
 
 type StudentLoan struct {
-	ID        bson.ObjectId `bson:"_id" json:"id,omitempty"`
+	ID        primitive.ObjectID `bson:"_id" json:"id,omitempty"`
 	Fullname  string        `bson:"customerName" json:"customerName"`
 	Amount    int           `bson:"paidAmount" json:"paidAmount"`
 	MonthYear string        `bson:"monthYear" json:"monthYear"`
@@ -29,7 +30,7 @@ func CreateStudentLoanList(studentLoanResponse []byte) (StudentLoanList, error) 
 
 func (sll *StudentLoanList) CreateIDForLoans() {
 	for i := range sll.List {
-		sll.List[i].ID = bson.NewObjectId()
+		sll.List[i].ID = primitive.NewObjectID()
 	}
 }
 

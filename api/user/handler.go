@@ -6,11 +6,10 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
-	"github.com/globalsign/mgo/bson"
-
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 )
 
@@ -182,7 +181,7 @@ func (h *HttpHandler) Update(c echo.Context) error {
 		return utils.NewError(c, http.StatusBadRequest, err)
 	}
 	id := c.Param("id")
-	u.ID = bson.ObjectIdHex(id)
+	u.ID = bsonutil.MustObjectIDFromHex(id)
 	ut := getUserFromToken(c)
 	user, err := h.Usecase.Update(&u, ut.IsAdmin())
 	if err != nil {
