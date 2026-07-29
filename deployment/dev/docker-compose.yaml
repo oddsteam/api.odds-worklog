@@ -15,7 +15,7 @@ services:
 
   mongodb:
     container_name: "odds-worklog-mongo"
-    image: "mongo:4.4.29"
+    image: "mongo:5.0.31"
     volumes:
       - mongodbdata_odds_worklog:/data/db
     env_file:
