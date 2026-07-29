@@ -4,7 +4,12 @@ services:
       file: ../base/docker-compose.yaml
       service: mongodb
     healthcheck:
-      test: ["CMD", "mongo", "--quiet", "--eval", "db.adminCommand('ping')"]
+      # mongosh on MongoDB 5.0+; legacy mongo shell on 4.4
+      test:
+        [
+          "CMD-SHELL",
+          "mongosh --quiet --eval \"db.adminCommand('ping')\" || mongo --quiet --eval \"db.adminCommand('ping')\"",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10

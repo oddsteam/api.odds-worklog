@@ -1,12 +1,20 @@
 #!/bin/bash
 
-docker exec odds-worklog-mongo mongoimport -u admin -p $MONGO_DB_PASSWORD -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection user --type json --file fixture/data/user.json --maintainInsertionOrder --jsonArray
+AUTH_ARGS=(-u admin -p "$MONGO_DB_PASSWORD" --authenticationDatabase odds_worklog_db)
+IMPORT_ARGS=(--host localhost --port 27017 -d odds_worklog_db --type json --maintainInsertionOrder --jsonArray)
 
-docker exec odds-worklog-mongo mongoimport -u admin -p $MONGO_DB_PASSWORD -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection site --type json --file fixture/data/site.json --maintainInsertionOrder --jsonArray
+docker exec odds-worklog-mongo mongoimport "${AUTH_ARGS[@]}" "${IMPORT_ARGS[@]}" \
+  --collection user --file fixture/data/user.json
 
-docker exec odds-worklog-mongo mongoimport -u admin -p $MONGO_DB_PASSWORD -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection consumer --type json --file fixture/data/consumer.json --maintainInsertionOrder --jsonArray
+docker exec odds-worklog-mongo mongoimport "${AUTH_ARGS[@]}" "${IMPORT_ARGS[@]}" \
+  --collection site --file fixture/data/site.json
 
-docker exec odds-worklog-mongo mongoimport -u admin -p $MONGO_DB_PASSWORD -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection invoice --type json --file fixture/data/invoice.json --maintainInsertionOrder --jsonArray
+docker exec odds-worklog-mongo mongoimport "${AUTH_ARGS[@]}" "${IMPORT_ARGS[@]}" \
+  --collection consumer --file fixture/data/consumer.json
+
+docker exec odds-worklog-mongo mongoimport "${AUTH_ARGS[@]}" "${IMPORT_ARGS[@]}" \
+  --collection invoice --file fixture/data/invoice.json
 
 ./scripts/update_current_income
-docker exec odds-worklog-mongo mongoimport -u admin -p $MONGO_DB_PASSWORD -d odds_worklog_db --host localhost --port 27017 --db odds_worklog_db --collection income --type json --file fixture/data/income.json --maintainInsertionOrder --jsonArray
+docker exec odds-worklog-mongo mongoimport "${AUTH_ARGS[@]}" "${IMPORT_ARGS[@]}" \
+  --collection income --file fixture/data/income.json

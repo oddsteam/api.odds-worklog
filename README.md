@@ -62,15 +62,16 @@ If automatic user creation fails, you can manually set up the MongoDB authentica
    docker compose -f deployment/local/docker-compose.yaml exec mongodb bash
    ```
 
-1. After that, we'll invoke MongoDB shell by
+1. After that, invoke the MongoDB shell:
 
    ```bash
-   mongo
+   # MongoDB 5.0+ (mongosh). On 4.4 use: mongo
+   mongosh
    ```
 
 1. To authenticate an admin user, run the commands below:
 
-   ```bash
+   ```javascript
    use admin
    db.auth("admin", "admin")
    ```
@@ -79,14 +80,14 @@ If automatic user creation fails, you can manually set up the MongoDB authentica
    user probably doesn't exist yet, we need to create it first by running the
    following command:
 
-   ```bash
+   ```javascript
    db.createUser({user: "admin", pwd: "admin", roles:["root"]})
    ```
 
 1. Create an user to manage data on the `odds_worklog_db` database, run the
    following commands:
 
-   ```bash
+   ```javascript
    use odds_worklog_db
    db.createUser({user: "admin", pwd: "admin", roles: [{role: "readWrite",db: "odds_worklog_db"}]})
    ```
