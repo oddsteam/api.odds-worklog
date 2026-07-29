@@ -22,7 +22,7 @@ ODDS Worklog API is tested with:
 |         | Main version                |
 | ------- | --------------------------- |
 | Go      | 1.25.1 (darwin/arm64) |
-| MongoDB | 4.4.29                |
+| MongoDB | 5.0.31                |
 
 ## Architecture
 
@@ -65,7 +65,6 @@ If automatic user creation fails, you can manually set up the MongoDB authentica
 1. After that, invoke the MongoDB shell:
 
    ```bash
-   # MongoDB 5.0+ (mongosh). On 4.4 use: mongo
    mongosh
    ```
 
