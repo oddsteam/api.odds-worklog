@@ -833,7 +833,7 @@ paths:
       tags:
         - sites
       summary: Create site
-      description: Create a new site/team
+      description: Create a new site/team (admin or user-admin). Site name must be unique.
       operationId: createSite
       security:
         - bearerAuth: []
@@ -852,6 +852,18 @@ paths:
                 $ref: '#/components/schemas/Site'
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '409':
+          description: Site name already exists
           content:
             application/json:
               schema:
@@ -909,7 +921,7 @@ paths:
       tags:
         - sites
       summary: Update site
-      description: Update site information
+      description: Update site information (admin or user-admin). Site name must be unique.
       operationId: updateSite
       security:
         - bearerAuth: []
@@ -939,6 +951,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPError'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '409':
+          description: Site name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
         '422':
           description: Unprocessable entity
           content:
@@ -956,7 +980,7 @@ paths:
       tags:
         - sites
       summary: Delete site
-      description: Delete a site
+      description: Delete a site (admin or user-admin). Fails if any users are still assigned to the site.
       operationId: deleteSite
       security:
         - bearerAuth: []
@@ -972,6 +996,18 @@ paths:
           description: Site deleted
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '409':
+          description: Site still has users
           content:
             application/json:
               schema:
