@@ -31,6 +31,7 @@ func TestConfigError(t *testing.T) {
 	assert.Equal(t, "Invalid user vat.", ErrInvalidUserVat.Error())
 	assert.Equal(t, "Not image file", ErrNotImageFile.Error())
 	assert.Equal(t, "Invalid amount.", ErrInvalidAmount.Error())
+	assert.Equal(t, "Site still has users", ErrSiteInUse.Error())
 }
 
 func TestNewError(t *testing.T) {

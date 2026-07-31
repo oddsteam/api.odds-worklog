@@ -4,17 +4,23 @@ import (
 	"errors"
 	"net/http"
 
+	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
-
-	"github.com/labstack/echo"
-	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
 type HttpHandler struct {
 	Usecase Usecase
+}
+
+func getUserFromToken(c echo.Context) *models.UserClaims {
+	t := c.Get("user").(*jwt.Token)
+	claims := t.Claims.(*models.JwtCustomClaims)
+	return claims.User
 }
 
 func isRequestValid(m *models.Site) (bool, error) {
@@ -33,10 +39,16 @@ func isRequestValid(m *models.Site) (bool, error) {
 // @Param site body models.Site true  "id can empty"
 // @Success 200 {array} models.Site
 // @Failure 400 {object} utils.HTTPError
+// @Failure 403 {object} utils.HTTPError
 // @Failure 422 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /sites [post]
 func (h *HttpHandler) CreateSiteGroup(c echo.Context) error {
+	user := getUserFromToken(c)
+	if !user.IsUserManager() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
 	var site models.Site
 	if err := c.Bind(&site); err != nil {
 		return utils.NewError(c, http.StatusUnprocessableEntity, err)
@@ -48,6 +60,9 @@ func (h *HttpHandler) CreateSiteGroup(c echo.Context) error {
 
 	resSite, err := h.Usecase.CreateSiteGroup(&site)
 	if err != nil {
+		if err == utils.ErrConflict {
+			return utils.NewError(c, http.StatusConflict, err)
+		}
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusCreated, resSite)
@@ -63,10 +78,16 @@ func (h *HttpHandler) CreateSiteGroup(c echo.Context) error {
 // @Param sites body models.Site true  "id can empty"
 // @Success 200 {object} models.Site
 // @Failure 400 {object} utils.HTTPError
+// @Failure 403 {object} utils.HTTPError
 // @Failure 422 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /sites/{id} [put]
 func (h *HttpHandler) UpdateSiteGroup(c echo.Context) error {
+	user := getUserFromToken(c)
+	if !user.IsUserManager() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
 	id := c.Param("id")
 	if id == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
@@ -85,6 +106,9 @@ func (h *HttpHandler) UpdateSiteGroup(c echo.Context) error {
 
 	res, err := h.Usecase.UpdateSiteGroup(&site)
 	if err != nil {
+		if err == utils.ErrConflict {
+			return utils.NewError(c, http.StatusConflict, err)
+		}
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, res)
@@ -140,9 +164,16 @@ func (h *HttpHandler) GetSiteGroupByID(c echo.Context) error {
 // @Param id path string true "Site ID"
 // @Success 204 {object} models.Site
 // @Failure 400 {object} utils.HTTPError
+// @Failure 403 {object} utils.HTTPError
+// @Failure 409 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /sites/{id} [delete]
 func (h *HttpHandler) DeleteSiteGroup(c echo.Context) error {
+	user := getUserFromToken(c)
+	if !user.IsUserManager() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
 	id := c.Param("id")
 	if id == "" {
 		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
@@ -150,6 +181,9 @@ func (h *HttpHandler) DeleteSiteGroup(c echo.Context) error {
 
 	err := h.Usecase.DeleteSiteGroup(id)
 	if err != nil {
+		if err == utils.ErrSiteInUse {
+			return utils.NewError(c, http.StatusConflict, err)
+		}
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.NoContent(http.StatusNoContent)
@@ -157,7 +191,7 @@ func (h *HttpHandler) DeleteSiteGroup(c echo.Context) error {
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	ur := NewRepository(session)
-	uc := NewUsecase(ur)
+	uc := NewUsecase(ur, newUserBySiteReader(session))
 	handler := &HttpHandler{uc}
 	r = r.Group("/sites")
 	r.POST("", handler.CreateSiteGroup)
