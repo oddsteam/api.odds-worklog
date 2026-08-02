@@ -8,11 +8,13 @@ import (
 	"testing"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	mock "gitlab.odds.team/worklog/api.odds-worklog/api/site/mock"
+	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 )
 
 func TestCreateSiteGroup(t *testing.T) {
@@ -30,11 +32,53 @@ func TestCreateSiteGroup(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
 
 		handler := &HttpHandler{mockUsecase}
 		handler.CreateSiteGroup(c)
 
 		assert.Equal(t, http.StatusCreated, rec.Code)
+	})
+
+	t.Run("when request is user-admin, create succeeds", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		site := models.Site{Name: "ktb"}
+		siteJson := `{"name": "ktb"}`
+		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().CreateSiteGroup(&site).Return(&mock.MockSite, nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(siteJson))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUserManager)
+
+		handler := &HttpHandler{mockUsecase}
+		handler.CreateSiteGroup(c)
+
+		assert.Equal(t, http.StatusCreated, rec.Code)
+	})
+
+	t.Run("when request is not user manager it should return StatusForbidden", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := mock.NewMockUsecase(ctrl)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(`{"name": "ktb"}`))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+
+		handler := &HttpHandler{mockUsecase}
+		handler.CreateSiteGroup(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
 	})
 
 	t.Run("when content type is not valid it should return StatusUnprocessableEntity", func(t *testing.T) {
@@ -48,6 +92,7 @@ func TestCreateSiteGroup(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
 
 		handler := &HttpHandler{mockUsecase}
 		handler.CreateSiteGroup(c)
@@ -69,6 +114,7 @@ func TestCreateSiteGroup(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
 
 		handler := &HttpHandler{mockUsecase}
 		handler.CreateSiteGroup(c)
@@ -92,11 +138,55 @@ func TestUpdateUser(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		c.Set("user", userMock.TokenAdmin)
 
 		handler := &HttpHandler{mockUsecase}
 		handler.UpdateSiteGroup(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+
+	t.Run("when request is user-admin, update succeeds", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().UpdateSiteGroup(&mock.MockSite).Return(&mock.MockSite, nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(mock.SiteJson))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		c.Set("user", userMock.TokenUserManager)
+
+		handler := &HttpHandler{mockUsecase}
+		handler.UpdateSiteGroup(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+
+	t.Run("when request is not user manager it should return StatusForbidden", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := mock.NewMockUsecase(ctrl)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(mock.SiteJson))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		c.Set("user", userMock.TokenUser)
+
+		handler := &HttpHandler{mockUsecase}
+		handler.UpdateSiteGroup(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
 	})
 
 	t.Run("when request is no have id it should return StatusBadRequest", func(t *testing.T) {
@@ -109,6 +199,7 @@ func TestUpdateUser(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
 
 		handler := &HttpHandler{mockUsecase}
 		handler.UpdateSiteGroup(c)
@@ -129,6 +220,7 @@ func TestUpdateUser(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		c.Set("user", userMock.TokenAdmin)
 		handler := &HttpHandler{mockUsecase}
 		handler.UpdateSiteGroup(c)
 
@@ -149,6 +241,7 @@ func TestUpdateUser(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		c.Set("user", userMock.TokenAdmin)
 
 		handler := &HttpHandler{mockUsecase}
 		handler.UpdateSiteGroup(c)
@@ -272,10 +365,73 @@ func TestDeleteUser(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		c.Set("user", userMock.TokenAdmin)
 		handler := &HttpHandler{mockUsecase}
 		handler.DeleteSiteGroup(c)
 
 		assert.Equal(t, http.StatusNoContent, rec.Code)
+	})
+
+	t.Run("when request is user-admin, delete succeeds", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().DeleteSiteGroup(mock.MockSite.ID.Hex()).Return(nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		c.Set("user", userMock.TokenUserManager)
+		handler := &HttpHandler{mockUsecase}
+		handler.DeleteSiteGroup(c)
+
+		assert.Equal(t, http.StatusNoContent, rec.Code)
+	})
+
+	t.Run("when request is not user manager it should return StatusForbidden", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := mock.NewMockUsecase(ctrl)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		c.Set("user", userMock.TokenUser)
+		handler := &HttpHandler{mockUsecase}
+		handler.DeleteSiteGroup(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
+	})
+
+	t.Run("when DeleteSite returns ErrSiteInUse it should return StatusConflict", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := mock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().DeleteSiteGroup(mock.MockSite.ID.Hex()).Return(utils.ErrSiteInUse)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		c.Set("user", userMock.TokenAdmin)
+		handler := &HttpHandler{mockUsecase}
+		handler.DeleteSiteGroup(c)
+
+		assert.Equal(t, http.StatusConflict, rec.Code)
 	})
 
 	t.Run("when DeleteSite in usecase is have error it should return StatusInternalServerError", func(t *testing.T) {
@@ -292,6 +448,7 @@ func TestDeleteUser(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+		c.Set("user", userMock.TokenAdmin)
 		handler := &HttpHandler{mockUsecase}
 		handler.DeleteSiteGroup(c)
 

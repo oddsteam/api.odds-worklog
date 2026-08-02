@@ -70,19 +70,28 @@ func (u *usecase) GetBySiteID(id string) ([]*models.User, error) {
 }
 
 func (u *usecase) Update(userFromRequest *models.User, isAdmin bool) (*models.User, error) {
+	currentUser, err := u.repo.GetByID(userFromRequest.ID.Hex())
+	if err != nil {
+		return nil, err
+	}
+
+	// Allow partial updates (e.g. site-only) to omit role/vat; keep current values.
+	if userFromRequest.Role == "" {
+		userFromRequest.Role = currentUser.Role
+	}
+	if userFromRequest.Vat == "" {
+		userFromRequest.Vat = currentUser.Vat
+	}
+
 	if err := userFromRequest.ValidateRole(); err != nil {
 		return nil, err
 	}
 	if err := userFromRequest.ValidateVat(); err != nil {
 		return nil, err
 	}
-	if userFromRequest.Role == "admin" && !isAdmin {
+	// Only full admin may promote a user TO admin; user-admin may still update existing admins (e.g. site).
+	if userFromRequest.Role == "admin" && !isAdmin && currentUser.Role != "admin" {
 		return nil, utils.ErrInvalidUserRole
-	}
-
-	currentUser, err := u.repo.GetByID(userFromRequest.ID.Hex())
-	if err != nil {
-		return nil, err
 	}
 
 	user := NewUser(*currentUser)

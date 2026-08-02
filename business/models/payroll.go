@@ -241,6 +241,13 @@ func (p *Payroll) GetName() string {
 	return p.incomeRecord.Name
 }
 
+func (p *Payroll) SiteName() string {
+	if p.incomeRecord == nil {
+		return ""
+	}
+	return p.incomeRecord.SiteName
+}
+
 func (p *Payroll) BankAccountNumber() string {
 	return p.incomeRecord.BankAccountNumber
 }

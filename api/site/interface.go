@@ -13,6 +13,11 @@ type Repository interface {
 	DeleteSiteGroup(id string) error
 }
 
+// ForGettingUsersBySiteID looks up users assigned to a site (avoids importing the user package).
+type ForGettingUsersBySiteID interface {
+	GetBySiteID(id string) ([]*models.User, error)
+}
+
 type Usecase interface {
 	CreateSiteGroup(m *models.Site) (*models.Site, error)
 	UpdateSiteGroup(m *models.Site) (*models.Site, error)

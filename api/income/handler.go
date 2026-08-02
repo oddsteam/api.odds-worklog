@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
@@ -333,7 +334,8 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	up := usecases.NewUpdateIncomeUsecase(userIncomeUpdater, userRepo)
 	studentLoanRepo := repositories.NewStudentLoanRepository(session)
 	sapExportFailureRepo := repositories.NewSAPExportFailureRepository(session)
-	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, sapExportFailureRepo, file.NewCSVWriter(), file.NewSAPWriter(), studentLoanRepo)
+	siteRepo := site.NewRepository(session)
+	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, sapExportFailureRepo, file.NewCSVWriter(), file.NewSAPWriter(), studentLoanRepo, userRepo, siteRepo)
 	handler := &HttpHandler{listStatus, ad, gi, up, ex}
 
 	r = r.Group("/incomes")

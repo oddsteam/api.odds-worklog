@@ -15,10 +15,13 @@ type usecase struct {
 	csvWriter           ForWritingCSVFile
 	sapWriter           ForWritingSAPFile
 	readStudentLoanRepo ForListStudentLoansInTheMonth
+	userRepo            ForListingUsersByRole
+	siteRepo            ForListingSites
 }
 
 func NewExportIncomeUsecase(r ForGettingIncomeDataInTheMonth, ex ForLoggingExport, sapFail ForLoggingSAPExportFailure,
-	csvW ForWritingCSVFile, sapW ForWritingSAPFile, rsl ForListStudentLoansInTheMonth) ForUsingExportIncome {
+	csvW ForWritingCSVFile, sapW ForWritingSAPFile, rsl ForListStudentLoansInTheMonth,
+	userRepo ForListingUsersByRole, siteRepo ForListingSites) ForUsingExportIncome {
 	return &usecase{
 		readRepo:            r,
 		writeRepo:           ex,
@@ -26,6 +29,8 @@ func NewExportIncomeUsecase(r ForGettingIncomeDataInTheMonth, ex ForLoggingExpor
 		csvWriter:           csvW,
 		sapWriter:           sapW,
 		readStudentLoanRepo: rsl,
+		userRepo:            userRepo,
+		siteRepo:            siteRepo,
 	}
 }
 
@@ -46,6 +51,8 @@ func (u *usecase) ExportIncomeByStartDateAndEndDate(role string, startDate, endD
 	if err != nil {
 		return "", err
 	}
+
+	u.enrichSiteNames(role, incomes)
 
 	studentLoanList := u.readStudentLoanRepo.GetStudentLoans()
 
@@ -117,4 +124,45 @@ func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, e
 	}
 
 	return filename, nil
+}
+
+func (u *usecase) enrichSiteNames(role string, incomes []*models.Income) {
+	if u.userRepo == nil || u.siteRepo == nil || len(incomes) == 0 {
+		return
+	}
+
+	users, err := u.userRepo.GetByRole(role)
+	if err != nil || len(users) == 0 {
+		return
+	}
+
+	sites, err := u.siteRepo.GetSiteGroup()
+	if err != nil {
+		return
+	}
+
+	siteNameByID := make(map[string]string, len(sites))
+	for _, site := range sites {
+		if site == nil {
+			continue
+		}
+		siteNameByID[site.ID.Hex()] = site.Name
+	}
+
+	siteNameByUserID := make(map[string]string, len(users))
+	for _, user := range users {
+		if user == nil || user.SiteID == "" {
+			continue
+		}
+		if name, ok := siteNameByID[user.SiteID]; ok {
+			siteNameByUserID[user.ID.Hex()] = name
+		}
+	}
+
+	for _, income := range incomes {
+		if income == nil {
+			continue
+		}
+		income.SiteName = siteNameByUserID[income.UserID]
+	}
 }

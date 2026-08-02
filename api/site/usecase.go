@@ -6,11 +6,12 @@ import (
 )
 
 type usecase struct {
-	repo Repository
+	repo  Repository
+	users ForGettingUsersBySiteID
 }
 
-func NewUsecase(r Repository) Usecase {
-	return &usecase{r}
+func NewUsecase(r Repository, users ForGettingUsersBySiteID) Usecase {
+	return &usecase{r, users}
 }
 
 func (u *usecase) CreateSiteGroup(m *models.Site) (*models.Site, error) {
@@ -22,6 +23,10 @@ func (u *usecase) CreateSiteGroup(m *models.Site) (*models.Site, error) {
 }
 
 func (u *usecase) UpdateSiteGroup(m *models.Site) (*models.Site, error) {
+	existing, _ := u.repo.GetSiteGroupByName(m.Name)
+	if existing != nil && existing.ID != m.ID {
+		return nil, utils.ErrConflict
+	}
 	return u.repo.UpdateSiteGroup(m)
 }
 
@@ -34,5 +39,12 @@ func (u *usecase) GetSiteGroupByID(id string) (*models.Site, error) {
 }
 
 func (u *usecase) DeleteSiteGroup(id string) error {
+	users, err := u.users.GetBySiteID(id)
+	if err != nil {
+		return err
+	}
+	if len(users) > 0 {
+		return utils.ErrSiteInUse
+	}
 	return u.repo.DeleteSiteGroup(id)
 }
