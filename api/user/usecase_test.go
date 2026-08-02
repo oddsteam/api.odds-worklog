@@ -221,9 +221,10 @@ func TestUsecase_Update(t *testing.T) {
 
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := userMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetByID(gomock.Any()).Return(&userMock.User, nil)
 		uc := NewUsecase(mockRepo, mockSiteRepo)
 		mu := userMock.User
-		mu.Role = ""
+		mu.Role = "invalid"
 		u, err := uc.Update(&mu, mu.IsAdmin())
 
 		assert.Nil(t, u)
@@ -236,13 +237,53 @@ func TestUsecase_Update(t *testing.T) {
 
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := userMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetByID(gomock.Any()).Return(&userMock.User, nil)
 		uc := NewUsecase(mockRepo, mockSiteRepo)
 		mu := userMock.User
-		mu.Vat = ""
+		mu.Vat = "X"
 		u, err := uc.Update(&mu, mu.IsAdmin())
 
 		assert.Nil(t, u)
 		assert.EqualError(t, err, utils.ErrInvalidUserVat.Error())
+	})
+
+	t.Run("user-admin can update existing admin user site", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		adminUser := userMock.Admin
+		mockRepo.EXPECT().GetByID(adminUser.ID.Hex()).Return(&adminUser, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewUsecase(mockRepo, mockSiteRepo)
+		req := adminUser
+		req.SiteID = "5c0fb860f37e2f8698989cdd"
+		u, err := uc.Update(&req, false)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, u)
+		assert.Equal(t, "5c0fb860f37e2f8698989cdd", u.SiteID)
+		assert.Equal(t, "admin", u.Role)
+	})
+
+	t.Run("user-admin cannot promote user to admin", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetByID(gomock.Any()).Return(&userMock.User, nil)
+		uc := NewUsecase(mockRepo, mockSiteRepo)
+		req := userMock.User
+		req.Role = "admin"
+		u, err := uc.Update(&req, false)
+
+		assert.Nil(t, u)
+		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
 	})
 }
 
