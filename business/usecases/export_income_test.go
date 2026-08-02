@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	mock_usecases "gitlab.odds.team/worklog/api.odds-worklog/business/usecases/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/file"
 )
 
@@ -19,6 +20,59 @@ type stubSAPWriter struct {
 
 func (s *stubSAPWriter) WriteFile(name string, ics models.PayrollCycle, dateEff time.Time) (string, error) {
 	return "", s.err
+}
+
+func TestEnrichSiteNamesOnCSVExport(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	siteID := "5c8fb1fcf96bbd81fafb09a6"
+	userID := "5bbcf2f90fd2df527bc39539"
+	users := []*models.User{
+		{
+			ID:     bsonutil.MustObjectIDFromHex(userID),
+			SiteID: siteID,
+		},
+	}
+	sites := []*models.Site{
+		{
+			ID:   bsonutil.MustObjectIDFromHex(siteID),
+			Name: "ODDS",
+		},
+	}
+
+	mockRead := mock_usecases.NewMockForGettingIncomeData(ctrl)
+	mockWrite := mock_usecases.NewMockForControllingIncomeData(ctrl)
+	mockSapFail := mock_usecases.NewMockForLoggingSAPExportFailure(ctrl)
+	mockUsers := mock_usecases.NewMockForGettingUsersByRole(ctrl)
+	mockSites := &stubListingSitesWithData{sites: sites}
+
+	startDate, endDate := models.GetStartDateAndEndDate(time.Now())
+	incomes := []*models.Income{
+		{
+			ID:     bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e602"),
+			UserID: userID,
+			Name:   "first last",
+		},
+	}
+	mockRead.EXPECT().GetAllIncomeByRoleStartDateAndEndDate("individual", startDate, endDate).Return(incomes, nil)
+	mockRead.EXPECT().GetStudentLoans().Return(models.StudentLoanList{})
+	mockUsers.EXPECT().GetByRole("individual").Return(users, nil)
+	mockWrite.EXPECT().AddExport(gomock.Any()).Return(nil)
+
+	u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), file.NewSAPWriter(), mockRead, mockUsers, mockSites)
+	filename, err := u.ExportIncome("individual", "0")
+	assert.NoError(t, err)
+	assert.Equal(t, "ODDS", incomes[0].SiteName)
+	os.Remove(filename)
+}
+
+type stubListingSitesWithData struct {
+	sites []*models.Site
+}
+
+func (s *stubListingSitesWithData) GetSiteGroup() ([]*models.Site, error) {
+	return s.sites, nil
 }
 
 func TestUsecaseExportIncome(t *testing.T) {
@@ -190,7 +244,7 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 			assert.Contains(t, log.ErrorMessage, "sap export row")
 		}).Return(nil)
 
-		u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), &stubSAPWriter{err: rowErr}, mockRead)
+		u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), &stubSAPWriter{err: rowErr}, mockRead, nil, nil)
 		_, err := u.ExportIncomeSAPByStartDateAndEndDate("individual", startDate, endDate, dateEff)
 		assert.Error(t, err)
 		assert.ErrorIs(t, err, underlying)

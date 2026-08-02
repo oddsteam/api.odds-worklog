@@ -36,11 +36,13 @@ func TestCSVWriter(t *testing.T) {
 		user.Email = "test@example.com"
 		req := models.IncomeReq{WorkDate: "20"}
 		record := models.CreatePayroll(user, req, "note")
+		record.SiteName = "ODDS"
 		p := models.NewPayrollFromIncome(*record)
 
 		csvColumns := export(*p)
 
 		assert.Equal(t, "first last", csvColumns[NAME_INDEX])
+		assert.Equal(t, "ODDS", csvColumns[SITE_INDEX])
 		assert.Equal(t, "id", csvColumns[ID_CARD_INDEX])
 		assert.Equal(t, "account name", csvColumns[ACCOUNT_NAME_INDEX])
 		assert.Equal(t, `="0123456789"`, csvColumns[ACCOUNT_NUMBER_INDEX])
@@ -83,7 +85,7 @@ func TestCSVWriter(t *testing.T) {
 
 func TestCSVHeaders(t *testing.T) {
 	actual := createHeaders()
-	expected := [...]string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน",
+	expected := [...]string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "Site", "เลขบัตรประชาชน",
 		"อีเมล", "จำนวนวันทำงาน", "รายได้หลักก่อนคำนวนภาษี", "จำนวนเงินรายได้หลัก", "จำนวนชั่วโมงงานพิเศษ", "อัตราต่อชั่วโมง", "รายได้พิเศษก่อนคำนวนภาษี", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ",
 		"VAT", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก",
 	}

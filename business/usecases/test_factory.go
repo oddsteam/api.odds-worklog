@@ -17,8 +17,17 @@ func CreateExportIncomeUsecaseWithMock(t *testing.T) (ForUsingExportIncome, *gom
 	ctrl := gomock.NewController(t)
 	mockRepoIncome := mockIncomeRepository(ctrl)
 
-	usecase := NewExportIncomeUsecase(mockRepoIncome.mockRead, mockRepoIncome.mockWrite, mockRepoIncome.mockSapExportFailure, file.NewCSVWriter(), file.NewSAPWriter(), mockRepoIncome.mockRead)
+	mockRepoIncome.mockGettingUsersByRole.EXPECT().GetByRole(gomock.Any()).Return([]*models.User{}, nil).AnyTimes()
+	mockSites := &stubListingSites{}
+
+	usecase := NewExportIncomeUsecase(mockRepoIncome.mockRead, mockRepoIncome.mockWrite, mockRepoIncome.mockSapExportFailure, file.NewCSVWriter(), file.NewSAPWriter(), mockRepoIncome.mockRead, mockRepoIncome.mockGettingUsersByRole, mockSites)
 	return usecase, ctrl, mockRepoIncome
+}
+
+type stubListingSites struct{}
+
+func (s *stubListingSites) GetSiteGroup() ([]*models.Site, error) {
+	return []*models.Site{}, nil
 }
 
 func CreateAddIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsingAddIncome {

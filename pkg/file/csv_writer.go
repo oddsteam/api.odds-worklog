@@ -57,6 +57,7 @@ const (
 	PAYMENT_METHOD_INDEX
 	ACCOUNT_NUMBER_INDEX
 	NAME_INDEX
+	SITE_INDEX
 	ID_CARD_INDEX
 	EMAIL_INDEX
 	WORK_DATE_INDEX
@@ -75,7 +76,7 @@ const (
 )
 
 func createHeaders() []string {
-	return []string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "เลขบัตรประชาชน", "อีเมล", "จำนวนวันทำงาน", "รายได้หลักก่อนคำนวนภาษี", "จำนวนเงินรายได้หลัก", "จำนวนชั่วโมงงานพิเศษ", "อัตราต่อชั่วโมง", "รายได้พิเศษก่อนคำนวนภาษี", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "VAT", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
+	return []string{"Vendor Code", "ชื่อบัญชี", "Payment method", "เลขบัญชี", "ชื่อ", "Site", "เลขบัตรประชาชน", "อีเมล", "จำนวนวันทำงาน", "รายได้หลักก่อนคำนวนภาษี", "จำนวนเงินรายได้หลัก", "จำนวนชั่วโมงงานพิเศษ", "อัตราต่อชั่วโมง", "รายได้พิเศษก่อนคำนวนภาษี", "จำนวนรายได้พิเศษ", "กยศและอื่น ๆ", "VAT", "หัก ณ ที่จ่าย", "รวมจำนวนที่ต้องโอน", "บันทึกรายการ", "วันที่กรอก"}
 }
 
 func export(i models.Payroll) []string {
@@ -85,6 +86,7 @@ func export(i models.Payroll) []string {
 		"",
 		utils.SetValueCSV(i.BankAccountNumber()),
 		i.GetName(),
+		i.SiteName(),
 		i.ThaiCitizenID(),
 		i.Email(),
 		i.WorkDate(),

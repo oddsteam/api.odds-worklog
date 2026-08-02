@@ -29,3 +29,7 @@ type ForWritingCSVFile interface {
 type ForWritingSAPFile interface {
 	WriteFile(name string, ics models.PayrollCycle, dateEff time.Time) (string, error)
 }
+
+type ForListingSites interface {
+	GetSiteGroup() ([]*models.Site, error)
+}
