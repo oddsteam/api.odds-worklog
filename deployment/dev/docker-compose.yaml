@@ -1,7 +1,7 @@
 services:
   api:
     container_name: "odds-worklog-api"
-    image: "844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/api-worklog:dev-odds-cloud"
+    image: "ghcr.io/oddsteam/api.odds-worklog:dev-odds-cloud"
     command: /app/api
     ports:
       - "8080:8080"
