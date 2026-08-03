@@ -41,13 +41,13 @@ func (u *usecase) Get() ([]*models.User, error) {
 		return nil, err
 	}
 
+	siteByID := make(map[string]*models.Site, len(sites))
 	for _, s := range sites {
-		for i, us := range users {
-			if s.ID.Hex() == us.SiteID {
-				users[i].Site = s
-				users[i].SiteID = ""
-				break
-			}
+		siteByID[s.ID.Hex()] = s
+	}
+	for i, us := range users {
+		if s, ok := siteByID[us.SiteID]; ok {
+			users[i].Site = s
 		}
 	}
 	return users, nil

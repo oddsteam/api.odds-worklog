@@ -84,6 +84,34 @@ func TestUsecase_Get(t *testing.T) {
 		assert.NotNil(t, u)
 		assert.Equal(t, userMock.Users[0].GetFullname(), u[0].GetFullname())
 	})
+
+	t.Run("when multiple users share a siteId, then all get Site enriched and SiteID preserved", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		siteID := siteMock.MockSite.ID.Hex()
+		user1 := userMock.User
+		user1.SiteID = siteID
+		user2 := userMock.User2
+		user2.SiteID = siteID
+		users := []*models.User{&user1, &user2}
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockSiteRepo.EXPECT().GetSiteGroup().Return(siteMock.MockSites, nil)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		mockRepo.EXPECT().Get().Return(users, nil)
+
+		uc := NewUsecase(mockRepo, mockSiteRepo)
+		u, err := uc.Get()
+
+		assert.NoError(t, err)
+		assert.Len(t, u, 2)
+		for _, got := range u {
+			assert.Equal(t, siteID, got.SiteID)
+			assert.NotNil(t, got.Site)
+			assert.Equal(t, siteMock.MockSite.Name, got.Site.Name)
+		}
+	})
 }
 
 func TestUsecase_GetByRole(t *testing.T) {

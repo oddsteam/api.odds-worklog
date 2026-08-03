@@ -26,7 +26,7 @@ services:
       - odds_worklog_api
   web:
     container_name: "odds-worklog-web"
-    image: "844772501268.dkr.ecr.ap-southeast-1.amazonaws.com/web-worklog:dev-odds-cloud"
+    image: "ghcr.io/oddsteam/web.odds-worklog:dev-odds-cloud"
     ports:
       - "80:80"
     networks:
