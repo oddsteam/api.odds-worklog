@@ -1,11 +1,14 @@
 package user
 
 import (
+	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	mongodriver "go.mongodb.org/mongo-driver/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 )
@@ -19,6 +22,25 @@ type repository struct {
 
 func NewRepository(session *mongo.Session) Repository {
 	return &repository{session}
+}
+
+func NewTimesheetUserRepository(session *mongo.Session) usecases.ForGettingTimesheetUser {
+	return &timesheetUserRepository{&repository{session}}
+}
+
+// timesheetUserRepository adapts repository's GetByEmail to usecases.ForGettingTimesheetUser's
+// contract: callers expect usecases.ErrTimesheetUserNotFound for "no matching user," not the
+// raw mongodriver.ErrNoDocuments the shared method returns.
+type timesheetUserRepository struct {
+	*repository
+}
+
+func (r *timesheetUserRepository) GetByEmail(email string) (*models.User, error) {
+	user, err := r.repository.GetByEmail(email)
+	if errors.Is(err, mongodriver.ErrNoDocuments) {
+		return nil, usecases.ErrTimesheetUserNotFound
+	}
+	return user, err
 }
 
 func (r *repository) Create(u *models.User) (*models.User, error) {
