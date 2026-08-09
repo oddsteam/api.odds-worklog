@@ -6,6 +6,7 @@ require (
 	github.com/golang/mock v1.4.3
 	github.com/joho/godotenv v1.3.0
 	github.com/labstack/echo v0.0.0-20180911044237-1abaa3049251
+	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/stretchr/testify v1.8.0
 	go.mongodb.org/mongo-driver v1.17.9
 	golang.org/x/text v0.17.0
