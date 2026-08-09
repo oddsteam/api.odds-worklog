@@ -15,8 +15,11 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/config"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/timesheetconsumer"
+	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
 )
 
 // @title Odds-Worklog Example API
@@ -33,6 +36,17 @@ func main() {
 
 	session := mongo.Setup()
 	defer session.Close()
+
+	c := config.Config()
+	go timesheetconsumer.Start(timesheetconsumer.Config{
+		URL:        c.RabbitMQURL,
+		Exchange:   c.RabbitMQExchange,
+		Queue:      c.RabbitMQQueue,
+		RoutingKey: c.RabbitMQRoutingKey,
+	}, usecases.NewSyncIncomeForTimesheetUsecase(
+		repositories.NewIncomeForTimesheetRepository(session),
+		user.NewTimesheetUserRepository(session),
+	))
 
 	// Echo instance
 	e := echo.New()
@@ -61,6 +75,5 @@ func main() {
 	sap_export_failure.NewHttpHandler(r, session)
 
 	// Start server
-	c := config.Config()
 	e.Logger.Fatal(e.Start(c.APIPort))
 }
