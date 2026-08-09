@@ -1,0 +1,11 @@
+{
+  "event_type": "timesheet.monthly_summary",
+  "year": 2026,
+  "month": 8,
+  "summary_at": "2026-08-08T12:00:00+07:00",
+  "employee": { "email": "jin@odds.team", "english_name": "Yossathorn Iamrit" },
+  "sites": [
+    { "client_site": "SITE-A", "customer_name": "Site A Customer", "working_days": 12.5, "overtime_days": 2.0 },
+    { "client_site": "SITE-B", "customer_name": "Site B Customer", "working_days": 5, "overtime_days": 0 }
+  ]
+}
