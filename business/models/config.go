@@ -7,4 +7,8 @@ type Config struct {
 	APIPort              string
 	Username             string
 	Password             string
+	RabbitMQURL          string
+	RabbitMQExchange     string
+	RabbitMQQueue        string
+	RabbitMQRoutingKey   string
 }

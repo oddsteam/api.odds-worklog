@@ -14,5 +14,12 @@ services:
       file: ../base/docker-compose.yaml
       service: keycloak
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: odds-worklog-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
 volumes:
   mongodbdata_odds_worklog:
