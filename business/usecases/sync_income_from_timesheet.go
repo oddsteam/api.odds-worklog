@@ -8,18 +8,18 @@ import (
 )
 
 var ErrTimesheetUserNotFound = errors.New("timesheet event: no matching user for employee email")
-var ErrIncomeForTimesheetNotFoundForPeriod = errors.New("income_for_timesheet: no record for this user and period")
+var ErrIncomeFromTimesheetNotFoundForPeriod = errors.New("income_from_timesheet: no record for this user and period")
 
-type syncIncomeForTimesheetUsecase struct {
-	incomeRepo ForGettingIncomeForTimesheet
+type syncIncomeFromTimesheetUsecase struct {
+	incomeRepo ForGettingIncomeFromTimesheet
 	userRepo   ForGettingTimesheetUser
 }
 
-func NewSyncIncomeForTimesheetUsecase(incomeRepo ForGettingIncomeForTimesheet, userRepo ForGettingTimesheetUser) ForSyncingIncomeForTimesheet {
-	return &syncIncomeForTimesheetUsecase{incomeRepo, userRepo}
+func NewSyncIncomeFromTimesheetUsecase(incomeRepo ForGettingIncomeFromTimesheet, userRepo ForGettingTimesheetUser) ForSyncingIncomeFromTimesheet {
+	return &syncIncomeFromTimesheetUsecase{incomeRepo, userRepo}
 }
 
-func (u *syncIncomeForTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonthlySummaryEvent) error {
+func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonthlySummaryEvent) error {
 	user, err := u.userRepo.GetByEmail(evt.Employee.Email)
 	if err != nil {
 		return err
@@ -46,9 +46,9 @@ func (u *syncIncomeForTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonthl
 
 	existing, err := u.incomeRepo.GetByUserYearMonth(user.ID.Hex(), evt.Year, time.Month(evt.Month))
 	switch {
-	case errors.Is(err, ErrIncomeForTimesheetNotFoundForPeriod):
+	case errors.Is(err, ErrIncomeFromTimesheetNotFoundForPeriod):
 		income := models.CreatePayroll(*user, req, "")
-		record := &models.IncomeForTimesheet{Income: *income, Sites: sites}
+		record := &models.IncomeFromTimesheet{Income: *income, Sites: sites}
 		if err := u.incomeRepo.Add(record); err != nil {
 			return err
 		}

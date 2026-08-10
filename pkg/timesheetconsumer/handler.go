@@ -15,7 +15,7 @@ type Acker interface {
 	Nack(multiple, requeue bool) error
 }
 
-func HandleDelivery(d Acker, body []byte, uc usecases.ForSyncingIncomeForTimesheet) {
+func HandleDelivery(d Acker, body []byte, uc usecases.ForSyncingIncomeFromTimesheet) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("timesheetconsumer: panic recovered, dropping message: %v", r)

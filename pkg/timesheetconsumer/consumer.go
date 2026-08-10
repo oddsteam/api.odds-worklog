@@ -23,7 +23,7 @@ const (
 // Start connects to RabbitMQ and consumes timesheet.monthly_summary.published events
 // until the process exits. It reconnects with exponential backoff on any
 // connection or channel failure and never returns.
-func Start(cfg Config, uc usecases.ForSyncingIncomeForTimesheet) {
+func Start(cfg Config, uc usecases.ForSyncingIncomeFromTimesheet) {
 	backoff := initialBackoff
 	for {
 		conn, err := amqp.Dial(cfg.URL)
@@ -62,7 +62,7 @@ func Start(cfg Config, uc usecases.ForSyncingIncomeForTimesheet) {
 	}
 }
 
-func consume(conn *amqp.Connection, cfg Config, uc usecases.ForSyncingIncomeForTimesheet) (chan *amqp.Error, error) {
+func consume(conn *amqp.Connection, cfg Config, uc usecases.ForSyncingIncomeFromTimesheet) (chan *amqp.Error, error) {
 	ch, err := conn.Channel()
 	if err != nil {
 		return nil, err

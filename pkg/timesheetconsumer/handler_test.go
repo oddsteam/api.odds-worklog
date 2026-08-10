@@ -44,7 +44,7 @@ func TestHandleDelivery(t *testing.T) {
 	t.Run("acks on successful sync", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		uc := mock_usecases.NewMockForSyncingIncomeForTimesheet(ctrl)
+		uc := mock_usecases.NewMockForSyncingIncomeFromTimesheet(ctrl)
 		uc.EXPECT().SyncFromEvent(gomock.Any()).Return(nil)
 		acker := &fakeAcker{}
 
@@ -57,7 +57,7 @@ func TestHandleDelivery(t *testing.T) {
 	t.Run("acks and drops on malformed JSON", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		uc := mock_usecases.NewMockForSyncingIncomeForTimesheet(ctrl)
+		uc := mock_usecases.NewMockForSyncingIncomeFromTimesheet(ctrl)
 		acker := &fakeAcker{}
 
 		HandleDelivery(acker, []byte("not json"), uc)
@@ -69,7 +69,7 @@ func TestHandleDelivery(t *testing.T) {
 	t.Run("acks and drops on unmatched user", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		uc := mock_usecases.NewMockForSyncingIncomeForTimesheet(ctrl)
+		uc := mock_usecases.NewMockForSyncingIncomeFromTimesheet(ctrl)
 		uc.EXPECT().SyncFromEvent(gomock.Any()).Return(usecases.ErrTimesheetUserNotFound)
 		acker := &fakeAcker{}
 
@@ -82,7 +82,7 @@ func TestHandleDelivery(t *testing.T) {
 	t.Run("nacks and requeues on infra error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		uc := mock_usecases.NewMockForSyncingIncomeForTimesheet(ctrl)
+		uc := mock_usecases.NewMockForSyncingIncomeFromTimesheet(ctrl)
 		uc.EXPECT().SyncFromEvent(gomock.Any()).Return(errors.New("mongo write failed"))
 		acker := &fakeAcker{}
 
@@ -96,7 +96,7 @@ func TestHandleDelivery(t *testing.T) {
 	t.Run("recovers a panic and acks", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		uc := mock_usecases.NewMockForSyncingIncomeForTimesheet(ctrl)
+		uc := mock_usecases.NewMockForSyncingIncomeFromTimesheet(ctrl)
 		uc.EXPECT().SyncFromEvent(gomock.Any()).DoAndReturn(func(models.TimesheetMonthlySummaryEvent) error {
 			panic("boom")
 		})
