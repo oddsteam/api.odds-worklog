@@ -114,3 +114,40 @@ func (mr *MockForGettingTimesheetUserMockRecorder) GetByEmail(email interface{})
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByEmail", reflect.TypeOf((*MockForGettingTimesheetUser)(nil).GetByEmail), email)
 }
+
+// MockForLoggingTimesheetEvent is a mock of ForLoggingTimesheetEvent interface
+type MockForLoggingTimesheetEvent struct {
+	ctrl     *gomock.Controller
+	recorder *MockForLoggingTimesheetEventMockRecorder
+}
+
+// MockForLoggingTimesheetEventMockRecorder is the mock recorder for MockForLoggingTimesheetEvent
+type MockForLoggingTimesheetEventMockRecorder struct {
+	mock *MockForLoggingTimesheetEvent
+}
+
+// NewMockForLoggingTimesheetEvent creates a new mock instance
+func NewMockForLoggingTimesheetEvent(ctrl *gomock.Controller) *MockForLoggingTimesheetEvent {
+	mock := &MockForLoggingTimesheetEvent{ctrl: ctrl}
+	mock.recorder = &MockForLoggingTimesheetEventMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockForLoggingTimesheetEvent) EXPECT() *MockForLoggingTimesheetEventMockRecorder {
+	return m.recorder
+}
+
+// Save mocks base method
+func (m *MockForLoggingTimesheetEvent) Save(evt models.TimesheetMonthlySummaryEvent) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Save", evt)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Save indicates an expected call of Save
+func (mr *MockForLoggingTimesheetEventMockRecorder) Save(evt interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockForLoggingTimesheetEvent)(nil).Save), evt)
+}

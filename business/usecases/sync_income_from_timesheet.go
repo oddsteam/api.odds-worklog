@@ -11,15 +11,20 @@ var ErrTimesheetUserNotFound = errors.New("timesheet event: no matching user for
 var ErrIncomeFromTimesheetNotFoundForPeriod = errors.New("income_from_timesheet: no record for this user and period")
 
 type syncIncomeFromTimesheetUsecase struct {
-	incomeRepo ForGettingIncomeFromTimesheet
-	userRepo   ForGettingTimesheetUser
+	incomeRepo   ForGettingIncomeFromTimesheet
+	userRepo     ForGettingTimesheetUser
+	eventLogRepo ForLoggingTimesheetEvent
 }
 
-func NewSyncIncomeFromTimesheetUsecase(incomeRepo ForGettingIncomeFromTimesheet, userRepo ForGettingTimesheetUser) ForSyncingIncomeFromTimesheet {
-	return &syncIncomeFromTimesheetUsecase{incomeRepo, userRepo}
+func NewSyncIncomeFromTimesheetUsecase(incomeRepo ForGettingIncomeFromTimesheet, userRepo ForGettingTimesheetUser, eventLogRepo ForLoggingTimesheetEvent) ForSyncingIncomeFromTimesheet {
+	return &syncIncomeFromTimesheetUsecase{incomeRepo, userRepo, eventLogRepo}
 }
 
 func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonthlySummaryEvent) error {
+	if err := u.eventLogRepo.Save(evt); err != nil {
+		return err
+	}
+
 	user, err := u.userRepo.GetByEmail(evt.Employee.Email)
 	if err != nil {
 		return err
