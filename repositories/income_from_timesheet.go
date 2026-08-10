@@ -22,6 +22,10 @@ func NewIncomeFromTimesheetRepository(session *mongo.Session) usecases.ForGettin
 	return &incomeFromTimesheetRepository{session}
 }
 
+func NewIncomeFromTimesheetReader(session *mongo.Session) usecases.ForGettingIncomeFromTimesheetInTheMonth {
+	return &incomeFromTimesheetRepository{session}
+}
+
 func (r *incomeFromTimesheetRepository) GetByUserYearMonth(userID string, year int, month time.Month) (*models.IncomeFromTimesheet, error) {
 	fromDate := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
 	toDate := fromDate.AddDate(0, 1, 0)
@@ -64,4 +68,26 @@ func (r *incomeFromTimesheetRepository) Update(income *models.IncomeFromTimeshee
 	ctx := r.session.Ctx()
 	_, err := coll.UpdateOne(ctx, bson.M{"_id": income.ID}, bson.M{"$set": income})
 	return err
+}
+
+func (r *incomeFromTimesheetRepository) GetAllByRoleStartDateAndEndDate(role string, startDate, endDate time.Time) ([]*models.IncomeFromTimesheet, error) {
+	records := make([]*models.IncomeFromTimesheet, 0)
+	coll := r.session.GetCollection(incomeFromTimesheetColl)
+	ctx := r.session.Ctx()
+	query := bson.M{
+		"role": role,
+		"submitDate": bson.M{
+			"$gt": startDate,
+			"$lt": endDate,
+		},
+	}
+	cursor, err := coll.Find(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+	if err := cursor.All(ctx, &records); err != nil {
+		return nil, err
+	}
+	return records, nil
 }
