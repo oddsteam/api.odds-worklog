@@ -20,3 +20,8 @@ type ForGettingIncomeFromTimesheet interface {
 type ForGettingTimesheetUser interface {
 	GetByEmail(email string) (*models.User, error)
 }
+
+// Save persists the raw event payload unconditionally, before any other processing.
+type ForLoggingTimesheetEvent interface {
+	Save(evt models.TimesheetMonthlySummaryEvent) error
+}

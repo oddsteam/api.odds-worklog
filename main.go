@@ -46,6 +46,7 @@ func main() {
 	}, usecases.NewSyncIncomeFromTimesheetUsecase(
 		repositories.NewIncomeFromTimesheetRepository(session),
 		user.NewTimesheetUserRepository(session),
+		repositories.NewTimesheetEventLogRepository(session),
 	))
 
 	// Echo instance
