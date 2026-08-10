@@ -12,17 +12,17 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 )
 
-const incomeForTimesheetColl = "income_for_timesheet"
+const incomeFromTimesheetColl = "income_from_timesheet"
 
-type incomeForTimesheetRepository struct {
+type incomeFromTimesheetRepository struct {
 	session *mongo.Session
 }
 
-func NewIncomeForTimesheetRepository(session *mongo.Session) usecases.ForGettingIncomeForTimesheet {
-	return &incomeForTimesheetRepository{session}
+func NewIncomeFromTimesheetRepository(session *mongo.Session) usecases.ForGettingIncomeFromTimesheet {
+	return &incomeFromTimesheetRepository{session}
 }
 
-func (r *incomeForTimesheetRepository) GetByUserYearMonth(userID string, year int, month time.Month) (*models.IncomeForTimesheet, error) {
+func (r *incomeFromTimesheetRepository) GetByUserYearMonth(userID string, year int, month time.Month) (*models.IncomeFromTimesheet, error) {
 	fromDate := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
 	toDate := fromDate.AddDate(0, 1, 0)
 	query := bson.M{
@@ -33,12 +33,12 @@ func (r *incomeForTimesheetRepository) GetByUserYearMonth(userID string, year in
 		},
 	}
 
-	record := new(models.IncomeForTimesheet)
-	coll := r.session.GetCollection(incomeForTimesheetColl)
+	record := new(models.IncomeFromTimesheet)
+	coll := r.session.GetCollection(incomeFromTimesheetColl)
 	ctx := r.session.Ctx()
 	err := coll.FindOne(ctx, query).Decode(record)
 	if errors.Is(err, mongodriver.ErrNoDocuments) {
-		return nil, usecases.ErrIncomeForTimesheetNotFoundForPeriod
+		return nil, usecases.ErrIncomeFromTimesheetNotFoundForPeriod
 	}
 	if err != nil {
 		return nil, err
@@ -46,21 +46,21 @@ func (r *incomeForTimesheetRepository) GetByUserYearMonth(userID string, year in
 	return record, nil
 }
 
-func (r *incomeForTimesheetRepository) Add(income *models.IncomeForTimesheet) error {
+func (r *incomeFromTimesheetRepository) Add(income *models.IncomeFromTimesheet) error {
 	t := time.Now()
 	income.SubmitDate = t
 	income.LastUpdate = t
 	income.ID = primitive.NewObjectID()
 	income.ExportStatus = false
-	coll := r.session.GetCollection(incomeForTimesheetColl)
+	coll := r.session.GetCollection(incomeFromTimesheetColl)
 	ctx := r.session.Ctx()
 	_, err := coll.InsertOne(ctx, income)
 	return err
 }
 
-func (r *incomeForTimesheetRepository) Update(income *models.IncomeForTimesheet) error {
+func (r *incomeFromTimesheetRepository) Update(income *models.IncomeFromTimesheet) error {
 	income.LastUpdate = time.Now()
-	coll := r.session.GetCollection(incomeForTimesheetColl)
+	coll := r.session.GetCollection(incomeFromTimesheetColl)
 	ctx := r.session.Ctx()
 	_, err := coll.UpdateOne(ctx, bson.M{"_id": income.ID}, bson.M{"$set": income})
 	return err

@@ -43,8 +43,8 @@ func main() {
 		Exchange:   c.RabbitMQExchange,
 		Queue:      c.RabbitMQQueue,
 		RoutingKey: c.RabbitMQRoutingKey,
-	}, usecases.NewSyncIncomeForTimesheetUsecase(
-		repositories.NewIncomeForTimesheetRepository(session),
+	}, usecases.NewSyncIncomeFromTimesheetUsecase(
+		repositories.NewIncomeFromTimesheetRepository(session),
 		user.NewTimesheetUserRepository(session),
 	))
 
