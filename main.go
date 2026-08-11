@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
+	income_from_timesheet "gitlab.odds.team/worklog/api.odds-worklog/api/income_from_timesheet"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/login"
 	sap_export_failure "gitlab.odds.team/worklog/api.odds-worklog/api/sap_export_failure"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
@@ -71,6 +72,7 @@ func main() {
 	// Handler
 	user.NewHttpHandler(r, session)
 	income.NewHttpHandler(r, session)
+	income_from_timesheet.NewHttpHandler(r, session)
 	file.NewHttpHandler(r, session)
 	site.NewHttpHandler(r, session)
 	sap_export_failure.NewHttpHandler(r, session)
