@@ -6,6 +6,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -20,7 +21,7 @@ type HttpHandler struct {
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	sr := site.NewRepository(session)
-	ur := NewRepository(session)
+	ur := repositories.NewUserRepository(session)
 	uc := usecases.NewManageUsersUsecase(ur, sr)
 	handler := &HttpHandler{uc}
 

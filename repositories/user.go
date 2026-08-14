@@ -1,49 +1,49 @@
-package user
+package repositories
 
 import (
 	"errors"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	mongodriver "go.mongodb.org/mongo-driver/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	mongodriver "go.mongodb.org/mongo-driver/mongo"
 )
 
 const userColl = "user"
 const archivedColl = "archived_user"
 
-type repository struct {
+type userRepository struct {
 	session *mongo.Session
 }
 
-func NewRepository(session *mongo.Session) Repository {
-	return &repository{session}
+func NewUserRepository(session *mongo.Session) usecases.ForManagingUsers {
+	return &userRepository{session}
 }
 
 func NewTimesheetUserRepository(session *mongo.Session) usecases.ForGettingTimesheetUser {
-	return &timesheetUserRepository{&repository{session}}
+	return &timesheetUserRepository{&userRepository{session}}
 }
 
 // timesheetUserRepository adapts repository's GetByEmail to usecases.ForGettingTimesheetUser's
 // contract: callers expect usecases.ErrTimesheetUserNotFound for "no matching user," not the
 // raw mongodriver.ErrNoDocuments the shared method returns.
 type timesheetUserRepository struct {
-	*repository
+	*userRepository
 }
 
 func (r *timesheetUserRepository) GetByEmail(email string) (*models.User, error) {
-	user, err := r.repository.GetByEmail(email)
+	user, err := r.userRepository.GetByEmail(email)
 	if errors.Is(err, mongodriver.ErrNoDocuments) {
 		return nil, usecases.ErrTimesheetUserNotFound
 	}
 	return user, err
 }
 
-func (r *repository) Create(u *models.User) (*models.User, error) {
+func (r *userRepository) Create(u *models.User) (*models.User, error) {
 	t := time.Now()
 	u.ID = primitive.NewObjectID()
 	u.Create = t
@@ -58,7 +58,7 @@ func (r *repository) Create(u *models.User) (*models.User, error) {
 	return u, nil
 }
 
-func (r *repository) Get() ([]*models.User, error) {
+func (r *userRepository) Get() ([]*models.User, error) {
 	users := make([]*models.User, 0)
 
 	coll := r.session.GetCollection(userColl)
@@ -74,7 +74,7 @@ func (r *repository) Get() ([]*models.User, error) {
 	return users, nil
 }
 
-func (r *repository) GetByRole(role string) ([]*models.User, error) {
+func (r *userRepository) GetByRole(role string) ([]*models.User, error) {
 	users := make([]*models.User, 0)
 
 	coll := r.session.GetCollection(userColl)
@@ -90,7 +90,7 @@ func (r *repository) GetByRole(role string) ([]*models.User, error) {
 	return users, nil
 }
 
-func (r *repository) GetByID(id string) (*models.User, error) {
+func (r *userRepository) GetByID(id string) (*models.User, error) {
 	user := new(models.User)
 	coll := r.session.GetCollection(userColl)
 	ctx := r.session.Ctx()
@@ -101,7 +101,7 @@ func (r *repository) GetByID(id string) (*models.User, error) {
 	return user, nil
 }
 
-func (r *repository) GetBySiteID(id string) ([]*models.User, error) {
+func (r *userRepository) GetBySiteID(id string) ([]*models.User, error) {
 	users := make([]*models.User, 0)
 
 	coll := r.session.GetCollection(userColl)
@@ -117,7 +117,7 @@ func (r *repository) GetBySiteID(id string) ([]*models.User, error) {
 	return users, nil
 }
 
-func (r *repository) GetByEmail(email string) (*models.User, error) {
+func (r *userRepository) GetByEmail(email string) (*models.User, error) {
 	user := new(models.User)
 	coll := r.session.GetCollection(userColl)
 	ctx := r.session.Ctx()
@@ -128,7 +128,7 @@ func (r *repository) GetByEmail(email string) (*models.User, error) {
 	return user, nil
 }
 
-func (r *repository) Update(user *models.User) (*models.User, error) {
+func (r *userRepository) Update(user *models.User) (*models.User, error) {
 	user.LastUpdate = time.Now()
 	coll := r.session.GetCollection(userColl)
 	ctx := r.session.Ctx()
@@ -139,14 +139,14 @@ func (r *repository) Update(user *models.User) (*models.User, error) {
 	return user, nil
 }
 
-func (r *repository) Delete(id string) error {
+func (r *userRepository) Delete(id string) error {
 	coll := r.session.GetCollection(userColl)
 	ctx := r.session.Ctx()
 	_, err := coll.DeleteOne(ctx, bson.M{"_id": bsonutil.MustObjectIDFromHex(id)})
 	return err
 }
 
-func (r *repository) CreateArchivedUser(user models.User) (*models.ArchivedUser, error) {
+func (r *userRepository) CreateArchivedUser(user models.User) (*models.ArchivedUser, error) {
 	t := time.Now()
 	a := models.ArchivedUser{
 		ArchivedDate: t,

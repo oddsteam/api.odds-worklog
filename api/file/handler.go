@@ -11,9 +11,9 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
 )
 
 type HttpHandler struct {
@@ -21,7 +21,7 @@ type HttpHandler struct {
 }
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
-	repo := user.NewRepository(session)
+	repo := repositories.NewUserRepository(session)
 	u := NewUsecase(repo)
 	h := &HttpHandler{u}
 	r = r.Group("/files")

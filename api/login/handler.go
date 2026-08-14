@@ -5,11 +5,11 @@ import (
 
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
+	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
 )
 
 type HttpHandler struct {
@@ -18,7 +18,7 @@ type HttpHandler struct {
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	siteRepo := site.NewRepository(session)
-	userRepo := user.NewRepository(session)
+	userRepo := repositories.NewUserRepository(session)
 	userUsecase := usecases.NewManageUsersUsecase(userRepo, siteRepo)
 	loginUsecase := NewUsecase(userUsecase)
 	handler := &HttpHandler{loginUsecase}
@@ -77,7 +77,7 @@ func (h *HttpHandler) loginKeycloak(c echo.Context) error {
 // @Success 200 {object} models.Token
 // @Failure 401 {object} utils.HTTPError
 // @Router /login [post]
-func login(c echo.Context, userRepo user.Repository) error {
+func login(c echo.Context, userRepo usecases.ForGettingUserByID) error {
 	var login models.Login
 	if err := c.Bind(&login); err != nil {
 		return utils.NewError(c, http.StatusUnauthorized, err)

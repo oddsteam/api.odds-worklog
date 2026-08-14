@@ -1,21 +1,8 @@
 package user
 
 import (
-	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 )
-
-type Repository interface {
-	Create(u *models.User) (*models.User, error)
-	CreateArchivedUser(a models.User) (*models.ArchivedUser, error)
-	Get() ([]*models.User, error)
-	GetByRole(role string) ([]*models.User, error)
-	GetByID(id string) (*models.User, error)
-	GetBySiteID(id string) ([]*models.User, error)
-	GetByEmail(email string) (*models.User, error)
-	Update(u *models.User) (*models.User, error)
-	Delete(id string) error
-}
 
 // Usecase is the HTTP-facing alias of the manage-users driving port.
 type Usecase = usecases.ForUsingUsers

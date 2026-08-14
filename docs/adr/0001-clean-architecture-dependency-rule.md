@@ -4,6 +4,8 @@
 
 Accepted
 
+Related: [ADR 0002](0002-move-user-management-usecase.md) applies this rule to user management (`api/user` → `business/usecases`).
+
 ## Context
 
 The project is structured in layers:

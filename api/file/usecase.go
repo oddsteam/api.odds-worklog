@@ -5,15 +5,15 @@ import (
 
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 type usercasse struct {
-	repo user.Repository
+	repo usecases.ForManagingUsers
 }
 
-func NewUsecase(repo user.Repository) Usecase {
+func NewUsecase(repo usecases.ForManagingUsers) Usecase {
 	return &usercasse{repo}
 }
 

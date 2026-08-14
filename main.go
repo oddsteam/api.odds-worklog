@@ -46,7 +46,7 @@ func main() {
 		RoutingKey: c.RabbitMQRoutingKey,
 	}, usecases.NewSyncIncomeFromTimesheetUsecase(
 		repositories.NewIncomeFromTimesheetRepository(session),
-		user.NewTimesheetUserRepository(session),
+		repositories.NewTimesheetUserRepository(session),
 		repositories.NewTimesheetEventLogRepository(session),
 	))
 

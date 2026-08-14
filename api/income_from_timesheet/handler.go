@@ -7,7 +7,6 @@ import (
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/file"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
@@ -49,7 +48,7 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	incomeReader := repositories.NewIncomeFromTimesheetReader(session)
 	studentLoanRepo := repositories.NewStudentLoanRepository(session)
-	userRepo := user.NewRepository(session)
+	userRepo := repositories.NewUserRepository(session)
 	siteRepo := site.NewRepository(session)
 	ex := usecases.NewExportIncomeFromTimesheetUsecase(incomeReader, studentLoanRepo, userRepo, siteRepo, file.NewCSVWriter())
 	handler := &HttpHandler{ex}

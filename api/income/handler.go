@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
 
@@ -327,7 +326,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	userIncomeWriter := repositories.NewUserIncomeWriter(session)
 	userIncomeUpdater := repositories.NewUserIncomeUpdater(session)
 	incomeWriter := repositories.NewIncomeWriter(session)
-	userRepo := user.NewRepository(session)
+	userRepo := repositories.NewUserRepository(session)
 	listStatus := usecases.NewListIncomeStatusUsecase(userIncomeReader, userRepo)
 	ad := usecases.NewAddIncomeUsecase(userIncomeWriter, userRepo)
 	gi := usecases.NewGetIncomeUsecase(userIncomeReader)
