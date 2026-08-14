@@ -296,18 +296,18 @@ func (mr *MockUsecaseMockRecorder) GetBySiteID(id interface{}) *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *MockUsecase) Update(u *models.User, isAdmin bool) (*models.User, error) {
+func (m *MockUsecase) Update(u *models.User, actor *models.UserClaims) (*models.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", u, isAdmin)
+	ret := m.ctrl.Call(m, "Update", u, actor)
 	ret0, _ := ret[0].(*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockUsecaseMockRecorder) Update(u, isAdmin interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) Update(u, actor interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsecase)(nil).Update), u, isAdmin)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsecase)(nil).Update), u, actor)
 }
 
 // UpdateStatusTavi mocks base method.

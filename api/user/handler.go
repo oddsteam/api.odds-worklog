@@ -183,8 +183,11 @@ func (h *HttpHandler) Update(c echo.Context) error {
 	id := c.Param("id")
 	u.ID = bsonutil.MustObjectIDFromHex(id)
 	ut := getUserFromToken(c)
-	user, err := h.Usecase.Update(&u, ut.IsAdmin())
+	user, err := h.Usecase.Update(&u, ut)
 	if err != nil {
+		if err == utils.ErrPermissionDenied {
+			return utils.NewError(c, http.StatusForbidden, err)
+		}
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, user)

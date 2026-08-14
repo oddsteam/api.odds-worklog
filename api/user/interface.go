@@ -22,7 +22,7 @@ type Usecase interface {
 	GetByRole(role string) ([]*models.User, error)
 	GetByID(id string) (*models.User, error)
 	GetBySiteID(id string) ([]*models.User, error)
-	Update(u *models.User, isAdmin bool) (*models.User, error)
+	Update(u *models.User, actor *models.UserClaims) (*models.User, error)
 	Delete(id string) error
 	GetByEmail(email string) (*models.User, error)
 	UpdateStatusTavi(m []*models.StatusTavi, isAdmin bool) ([]*models.User, error)

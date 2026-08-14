@@ -212,6 +212,14 @@ func TestUsecase_Delete_Should_Move_To_Archived_User(t *testing.T) {
 	assert.Equal(t, nil, u)
 }
 
+func claimsFor(u models.User) *models.UserClaims {
+	return &models.UserClaims{
+		ID:         u.ID.Hex(),
+		Role:       u.Role,
+		StatusTavi: u.StatusTavi,
+	}
+}
+
 func TestUsecase_Update(t *testing.T) {
 	t.Run("update user success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -223,7 +231,7 @@ func TestUsecase_Update(t *testing.T) {
 		mockRepo.EXPECT().Update(gomock.Any()).Return(&userMock.User, nil)
 
 		uc := NewUsecase(mockRepo, mockSiteRepo)
-		u, err := uc.Update(&userMock.User, userMock.User.IsAdmin())
+		u, err := uc.Update(&userMock.User, claimsFor(userMock.User))
 
 		assert.NoError(t, err)
 		assert.NotNil(t, u)
@@ -253,7 +261,7 @@ func TestUsecase_Update(t *testing.T) {
 		uc := NewUsecase(mockRepo, mockSiteRepo)
 		mu := userMock.User
 		mu.Role = "invalid"
-		u, err := uc.Update(&mu, mu.IsAdmin())
+		u, err := uc.Update(&mu, claimsFor(userMock.User))
 
 		assert.Nil(t, u)
 		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
@@ -269,7 +277,7 @@ func TestUsecase_Update(t *testing.T) {
 		uc := NewUsecase(mockRepo, mockSiteRepo)
 		mu := userMock.User
 		mu.Vat = "X"
-		u, err := uc.Update(&mu, mu.IsAdmin())
+		u, err := uc.Update(&mu, claimsFor(userMock.User))
 
 		assert.Nil(t, u)
 		assert.EqualError(t, err, utils.ErrInvalidUserVat.Error())
@@ -290,7 +298,7 @@ func TestUsecase_Update(t *testing.T) {
 		uc := NewUsecase(mockRepo, mockSiteRepo)
 		req := adminUser
 		req.SiteID = "5c0fb860f37e2f8698989cdd"
-		u, err := uc.Update(&req, false)
+		u, err := uc.Update(&req, claimsFor(userMock.UserManager))
 
 		assert.NoError(t, err)
 		assert.NotNil(t, u)
@@ -304,14 +312,108 @@ func TestUsecase_Update(t *testing.T) {
 
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := userMock.NewMockRepository(ctrl)
-		mockRepo.EXPECT().GetByID(gomock.Any()).Return(&userMock.User, nil)
+		current := userMock.User
+		mockRepo.EXPECT().GetByID(gomock.Any()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
 		uc := NewUsecase(mockRepo, mockSiteRepo)
 		req := userMock.User
 		req.Role = "admin"
-		u, err := uc.Update(&req, false)
+		req.FirstName = "Hacker"
+		u, err := uc.Update(&req, claimsFor(userMock.UserManager))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "corporate", u.Role)
+		assert.Equal(t, userMock.User.FirstName, u.FirstName)
+	})
+
+	t.Run("admin can update another user's profile", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.FirstName = "Updated"
+		req.DailyIncome = "9000"
+		u, err := uc.Update(&req, claimsFor(userMock.Admin))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "Updated", u.FirstName)
+		assert.Equal(t, "9000", u.DailyIncome)
+	})
+
+	t.Run("user-admin updating another user only applies site", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		current.SiteID = "old-site"
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.SiteID = "new-site"
+		req.FirstName = "ShouldNotApply"
+		req.DailyIncome = "99999"
+		u, err := uc.Update(&req, claimsFor(userMock.UserManager))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "new-site", u.SiteID)
+		assert.Equal(t, userMock.IndividualUser1.FirstName, u.FirstName)
+		assert.Equal(t, userMock.IndividualUser1.DailyIncome, u.DailyIncome)
+	})
+
+	t.Run("individual can update themselves", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.Phone = "0812345678"
+		u, err := uc.Update(&req, claimsFor(current))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "0812345678", u.Phone)
+	})
+
+	t.Run("individual cannot update another user", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		target := userMock.User
+		mockRepo.EXPECT().GetByID(target.ID.Hex()).Return(&target, nil)
+
+		uc := NewUsecase(mockRepo, mockSiteRepo)
+		req := target
+		req.FirstName = "Nope"
+		u, err := uc.Update(&req, claimsFor(userMock.IndividualUser1))
 
 		assert.Nil(t, u)
-		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
+		assert.EqualError(t, err, utils.ErrPermissionDenied.Error())
 	})
 }
 

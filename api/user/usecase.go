@@ -69,10 +69,28 @@ func (u *usecase) GetBySiteID(id string) ([]*models.User, error) {
 	return u.repo.GetBySiteID(id)
 }
 
-func (u *usecase) Update(userFromRequest *models.User, isAdmin bool) (*models.User, error) {
+func (u *usecase) Update(userFromRequest *models.User, actor *models.UserClaims) (*models.User, error) {
 	currentUser, err := u.repo.GetByID(userFromRequest.ID.Hex())
 	if err != nil {
 		return nil, err
+	}
+
+	if actor == nil {
+		return nil, utils.ErrPermissionDenied
+	}
+	isSelf := actor.ID == currentUser.ID.Hex()
+	isAdmin := actor.IsAdmin()
+	isUserAdmin := actor.Role == "user-admin"
+	if !isSelf && !isAdmin && !isUserAdmin {
+		return nil, utils.ErrPermissionDenied
+	}
+
+	if isUserAdmin && !isSelf {
+		updated := *currentUser
+		if userFromRequest.SiteID != "" {
+			updated.SiteID = userFromRequest.SiteID
+		}
+		return u.repo.Update(&updated)
 	}
 
 	// Allow partial updates (e.g. site-only) to omit role/vat; keep current values.

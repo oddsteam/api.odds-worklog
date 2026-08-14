@@ -14,6 +14,7 @@ import (
 
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 func TestCreate(t *testing.T) {
@@ -424,6 +425,28 @@ func TestUpdate(t *testing.T) {
 		handler.Update(c)
 
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+
+	t.Run("when permission denied, then return json models.HTTPError with status code 403", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		mockUsecase.EXPECT().Update(&userMock.User, gomock.Any()).Return(nil, utils.ErrPermissionDenied)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(userMock.UserJson))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues("5bbcf2f90fd2df527bc39539")
+
+		handler := &HttpHandler{mockUsecase}
+		handler.Update(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
 	})
 }
 
