@@ -16,6 +16,7 @@ type User struct {
 	LastName          string        `bson:"lastName" json:"lastName"`
 	CorporateName     string        `bson:"corporateName" json:"corporateName,omitempty"`
 	Email             string        `bson:"email" json:"email"`
+	PeakCode          string        `bson:"peakCode" json:"peakCode"`
 	BankAccountName   string        `bson:"bankAccountName" json:"bankAccountName"`
 	BankAccountNumber string        `bson:"bankAccountNumber" json:"bankAccountNumber"`
 	ThaiCitizenID     string        `bson:"thaiCitizenId" json:"thaiCitizenId,omitempty"`

@@ -190,7 +190,7 @@ func (h *HttpHandler) Update(c echo.Context) error {
 		if err == models.ErrPermissionDenied {
 			return utils.NewError(c, http.StatusForbidden, err)
 		}
-		if err == models.ErrConflict {
+		if err == models.ErrConflict || err == models.ErrPeakCodeConflict {
 			return utils.NewError(c, http.StatusConflict, err)
 		}
 		if err == models.ErrInvalidFormat {

@@ -507,6 +507,140 @@ func TestUsecase_Update(t *testing.T) {
 		assert.Equal(t, "new-site", u.SiteID)
 		assert.Equal(t, "email@example.com", u.Email)
 	})
+
+	t.Run("admin can update another user's peak code", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().GetByPeakCode("PK-001").Return(nil, models.ErrInvalidFormat)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.PeakCode = "PK-001"
+		u, err := uc.Update(&req, claimsFor(userMock.Admin))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "PK-001", u.PeakCode)
+	})
+
+	t.Run("admin can update own peak code", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.Admin
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().GetByPeakCode("PK-ADMIN").Return(nil, models.ErrInvalidFormat)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.PeakCode = "PK-ADMIN"
+		u, err := uc.Update(&req, claimsFor(current))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "PK-ADMIN", u.PeakCode)
+	})
+
+	t.Run("admin can clear peak code", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		current.PeakCode = "PK-001"
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.PeakCode = ""
+		u, err := uc.Update(&req, claimsFor(userMock.Admin))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "", u.PeakCode)
+	})
+
+	t.Run("admin updating peak code to existing value returns ErrPeakCodeConflict", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		existing := userMock.User
+		existing.PeakCode = "PK-TAKEN"
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().GetByPeakCode("PK-TAKEN").Return(&existing, nil)
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.PeakCode = "PK-TAKEN"
+		u, err := uc.Update(&req, claimsFor(userMock.Admin))
+
+		assert.Nil(t, u)
+		assert.EqualError(t, err, models.ErrPeakCodeConflict.Error())
+	})
+
+	t.Run("individual cannot update own peak code", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		current.PeakCode = "OLD"
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.PeakCode = "HACKED"
+		u, err := uc.Update(&req, claimsFor(current))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "OLD", u.PeakCode)
+	})
+
+	t.Run("user-admin cannot update another user's peak code", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		current.PeakCode = "OLD"
+		current.SiteID = "old-site"
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.SiteID = "new-site"
+		req.PeakCode = "HACKED"
+		u, err := uc.Update(&req, claimsFor(userMock.UserManager))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "new-site", u.SiteID)
+		assert.Equal(t, "OLD", u.PeakCode)
+	})
 }
 
 func TestUsecase_UpdateStatusTavi(t *testing.T) {

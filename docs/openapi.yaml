@@ -1574,6 +1574,9 @@ components:
           type: string
           format: email
           description: Email address
+        peakCode:
+          type: string
+          description: Peak code (unique when set; editable by admin only)
         bankAccountName:
           type: string
           description: Bank account name

@@ -10,6 +10,7 @@ type ForManagingUsers interface {
 	GetByID(id string) (*models.User, error)
 	GetBySiteID(id string) ([]*models.User, error)
 	GetByEmail(email string) (*models.User, error)
+	GetByPeakCode(peakCode string) (*models.User, error)
 	Update(u *models.User) (*models.User, error)
 	Delete(id string) error
 }

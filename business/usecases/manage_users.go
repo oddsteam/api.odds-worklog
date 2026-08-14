@@ -113,6 +113,14 @@ func (u *manageUsersUsecase) Update(userFromRequest *models.User, actor *models.
 		}
 		updated.Email = userFromRequest.Email
 	}
+	if isAdmin && userFromRequest.PeakCode != currentUser.PeakCode {
+		if userFromRequest.PeakCode != "" {
+			if existing, err := u.users.GetByPeakCode(userFromRequest.PeakCode); err == nil && existing.ID != currentUser.ID {
+				return nil, models.ErrPeakCodeConflict
+			}
+		}
+		updated.PeakCode = userFromRequest.PeakCode
+	}
 	updated.ApplyProfileUpdate(*userFromRequest)
 	return u.users.Update(&updated)
 }

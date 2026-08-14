@@ -128,6 +128,17 @@ func (r *userRepository) GetByEmail(email string) (*models.User, error) {
 	return user, nil
 }
 
+func (r *userRepository) GetByPeakCode(peakCode string) (*models.User, error) {
+	user := new(models.User)
+	coll := r.session.GetCollection(userColl)
+	ctx := r.session.Ctx()
+	err := coll.FindOne(ctx, bson.M{"peakCode": peakCode}).Decode(user)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 func (r *userRepository) Update(user *models.User) (*models.User, error) {
 	user.LastUpdate = time.Now()
 	coll := r.session.GetCollection(userColl)
