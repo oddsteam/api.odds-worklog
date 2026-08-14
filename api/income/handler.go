@@ -99,21 +99,6 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-// GetCorporateIncomeStatus godoc
-// @Summary Get Corporate Income Status List
-// @Description Get Income Status List
-// @Tags incomes
-// @Accept json
-// @Produce json
-// @Success 200 {array} models.IncomeStatus
-// @Failure 400 {object} utils.HTTPError
-// @Failure 422 {object} utils.HTTPError
-// @Failure 500 {object} utils.HTTPError
-// @Router /incomes/status/corporate [get]
-func (h *HttpHandler) GetCorporateIncomeStatus(c echo.Context) error {
-	return h.getIncomeStatus(c, "corporate")
-}
-
 // GetIndividualIncomeStatus godoc
 // @Summary Get Individual Income Status List
 // @Description Get Individual Income Status List
@@ -193,20 +178,6 @@ func (h *HttpHandler) GetIncomeCurrentMonthByUserId(c echo.Context) error {
 		return c.JSON(http.StatusOK, nil)
 	}
 	return c.JSON(http.StatusOK, income)
-}
-
-// GetExportCorporate godoc
-// @Summary Get Corporate Export Income (unused deprecate soon)
-// @Description Get Corporate Export Income to csv file.
-// @Tags incomes
-// @Accept  json
-// @Produce  json
-// @Param month path string true "Month"
-// @Success 200 {array} string
-// @Failure 500 {object} utils.HTTPError
-// @Router /incomes/export/corporate/{month} [get]
-func (h *HttpHandler) GetExportCorporate(c echo.Context) error {
-	return h.getExportIncome(c, "corporate")
 }
 
 func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
@@ -340,11 +311,9 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r = r.Group("/incomes")
 	r.POST("", handler.AddIncome)
 	r.PUT("/:id", handler.UpdateIncome)
-	r.GET("/status/corporate", handler.GetCorporateIncomeStatus)
 	r.GET("/status/individual", handler.GetIndividualIncomeStatus)
 	r.GET("/current-month/:id", handler.GetIncomeCurrentMonthByUserId)
 	r.GET("/all-month/:id", handler.GetIncomeAllMonthByUserId)
-	r.GET("/export/corporate/:month", handler.GetExportCorporate)
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
 	r.POST("/export", handler.PostExportPdf)
 	r.POST("/export/format/SAP", handler.PostExportSAP)

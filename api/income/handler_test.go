@@ -105,51 +105,6 @@ func TestUpdateIncome(t *testing.T) {
 
 }
 
-func TestGetCorporateIncomeStatus(t *testing.T) {
-	t.Run("when get corporate income status list is success it should return status OK", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockListIncomeStatus := ucmock.NewMockForUsingListIncomeStatus(ctrl)
-		mockListUser := make([]*models.IncomeStatus, 0)
-		mockListUser = append(mockListUser, &models.MockCorporateIncomeStatus)
-		mockListIncomeStatus.EXPECT().GetIncomeStatusList("corporate", true).Return(mockListUser, nil)
-
-		req := httptest.NewRequest(echo.GET, "/", nil)
-		rec := httptest.NewRecorder()
-		c := echo.New().NewContext(req, rec)
-		c.Set("user", userMock.TokenAdmin)
-
-		handler, ctrl := createHandlerWithMockUsecases(t, mockListIncomeStatus, ucmock.NewMockForUsingGetIncome(ctrl))
-		defer ctrl.Finish()
-		handler.GetCorporateIncomeStatus(c)
-
-		assert.Equal(t, http.StatusOK, rec.Code)
-	})
-
-	t.Run("when get corporate income status list it should not return individual list", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockListIncomeStatus := ucmock.NewMockForUsingListIncomeStatus(ctrl)
-		mockListUser := make([]*models.IncomeStatus, 0)
-		mockListUser = append(mockListUser, &models.MockIndividualIncomeStatus)
-		mockListIncomeStatus.EXPECT().GetIncomeStatusList("corporate", true).Return(mockListUser, nil)
-
-		req := httptest.NewRequest(echo.GET, "/", nil)
-		rec := httptest.NewRecorder()
-		c := echo.New().NewContext(req, rec)
-		c.Set("user", userMock.TokenAdmin)
-
-		handler, ctrl := createHandlerWithMockUsecases(t, mockListIncomeStatus, ucmock.NewMockForUsingGetIncome(ctrl))
-		defer ctrl.Finish()
-		handler.GetCorporateIncomeStatus(c)
-		incomeByte, _ := json.Marshal(models.MockIndividualIncomeStatus)
-		incomeJson := string(incomeByte)
-		assert.NotEqual(t, incomeJson, rec.Body)
-	})
-}
-
 func TestGetIndividualIncomeStatus(t *testing.T) {
 	t.Run("when get individual income status list is success it should return status OK", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -266,26 +221,6 @@ func TestGetIncomeGetIncomeAllMonthByUserId(t *testing.T) {
 	})
 }
 
-func TestGetExportCorporateIncomeStatus(t *testing.T) {
-	t.Run("when export corporate income success it should be return status OK", func(t *testing.T) {
-		e := echo.New()
-		req := httptest.NewRequest(echo.GET, "/", nil)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-		c.Set("user", userMock.TokenAdmin)
-		c.SetParamNames("month")
-		c.SetParamValues("1")
-		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
-		defer ctrl.Finish()
-		mockRepo.ExpectGetAllIncomeOfPreviousMonthByRole(models.MockIncomeList)
-		mockRepo.ExpectGetStudentLoans()
-		mockRepo.ExpectAddExport()
-		handler.GetExportCorporate(c)
-
-		assert.Equal(t, http.StatusOK, rec.Code)
-	})
-}
-
 func TestGetExportIndividualIncomeStatus(t *testing.T) {
 	t.Run("when export individual income success it should be return status OK", func(t *testing.T) {
 		e := echo.New()
@@ -377,22 +312,6 @@ func TestPostExportSAPIncome(t *testing.T) {
 }
 
 func TestExportIncomeDeniedForUserAdmin(t *testing.T) {
-	t.Run("GET corporate export returns 401 for user-admin", func(t *testing.T) {
-		e := echo.New()
-		req := httptest.NewRequest(echo.GET, "/", nil)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-		c.Set("user", userMock.TokenUserManager)
-		c.SetParamNames("month")
-		c.SetParamValues("1")
-
-		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
-		defer ctrl.Finish()
-		handler.GetExportCorporate(c)
-
-		assert.Equal(t, http.StatusUnauthorized, rec.Code)
-	})
-
 	t.Run("GET individual export returns 401 for user-admin", func(t *testing.T) {
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)

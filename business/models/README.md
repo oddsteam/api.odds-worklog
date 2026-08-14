@@ -129,18 +129,15 @@ Deduction หลัก ๆ ที่เรามี คือบางคนท�
 สำหรับบุคคล/นิติบุคคลที่จดทะเบียนภาษีมูลค่าเพิ่ม (VAT) มีภาระที่จะต้องเก็บภาษีมูลค่าเพิ่มจาก Payroll
 นี้เพื่อไปนำส่งภาษีมูลค่าเพิ่มต่อไป
 
-แต่ละ PayrollCycle ของเราจะถูกแบ่งจ่ายออกเป็น 3 BatchTransaction คือ
+แต่ละ PayrollCycle ของเราจะถูกแบ่งจ่ายออกเป็น BatchTransaction สำหรับ Individual user
 
-1. สำหรับ Individual user
-1. สำหรับ Corporate user (ที่จดนิติบุคคล) และมี BankAccount ของ TTB เอง และ
-1. Coporate user ที่ใช้บัญชีต่างธนาคาร
+เดิมเคยแยก Corporate user (นิติบุคคล) เป็นคนละ batch แต่ตอนนี้ corporate ไม่ใช้ worklog แล้ว —
+ไปวางบิลที่ระบบบัญชีแทน ข้อมูล role corporate ในฐานข้อมูลยังมีอยู่เป็นประวัติ
 
-ที่ต้องแยก Corporate ต่างธนาคารออกไป เพราะการโอนภายใน TTB จะ effective ทันที
-แต่ถ้าโอนต่างธนาคารจะต้องรอ 2 business days ถึงจะมีผล เลยต้องแยก file BatchTransaction
-ออกจากกันเป็นคนละ file
+ที่เคยต้องแยก Corporate ต่างธนาคารออกไป เพราะการโอนภายใน TTB จะ effective ทันที
+แต่ถ้าโอนต่างธนาคารจะต้องรอ 2 business days ถึงจะมีผล
 
-หน้าตา analysis model สำหรับออดส์เลยเป็นแบบนี้ (ไม่มี benefit และ 1 PayrollCycle จะมี 3
-BatchTransactions)
+หน้าตา analysis model สำหรับออดส์เลยเป็นแบบนี้ (ไม่มี benefit และ 1 PayrollCycle จะมี BatchTransfer สำหรับ individual)
 
 ```mermaid
 classDiagram
@@ -224,7 +221,7 @@ Payroll "1" -- "many" Deduction
 Payroll "1" -- "many" Tax
 Payment "1" -- "1" BankTransaction
 Payment "many" -- "1" BatchTransfer
-PayrollCycle "1" -- "3" BatchTransfer
+PayrollCycle "1" -- "1" BatchTransfer
 BankTransaction "many" -- "1" BatchTransfer
 PayrollCycle "1" -- "many" Payroll
 ```
