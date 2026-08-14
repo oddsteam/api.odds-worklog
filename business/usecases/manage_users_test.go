@@ -1,17 +1,23 @@
-package user
+package usecases
 
 import (
 	"testing"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
-
 	siteMock "gitlab.odds.team/worklog/api.odds-worklog/api/site/mock"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
+
+func claimsFor(u models.User) *models.UserClaims {
+	return &models.UserClaims{
+		ID:         u.ID.Hex(),
+		Role:       u.Role,
+		StatusTavi: u.StatusTavi,
+	}
+}
 
 func TestUsecase_Create(t *testing.T) {
 	t.Run("create user success", func(t *testing.T) {
@@ -23,9 +29,9 @@ func TestUsecase_Create(t *testing.T) {
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := userMock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().Create(&user).Return(&user, nil)
-		mockRepo.EXPECT().GetByEmail(user.Email).Return(nil, utils.ErrNotFound)
+		mockRepo.EXPECT().GetByEmail(user.Email).Return(nil, models.ErrInvalidFormat)
 
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		userRes, err := uc.Create(&user)
 
 		assert.NoError(t, err)
@@ -42,10 +48,10 @@ func TestUsecase_Create(t *testing.T) {
 
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := userMock.NewMockRepository(ctrl)
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		userRes, err := uc.Create(&user)
 
-		assert.EqualError(t, err, utils.ErrInvalidFormat.Error())
+		assert.EqualError(t, err, models.ErrInvalidFormat.Error())
 		assert.Nil(t, userRes)
 	})
 
@@ -58,13 +64,12 @@ func TestUsecase_Create(t *testing.T) {
 		mockRepo := userMock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().GetByEmail(user.Email).Return(&user, nil)
 
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		userRes, err := uc.Create(&user)
 
-		assert.EqualError(t, err, utils.ErrConflict.Error())
+		assert.EqualError(t, err, models.ErrConflict.Error())
 		assert.NotNil(t, userRes)
 	})
-
 }
 
 func TestUsecase_Get(t *testing.T) {
@@ -77,7 +82,7 @@ func TestUsecase_Get(t *testing.T) {
 		mockRepo := userMock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().Get().Return(userMock.Users, nil)
 
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		u, err := uc.Get()
 
 		assert.NoError(t, err)
@@ -101,7 +106,7 @@ func TestUsecase_Get(t *testing.T) {
 		mockRepo := userMock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().Get().Return(users, nil)
 
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		u, err := uc.Get()
 
 		assert.NoError(t, err)
@@ -123,7 +128,7 @@ func TestUsecase_GetByRole(t *testing.T) {
 		mockRepo := userMock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().GetByRole("corporate").Return(userMock.Users, nil)
 
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		list, err := uc.GetByRole("corporate")
 
 		assert.NoError(t, err)
@@ -139,7 +144,7 @@ func TestUsecase_GetByRole(t *testing.T) {
 		mockRepo := userMock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().GetByRole("individual").Return(userMock.Users, nil)
 
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		list, err := uc.GetByRole("individual")
 
 		assert.NoError(t, err)
@@ -156,7 +161,7 @@ func TestUsecase_GetByID(t *testing.T) {
 	mockRepo := userMock.NewMockRepository(ctrl)
 	mockRepo.EXPECT().GetByID(userMock.User.ID.Hex()).Return(&userMock.User, nil)
 
-	uc := NewUsecase(mockRepo, mockSiteRepo)
+	uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 	u, err := uc.GetByID(userMock.User.ID.Hex())
 
 	assert.NoError(t, err)
@@ -164,7 +169,7 @@ func TestUsecase_GetByID(t *testing.T) {
 	assert.Equal(t, userMock.User.GetFullname(), u.GetFullname())
 }
 
-func TesTUsercase_GetByEmail(t *testing.T) {
+func TestUsecase_GetByEmail(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -172,7 +177,7 @@ func TesTUsercase_GetByEmail(t *testing.T) {
 	mockRepo := userMock.NewMockRepository(ctrl)
 	mockRepo.EXPECT().GetByEmail(userMock.User.Email).Return(&userMock.User, nil)
 
-	uc := NewUsecase(mockRepo, mockSiteRepo)
+	uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 	u, err := uc.GetByEmail(userMock.User.Email)
 
 	assert.NoError(t, err)
@@ -188,7 +193,7 @@ func TestUsecase_GetBySiteID(t *testing.T) {
 	mockRepo := userMock.NewMockRepository(ctrl)
 	mockRepo.EXPECT().GetBySiteID("1234567890").Return(userMock.Users, nil)
 
-	uc := NewUsecase(mockRepo, mockSiteRepo)
+	uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 	users, err := uc.GetBySiteID("1234567890")
 
 	assert.NoError(t, err)
@@ -206,18 +211,10 @@ func TestUsecase_Delete_Should_Move_To_Archived_User(t *testing.T) {
 	mockRepo.EXPECT().CreateArchivedUser(userMock.User).Return(nil, nil)
 	mockRepo.EXPECT().GetByID(userMock.User.ID.Hex()).Return(&userMock.User, nil)
 
-	uc := NewUsecase(mockRepo, mockSiteRepo)
+	uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 	u := uc.Delete(userMock.User.ID.Hex())
 
 	assert.Equal(t, nil, u)
-}
-
-func claimsFor(u models.User) *models.UserClaims {
-	return &models.UserClaims{
-		ID:         u.ID.Hex(),
-		Role:       u.Role,
-		StatusTavi: u.StatusTavi,
-	}
 }
 
 func TestUsecase_Update(t *testing.T) {
@@ -230,25 +227,13 @@ func TestUsecase_Update(t *testing.T) {
 		mockRepo.EXPECT().GetByID(gomock.Any()).Return(&userMock.User, nil)
 		mockRepo.EXPECT().Update(gomock.Any()).Return(&userMock.User, nil)
 
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		u, err := uc.Update(&userMock.User, claimsFor(userMock.User))
 
 		assert.NoError(t, err)
 		assert.NotNil(t, u)
 		assert.Equal(t, userMock.User.GetFullname(), u.GetFullname())
 		assert.Equal(t, userMock.User.StartDate, u.StartDate)
-	})
-
-	t.Run("Bank account number with - and special char will create a bad batch file for bank system. This will fail the batch transfer process in the bank, causing the delay for all members to receive income. Therefore, we will remove - and special char from the bank account number!", func(t *testing.T) {
-		userFromRequest := models.User{
-			BankAccountNumber: "้1234-123-999‬",
-		}
-
-		user := NewUser(userMock.User)
-		err := user.prepareDataForUpdateFrom(userFromRequest)
-
-		assert.NoError(t, err)
-		assert.Equal(t, user.data.BankAccountNumber, "1234123999")
 	})
 
 	t.Run("when update user invalid role, then retuen erro nil, ErrInvalidUserRole", func(t *testing.T) {
@@ -258,13 +243,13 @@ func TestUsecase_Update(t *testing.T) {
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := userMock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().GetByID(gomock.Any()).Return(&userMock.User, nil)
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		mu := userMock.User
 		mu.Role = "invalid"
 		u, err := uc.Update(&mu, claimsFor(userMock.User))
 
 		assert.Nil(t, u)
-		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
+		assert.EqualError(t, err, models.ErrInvalidUserRole.Error())
 	})
 
 	t.Run("when update user invalid vat, then retuen erro nil, ErrInvalidUserVat", func(t *testing.T) {
@@ -274,13 +259,13 @@ func TestUsecase_Update(t *testing.T) {
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := userMock.NewMockRepository(ctrl)
 		mockRepo.EXPECT().GetByID(gomock.Any()).Return(&userMock.User, nil)
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		mu := userMock.User
 		mu.Vat = "X"
 		u, err := uc.Update(&mu, claimsFor(userMock.User))
 
 		assert.Nil(t, u)
-		assert.EqualError(t, err, utils.ErrInvalidUserVat.Error())
+		assert.EqualError(t, err, models.ErrInvalidUserVat.Error())
 	})
 
 	t.Run("user-admin can update existing admin user site", func(t *testing.T) {
@@ -295,7 +280,7 @@ func TestUsecase_Update(t *testing.T) {
 			return u, nil
 		})
 
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		req := adminUser
 		req.SiteID = "5c0fb860f37e2f8698989cdd"
 		u, err := uc.Update(&req, claimsFor(userMock.UserManager))
@@ -317,7 +302,7 @@ func TestUsecase_Update(t *testing.T) {
 		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
 			return u, nil
 		})
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		req := userMock.User
 		req.Role = "admin"
 		req.FirstName = "Hacker"
@@ -340,7 +325,7 @@ func TestUsecase_Update(t *testing.T) {
 			return u, nil
 		})
 
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		req := current
 		req.FirstName = "Updated"
 		req.DailyIncome = "9000"
@@ -364,7 +349,7 @@ func TestUsecase_Update(t *testing.T) {
 			return u, nil
 		})
 
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		req := current
 		req.SiteID = "new-site"
 		req.FirstName = "ShouldNotApply"
@@ -389,7 +374,7 @@ func TestUsecase_Update(t *testing.T) {
 			return u, nil
 		})
 
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		req := current
 		req.Phone = "0812345678"
 		u, err := uc.Update(&req, claimsFor(current))
@@ -407,13 +392,13 @@ func TestUsecase_Update(t *testing.T) {
 		target := userMock.User
 		mockRepo.EXPECT().GetByID(target.ID.Hex()).Return(&target, nil)
 
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		req := target
 		req.FirstName = "Nope"
 		u, err := uc.Update(&req, claimsFor(userMock.IndividualUser1))
 
 		assert.Nil(t, u)
-		assert.EqualError(t, err, utils.ErrPermissionDenied.Error())
+		assert.EqualError(t, err, models.ErrPermissionDenied.Error())
 	})
 }
 
@@ -427,7 +412,7 @@ func TestUsecase_UpdateStatusTavi(t *testing.T) {
 		mockRepo.EXPECT().GetByID(gomock.Any()).Return(&userMock.User, nil)
 		mockRepo.EXPECT().Update(gomock.Any()).Return(&userMock.User, nil)
 
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		u, err := uc.UpdateStatusTavi(userMock.ListUser, userMock.User.IsAdmin())
 
 		assert.NoError(t, err)
@@ -442,14 +427,13 @@ func TestUsecase_UpdateStatusTavi(t *testing.T) {
 		mockSiteRepo := siteMock.NewMockRepository(ctrl)
 		mockRepo := userMock.NewMockRepository(ctrl)
 
-		uc := NewUsecase(mockRepo, mockSiteRepo)
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		mu := userMock.ListUser
 		mu[0].User.Role = ""
 
 		u, err := uc.UpdateStatusTavi(mu, mu[0].User.IsAdmin())
 
 		assert.Nil(t, u)
-		assert.EqualError(t, err, utils.ErrInvalidUserRole.Error())
+		assert.EqualError(t, err, models.ErrInvalidUserRole.Error())
 	})
-
 }

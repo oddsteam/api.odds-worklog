@@ -6,17 +6,17 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/auth"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 type usecase struct {
-	UserUsecase user.Usecase
+	UserUsecase usecases.ForUsingUsers
 }
 
-func NewUsecase(uu user.Usecase) Usecase {
+func NewUsecase(uu usecases.ForUsingUsers) Usecase {
 	return &usecase{uu}
 }
 

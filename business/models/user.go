@@ -1,7 +1,10 @@
 package models
 
 import (
+	"regexp"
+	"strings"
 	"time"
+	"unicode"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -104,4 +107,71 @@ func (u *User) ValidateVat() error {
 		return ErrInvalidUserVat
 	}
 	return nil
+}
+
+func (u *User) ValidateEmail() error {
+	if !emailRegexp.MatchString(u.Email) {
+		return ErrInvalidFormat
+	}
+	return nil
+}
+
+// ApplyProfileUpdate copies editable profile fields from src onto u.
+// Empty strings leave the current value except Role, Vat, Phone, and StatusTavi
+// which are always replaced (matching the previous update behavior).
+func (u *User) ApplyProfileUpdate(src User) {
+	if src.FirstName != "" {
+		u.FirstName = toFirstUpper(src.FirstName)
+	}
+	if src.LastName != "" {
+		u.LastName = toFirstUpper(src.LastName)
+	}
+	if src.CorporateName != "" {
+		u.CorporateName = src.CorporateName
+	}
+	if src.BankAccountName != "" {
+		u.BankAccountName = src.BankAccountName
+	}
+	if src.BankAccountNumber != "" {
+		u.BankAccountNumber = extractDigits(src.BankAccountNumber)
+	}
+	if src.ThaiCitizenID != "" {
+		u.ThaiCitizenID = src.ThaiCitizenID
+	}
+	if src.SiteID != "" {
+		u.SiteID = src.SiteID
+	}
+	if src.Project != "" {
+		u.Project = src.Project
+	}
+	if src.DailyIncome != "" {
+		u.DailyIncome = src.DailyIncome
+	}
+	if src.Address != "" {
+		u.Address = src.Address
+	}
+	if src.StartDate != "" {
+		u.StartDate = src.StartDate
+	}
+
+	u.StatusTavi = src.StatusTavi
+	u.Role = src.Role
+	u.Vat = src.Vat
+	u.Phone = src.Phone
+}
+
+var emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+func toFirstUpper(s string) string {
+	return strings.Title(strings.ToLower(s))
+}
+
+func extractDigits(input string) string {
+	var result []rune
+	for _, char := range input {
+		if unicode.IsDigit(char) {
+			result = append(result, char)
+		}
+	}
+	return string(result)
 }

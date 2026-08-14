@@ -14,7 +14,6 @@ import (
 
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
 
 func TestCreate(t *testing.T) {
@@ -432,7 +431,7 @@ func TestUpdate(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUsecase := userMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().Update(&userMock.User, gomock.Any()).Return(nil, utils.ErrPermissionDenied)
+		mockUsecase.EXPECT().Update(&userMock.User, gomock.Any()).Return(nil, models.ErrPermissionDenied)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(userMock.UserJson))

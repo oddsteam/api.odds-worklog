@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -20,7 +21,7 @@ type HttpHandler struct {
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	sr := site.NewRepository(session)
 	ur := NewRepository(session)
-	uc := NewUsecase(ur, sr)
+	uc := usecases.NewManageUsersUsecase(ur, sr)
 	handler := &HttpHandler{uc}
 
 	r = r.Group("/users")
@@ -185,7 +186,7 @@ func (h *HttpHandler) Update(c echo.Context) error {
 	ut := getUserFromToken(c)
 	user, err := h.Usecase.Update(&u, ut)
 	if err != nil {
-		if err == utils.ErrPermissionDenied {
+		if err == models.ErrPermissionDenied {
 			return utils.NewError(c, http.StatusForbidden, err)
 		}
 		return utils.NewError(c, http.StatusInternalServerError, err)

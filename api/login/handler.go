@@ -7,6 +7,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
 )
@@ -18,7 +19,7 @@ type HttpHandler struct {
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	siteRepo := site.NewRepository(session)
 	userRepo := user.NewRepository(session)
-	userUsecase := user.NewUsecase(userRepo, siteRepo)
+	userUsecase := usecases.NewManageUsersUsecase(userRepo, siteRepo)
 	loginUsecase := NewUsecase(userUsecase)
 	handler := &HttpHandler{loginUsecase}
 
@@ -54,7 +55,7 @@ func (h *HttpHandler) loginKeycloak(c echo.Context) error {
 	}
 
 	user, err := h.Usecase.CreateUser(tokenInfo.Email)
-	if err != nil && err != utils.ErrConflict {
+	if err != nil && err != models.ErrConflict {
 		return utils.NewError(c, http.StatusUnauthorized, err)
 	}
 

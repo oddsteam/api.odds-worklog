@@ -93,3 +93,19 @@ func TestUserClaims_Permissions(t *testing.T) {
 	assert.False(t, uc.IsUserManager())
 	assert.False(t, uc.CanExportIncome())
 }
+
+func TestUser_ApplyProfileUpdate(t *testing.T) {
+	t.Run("does not mutate the source user", func(t *testing.T) {
+		current := User{FirstName: "original"}
+		updated := current
+		updated.ApplyProfileUpdate(User{FirstName: "new"})
+		assert.Equal(t, "original", current.FirstName)
+		assert.Equal(t, "New", updated.FirstName)
+	})
+
+	t.Run("Bank account number with - and special char will create a bad batch file for bank system. This will fail the batch transfer process in the bank, causing the delay for all members to receive income. Therefore, we will remove - and special char from the bank account number!", func(t *testing.T) {
+		current := User{BankAccountNumber: "000"}
+		current.ApplyProfileUpdate(User{BankAccountNumber: "้1234-123-999‬"})
+		assert.Equal(t, "1234123999", current.BankAccountNumber)
+	})
+}
