@@ -400,6 +400,113 @@ func TestUsecase_Update(t *testing.T) {
 		assert.Nil(t, u)
 		assert.EqualError(t, err, models.ErrPermissionDenied.Error())
 	})
+
+	t.Run("admin can update another user's email", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().GetByEmail("new@example.com").Return(nil, models.ErrInvalidFormat)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.Email = "new@example.com"
+		u, err := uc.Update(&req, claimsFor(userMock.Admin))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "new@example.com", u.Email)
+	})
+
+	t.Run("admin updating email to existing email returns ErrConflict", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		existing := userMock.User
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().GetByEmail(existing.Email).Return(&existing, nil)
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.Email = existing.Email
+		u, err := uc.Update(&req, claimsFor(userMock.Admin))
+
+		assert.Nil(t, u)
+		assert.EqualError(t, err, models.ErrConflict.Error())
+	})
+
+	t.Run("admin updating email with invalid format returns ErrInvalidFormat", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.Email = "not-an-email"
+		u, err := uc.Update(&req, claimsFor(userMock.Admin))
+
+		assert.Nil(t, u)
+		assert.EqualError(t, err, models.ErrInvalidFormat.Error())
+	})
+
+	t.Run("individual cannot update own email", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.Email = "new@example.com"
+		req.Phone = "0812345678"
+		u, err := uc.Update(&req, claimsFor(current))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "email@example.com", u.Email)
+		assert.Equal(t, "0812345678", u.Phone)
+	})
+
+	t.Run("user-admin cannot update another user's email", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		current.SiteID = "old-site"
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.SiteID = "new-site"
+		req.Email = "new@example.com"
+		u, err := uc.Update(&req, claimsFor(userMock.UserManager))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "new-site", u.SiteID)
+		assert.Equal(t, "email@example.com", u.Email)
+	})
 }
 
 func TestUsecase_UpdateStatusTavi(t *testing.T) {

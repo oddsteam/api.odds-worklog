@@ -190,6 +190,12 @@ func (h *HttpHandler) Update(c echo.Context) error {
 		if err == models.ErrPermissionDenied {
 			return utils.NewError(c, http.StatusForbidden, err)
 		}
+		if err == models.ErrConflict {
+			return utils.NewError(c, http.StatusConflict, err)
+		}
+		if err == models.ErrInvalidFormat {
+			return utils.NewError(c, http.StatusBadRequest, err)
+		}
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, user)

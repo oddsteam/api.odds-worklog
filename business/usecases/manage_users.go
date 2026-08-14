@@ -104,6 +104,15 @@ func (u *manageUsersUsecase) Update(userFromRequest *models.User, actor *models.
 	}
 
 	updated := *currentUser
+	if isAdmin && !isSelf && userFromRequest.Email != "" && userFromRequest.Email != currentUser.Email {
+		if err := userFromRequest.ValidateEmail(); err != nil {
+			return nil, err
+		}
+		if existing, err := u.users.GetByEmail(userFromRequest.Email); err == nil && existing.ID != currentUser.ID {
+			return nil, models.ErrConflict
+		}
+		updated.Email = userFromRequest.Email
+	}
 	updated.ApplyProfileUpdate(*userFromRequest)
 	return u.users.Update(&updated)
 }
