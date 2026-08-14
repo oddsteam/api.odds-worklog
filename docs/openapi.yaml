@@ -244,7 +244,12 @@ paths:
       tags:
         - users
       summary: Update user
-      description: Update user information
+      description: |
+        Update user information.
+        The authenticated user may fully update their own profile.
+        An admin may fully update any user.
+        A user-admin updating someone else may change only SiteID.
+        Any other caller receives 403.
       operationId: updateUser
       security:
         - bearerAuth: []
@@ -270,6 +275,12 @@ paths:
                 $ref: '#/components/schemas/User'
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '403':
+          description: Permission denied
           content:
             application/json:
               schema:
