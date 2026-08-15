@@ -1,6 +1,6 @@
 workflow:
   rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
     - when: never
 
 stages:
@@ -91,7 +91,7 @@ build_scan_and_tag:
         echo "Not a valid semantic version tag, skipped tagging"
       fi
   only:
-    - develop
+    - main
 
 sonarqube-check:
   stage: sqa
@@ -107,7 +107,6 @@ sonarqube-check:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == 'master'
     - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'develop'
   dependencies:
     - test
 

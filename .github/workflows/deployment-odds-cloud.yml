@@ -1,6 +1,6 @@
 on:
   push:
-    branches: ["develop"]
+    branches: ["main"]
 
 name: CI/CD Project worklogAPI Develop (ODDS Cloud)
 
