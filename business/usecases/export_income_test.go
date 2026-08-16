@@ -14,6 +14,17 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/file"
 )
 
+type stubPeakWriter struct {
+	peakCodes map[string]string
+	period    time.Time
+}
+
+func (s *stubPeakWriter) WriteFile(name string, incomes []*models.Income, peakCodeByUserID map[string]string, period, documentDate time.Time) (string, error) {
+	s.peakCodes = peakCodeByUserID
+	s.period = period
+	return "files/peak_stub.csv", nil
+}
+
 type stubSAPWriter struct {
 	err error
 }
@@ -60,7 +71,7 @@ func TestEnrichSiteNamesOnCSVExport(t *testing.T) {
 	mockUsers.EXPECT().GetByRole("individual").Return(users, nil)
 	mockWrite.EXPECT().AddExport(gomock.Any()).Return(nil)
 
-	u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), file.NewSAPWriter(), mockRead, mockUsers, mockSites)
+	u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), file.NewSAPWriter(), file.NewPeakCSVWriter(), mockRead, mockUsers, mockSites)
 	filename, err := u.ExportIncome("individual", "0")
 	assert.NoError(t, err)
 	assert.Equal(t, "ODDS", incomes[0].SiteName)
@@ -114,6 +125,102 @@ func TestUsecaseExportIncome(t *testing.T) {
 
 		// remove file after test
 		os.Remove(filename)
+	})
+}
+
+func TestUsecaseExportPeak(t *testing.T) {
+	t.Run("export individual peak current month success", func(t *testing.T) {
+		usecase, ctrl, mockRepoIncome := CreateExportIncomeUsecaseWithMock(t)
+		defer ctrl.Finish()
+		incomes := []*models.Income{
+			&models.MockIncome,
+			&models.MockIncome2,
+		}
+		mockRepoIncome.ExpectGetAllIncomeOfCurrentMonthByRole(incomes, time.Now())
+		mockRepoIncome.ExpectAddExport()
+
+		filename, err := usecase.ExportPeak("individual", "0")
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		os.Remove(filename)
+	})
+
+	t.Run("export individual peak previous month success", func(t *testing.T) {
+		usecase, ctrl, mockRepoIncome := CreateExportIncomeUsecaseWithMock(t)
+		defer ctrl.Finish()
+		incomes := []*models.Income{
+			&models.MockIncome,
+			&models.MockIncome2,
+		}
+		mockRepoIncome.ExpectGetAllIncomeOfPreviousMonthByRole(incomes)
+		mockRepoIncome.ExpectAddExport()
+
+		filename, err := usecase.ExportPeak("individual", "1")
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		os.Remove(filename)
+	})
+
+	t.Run("export peak by start and end date success", func(t *testing.T) {
+		usecase, ctrl, mockRepoIncome := CreateExportIncomeUsecaseWithMock(t)
+		defer ctrl.Finish()
+		startDate := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
+		endDate := time.Date(2026, 8, 1, 0, 0, 0, 0, time.UTC)
+		incomes := []*models.Income{
+			&models.MockIncome,
+		}
+		mockRepoIncome.ExpectGetAllIncomeByRoleStartDateAndEndDate(incomes, "individual", startDate, endDate)
+		mockRepoIncome.ExpectAddExport()
+
+		filename, err := usecase.ExportPeakByStartDateAndEndDate("individual", startDate, endDate)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, filename)
+
+		os.Remove(filename)
+	})
+
+	t.Run("joins peak codes from users by income user id", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		userID := "5bbcf2f90fd2df527bc39539"
+		users := []*models.User{
+			{
+				ID:       bsonutil.MustObjectIDFromHex(userID),
+				PeakCode: "C00145",
+			},
+		}
+		incomes := []*models.Income{
+			{
+				ID:     bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e602"),
+				UserID: userID,
+			},
+		}
+		startDate := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
+		endDate := time.Date(2026, 8, 1, 0, 0, 0, 0, time.UTC)
+
+		mockRead := mock_usecases.NewMockForGettingIncomeData(ctrl)
+		mockWrite := mock_usecases.NewMockForControllingIncomeData(ctrl)
+		mockSapFail := mock_usecases.NewMockForLoggingSAPExportFailure(ctrl)
+		mockUsers := mock_usecases.NewMockForGettingUsersByRole(ctrl)
+		peakWriter := &stubPeakWriter{}
+
+		mockRead.EXPECT().GetAllIncomeByRoleStartDateAndEndDate("individual", startDate, endDate).Return(incomes, nil)
+		mockUsers.EXPECT().GetByRole("individual").Return(users, nil)
+		mockWrite.EXPECT().AddExport(gomock.Any()).Return(nil)
+
+		u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), file.NewSAPWriter(), peakWriter, mockRead, mockUsers, &stubListingSites{})
+		filename, err := u.ExportPeakByStartDateAndEndDate("individual", startDate, endDate)
+
+		assert.NoError(t, err)
+		assert.Equal(t, "C00145", peakWriter.peakCodes[userID])
+		assert.Equal(t, startDate, peakWriter.period)
+		assert.Equal(t, "files/peak_stub.csv", filename)
 	})
 }
 
@@ -244,7 +351,7 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 			assert.Contains(t, log.ErrorMessage, "sap export row")
 		}).Return(nil)
 
-		u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), &stubSAPWriter{err: rowErr}, mockRead, nil, nil)
+		u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), &stubSAPWriter{err: rowErr}, file.NewPeakCSVWriter(), mockRead, nil, nil)
 		_, err := u.ExportIncomeSAPByStartDateAndEndDate("individual", startDate, endDate, dateEff)
 		assert.Error(t, err)
 		assert.ErrorIs(t, err, underlying)

@@ -14,13 +14,14 @@ type usecase struct {
 	sapExportFailureLog ForLoggingSAPExportFailure
 	csvWriter           ForWritingCSVFile
 	sapWriter           ForWritingSAPFile
+	peakWriter          ForWritingPeakFile
 	readStudentLoanRepo ForListStudentLoansInTheMonth
 	userRepo            ForListingUsersByRole
 	siteRepo            ForListingSites
 }
 
 func NewExportIncomeUsecase(r ForGettingIncomeDataInTheMonth, ex ForLoggingExport, sapFail ForLoggingSAPExportFailure,
-	csvW ForWritingCSVFile, sapW ForWritingSAPFile, rsl ForListStudentLoansInTheMonth,
+	csvW ForWritingCSVFile, sapW ForWritingSAPFile, peakW ForWritingPeakFile, rsl ForListStudentLoansInTheMonth,
 	userRepo ForListingUsersByRole, siteRepo ForListingSites) ForUsingExportIncome {
 	return &usecase{
 		readRepo:            r,
@@ -28,6 +29,7 @@ func NewExportIncomeUsecase(r ForGettingIncomeDataInTheMonth, ex ForLoggingExpor
 		sapExportFailureLog: sapFail,
 		csvWriter:           csvW,
 		sapWriter:           sapW,
+		peakWriter:          peakW,
 		readStudentLoanRepo: rsl,
 		userRepo:            userRepo,
 		siteRepo:            siteRepo,
@@ -124,6 +126,58 @@ func (u *usecase) ExportIncomeSAPByStartDateAndEndDate(role string, startDate, e
 	}
 
 	return filename, nil
+}
+
+func (u *usecase) ExportPeak(role string, monthIndex string) (string, error) {
+	var t time.Time
+	if monthIndex == "0" {
+		t = time.Now()
+	} else {
+		t = time.Now().AddDate(0, -1, 0)
+	}
+	startDate, endDate := models.GetStartDateAndEndDate(t)
+	return u.ExportPeakByStartDateAndEndDate(role, startDate, endDate)
+}
+
+func (u *usecase) ExportPeakByStartDateAndEndDate(role string, startDate, endDate time.Time) (string, error) {
+	incomes, err := u.readRepo.GetAllIncomeByRoleStartDateAndEndDate(role, startDate, endDate)
+	if err != nil {
+		return "", err
+	}
+
+	filename, err := u.peakWriter.WriteFile("peak_"+role, incomes, u.peakCodesByUserID(role), startDate, time.Now())
+	if err != nil {
+		return "", err
+	}
+
+	ep := models.Export{
+		Filename: filename,
+		Date:     time.Now(),
+	}
+	err = u.writeRepo.AddExport(&ep)
+	if err != nil {
+		return "", err
+	}
+
+	return filename, nil
+}
+
+func (u *usecase) peakCodesByUserID(role string) map[string]string {
+	codes := map[string]string{}
+	if u.userRepo == nil {
+		return codes
+	}
+	users, err := u.userRepo.GetByRole(role)
+	if err != nil || len(users) == 0 {
+		return codes
+	}
+	for _, user := range users {
+		if user == nil {
+			continue
+		}
+		codes[user.ID.Hex()] = user.PeakCode
+	}
+	return codes
 }
 
 func (u *usecase) enrichSiteNames(role string, incomes []*models.Income) {

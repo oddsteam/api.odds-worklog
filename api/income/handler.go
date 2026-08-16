@@ -184,6 +184,54 @@ func (h *HttpHandler) GetExportIndividual(c echo.Context) error {
 	return h.getExportIncome(c, "individual")
 }
 
+func (h *HttpHandler) GetExportPeakIndividual(c echo.Context) error {
+	return h.getExportPeak(c, "individual")
+}
+
+func (h *HttpHandler) getExportPeak(c echo.Context, incomeType string) error {
+	allowed, message := IsIncomeExportAllowed(c)
+	if !allowed {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
+	month := c.Param("month")
+	if month == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	filename, err := h.ExportIncomeUsecase.ExportPeak(incomeType, month)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.Attachment(filename, filename)
+}
+
+func (h *HttpHandler) PostExportPeak(c echo.Context) error {
+	if allowed, message := IsIncomeExportAllowed(c); !allowed {
+		return c.JSON(http.StatusUnauthorized, message)
+	}
+
+	var req = c.Request()
+	defer req.Body.Close()
+	decoder := json.NewDecoder(req.Body)
+
+	var t models.ExportInComeReq
+	err := decoder.Decode(&t)
+	if err != nil {
+		return utils.NewError(c, http.StatusBadRequest, err)
+	}
+
+	startDate, _ := time.Parse("01/2006", t.StartDate)
+	endDate, _ := time.Parse("01/2006", t.EndDate)
+	endDate = endDate.AddDate(0, 1, 0)
+
+	filename, err := h.ExportIncomeUsecase.ExportPeakByStartDateAndEndDate(t.Role, startDate, endDate)
+	if err != nil {
+		log.Println(err.Error())
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+
+	return c.Attachment(filename, filename)
+}
+
 func (h *HttpHandler) getExportIncome(c echo.Context, incomeType string) error {
 	allowed, message := IsIncomeExportAllowed(c)
 	if !allowed {
@@ -305,7 +353,7 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	studentLoanRepo := repositories.NewStudentLoanRepository(session)
 	sapExportFailureRepo := repositories.NewSAPExportFailureRepository(session)
 	siteRepo := site.NewRepository(session)
-	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, sapExportFailureRepo, file.NewCSVWriter(), file.NewSAPWriter(), studentLoanRepo, userRepo, siteRepo)
+	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, sapExportFailureRepo, file.NewCSVWriter(), file.NewSAPWriter(), file.NewPeakCSVWriter(), studentLoanRepo, userRepo, siteRepo)
 	handler := &HttpHandler{listStatus, ad, gi, up, ex}
 
 	r = r.Group("/incomes")
@@ -315,6 +363,8 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.GET("/current-month/:id", handler.GetIncomeCurrentMonthByUserId)
 	r.GET("/all-month/:id", handler.GetIncomeAllMonthByUserId)
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
+	r.GET("/export/peak/individual/:month", handler.GetExportPeakIndividual)
 	r.POST("/export", handler.PostExportPdf)
+	r.POST("/export/peak", handler.PostExportPeak)
 	r.POST("/export/format/SAP", handler.PostExportSAP)
 }

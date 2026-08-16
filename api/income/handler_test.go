@@ -12,11 +12,11 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	ucmock "gitlab.odds.team/worklog/api.odds-worklog/business/usecases/mock"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestAddIncome(t *testing.T) {
@@ -365,6 +365,83 @@ func TestExportIncomeDeniedForUserAdmin(t *testing.T) {
 		handler.PostExportPdf(c)
 
 		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+	})
+
+	t.Run("GET peak individual export returns 401 for user-admin", func(t *testing.T) {
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUserManager)
+		c.SetParamNames("month")
+		c.SetParamValues("1")
+
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		handler.GetExportPeakIndividual(c)
+
+		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+	})
+
+	t.Run("POST peak export returns 401 for user-admin", func(t *testing.T) {
+		body := models.ExportInComeReq{Role: "individual", StartDate: "01/2025", EndDate: "01/2025"}
+		jsonBody, _ := json.Marshal(body)
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", bytes.NewReader(jsonBody))
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUserManager)
+
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		handler.PostExportPeak(c)
+
+		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+	})
+}
+
+func TestGetExportPeakIndividual(t *testing.T) {
+	t.Run("when export peak individual income success it should be return status OK", func(t *testing.T) {
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
+		c.SetParamNames("month")
+		c.SetParamValues("1")
+		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		mockRepo.ExpectGetAllIncomeOfPreviousMonthByRole(models.MockIncomeList)
+		mockRepo.ExpectAddExport()
+		handler.GetExportPeakIndividual(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+}
+
+func TestPostExportPeak(t *testing.T) {
+	t.Run("when export peak by period success it should be return status OK", func(t *testing.T) {
+		body := models.ExportInComeReq{Role: "individual", StartDate: "07/2026", EndDate: "07/2026"}
+		jsonBody, _ := json.Marshal(body)
+		startDate, _ := time.Parse("01/2006", body.StartDate)
+		endDate, _ := time.Parse("01/2006", body.EndDate)
+		endDate = endDate.AddDate(0, 1, 0)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", bytes.NewReader(jsonBody))
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
+
+		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		mockRepo.ExpectGetAllIncomeByRoleStartDateAndEndDate(models.MockIncomeList, body.Role, startDate, endDate)
+		mockRepo.ExpectAddExport()
+		handler.PostExportPeak(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 }
 

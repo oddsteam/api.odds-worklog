@@ -30,6 +30,10 @@ type ForWritingSAPFile interface {
 	WriteFile(name string, ics models.PayrollCycle, dateEff time.Time) (string, error)
 }
 
+type ForWritingPeakFile interface {
+	WriteFile(name string, incomes []*models.Income, peakCodeByUserID map[string]string, period, documentDate time.Time) (string, error)
+}
+
 type ForListingSites interface {
 	GetSiteGroup() ([]*models.Site, error)
 }

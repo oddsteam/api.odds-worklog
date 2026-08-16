@@ -704,6 +704,80 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPError'
 
+  /v1/incomes/export/peak/individual/{month}:
+    get:
+      tags:
+        - incomes
+      summary: Export individual income as PEAK Import Expenses CSV
+      description: Export individual income to PEAK expense-import CSV (full admin only)
+      operationId: exportPeakIndividualIncome
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 0 for current month, 1 for previous month
+          example: "0"
+      responses:
+        '200':
+          description: PEAK Import Expenses CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/incomes/export/peak:
+    post:
+      tags:
+        - incomes
+      summary: Export income as PEAK Import Expenses CSV by date range
+      description: Export income to PEAK expense-import CSV by start and end month (full admin only)
+      operationId: exportPeakIncomeByDateRange
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportIncomeRequest'
+      responses:
+        '200':
+          description: PEAK Import Expenses CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Not allowed to export (full admin only)
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
   /v1/incomes/export/format/SAP:
     post:
       tags:

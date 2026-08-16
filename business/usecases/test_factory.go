@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"github.com/golang/mock/gomock"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	mock_usecases "gitlab.odds.team/worklog/api.odds-worklog/business/usecases/mock"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/file"
 )
 
@@ -20,7 +20,7 @@ func CreateExportIncomeUsecaseWithMock(t *testing.T) (ForUsingExportIncome, *gom
 	mockRepoIncome.mockGettingUsersByRole.EXPECT().GetByRole(gomock.Any()).Return([]*models.User{}, nil).AnyTimes()
 	mockSites := &stubListingSites{}
 
-	usecase := NewExportIncomeUsecase(mockRepoIncome.mockRead, mockRepoIncome.mockWrite, mockRepoIncome.mockSapExportFailure, file.NewCSVWriter(), file.NewSAPWriter(), mockRepoIncome.mockRead, mockRepoIncome.mockGettingUsersByRole, mockSites)
+	usecase := NewExportIncomeUsecase(mockRepoIncome.mockRead, mockRepoIncome.mockWrite, mockRepoIncome.mockSapExportFailure, file.NewCSVWriter(), file.NewSAPWriter(), file.NewPeakCSVWriter(), mockRepoIncome.mockRead, mockRepoIncome.mockGettingUsersByRole, mockSites)
 	return usecase, ctrl, mockRepoIncome
 }
 
