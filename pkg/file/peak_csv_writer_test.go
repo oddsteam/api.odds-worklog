@@ -68,7 +68,7 @@ func TestToPeakCSVMatchesSample(t *testing.T) {
 	assert.Equal(t, "", vatRow[peakTaxIDIndex])
 	assert.Equal(t, "1", vatRow[peakPriceTypeIndex])
 	assert.Equal(t, "510111", vatRow[peakAccountIndex])
-	assert.Equal(t, "ค่าจ้างพนักงานรายวัน - Individual 07.2026", vatRow[peakDescriptionIndex])
+	assert.Equal(t, "ค่าพัฒนาและสอนโปรแกรม(บุคคล) 07.2026", vatRow[peakDescriptionIndex])
 	assert.Equal(t, "1", vatRow[peakQuantityIndex])
 	assert.Equal(t, "150000", vatRow[peakUnitPriceIndex])
 	assert.Equal(t, "7%", vatRow[peakTaxRateIndex])
@@ -102,7 +102,7 @@ func TestToPeakCSVFallsBackToThaiCitizenIDWhenPeakCodeMissing(t *testing.T) {
 	rows := ToPeakCSV(incomes, map[string]string{}, period, documentDate)
 	assert.Equal(t, "", rows[1][peakContactIndex])
 	assert.Equal(t, "1234567890123", rows[1][peakTaxIDIndex])
-	assert.Equal(t, "ค่าจ้างพนักงานรายวัน - Individual 08.2026", rows[1][peakDescriptionIndex])
+	assert.Equal(t, "ค่าพัฒนาและสอนโปรแกรม(บุคคล) 08.2026", rows[1][peakDescriptionIndex])
 	assert.Equal(t, "20260815", rows[1][peakDocumentDateIndex])
 }
 

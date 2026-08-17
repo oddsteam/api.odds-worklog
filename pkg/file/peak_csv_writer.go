@@ -148,7 +148,7 @@ func peakRow(seq int, income *models.Income, peakCode string, period, documentDa
 }
 
 func peakDescription(period time.Time) string {
-	return fmt.Sprintf("ค่าจ้างพนักงานรายวัน - Individual %02d.%d", int(period.Month()), period.Year())
+	return fmt.Sprintf("ค่าพัฒนาและสอนโปรแกรม(บุคคล) %02d.%d", int(period.Month()), period.Year())
 }
 
 func peakDocumentDate(t time.Time) string {
