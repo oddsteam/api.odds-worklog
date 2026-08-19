@@ -14,6 +14,7 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/api/login"
 	sap_export_failure "gitlab.odds.team/worklog/api.odds-worklog/api/sap_export_failure"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
+	timesheet_event_log "gitlab.odds.team/worklog/api.odds-worklog/api/timesheet_event_log"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/user"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
@@ -76,6 +77,7 @@ func main() {
 	file.NewHttpHandler(r, session)
 	site.NewHttpHandler(r, session)
 	sap_export_failure.NewHttpHandler(r, session)
+	timesheet_event_log.NewHttpHandler(r, session)
 
 	// Start server
 	e.Logger.Fatal(e.Start(c.APIPort))
