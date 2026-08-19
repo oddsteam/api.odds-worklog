@@ -11,7 +11,7 @@ type viewSAPExportFailuresUsecase struct {
 	list ForListingSAPExportFailures
 }
 
-func NewViewSAPExportFailuresUsecase(list ForListingSAPExportFailures) ForViewingSAPExportFailures {
+func NewViewSAPExportFailuresUsecase(list ForListingSAPExportFailures) ForListingSAPExportFailures {
 	return &viewSAPExportFailuresUsecase{list: list}
 }
 

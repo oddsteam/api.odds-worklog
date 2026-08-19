@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	userMock "gitlab.odds.team/worklog/api.odds-worklog/api/user/mock"
-	sap_export_failure_mock "gitlab.odds.team/worklog/api.odds-worklog/api/sap_export_failure/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	mock_usecases "gitlab.odds.team/worklog/api.odds-worklog/business/usecases/mock"
 )
 
 func TestHttpHandler_List(t *testing.T) {
@@ -19,7 +19,7 @@ func TestHttpHandler_List(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUC := sap_export_failure_mock.NewMockForViewingSAPExportFailures(ctrl)
+		mockUC := mock_usecases.NewMockForListingSAPExportFailures(ctrl)
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -38,7 +38,7 @@ func TestHttpHandler_List(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUC := sap_export_failure_mock.NewMockForViewingSAPExportFailures(ctrl)
+		mockUC := mock_usecases.NewMockForListingSAPExportFailures(ctrl)
 		mockUC.EXPECT().List(0).Return([]*models.SAPExportFailureLog{}, nil)
 
 		e := echo.New()

@@ -14,7 +14,7 @@ import (
 )
 
 type HttpHandler struct {
-	uc usecases.ForViewingSAPExportFailures
+	uc usecases.ForListingSAPExportFailures
 }
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
