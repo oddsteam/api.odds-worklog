@@ -38,5 +38,5 @@ func (h *HttpHandler) List(c echo.Context) error {
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, logs)
+	return c.JSON(http.StatusOK, toResponses(logs))
 }
