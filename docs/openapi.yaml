@@ -867,6 +867,184 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPError'
 
+  /v1/income-from-timesheet/export:
+    post:
+      tags:
+        - income-from-timesheet
+      summary: Export income_from_timesheet by date range
+      description: |
+        Export income_from_timesheet records (synced from timesheet RabbitMQ events) to CSV
+        by start and end month, in the same format as the real income export (full admin only).
+      operationId: exportIncomeFromTimesheetByDateRange
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportIncomeRequest'
+      responses:
+        '200':
+          description: CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad request (malformed body, or dates not in MM/YYYY format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '401':
+          description: Not allowed to export (full admin only)
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/income-from-timesheet/export/peak/individual/{month}:
+    get:
+      tags:
+        - income-from-timesheet
+      summary: Export individual income_from_timesheet as PEAK Import Expenses CSV
+      description: |
+        Export income_from_timesheet records to PEAK expense-import CSV,
+        in the same format as the real individual PEAK export (full admin only).
+      operationId: exportPeakIndividualIncomeFromTimesheet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "Month index: 0 = current month, else previous month"
+          example: "0"
+      responses:
+        '200':
+          description: PEAK Import Expenses CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '401':
+          description: Not allowed to export (full admin only)
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/income-from-timesheet/export/peak:
+    post:
+      tags:
+        - income-from-timesheet
+      summary: Export income_from_timesheet as PEAK Import Expenses CSV by date range
+      description: |
+        Export income_from_timesheet records to PEAK expense-import CSV by start and end month,
+        in the same format as the real PEAK export (full admin only).
+      operationId: exportPeakIncomeFromTimesheetByDateRange
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportIncomeRequest'
+      responses:
+        '200':
+          description: PEAK Import Expenses CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad request (malformed body, or dates not in MM/YYYY format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '401':
+          description: Not allowed to export (full admin only)
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/income-from-timesheet/export/format/SAP:
+    post:
+      tags:
+        - income-from-timesheet
+      summary: Export income_from_timesheet in SAP format
+      description: |
+        Export income_from_timesheet records to SAP format file,
+        in the same format as the real SAP export (full admin only).
+      operationId: exportIncomeFromTimesheetSAP
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportIncomeSAPRequest'
+      responses:
+        '200':
+          description: SAP format file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad request (malformed body, or dates that cannot be parsed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '401':
+          description: Not allowed to export (full admin only)
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
   # Site endpoints
   /v1/sites:
     get:

@@ -1,0 +1,65 @@
+---
+description: Keep docs/openapi.yaml in sync whenever routes change
+alwaysApply: true
+---
+
+# OpenAPI stays in sync with the routes
+
+`docs/openapi.yaml` is the **source of truth** for this API's contract. It is hand-maintained:
+there is no swaggo tooling wired up (no `docs.go`, no `swag` import), so the `// @Summary`
+/ `// @Router` godoc comments on handlers are documentation only and generate nothing.
+
+## When this applies
+
+Any time you add, remove, rename, or change the request/response shape of a route
+registered in an `api/*/handler.go` `NewHttpHandler` — i.e. any `r.GET`, `r.POST`, `r.PUT`,
+`r.DELETE`, `r.PATCH` line. A change is **not complete** until `docs/openapi.yaml` matches.
+
+Update the handler's godoc annotations too, so the two never disagree.
+
+## What to write
+
+Copy the shape of the nearest existing endpoint in the same tag group rather than inventing one.
+
+- `tags:` — use an existing tag from the top-level `tags:` list; add a new one only for a new resource.
+- `security: - bearerAuth: []` on everything except `/v1/login*`.
+- `requestBody` — `$ref` an existing schema under `components/schemas`. Add a new schema only
+  when the Go request struct genuinely has no equivalent yet.
+- `responses` — document what the handler **actually returns**, not what would be tidy:
+  - `401` from `c.JSON(http.StatusUnauthorized, message)` is a bare `type: string`, not `HTTPError`.
+  - `400` / `500` from `utils.NewError(...)` are `$ref: '#/components/schemas/HTTPError'`.
+  - File downloads via `c.Attachment` are `type: string, format: binary` under the real
+    content type (`text/csv` for CSV, `application/octet-stream` for SAP).
+- Path params use `{month}` / `{id}` in YAML, matching echo's `:month` / `:id`.
+
+Do **not** bump `info.version`. This repo has never bumped it when adding endpoints.
+
+## Verify before finishing
+
+Confirm the file parses, every `$ref` resolves, and no route is left undocumented:
+
+```bash
+python3 - <<'PY'
+import re, yaml, os
+doc = yaml.safe_load(open('docs/openapi.yaml'))
+documented = {(p.replace('{', ':').replace('}', ''), m.upper())
+              for p, ops in doc['paths'].items() for m in ops
+              if m in ('get', 'post', 'put', 'delete', 'patch')}
+routes = set()
+for root, dirs, files in os.walk('api'):
+    for f in files:
+        if not f.endswith('.go') or f.endswith('_test.go'):
+            continue
+        src = open(os.path.join(root, f)).read()
+        grp = re.findall(r'r\s*=\s*r\.Group\("([^"]+)"\)', src)
+        prefix = grp[0] if grp else ''
+        for m, p in re.findall(r'r\.(GET|POST|PUT|DELETE|PATCH)\("([^"]*)"', src):
+            routes.add(('/v1' + prefix + p, m))
+undocumented = sorted(routes - documented)
+missing_refs = set(re.findall(r'#/components/schemas/(\w+)', open('docs/openapi.yaml').read())) - set(doc['components']['schemas'])
+print('undocumented routes:', undocumented or 'none')
+print('unresolved $refs:', missing_refs or 'none')
+PY
+```
+
+Both lines must print `none`. Then run `make test` per the verification rule.
