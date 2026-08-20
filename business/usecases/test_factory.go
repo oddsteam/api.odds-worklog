@@ -30,18 +30,63 @@ func (s *stubListingSites) GetSiteGroup() ([]*models.Site, error) {
 	return []*models.Site{}, nil
 }
 
-// CreateExportIncomeFromTimesheetUsecaseWithMock wires the real export usecase to a mocked
-// income_from_timesheet reader, so handler tests can drive it through the repository.
-func CreateExportIncomeFromTimesheetUsecaseWithMock(t *testing.T) (ForUsingExportIncomeFromTimesheet, *gomock.Controller, *mock_usecases.MockForGettingIncomeFromTimesheetInTheMonth) {
+// CreateExportIncomeFromTimesheetUsecaseWithMock wires the shared export usecase to a mocked
+// income_from_timesheet reader through the source adapter, so handler tests can drive every
+// export format from the timesheet side.
+func CreateExportIncomeFromTimesheetUsecaseWithMock(t *testing.T) (ForUsingExportIncome, *gomock.Controller, *MockIncomeFromTimesheetRepository) {
 	ctrl := gomock.NewController(t)
-	mockIncomeReader := mock_usecases.NewMockForGettingIncomeFromTimesheetInTheMonth(ctrl)
-	mockUsers := mock_usecases.NewMockForGettingUsersByRole(ctrl)
-	mockUsers.EXPECT().GetByRole(gomock.Any()).Return([]*models.User{}, nil).AnyTimes()
-	mockStudentLoans := mock_usecases.NewMockForGettingIncomeData(ctrl)
-	mockStudentLoans.EXPECT().GetStudentLoans().Return(models.StudentLoanList{}).AnyTimes()
+	mockRepo := &MockIncomeFromTimesheetRepository{
+		Reader:           mock_usecases.NewMockForGettingIncomeFromTimesheetInTheMonth(ctrl),
+		mockExportLog:    mock_usecases.NewMockForControllingIncomeData(ctrl),
+		mockSapFailure:   mock_usecases.NewMockForLoggingSAPExportFailure(ctrl),
+		mockUsers:        mock_usecases.NewMockForGettingUsersByRole(ctrl),
+		mockStudentLoans: mock_usecases.NewMockForGettingIncomeData(ctrl),
+	}
+	mockRepo.mockUsers.EXPECT().GetByRole(gomock.Any()).Return([]*models.User{}, nil).AnyTimes()
+	mockRepo.mockStudentLoans.EXPECT().GetStudentLoans().Return(models.StudentLoanList{}).AnyTimes()
+	mockRepo.mockExportLog.EXPECT().AddExport(gomock.Any()).Return(nil).AnyTimes()
+	mockRepo.mockSapFailure.EXPECT().LogSAPExportFailure(gomock.Any()).Return(nil).AnyTimes()
 
-	usecase := NewExportIncomeFromTimesheetUsecase(mockIncomeReader, mockStudentLoans, mockUsers, &stubListingSites{}, file.NewCSVWriter())
-	return usecase, ctrl, mockIncomeReader
+	usecase := NewExportIncomeUsecase(
+		NewIncomeFromTimesheetSource(mockRepo.Reader),
+		mockRepo.mockExportLog,
+		mockRepo.mockSapFailure,
+		file.NewCSVWriter(),
+		file.NewSAPWriter(),
+		file.NewPeakCSVWriter(),
+		mockRepo.mockStudentLoans,
+		mockRepo.mockUsers,
+		&stubListingSites{},
+	)
+	return usecase, ctrl, mockRepo
+}
+
+type MockIncomeFromTimesheetRepository struct {
+	Reader           *mock_usecases.MockForGettingIncomeFromTimesheetInTheMonth
+	mockExportLog    *mock_usecases.MockForControllingIncomeData
+	mockSapFailure   *mock_usecases.MockForLoggingSAPExportFailure
+	mockUsers        *mock_usecases.MockForGettingUsersByRole
+	mockStudentLoans *mock_usecases.MockForGettingIncomeData
+}
+
+// ExpectGetAllInTheMonth expects the timesheet reader to be queried for the month that
+// monthIndex resolves to ("0" = current month, anything else = previous month).
+func (m *MockIncomeFromTimesheetRepository) ExpectGetAllInTheMonth(role, monthIndex string, records []*models.IncomeFromTimesheet) {
+	t := time.Now()
+	if monthIndex != "0" {
+		t = t.AddDate(0, -1, 0)
+	}
+	startDate, endDate := models.GetStartDateAndEndDate(t)
+	m.Reader.EXPECT().GetAllByRoleStartDateAndEndDate(role, startDate, endDate).Return(records, nil)
+}
+
+func (m *MockIncomeFromTimesheetRepository) ExpectGetAllByPeriod(role string, startDate, endDate time.Time, records []*models.IncomeFromTimesheet) {
+	m.Reader.EXPECT().GetAllByRoleStartDateAndEndDate(role, startDate, endDate).Return(records, nil)
+}
+
+func (m *MockIncomeFromTimesheetRepository) ExpectGetAllFails() {
+	m.Reader.EXPECT().GetAllByRoleStartDateAndEndDate(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, errors.New("repository unavailable"))
 }
 
 func CreateAddIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsingAddIncome {
