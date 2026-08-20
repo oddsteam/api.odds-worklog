@@ -21,8 +21,10 @@ func (u *updateIncomeUsecase) UpdateIncome(id string, req *models.IncomeReq, uid
 	// The path id belongs to the income collection, so the mirrored record has to be found by
 	// period instead — read off before UpdatePayroll, which restamps SubmitDate with now.
 	submitted := income.SubmitDate.UTC()
-	income = models.UpdatePayroll(*userDetail, *req, "", income)
-	u.repo.UpdateIncome(income)
+	income = models.UpdatePayroll(*userDetail, *req, req.Note, income)
+	if err := u.repo.UpdateIncome(income); err != nil {
+		return nil, err
+	}
 	if err := mirrorIncomeToTimesheet(u.timesheetRepo, income, submitted.Year(), submitted.Month()); err != nil {
 		return nil, err
 	}

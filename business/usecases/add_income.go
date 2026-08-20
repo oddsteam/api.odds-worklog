@@ -23,7 +23,7 @@ func (u *addIncomeUsecase) AddIncome(req *models.IncomeReq, uid string) (*models
 	if err == nil {
 		return nil, errors.New("Sorry, has income data of user " + userDetail.GetName())
 	}
-	income := models.CreatePayroll(*userDetail, *req, "")
+	income := models.CreatePayroll(*userDetail, *req, req.Note)
 	err = u.repo.AddIncome(income)
 	if err != nil {
 		return nil, err

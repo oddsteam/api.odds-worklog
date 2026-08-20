@@ -59,6 +59,63 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		assert.Equal(t, models.MockIncome.UserID, res.UserID)
 	})
 
+	t.Run("saves the edited note, into both income and income_from_timesheet", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		user := userMock.User
+
+		mockUserRepo := mock_usecases.NewMockForGettingUserByID(ctrl)
+		mockIncomeRepo := mock_usecases.NewMockForUpdatingUserIncome(ctrl)
+		mockTimesheetRepo := mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl)
+		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+		mockIncomeRepo.EXPECT().GetIncomeByID(gomock.Any(), gomock.Any()).Return(incomeSubmittedIn(2026, time.June), nil)
+		mockIncomeRepo.EXPECT().UpdateIncome(gomock.Any()).Return(nil)
+		mockTimesheetRepo.EXPECT().GetByUserYearMonth(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
+
+		var saved *models.IncomeFromTimesheet
+		mockTimesheetRepo.EXPECT().Add(gomock.Any()).DoAndReturn(func(rec *models.IncomeFromTimesheet) error {
+			saved = rec
+			return nil
+		})
+
+		req := models.MockIncomeReq
+		req.Note = "แก้ไขจำนวนวันทำงาน"
+
+		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo)
+		res, err := uc.UpdateIncome(models.MockIncome.ID.Hex(), &req, user.ID.Hex())
+
+		assert.NoError(t, err)
+		assert.Equal(t, "แก้ไขจำนวนวันทำงาน", res.Note)
+		assert.Equal(t, "แก้ไขจำนวนวันทำงาน", saved.Note)
+	})
+
+	t.Run("clears the note when the request carries an empty one", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		user := userMock.User
+
+		mockUserRepo := mock_usecases.NewMockForGettingUserByID(ctrl)
+		mockIncomeRepo := mock_usecases.NewMockForUpdatingUserIncome(ctrl)
+		mockTimesheetRepo := mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl)
+		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+
+		existingIncome := incomeSubmittedIn(2026, time.June)
+		existingIncome.Note = "โน้ตเดิม"
+		mockIncomeRepo.EXPECT().GetIncomeByID(gomock.Any(), gomock.Any()).Return(existingIncome, nil)
+		mockIncomeRepo.EXPECT().UpdateIncome(gomock.Any()).Return(nil)
+		mockTimesheetRepo.EXPECT().GetByUserYearMonth(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
+		mockTimesheetRepo.EXPECT().Add(gomock.Any()).Return(nil)
+
+		req := models.MockIncomeReq
+		req.Note = ""
+
+		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo)
+		res, err := uc.UpdateIncome(models.MockIncome.ID.Hex(), &req, user.ID.Hex())
+
+		assert.NoError(t, err)
+		assert.Equal(t, "", res.Note)
+	})
+
 	t.Run("looks up the income_from_timesheet record by the period the edited income belongs to", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -111,6 +168,26 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		assert.Equal(t, res.WorkingHours, saved.WorkingHours)
 		assert.Equal(t, res.NetIncome, saved.NetIncome)
 		assert.Equal(t, existingTimesheetRecord().Sites, saved.Sites)
+	})
+
+	t.Run("returns an error when saving the income itself fails, without mirroring it", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		user := userMock.User
+
+		mockUserRepo := mock_usecases.NewMockForGettingUserByID(ctrl)
+		mockIncomeRepo := mock_usecases.NewMockForUpdatingUserIncome(ctrl)
+		mockTimesheetRepo := mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl)
+		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+		mockIncomeRepo.EXPECT().GetIncomeByID(gomock.Any(), gomock.Any()).Return(incomeSubmittedIn(2026, time.June), nil)
+		mockIncomeRepo.EXPECT().UpdateIncome(gomock.Any()).Return(assert.AnError)
+		mockTimesheetRepo.EXPECT().GetByUserYearMonth(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
+
+		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo)
+		res, err := uc.UpdateIncome(models.MockIncome.ID.Hex(), &models.MockIncomeReq, user.ID.Hex())
+
+		assert.ErrorIs(t, err, assert.AnError)
+		assert.Nil(t, res)
 	})
 
 	t.Run("returns an error when writing the income_from_timesheet record fails", func(t *testing.T) {

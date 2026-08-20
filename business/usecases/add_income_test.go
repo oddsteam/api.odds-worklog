@@ -40,6 +40,36 @@ func TestUsecaseAddIncome(t *testing.T) {
 		assert.Equal(t, "3600.00", res.WHT)
 	})
 
+	t.Run("saves the note the user typed, into both income and income_from_timesheet", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		user := userMock.User
+		mockUserRepo := userMock.NewMockRepository(ctrl)
+		mockRepoIncome := incomeMock.NewMockRepository(ctrl)
+		mockTimesheetRepo := mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl)
+		year, month := models.GetYearMonthNow()
+		mockUserRepo.EXPECT().GetByID(user.ID.Hex()).Return(&user, nil)
+		mockRepoIncome.EXPECT().GetIncomeUserByYearMonth(user.ID.Hex(), year, month).Return(nil, errors.New("not found"))
+		mockRepoIncome.EXPECT().AddIncome(gomock.Any()).Return(nil)
+		mockTimesheetRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), year, month).Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
+
+		var saved *models.IncomeFromTimesheet
+		mockTimesheetRepo.EXPECT().Add(gomock.Any()).DoAndReturn(func(rec *models.IncomeFromTimesheet) error {
+			saved = rec
+			return nil
+		})
+
+		req := models.MockIncomeReq
+		req.Note = "ลาป่วย 2 วัน"
+
+		uc := NewAddIncomeUsecase(mockRepoIncome, mockUserRepo, mockTimesheetRepo)
+		res, err := uc.AddIncome(&req, user.ID.Hex())
+
+		assert.NoError(t, err)
+		assert.Equal(t, "ลาป่วย 2 วัน", res.Note)
+		assert.Equal(t, "ลาป่วย 2 วัน", saved.Note)
+	})
+
 	t.Run("creates an income_from_timesheet record for the period when none exists yet", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
