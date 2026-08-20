@@ -32,6 +32,7 @@ func TestAddIncome(t *testing.T) {
 		repo.ExpectGetUserByID(userMock.User.ID.Hex())
 		repo.ExpectGetCurrentUserIncomeNotFound(userMock.User.ID.Hex())
 		repo.ExpectAddIncomeSuccess()
+		repo.ExpectMirrorIncomeToTimesheet()
 		defer ctrl.Finish()
 		handler.AddIncome(c)
 
@@ -71,6 +72,7 @@ func TestUpdateIncome(t *testing.T) {
 		mockRepo.ExpectGetUserByID(userMock.User.ID.Hex())
 		mockRepo.ExpectGetIncomeByID(models.MockIncome.ID.Hex(), userMock.User.ID.Hex(), &models.MockIncome)
 		mockRepo.ExpectUpdateIncomeSuccess()
+		mockRepo.ExpectMirrorIncomeToTimesheet()
 		handler.UpdateIncome(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)

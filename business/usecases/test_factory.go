@@ -31,7 +31,7 @@ func (s *stubListingSites) GetSiteGroup() ([]*models.Site, error) {
 }
 
 func CreateAddIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsingAddIncome {
-	usecase := NewAddIncomeUsecase(mockRepoIncome.mockControllingUserIncome, mockRepoIncome.mockGettingUserByID)
+	usecase := NewAddIncomeUsecase(mockRepoIncome.mockControllingUserIncome, mockRepoIncome.mockGettingUserByID, mockRepoIncome.mockIncomeFromTimesheet)
 	return usecase
 }
 
@@ -41,7 +41,7 @@ func CreateGetIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsi
 }
 
 func CreateUpdateIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsingUpdateIncome {
-	usecase := NewUpdateIncomeUsecase(mockRepoIncome.mockUpdatingUserIncome, mockRepoIncome.mockGettingUserByID)
+	usecase := NewUpdateIncomeUsecase(mockRepoIncome.mockUpdatingUserIncome, mockRepoIncome.mockGettingUserByID, mockRepoIncome.mockIncomeFromTimesheet)
 	return usecase
 }
 
@@ -60,6 +60,7 @@ func mockIncomeRepository(ctrl *gomock.Controller) *MockIncomeRepository {
 		mockRead:                  mock_usecases.NewMockForGettingIncomeData(ctrl),
 		mockWrite:                 mock_usecases.NewMockForControllingIncomeData(ctrl),
 		mockSapExportFailure:      mock_usecases.NewMockForLoggingSAPExportFailure(ctrl),
+		mockIncomeFromTimesheet:   mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl),
 	}
 	return &mockRepoIncome
 }
@@ -73,6 +74,16 @@ type MockIncomeRepository struct {
 	mockRead                  *mock_usecases.MockForGettingIncomeData
 	mockWrite                 *mock_usecases.MockForControllingIncomeData
 	mockSapExportFailure      *mock_usecases.MockForLoggingSAPExportFailure
+	mockIncomeFromTimesheet   *mock_usecases.MockForGettingIncomeFromTimesheet
+}
+
+// ExpectMirrorIncomeToTimesheet expects the income to be copied into income_from_timesheet as a
+// brand new record, i.e. the timesheet consumer has not written anything for the period yet.
+func (m *MockIncomeRepository) ExpectMirrorIncomeToTimesheet() {
+	m.mockIncomeFromTimesheet.EXPECT().
+		GetByUserYearMonth(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
+	m.mockIncomeFromTimesheet.EXPECT().Add(gomock.Any()).Return(nil)
 }
 
 func (m *MockIncomeRepository) ExpectGetAllIncomeOfPreviousMonthByRole(incomes []*models.Income) {

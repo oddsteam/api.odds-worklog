@@ -7,12 +7,13 @@ import (
 )
 
 type addIncomeUsecase struct {
-	repo     ForControllingUserMonthlyIncome
-	userRepo ForGettingUserByID
+	repo          ForControllingUserMonthlyIncome
+	userRepo      ForGettingUserByID
+	timesheetRepo ForGettingIncomeFromTimesheet
 }
 
-func NewAddIncomeUsecase(r ForControllingUserMonthlyIncome, ur ForGettingUserByID) ForUsingAddIncome {
-	return &addIncomeUsecase{r, ur}
+func NewAddIncomeUsecase(r ForControllingUserMonthlyIncome, ur ForGettingUserByID, tr ForGettingIncomeFromTimesheet) ForUsingAddIncome {
+	return &addIncomeUsecase{r, ur, tr}
 }
 
 func (u *addIncomeUsecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
@@ -25,6 +26,9 @@ func (u *addIncomeUsecase) AddIncome(req *models.IncomeReq, uid string) (*models
 	income := models.CreatePayroll(*userDetail, *req, "")
 	err = u.repo.AddIncome(income)
 	if err != nil {
+		return nil, err
+	}
+	if err := mirrorIncomeToTimesheet(u.timesheetRepo, income, year, month); err != nil {
 		return nil, err
 	}
 
