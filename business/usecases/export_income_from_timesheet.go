@@ -27,6 +27,10 @@ func (u *exportIncomeFromTimesheetUsecase) ExportIncomeFromTimesheet(role string
 	}
 	startDate, endDate := models.GetStartDateAndEndDate(t)
 
+	return u.ExportIncomeFromTimesheetByStartDateAndEndDate(role, startDate, endDate)
+}
+
+func (u *exportIncomeFromTimesheetUsecase) ExportIncomeFromTimesheetByStartDateAndEndDate(role string, startDate, endDate time.Time) (string, error) {
 	records, err := u.incomeRepo.GetAllByRoleStartDateAndEndDate(role, startDate, endDate)
 	if err != nil {
 		return "", err

@@ -30,6 +30,20 @@ func (s *stubListingSites) GetSiteGroup() ([]*models.Site, error) {
 	return []*models.Site{}, nil
 }
 
+// CreateExportIncomeFromTimesheetUsecaseWithMock wires the real export usecase to a mocked
+// income_from_timesheet reader, so handler tests can drive it through the repository.
+func CreateExportIncomeFromTimesheetUsecaseWithMock(t *testing.T) (ForUsingExportIncomeFromTimesheet, *gomock.Controller, *mock_usecases.MockForGettingIncomeFromTimesheetInTheMonth) {
+	ctrl := gomock.NewController(t)
+	mockIncomeReader := mock_usecases.NewMockForGettingIncomeFromTimesheetInTheMonth(ctrl)
+	mockUsers := mock_usecases.NewMockForGettingUsersByRole(ctrl)
+	mockUsers.EXPECT().GetByRole(gomock.Any()).Return([]*models.User{}, nil).AnyTimes()
+	mockStudentLoans := mock_usecases.NewMockForGettingIncomeData(ctrl)
+	mockStudentLoans.EXPECT().GetStudentLoans().Return(models.StudentLoanList{}).AnyTimes()
+
+	usecase := NewExportIncomeFromTimesheetUsecase(mockIncomeReader, mockStudentLoans, mockUsers, &stubListingSites{}, file.NewCSVWriter())
+	return usecase, ctrl, mockIncomeReader
+}
+
 func CreateAddIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsingAddIncome {
 	usecase := NewAddIncomeUsecase(mockRepoIncome.mockControllingUserIncome, mockRepoIncome.mockGettingUserByID, mockRepoIncome.mockIncomeFromTimesheet)
 	return usecase
