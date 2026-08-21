@@ -18,9 +18,11 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/repositories"
 )
 
-// HttpHandler serves the same export formats as /incomes, but sourced from
-// income_from_timesheet instead of income.
+// HttpHandler serves the same export, status and list endpoints as /incomes, but sourced
+// from income_from_timesheet instead of income.
 type HttpHandler struct {
+	ListIncomeStatusUsecase           usecases.ForUsingListIncomeStatus
+	GetIncomeUsecase                 usecases.ForUsingGetIncome
 	ExportIncomeFromTimesheetUsecase usecases.ForUsingExportIncome
 }
 
@@ -157,6 +159,76 @@ func (h *HttpHandler) PostExportSAP(c echo.Context) error {
 	return c.Attachment(filename, filename)
 }
 
+// GetIndividualIncomeStatus godoc
+// @Summary Get Individual Income Status List sourced from income_from_timesheet
+// @Description Get Individual Income Status List, in the same format as the real individual status list.
+// @Tags income-from-timesheet
+// @Produce json
+// @Success 200 {array} models.IncomeStatus
+// @Failure 500 {object} utils.HTTPError
+// @Router /income-from-timesheet/status/individual [get]
+func (h *HttpHandler) GetIndividualIncomeStatus(c echo.Context) error {
+	u := income.GetUserFromToken(c)
+	isAdmin := u.CanExportIncome()
+
+	status, err := h.ListIncomeStatusUsecase.GetIncomeStatusList("individual", isAdmin)
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, status)
+}
+
+// GetIncomeCurrentMonthByUserId godoc
+// @Summary Get income_from_timesheet Of Current Month By User Id
+// @Tags income-from-timesheet
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} models.Income
+// @Failure 400 {object} utils.HTTPError
+// @Router /income-from-timesheet/current-month/{id} [get]
+func (h *HttpHandler) GetIncomeCurrentMonthByUserId(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	user := income.GetUserFromToken(c)
+	if id != user.ID {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	inc, _ := h.GetIncomeUsecase.GetIncomeByCurrentMonth(id)
+	if inc == nil {
+		return c.JSON(http.StatusOK, nil)
+	}
+	return c.JSON(http.StatusOK, inc)
+}
+
+// GetIncomeAllMonthByUserId godoc
+// @Summary Get income_from_timesheet Of All Month By User Id
+// @Tags income-from-timesheet
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} models.Income
+// @Failure 400 {object} utils.HTTPError
+// @Router /income-from-timesheet/all-month/{id} [get]
+func (h *HttpHandler) GetIncomeAllMonthByUserId(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	user := income.GetUserFromToken(c)
+	if id != user.ID {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	inc, err := h.GetIncomeUsecase.GetIncomeByAllMonth(id)
+	if err != nil {
+		return err
+	}
+	if inc == nil {
+		return c.JSON(http.StatusOK, nil)
+	}
+	return c.JSON(http.StatusOK, inc)
+}
+
 // authorizedMonthParam rejects callers who may not export and requests without a month.
 // When ok is false the response has already been written and should be returned as-is;
 // it cannot be signalled through the error alone, since echo's writers return nil on success.
@@ -207,6 +279,7 @@ func (h *HttpHandler) authorizedExportPeriod(c echo.Context) (period exportPerio
 
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	incomeReader := repositories.NewIncomeFromTimesheetReader(session)
+	incomeUserReader := repositories.NewIncomeFromTimesheetUserIncomeReader(session)
 	incomeWriter := repositories.NewIncomeWriter(session)
 	studentLoanRepo := repositories.NewStudentLoanRepository(session)
 	sapExportFailureRepo := repositories.NewSAPExportFailureRepository(session)
@@ -224,9 +297,18 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 		userRepo,
 		siteRepo,
 	)
-	handler := &HttpHandler{ex}
+	listStatus := usecases.NewListIncomeStatusUsecase(usecases.NewIncomeFromTimesheetUserSource(incomeUserReader), userRepo)
+	gi := usecases.NewGetIncomeUsecase(usecases.NewIncomeFromTimesheetUserSource(incomeUserReader))
+	handler := &HttpHandler{
+		ListIncomeStatusUsecase:          listStatus,
+		GetIncomeUsecase:                 gi,
+		ExportIncomeFromTimesheetUsecase: ex,
+	}
 
 	r = r.Group("/income-from-timesheet")
+	r.GET("/status/individual", handler.GetIndividualIncomeStatus)
+	r.GET("/current-month/:id", handler.GetIncomeCurrentMonthByUserId)
+	r.GET("/all-month/:id", handler.GetIncomeAllMonthByUserId)
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
 	r.GET("/export/peak/individual/:month", handler.GetExportPeakIndividual)
 	r.POST("/export", handler.PostExport)

@@ -339,6 +339,12 @@ func getUserFromToken(c echo.Context) *models.UserClaims {
 	return claims.User
 }
 
+// GetUserFromToken exposes getUserFromToken to other api packages (e.g. income_from_timesheet)
+// that need the same-user check without re-implementing jwt claims parsing.
+func GetUserFromToken(c echo.Context) *models.UserClaims {
+	return getUserFromToken(c)
+}
+
 func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	userIncomeReader := repositories.NewUserIncomeReader(session)
 	incomeReader := repositories.NewIncomeReader(session)
