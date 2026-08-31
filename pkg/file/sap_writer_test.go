@@ -127,9 +127,9 @@ func TestSAPWriter(t *testing.T) {
 		dateEff := time.Date(2025, 9, 29, 0, 0, 0, 0, time.UTC)
 		txn, _ := exportSAP(*i, dateEff)
 
-		assert.Equal(t, "1953.38", csvColumns[WITHHOLDING_TAX_INDEX])
-		assert.Equal(t, "63,159.12", csvColumns[TRANSFER_AMOUNT_INDEX])
-		assert.Equal(t, "000000063159.12", txn[SAP_AMOUNT_INDEX])
+		assert.Equal(t, "3255.62", csvColumns[WITHHOLDING_TAX_INDEX])
+		assert.Equal(t, "61,856.88", csvColumns[TRANSFER_AMOUNT_INDEX])
+		assert.Equal(t, "000000061856.88", txn[SAP_AMOUNT_INDEX])
 	})
 
 	t.Run("test export to SAP wht should format correctly", func(t *testing.T) {

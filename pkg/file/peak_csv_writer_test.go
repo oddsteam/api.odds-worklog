@@ -45,11 +45,13 @@ func TestToPeakCSVMatchesSample(t *testing.T) {
 			UserID:          "user-vat",
 			TotalIncome:     "150000.00",
 			IsVATRegistered: true,
+			WHTRate:         0.05,
 		},
 		{
 			UserID:          "user-no-vat",
 			TotalIncome:     "40000",
 			IsVATRegistered: false,
+			WHTRate:         0.05,
 		},
 	}
 	peakCodes := map[string]string{
@@ -72,7 +74,7 @@ func TestToPeakCSVMatchesSample(t *testing.T) {
 	assert.Equal(t, "1", vatRow[peakQuantityIndex])
 	assert.Equal(t, "150000", vatRow[peakUnitPriceIndex])
 	assert.Equal(t, "7%", vatRow[peakTaxRateIndex])
-	assert.Equal(t, "3%", vatRow[peakWHTIndex])
+	assert.Equal(t, "5%", vatRow[peakWHTIndex])
 	assert.Equal(t, "BCA001", vatRow[peakPaymentIndex])
 	assert.Equal(t, "150000", vatRow[peakPaidAmountIndex])
 	assert.Equal(t, "1", vatRow[peakPNDIndex])
@@ -104,6 +106,22 @@ func TestToPeakCSVFallsBackToThaiCitizenIDWhenPeakCodeMissing(t *testing.T) {
 	assert.Equal(t, "1234567890123", rows[1][peakTaxIDIndex])
 	assert.Equal(t, "ค่าพัฒนาและสอนโปรแกรม(บุคคล) 08.2026", rows[1][peakDescriptionIndex])
 	assert.Equal(t, "20260815", rows[1][peakDocumentDateIndex])
+}
+
+func TestToPeakCSVUsesWHTRateSavedOnIncome(t *testing.T) {
+	period := time.Date(2026, 9, 1, 0, 0, 0, 0, time.UTC)
+	documentDate := time.Date(2026, 9, 25, 0, 0, 0, 0, time.UTC)
+	incomes := []*models.Income{
+		{UserID: "old-month", TotalIncome: "10000", WHTRate: 0.03},
+		{UserID: "new-month", TotalIncome: "10000", WHTRate: 0.05},
+		{UserID: "legacy", TotalIncome: "10000"},
+	}
+
+	rows := ToPeakCSV(incomes, nil, period, documentDate)
+
+	assert.Equal(t, "3%", rows[1][peakWHTIndex])
+	assert.Equal(t, "5%", rows[2][peakWHTIndex])
+	assert.Equal(t, "3%", rows[3][peakWHTIndex])
 }
 
 func TestPeakDocumentDateUsesThailandOffset(t *testing.T) {

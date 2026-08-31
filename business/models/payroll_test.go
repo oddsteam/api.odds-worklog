@@ -3,8 +3,8 @@ package models
 import (
 	"testing"
 
-	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"github.com/stretchr/testify/assert"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 )
 
 // Local test mock for IndividualUser1
@@ -40,11 +40,12 @@ func TestPayroll(t *testing.T) {
 		assert.Equal(t, 2000.0, res.DailyRate)
 		assert.Equal(t, "40000.00", res.DailyIncomeBeforeTax)
 		assert.Equal(t, "20000.00", res.SpecialIncomeBeforeTax)
-		assert.Equal(t, "38800.00", res.NetDailyIncome)
-		assert.Equal(t, "19400.00", res.NetSpecialIncome)
-		assert.Equal(t, "58200.00", res.NetIncome)
+		assert.Equal(t, "38000.00", res.NetDailyIncome)
+		assert.Equal(t, "19000.00", res.NetSpecialIncome)
+		assert.Equal(t, "57000.00", res.NetIncome)
 		assert.Equal(t, "", res.VAT)
-		assert.Equal(t, "1800.00", res.WHT)
+		assert.Equal(t, "3000.00", res.WHT)
+		assert.Equal(t, 0.05, res.WHTRate)
 	})
 
 	t.Run("เวลา Add income ควร save role ด้วย จะได้รู้ว่าเป็น coporate หรือ individual income", func(t *testing.T) {
@@ -136,13 +137,13 @@ func TestPayroll(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, 5*20.0, p.dailyIncome())
-		assert.Equal(t, 5*20.0*0.03, p.WitholdingTax(p.dailyIncome()))
+		assert.Equal(t, 5*20.0*0.05, p.WitholdingTax(p.dailyIncome()))
 		assert.Equal(t, 0.0, p.VAT(p.dailyIncome()))
-		assert.Equal(t, 100.0+0-3, p.Net(p.dailyIncome()))
+		assert.Equal(t, 100.0+0-5, p.Net(p.dailyIncome()))
 		assert.Equal(t, 10*100.0, p.specialIncome())
-		assert.Equal(t, 10*100.0*0.03, p.WitholdingTax(p.specialIncome()))
+		assert.Equal(t, 10*100.0*0.05, p.WitholdingTax(p.specialIncome()))
 		assert.Equal(t, 0.0, p.VAT(p.specialIncome()))
-		assert.Equal(t, 1000.0+0-30, p.Net(p.specialIncome()))
+		assert.Equal(t, 1000.0+0-50, p.Net(p.specialIncome()))
 		assert.Equal(t, p.dailyIncome()+p.specialIncome(), p.totalIncome())
 	})
 
@@ -158,10 +159,10 @@ func TestPayroll(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, 5*20.0, p.dailyIncome())
-		assert.Equal(t, 5*20.0*0.03, p.WitholdingTax(p.dailyIncome()))
+		assert.Equal(t, 5*20.0*0.05, p.WitholdingTax(p.dailyIncome()))
 		assert.Equal(t, 0.0, p.VAT(p.dailyIncome()))
-		assert.Equal(t, 100.0+0-3, p.netDailyIncome())
-		assert.Equal(t, "97.00", p.NetDailyIncomeStr())
+		assert.Equal(t, 100.0+0-5, p.netDailyIncome())
+		assert.Equal(t, "95.00", p.NetDailyIncomeStr())
 	})
 
 	t.Run("calculate individual special income", func(t *testing.T) {
@@ -174,13 +175,13 @@ func TestPayroll(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, 10*100.0, p.specialIncome())
-		assert.Equal(t, 10*100.0*0.03, p.WitholdingTax(p.specialIncome()))
+		assert.Equal(t, 10*100.0*0.05, p.WitholdingTax(p.specialIncome()))
 		assert.Equal(t, 0.0, p.VAT(p.specialIncome()))
-		assert.Equal(t, 1000.0+0-30, p.Net(p.specialIncome()))
-		assert.Equal(t, "970.00", p.NetSpecialIncomeStr())
+		assert.Equal(t, 1000.0+0-50, p.Net(p.specialIncome()))
+		assert.Equal(t, "950.00", p.NetSpecialIncomeStr())
 	})
 
-	t.Run("calculate decimal daily and special income and apply 3 percent withholding tax to both", func(t *testing.T) {
+	t.Run("calculate decimal daily and special income and apply 5 percent withholding tax to both", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := GivenIndividualUser(uidFromSession, "100")
 		req := IncomeReq{
@@ -194,14 +195,14 @@ func TestPayroll(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, 2050.0, p.dailyIncome())
-		assert.Equal(t, 61.5, p.WitholdingTax(p.dailyIncome()))
-		assert.Equal(t, "1988.50", p.NetDailyIncomeStr())
+		assert.Equal(t, 102.5, p.WitholdingTax(p.dailyIncome()))
+		assert.Equal(t, "1947.50", p.NetDailyIncomeStr())
 		assert.Equal(t, 1005.0, p.specialIncome())
-		assert.Equal(t, 30.15, p.WitholdingTax(p.specialIncome()))
-		assert.Equal(t, "974.85", p.NetSpecialIncomeStr())
-		assert.Equal(t, "91.65", p.TotalWHTStr())
+		assert.Equal(t, 50.25, p.WitholdingTax(p.specialIncome()))
+		assert.Equal(t, "954.75", p.NetSpecialIncomeStr())
+		assert.Equal(t, "152.75", p.TotalWHTStr())
 		assert.Equal(t, "3055.00", p.totalIncomeStr())
-		assert.Equal(t, "2963.35", p.TransferAmountStr())
+		assert.Equal(t, "2902.25", p.TransferAmountStr())
 	})
 
 	t.Run("calculate individual income สำหรับคนที่มีหนี้ กยศ และบริษัทหักและนำส่งไว้", func(t *testing.T) {
@@ -230,7 +231,7 @@ func TestPayroll(t *testing.T) {
 		assert.Equal(t, p.netDailyIncome()+p.netSpecialIncome()-50, p.TransferAmount())
 	})
 
-	t.Run("หัก ณ ที่จ่าย 3% คิดจากรายได้รวม ไม่นับหนี้ กยศ", func(t *testing.T) {
+	t.Run("หัก ณ ที่จ่าย 5% คิดจากรายได้รวม ไม่นับหนี้ กยศ", func(t *testing.T) {
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
 		user := GivenIndividualUser(uidFromSession, "5")
 		req := IncomeReq{
@@ -244,7 +245,7 @@ func TestPayroll(t *testing.T) {
 		err := p.parseRequest(req, user)
 
 		assert.NoError(t, err)
-		assert.Equal(t, p.totalIncome()*0.03, p.totalWHT())
+		assert.Equal(t, p.totalIncome()*0.05, p.totalWHT())
 	})
 
 	t.Run("student loan is used as deduction for foreign student who does not require social security", func(t *testing.T) {
@@ -278,6 +279,7 @@ func TestPayroll(t *testing.T) {
 		result := UpdatePayroll(user, MockIncomeReq, "", &existingIncome)
 
 		assert.Equal(t, user.ID.Hex(), result.UserID)
+		assert.Equal(t, 0.05, result.WHTRate)
 	})
 
 	t.Run("calculate corporate income", func(t *testing.T) {
@@ -301,12 +303,37 @@ func TestPayroll(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, 5*20.0, p.dailyIncome())
-		assert.Equal(t, 5*20.0*0.03, p.WitholdingTax(p.dailyIncome()))
+		assert.Equal(t, 5*20.0*0.05, p.WitholdingTax(p.dailyIncome()))
 		assert.Equal(t, 7.000000000000001, p.VAT(p.dailyIncome()))
-		assert.Equal(t, 100.0+7-3, p.Net(p.dailyIncome()))
+		assert.Equal(t, 100.0+7-5, p.Net(p.dailyIncome()))
 		assert.Equal(t, 10*100.0, p.specialIncome())
-		assert.Equal(t, 10*100.0*0.03, p.WitholdingTax(p.specialIncome()))
+		assert.Equal(t, 10*100.0*0.05, p.WitholdingTax(p.specialIncome()))
 		assert.Equal(t, 10*100.0*0.07, p.VAT(p.specialIncome()))
-		assert.Equal(t, 1000.0+70-30, p.Net(p.specialIncome()))
+		assert.Equal(t, 1000.0+70-50, p.Net(p.specialIncome()))
+	})
+
+	t.Run("เวลา export ใช้ WHT rate ที่เซฟไว้ใน income ไม่ใช้เรทปัจจุบัน", func(t *testing.T) {
+		record := Income{
+			WorkDate:      "20",
+			SpecialIncome: "100",
+			WorkingHours:  "10",
+			DailyRate:     5,
+			WHTRate:       0.03,
+		}
+
+		p := NewPayrollFromIncome(record)
+
+		assert.Equal(t, 1100.0*0.03, p.totalWHT())
+	})
+
+	t.Run("income เก่าที่ไม่มี WHTRate ตอน export ถือว่าเป็น 3%", func(t *testing.T) {
+		record := Income{
+			WorkDate:  "20",
+			DailyRate: 5,
+		}
+
+		p := NewPayrollFromIncome(record)
+
+		assert.Equal(t, 100.0*0.03, p.totalWHT())
 	})
 }

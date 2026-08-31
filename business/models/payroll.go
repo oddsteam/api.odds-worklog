@@ -7,22 +7,29 @@ import (
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 )
 
+const (
+	CurrentWHTRate = 0.05
+	LegacyWHTRate  = 0.03
+)
+
 type Payroll struct {
-	UserID            string
-	dailyRate         float64
-	workedDays        float64
+	UserID              string
+	dailyRate           float64
+	workedDays          float64
 	specialWorkingHours float64
-	specialHourlyRate float64
-	isVATRegistered   bool
-	userProfile       *User
-	loan              *StudentLoan
-	incomeRecord      *Income
+	specialHourlyRate   float64
+	isVATRegistered     bool
+	whtRate             float64
+	userProfile         *User
+	loan                *StudentLoan
+	incomeRecord        *Income
 }
 
 func NewPayroll(uidFromSession string) *Payroll {
 	return &Payroll{
-		UserID: uidFromSession,
-		loan:   &StudentLoan{},
+		UserID:  uidFromSession,
+		loan:    &StudentLoan{},
+		whtRate: CurrentWHTRate,
 	}
 }
 
@@ -33,6 +40,7 @@ func NewPayrollFromIncome(record Income) *Payroll {
 		incomeRecord:    &record,
 		dailyRate:       record.DailyRate,
 		isVATRegistered: record.IsVATRegistered,
+		whtRate:         record.EffectiveWHTRate(),
 	}
 	p.parse(IncomeReq{
 		SpecialIncome: record.SpecialIncome,
@@ -52,6 +60,7 @@ func CreatePayroll(user User, req IncomeReq, note string) *Income {
 
 func UpdatePayroll(user User, req IncomeReq, note string, record *Income) *Income {
 	i := NewPayrollFromIncome(*record)
+	i.whtRate = CurrentWHTRate
 	err := i.prepareDataForUpdateIncome(req, user, record)
 	record.Note = note
 	FailOnError(err, "Error prepare data for add income")
@@ -113,6 +122,7 @@ func (p *Payroll) prepareDataForUpdateIncome(req IncomeReq, userDetail User, inc
 	income.NetDailyIncome = p.NetDailyIncomeStr()
 	income.VAT = p.totalVatStr()
 	income.WHT = p.TotalWHTStr()
+	income.WHTRate = p.whtRate
 	income.Note = req.Note
 	income.WorkDate = req.WorkDate
 	income.SpecialIncome = req.SpecialIncome
@@ -206,7 +216,7 @@ func (p *Payroll) specialIncome() float64 {
 }
 
 func (p *Payroll) WitholdingTax(totalIncome float64) float64 {
-	return totalIncome * 0.03
+	return totalIncome * p.whtRate
 }
 
 func (p *Payroll) Net(totalIncome float64) float64 {

@@ -33,11 +33,12 @@ func TestUsecaseAddIncome(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, models.MockIncome.UserID, res.UserID)
-		assert.Equal(t, "116400.00", res.NetIncome)
-		assert.Equal(t, "97000.00", res.NetDailyIncome)
-		assert.Equal(t, "19400.00", res.NetSpecialIncome)
+		assert.Equal(t, "114000.00", res.NetIncome)
+		assert.Equal(t, "95000.00", res.NetDailyIncome)
+		assert.Equal(t, "19000.00", res.NetSpecialIncome)
 		assert.Equal(t, "", res.VAT)
-		assert.Equal(t, "3600.00", res.WHT)
+		assert.Equal(t, "6000.00", res.WHT)
+		assert.Equal(t, 0.05, res.WHTRate)
 	})
 
 	t.Run("saves the note the user typed, into both income and income_from_timesheet", func(t *testing.T) {

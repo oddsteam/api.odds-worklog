@@ -17,7 +17,6 @@ const (
 	peakPaymentChannel = "BCA001"
 	peakPriceType      = "1"
 	peakQuantity       = "1"
-	peakWHT            = "3%"
 	peakPND            = "1"
 	peakVATRate        = "7%"
 	peakNoVAT          = "NO"
@@ -138,7 +137,7 @@ func peakRow(seq int, income *models.Income, peakCode string, period, documentDa
 		peakQuantity,
 		amount,
 		peakTaxRate(income.IsVATRegistered),
-		peakWHT,
+		income.WHTRateForExport(),
 		peakPaymentChannel,
 		amount,
 		peakPND,

@@ -1861,7 +1861,11 @@ components:
           description: VAT amount
         wht:
           type: string
-          description: Withholding tax
+          description: Withholding tax amount
+        whtRate:
+          type: number
+          format: double
+          description: Withholding tax rate saved at submit time (0.03 or 0.05) so export does not need to know the rate for that month
         specialIncome:
           type: string
           description: Special income
