@@ -1899,6 +1899,9 @@ components:
         role:
           type: string
           description: User role
+        peakCode:
+          type: string
+          description: PEAK contact code snapshotted from the user at submit time so export does not need to join users
 
     IncomeRequest:
       type: object

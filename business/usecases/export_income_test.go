@@ -15,12 +15,12 @@ import (
 )
 
 type stubPeakWriter struct {
-	peakCodes map[string]string
-	period    time.Time
+	incomes []*models.Income
+	period  time.Time
 }
 
-func (s *stubPeakWriter) WriteFile(name string, incomes []*models.Income, peakCodeByUserID map[string]string, period, documentDate time.Time) (string, error) {
-	s.peakCodes = peakCodeByUserID
+func (s *stubPeakWriter) WriteFile(name string, incomes []*models.Income, period, documentDate time.Time) (string, error) {
+	s.incomes = incomes
 	s.period = period
 	return "files/peak_stub.csv", nil
 }
@@ -184,21 +184,16 @@ func TestUsecaseExportPeak(t *testing.T) {
 		os.Remove(filename)
 	})
 
-	t.Run("joins peak codes from users by income user id", func(t *testing.T) {
+	t.Run("exports peak using peak code snapshotted on income", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		userID := "5bbcf2f90fd2df527bc39539"
-		users := []*models.User{
-			{
-				ID:       bsonutil.MustObjectIDFromHex(userID),
-				PeakCode: "C00145",
-			},
-		}
 		incomes := []*models.Income{
 			{
-				ID:     bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e602"),
-				UserID: userID,
+				ID:       bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e602"),
+				UserID:   userID,
+				PeakCode: "C00145",
 			},
 		}
 		startDate := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
@@ -207,18 +202,16 @@ func TestUsecaseExportPeak(t *testing.T) {
 		mockRead := mock_usecases.NewMockForGettingIncomeData(ctrl)
 		mockWrite := mock_usecases.NewMockForControllingIncomeData(ctrl)
 		mockSapFail := mock_usecases.NewMockForLoggingSAPExportFailure(ctrl)
-		mockUsers := mock_usecases.NewMockForGettingUsersByRole(ctrl)
 		peakWriter := &stubPeakWriter{}
 
 		mockRead.EXPECT().GetAllIncomeByRoleStartDateAndEndDate("individual", startDate, endDate).Return(incomes, nil)
-		mockUsers.EXPECT().GetByRole("individual").Return(users, nil)
 		mockWrite.EXPECT().AddExport(gomock.Any()).Return(nil)
 
-		u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), file.NewSAPWriter(), peakWriter, mockRead, mockUsers, &stubListingSites{})
+		u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), file.NewSAPWriter(), peakWriter, mockRead, nil, &stubListingSites{})
 		filename, err := u.ExportPeakByStartDateAndEndDate("individual", startDate, endDate)
 
 		assert.NoError(t, err)
-		assert.Equal(t, "C00145", peakWriter.peakCodes[userID])
+		assert.Equal(t, "C00145", peakWriter.incomes[0].PeakCode)
 		assert.Equal(t, startDate, peakWriter.period)
 		assert.Equal(t, "files/peak_stub.csv", filename)
 	})

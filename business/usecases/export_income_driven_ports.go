@@ -31,7 +31,7 @@ type ForWritingSAPFile interface {
 }
 
 type ForWritingPeakFile interface {
-	WriteFile(name string, incomes []*models.Income, peakCodeByUserID map[string]string, period, documentDate time.Time) (string, error)
+	WriteFile(name string, incomes []*models.Income, period, documentDate time.Time) (string, error)
 }
 
 type ForListingSites interface {

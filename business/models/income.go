@@ -35,6 +35,7 @@ type Income struct {
 	DailyRate              float64            `bson:"dailyRate"`
 	IsVATRegistered        bool               `bson:"isVATRegistered"`
 	Role                   string             `bson:"role" json:"role"`
+	PeakCode               string             `bson:"peakCode" json:"peakCode,omitempty"`
 	// SiteName is filled at export time (not persisted).
 	SiteName string `bson:"-" json:"-"`
 }

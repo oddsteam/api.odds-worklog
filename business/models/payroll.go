@@ -115,6 +115,7 @@ func (p *Payroll) prepareDataForUpdateIncome(req IncomeReq, userDetail User, inc
 	income.BankAccountNumber = userDetail.BankAccountNumber
 	income.Email = userDetail.Email
 	income.Phone = userDetail.Phone
+	income.PeakCode = userDetail.PeakCode
 	income.NetIncome = p.TransferAmountStr()
 	income.NetSpecialIncome = p.NetSpecialIncomeStr()
 	income.DailyIncomeBeforeTax = p.DailyIncomeBeforeTaxStr()

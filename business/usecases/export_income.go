@@ -145,7 +145,7 @@ func (u *usecase) ExportPeakByStartDateAndEndDate(role string, startDate, endDat
 		return "", err
 	}
 
-	filename, err := u.peakWriter.WriteFile("peak_"+role, incomes, u.peakCodesByUserID(role), startDate, time.Now())
+	filename, err := u.peakWriter.WriteFile("peak_"+role, incomes, startDate, time.Now())
 	if err != nil {
 		return "", err
 	}
@@ -160,24 +160,6 @@ func (u *usecase) ExportPeakByStartDateAndEndDate(role string, startDate, endDat
 	}
 
 	return filename, nil
-}
-
-func (u *usecase) peakCodesByUserID(role string) map[string]string {
-	codes := map[string]string{}
-	if u.userRepo == nil {
-		return codes
-	}
-	users, err := u.userRepo.GetByRole(role)
-	if err != nil || len(users) == 0 {
-		return codes
-	}
-	for _, user := range users {
-		if user == nil {
-			continue
-		}
-		codes[user.ID.Hex()] = user.PeakCode
-	}
-	return codes
 }
 
 func (u *usecase) enrichSiteNames(role string, incomes []*models.Income) {

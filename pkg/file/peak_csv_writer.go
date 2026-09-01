@@ -53,8 +53,8 @@ func NewPeakCSVWriter() *peakCSVWriter {
 	return &peakCSVWriter{}
 }
 
-func (w *peakCSVWriter) WriteFile(name string, incomes []*models.Income, peakCodeByUserID map[string]string, period, documentDate time.Time) (string, error) {
-	rows := ToPeakCSV(incomes, peakCodeByUserID, period, documentDate)
+func (w *peakCSVWriter) WriteFile(name string, incomes []*models.Income, period, documentDate time.Time) (string, error) {
+	rows := ToPeakCSV(incomes, period, documentDate)
 	if len(rows) == 1 {
 		return "", errors.New("no data for export to CSV file")
 	}
@@ -71,7 +71,7 @@ func (w *peakCSVWriter) WriteFile(name string, incomes []*models.Income, peakCod
 	return filename, nil
 }
 
-func ToPeakCSV(incomes []*models.Income, peakCodeByUserID map[string]string, period, documentDate time.Time) [][]string {
+func ToPeakCSV(incomes []*models.Income, period, documentDate time.Time) [][]string {
 	rows := [][]string{peakHeaders()}
 	seq := 0
 	for _, income := range incomes {
@@ -79,11 +79,7 @@ func ToPeakCSV(incomes []*models.Income, peakCodeByUserID map[string]string, per
 			continue
 		}
 		seq++
-		peakCode := ""
-		if peakCodeByUserID != nil {
-			peakCode = peakCodeByUserID[income.UserID]
-		}
-		rows = append(rows, peakRow(seq, income, peakCode, period, documentDate))
+		rows = append(rows, peakRow(seq, income, period, documentDate))
 	}
 	return rows
 }
@@ -114,8 +110,8 @@ func peakHeaders() []string {
 	}
 }
 
-func peakRow(seq int, income *models.Income, peakCode string, period, documentDate time.Time) []string {
-	contact := peakCode
+func peakRow(seq int, income *models.Income, period, documentDate time.Time) []string {
+	contact := income.PeakCode
 	taxID := ""
 	if contact == "" {
 		taxID = income.ThaiCitizenID

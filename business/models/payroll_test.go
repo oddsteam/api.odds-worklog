@@ -73,6 +73,19 @@ func TestPayroll(t *testing.T) {
 		assert.Equal(t, user.ThaiCitizenID, res.ThaiCitizenID)
 	})
 
+	t.Run("เวลา Add income ควร save Peak Code ด้วย ตอน export จะได้ไม่ต้อง join", func(t *testing.T) {
+		user := testIndividualUser1
+		user.PeakCode = "C00145"
+		uidFromSession := "5bbcf2f90fd2df527bc39539"
+		p := NewPayroll(uidFromSession)
+
+		res, err := p.prepareDataForAddIncome(MockIncomeReq, user)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.Equal(t, "C00145", res.PeakCode)
+	})
+
 	t.Run("เวลา Add income ควร save เบอร์โทรกับ อีเมลด้วยเผื่อตกขบวนเพื่อน ๆ จะได้ช่วยกันตามมากรอกเงินจากหน้า web หน้า individual list ได้", func(t *testing.T) {
 		user := testIndividualUser1
 		uidFromSession := "5bbcf2f90fd2df527bc39539"
