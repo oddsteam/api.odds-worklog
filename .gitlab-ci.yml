@@ -53,15 +53,14 @@ build_scan_and_tag:
   stage: build_and_tag
   image: cacher.odds.team/image/trivy-dind:1.0.0
   variables:
-    TRIVY_EXIT_CODE: "0" 
+    TRIVY_EXIT_CODE: "0"
     TRIVY_SEVERITY: "HIGH,CRITICAL"
     TRIVY_SERVER: "https://trivy.odd.works"
-    TRIVY_TOKEN: $TRIVY_TOKEN
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --build-arg REG_URL=$CI_REGISTRY_IMAGE -f Dockerfile .
-    - trivy --cache-dir /tmp/trivy/ image --skip-java-db-update --server $TRIVY_SERVER --token $TRIVY_TOKEN $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --exit-code $TRIVY_EXIT_CODE --severity $TRIVY_SEVERITY
+    - trivy --cache-dir /tmp/trivy/ image --skip-java-db-update --server "$TRIVY_SERVER" --token "$TRIVY_TOKEN" "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" --exit-code "$TRIVY_EXIT_CODE" --severity "$TRIVY_SEVERITY"
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - |
       if [ "$CI_COMMIT_BRANCH" = "main" ]; then
