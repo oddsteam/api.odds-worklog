@@ -27,7 +27,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 		mockTimesheetRepo.EXPECT().GetByUserYearMonth(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
 		mockTimesheetRepo.EXPECT().Add(gomock.Any()).Return(nil)
 
-		uc := NewAddIncomeUsecase(mockRepoIncome, mockUserRepo, mockTimesheetRepo)
+		uc := NewAddIncomeUsecase(mockRepoIncome, mockUserRepo, mockTimesheetRepo, nil)
 		res, err := uc.AddIncome(&models.MockIncomeReq, userMock.User.ID.Hex())
 
 		assert.NoError(t, err)
@@ -63,7 +63,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 		req := models.MockIncomeReq
 		req.Note = "ลาป่วย 2 วัน"
 
-		uc := NewAddIncomeUsecase(mockRepoIncome, mockUserRepo, mockTimesheetRepo)
+		uc := NewAddIncomeUsecase(mockRepoIncome, mockUserRepo, mockTimesheetRepo, nil)
 		res, err := uc.AddIncome(&req, user.ID.Hex())
 
 		assert.NoError(t, err)
@@ -90,7 +90,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 			return nil
 		})
 
-		uc := NewAddIncomeUsecase(mockRepoIncome, mockUserRepo, mockTimesheetRepo)
+		uc := NewAddIncomeUsecase(mockRepoIncome, mockUserRepo, mockTimesheetRepo, nil)
 		res, err := uc.AddIncome(&models.MockIncomeReq, user.ID.Hex())
 
 		assert.NoError(t, err)
@@ -124,7 +124,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 			return nil
 		})
 
-		uc := NewAddIncomeUsecase(mockRepoIncome, mockUserRepo, mockTimesheetRepo)
+		uc := NewAddIncomeUsecase(mockRepoIncome, mockUserRepo, mockTimesheetRepo, nil)
 		res, err := uc.AddIncome(&models.MockIncomeReq, user.ID.Hex())
 
 		assert.NoError(t, err)
@@ -150,7 +150,7 @@ func TestUsecaseAddIncome(t *testing.T) {
 		mockTimesheetRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), year, month).Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
 		mockTimesheetRepo.EXPECT().Add(gomock.Any()).Return(assert.AnError)
 
-		uc := NewAddIncomeUsecase(mockRepoIncome, mockUserRepo, mockTimesheetRepo)
+		uc := NewAddIncomeUsecase(mockRepoIncome, mockUserRepo, mockTimesheetRepo, nil)
 		res, err := uc.AddIncome(&models.MockIncomeReq, user.ID.Hex())
 
 		assert.ErrorIs(t, err, assert.AnError)

@@ -354,13 +354,13 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	userRepo := repositories.NewUserRepository(session)
 	incomeFromTimesheetRepo := repositories.NewIncomeFromTimesheetRepository(session)
 	listStatus := usecases.NewListIncomeStatusUsecase(userIncomeReader, userRepo)
-	ad := usecases.NewAddIncomeUsecase(userIncomeWriter, userRepo, incomeFromTimesheetRepo)
+	siteRepo := site.NewRepository(session)
+	ad := usecases.NewAddIncomeUsecase(userIncomeWriter, userRepo, incomeFromTimesheetRepo, siteRepo)
 	gi := usecases.NewGetIncomeUsecase(userIncomeReader)
-	up := usecases.NewUpdateIncomeUsecase(userIncomeUpdater, userRepo, incomeFromTimesheetRepo)
+	up := usecases.NewUpdateIncomeUsecase(userIncomeUpdater, userRepo, incomeFromTimesheetRepo, siteRepo)
 	studentLoanRepo := repositories.NewStudentLoanRepository(session)
 	sapExportFailureRepo := repositories.NewSAPExportFailureRepository(session)
-	siteRepo := site.NewRepository(session)
-	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, sapExportFailureRepo, file.NewCSVWriter(), file.NewSAPWriter(), file.NewPeakCSVWriter(), studentLoanRepo, userRepo, siteRepo)
+	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, sapExportFailureRepo, file.NewCSVWriter(), file.NewSAPWriter(), file.NewPeakCSVWriter(), studentLoanRepo)
 	handler := &HttpHandler{listStatus, ad, gi, up, ex}
 
 	r = r.Group("/incomes")

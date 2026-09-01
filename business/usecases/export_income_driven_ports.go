@@ -37,3 +37,7 @@ type ForWritingPeakFile interface {
 type ForListingSites interface {
 	GetSiteGroup() ([]*models.Site, error)
 }
+
+type ForGettingSiteByID interface {
+	GetSiteGroupByID(id string) (*models.Site, error)
+}

@@ -17,17 +17,8 @@ func CreateExportIncomeUsecaseWithMock(t *testing.T) (ForUsingExportIncome, *gom
 	ctrl := gomock.NewController(t)
 	mockRepoIncome := mockIncomeRepository(ctrl)
 
-	mockRepoIncome.mockGettingUsersByRole.EXPECT().GetByRole(gomock.Any()).Return([]*models.User{}, nil).AnyTimes()
-	mockSites := &stubListingSites{}
-
-	usecase := NewExportIncomeUsecase(mockRepoIncome.mockRead, mockRepoIncome.mockWrite, mockRepoIncome.mockSapExportFailure, file.NewCSVWriter(), file.NewSAPWriter(), file.NewPeakCSVWriter(), mockRepoIncome.mockRead, mockRepoIncome.mockGettingUsersByRole, mockSites)
+	usecase := NewExportIncomeUsecase(mockRepoIncome.mockRead, mockRepoIncome.mockWrite, mockRepoIncome.mockSapExportFailure, file.NewCSVWriter(), file.NewSAPWriter(), file.NewPeakCSVWriter(), mockRepoIncome.mockRead)
 	return usecase, ctrl, mockRepoIncome
-}
-
-type stubListingSites struct{}
-
-func (s *stubListingSites) GetSiteGroup() ([]*models.Site, error) {
-	return []*models.Site{}, nil
 }
 
 // CreateExportIncomeFromTimesheetUsecaseWithMock wires the shared export usecase to a mocked
@@ -39,10 +30,8 @@ func CreateExportIncomeFromTimesheetUsecaseWithMock(t *testing.T) (ForUsingExpor
 		Reader:           mock_usecases.NewMockForGettingIncomeFromTimesheetInTheMonth(ctrl),
 		mockExportLog:    mock_usecases.NewMockForControllingIncomeData(ctrl),
 		mockSapFailure:   mock_usecases.NewMockForLoggingSAPExportFailure(ctrl),
-		mockUsers:        mock_usecases.NewMockForGettingUsersByRole(ctrl),
 		mockStudentLoans: mock_usecases.NewMockForGettingIncomeData(ctrl),
 	}
-	mockRepo.mockUsers.EXPECT().GetByRole(gomock.Any()).Return([]*models.User{}, nil).AnyTimes()
 	mockRepo.mockStudentLoans.EXPECT().GetStudentLoans().Return(models.StudentLoanList{}).AnyTimes()
 	mockRepo.mockExportLog.EXPECT().AddExport(gomock.Any()).Return(nil).AnyTimes()
 	mockRepo.mockSapFailure.EXPECT().LogSAPExportFailure(gomock.Any()).Return(nil).AnyTimes()
@@ -55,8 +44,6 @@ func CreateExportIncomeFromTimesheetUsecaseWithMock(t *testing.T) (ForUsingExpor
 		file.NewSAPWriter(),
 		file.NewPeakCSVWriter(),
 		mockRepo.mockStudentLoans,
-		mockRepo.mockUsers,
-		&stubListingSites{},
 	)
 	return usecase, ctrl, mockRepo
 }
@@ -65,7 +52,6 @@ type MockIncomeFromTimesheetRepository struct {
 	Reader           *mock_usecases.MockForGettingIncomeFromTimesheetInTheMonth
 	mockExportLog    *mock_usecases.MockForControllingIncomeData
 	mockSapFailure   *mock_usecases.MockForLoggingSAPExportFailure
-	mockUsers        *mock_usecases.MockForGettingUsersByRole
 	mockStudentLoans *mock_usecases.MockForGettingIncomeData
 }
 
@@ -90,7 +76,7 @@ func (m *MockIncomeFromTimesheetRepository) ExpectGetAllFails() {
 }
 
 func CreateAddIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsingAddIncome {
-	usecase := NewAddIncomeUsecase(mockRepoIncome.mockControllingUserIncome, mockRepoIncome.mockGettingUserByID, mockRepoIncome.mockIncomeFromTimesheet)
+	usecase := NewAddIncomeUsecase(mockRepoIncome.mockControllingUserIncome, mockRepoIncome.mockGettingUserByID, mockRepoIncome.mockIncomeFromTimesheet, nil)
 	return usecase
 }
 
@@ -100,7 +86,7 @@ func CreateGetIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsi
 }
 
 func CreateUpdateIncomeUsecaseWithMock(mockRepoIncome *MockIncomeRepository) ForUsingUpdateIncome {
-	usecase := NewUpdateIncomeUsecase(mockRepoIncome.mockUpdatingUserIncome, mockRepoIncome.mockGettingUserByID, mockRepoIncome.mockIncomeFromTimesheet)
+	usecase := NewUpdateIncomeUsecase(mockRepoIncome.mockUpdatingUserIncome, mockRepoIncome.mockGettingUserByID, mockRepoIncome.mockIncomeFromTimesheet, nil)
 	return usecase
 }
 

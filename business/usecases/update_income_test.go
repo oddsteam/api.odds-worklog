@@ -51,7 +51,7 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		mockTimesheetRepo.EXPECT().GetByUserYearMonth(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
 		mockTimesheetRepo.EXPECT().Add(gomock.Any()).Return(nil)
 
-		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo)
+		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo, nil)
 		res, err := uc.UpdateIncome(models.MockIncome.ID.Hex(), &models.MockIncomeReq, user.ID.Hex())
 
 		assert.NoError(t, err)
@@ -81,7 +81,7 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		req := models.MockIncomeReq
 		req.Note = "แก้ไขจำนวนวันทำงาน"
 
-		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo)
+		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo, nil)
 		res, err := uc.UpdateIncome(models.MockIncome.ID.Hex(), &req, user.ID.Hex())
 
 		assert.NoError(t, err)
@@ -109,7 +109,7 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		req := models.MockIncomeReq
 		req.Note = ""
 
-		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo)
+		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo, nil)
 		res, err := uc.UpdateIncome(models.MockIncome.ID.Hex(), &req, user.ID.Hex())
 
 		assert.NoError(t, err)
@@ -130,7 +130,7 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		mockTimesheetRepo.EXPECT().GetByUserYearMonth(models.MockIncome.UserID, 2026, time.June).Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
 		mockTimesheetRepo.EXPECT().Add(gomock.Any()).Return(nil)
 
-		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo)
+		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo, nil)
 		_, err := uc.UpdateIncome(models.MockIncome.ID.Hex(), &models.MockIncomeReq, user.ID.Hex())
 
 		assert.NoError(t, err)
@@ -158,7 +158,7 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 			return nil
 		})
 
-		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo)
+		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo, nil)
 		res, err := uc.UpdateIncome(models.MockIncome.ID.Hex(), &models.MockIncomeReq, user.ID.Hex())
 
 		assert.NoError(t, err)
@@ -183,7 +183,7 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		mockIncomeRepo.EXPECT().UpdateIncome(gomock.Any()).Return(assert.AnError)
 		mockTimesheetRepo.EXPECT().GetByUserYearMonth(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
 
-		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo)
+		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo, nil)
 		res, err := uc.UpdateIncome(models.MockIncome.ID.Hex(), &models.MockIncomeReq, user.ID.Hex())
 
 		assert.ErrorIs(t, err, assert.AnError)
@@ -203,7 +203,7 @@ func TestUsecaseUpdateIncome(t *testing.T) {
 		mockIncomeRepo.EXPECT().UpdateIncome(gomock.Any()).Return(nil)
 		mockTimesheetRepo.EXPECT().GetByUserYearMonth(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, assert.AnError)
 
-		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo)
+		uc := NewUpdateIncomeUsecase(mockIncomeRepo, mockUserRepo, mockTimesheetRepo, nil)
 		res, err := uc.UpdateIncome(models.MockIncome.ID.Hex(), &models.MockIncomeReq, user.ID.Hex())
 
 		assert.ErrorIs(t, err, assert.AnError)

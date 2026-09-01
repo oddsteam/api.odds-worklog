@@ -14,10 +14,11 @@ type syncIncomeFromTimesheetUsecase struct {
 	incomeRepo   ForGettingIncomeFromTimesheet
 	userRepo     ForGettingTimesheetUser
 	eventLogRepo ForLoggingTimesheetEvent
+	siteRepo     ForGettingSiteByID
 }
 
-func NewSyncIncomeFromTimesheetUsecase(incomeRepo ForGettingIncomeFromTimesheet, userRepo ForGettingTimesheetUser, eventLogRepo ForLoggingTimesheetEvent) ForSyncingIncomeFromTimesheet {
-	return &syncIncomeFromTimesheetUsecase{incomeRepo, userRepo, eventLogRepo}
+func NewSyncIncomeFromTimesheetUsecase(incomeRepo ForGettingIncomeFromTimesheet, userRepo ForGettingTimesheetUser, eventLogRepo ForLoggingTimesheetEvent, siteRepo ForGettingSiteByID) ForSyncingIncomeFromTimesheet {
+	return &syncIncomeFromTimesheetUsecase{incomeRepo, userRepo, eventLogRepo, siteRepo}
 }
 
 func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonthlySummaryEvent) error {
@@ -29,6 +30,7 @@ func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonth
 	if err != nil {
 		return err
 	}
+	attachSite(user, u.siteRepo)
 
 	var workingDays, overtimeDays float64
 	sites := make([]models.SiteWork, 0, len(evt.Sites))

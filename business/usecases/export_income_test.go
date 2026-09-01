@@ -33,57 +33,33 @@ func (s *stubSAPWriter) WriteFile(name string, ics models.PayrollCycle, dateEff 
 	return "", s.err
 }
 
-func TestEnrichSiteNamesOnCSVExport(t *testing.T) {
+func TestCSVExportUsesSnapshottedSiteName(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	siteID := "5c8fb1fcf96bbd81fafb09a6"
 	userID := "5bbcf2f90fd2df527bc39539"
-	users := []*models.User{
-		{
-			ID:     bsonutil.MustObjectIDFromHex(userID),
-			SiteID: siteID,
-		},
-	}
-	sites := []*models.Site{
-		{
-			ID:   bsonutil.MustObjectIDFromHex(siteID),
-			Name: "ODDS",
-		},
-	}
-
 	mockRead := mock_usecases.NewMockForGettingIncomeData(ctrl)
 	mockWrite := mock_usecases.NewMockForControllingIncomeData(ctrl)
 	mockSapFail := mock_usecases.NewMockForLoggingSAPExportFailure(ctrl)
-	mockUsers := mock_usecases.NewMockForGettingUsersByRole(ctrl)
-	mockSites := &stubListingSitesWithData{sites: sites}
 
 	startDate, endDate := models.GetStartDateAndEndDate(time.Now())
 	incomes := []*models.Income{
 		{
-			ID:     bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e602"),
-			UserID: userID,
-			Name:   "first last",
+			ID:       bsonutil.MustObjectIDFromHex("5bd1fda30fd2df2a3e41e602"),
+			UserID:   userID,
+			Name:     "first last",
+			SiteName: "ODDS",
 		},
 	}
 	mockRead.EXPECT().GetAllIncomeByRoleStartDateAndEndDate("individual", startDate, endDate).Return(incomes, nil)
 	mockRead.EXPECT().GetStudentLoans().Return(models.StudentLoanList{})
-	mockUsers.EXPECT().GetByRole("individual").Return(users, nil)
 	mockWrite.EXPECT().AddExport(gomock.Any()).Return(nil)
 
-	u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), file.NewSAPWriter(), file.NewPeakCSVWriter(), mockRead, mockUsers, mockSites)
+	u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), file.NewSAPWriter(), file.NewPeakCSVWriter(), mockRead)
 	filename, err := u.ExportIncome("individual", "0")
 	assert.NoError(t, err)
 	assert.Equal(t, "ODDS", incomes[0].SiteName)
 	os.Remove(filename)
-}
-
-type stubListingSitesWithData struct {
-	sites []*models.Site
-}
-
-func (s *stubListingSitesWithData) GetSiteGroup() ([]*models.Site, error) {
-	return s.sites, nil
 }
 
 func TestUsecaseExportIncome(t *testing.T) {
@@ -207,7 +183,7 @@ func TestUsecaseExportPeak(t *testing.T) {
 		mockRead.EXPECT().GetAllIncomeByRoleStartDateAndEndDate("individual", startDate, endDate).Return(incomes, nil)
 		mockWrite.EXPECT().AddExport(gomock.Any()).Return(nil)
 
-		u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), file.NewSAPWriter(), peakWriter, mockRead, nil, &stubListingSites{})
+		u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), file.NewSAPWriter(), peakWriter, mockRead)
 		filename, err := u.ExportPeakByStartDateAndEndDate("individual", startDate, endDate)
 
 		assert.NoError(t, err)
@@ -344,7 +320,7 @@ func TestUsecaseExportIncomeSAPByStartDateAndEndDate(t *testing.T) {
 			assert.Contains(t, log.ErrorMessage, "sap export row")
 		}).Return(nil)
 
-		u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), &stubSAPWriter{err: rowErr}, file.NewPeakCSVWriter(), mockRead, nil, nil)
+		u := NewExportIncomeUsecase(mockRead, mockWrite, mockSapFail, file.NewCSVWriter(), &stubSAPWriter{err: rowErr}, file.NewPeakCSVWriter(), mockRead)
 		_, err := u.ExportIncomeSAPByStartDateAndEndDate("individual", startDate, endDate, dateEff)
 		assert.Error(t, err)
 		assert.ErrorIs(t, err, underlying)

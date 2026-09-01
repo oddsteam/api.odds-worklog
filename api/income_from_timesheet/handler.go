@@ -9,7 +9,6 @@ import (
 
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/api/income"
-	"gitlab.odds.team/worklog/api.odds-worklog/api/site"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/file"
@@ -284,7 +283,6 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	studentLoanRepo := repositories.NewStudentLoanRepository(session)
 	sapExportFailureRepo := repositories.NewSAPExportFailureRepository(session)
 	userRepo := repositories.NewUserRepository(session)
-	siteRepo := site.NewRepository(session)
 
 	ex := usecases.NewExportIncomeUsecase(
 		usecases.NewIncomeFromTimesheetSource(incomeReader),
@@ -294,8 +292,6 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 		file.NewSAPWriter(),
 		file.NewPeakCSVWriter(),
 		studentLoanRepo,
-		userRepo,
-		siteRepo,
 	)
 	listStatus := usecases.NewListIncomeStatusUsecase(usecases.NewIncomeFromTimesheetUserSource(incomeUserReader), userRepo)
 	gi := usecases.NewGetIncomeUsecase(usecases.NewIncomeFromTimesheetUserSource(incomeUserReader))

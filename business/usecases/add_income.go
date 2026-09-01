@@ -10,14 +10,16 @@ type addIncomeUsecase struct {
 	repo          ForControllingUserMonthlyIncome
 	userRepo      ForGettingUserByID
 	timesheetRepo ForGettingIncomeFromTimesheet
+	siteRepo      ForGettingSiteByID
 }
 
-func NewAddIncomeUsecase(r ForControllingUserMonthlyIncome, ur ForGettingUserByID, tr ForGettingIncomeFromTimesheet) ForUsingAddIncome {
-	return &addIncomeUsecase{r, ur, tr}
+func NewAddIncomeUsecase(r ForControllingUserMonthlyIncome, ur ForGettingUserByID, tr ForGettingIncomeFromTimesheet, sr ForGettingSiteByID) ForUsingAddIncome {
+	return &addIncomeUsecase{r, ur, tr, sr}
 }
 
 func (u *addIncomeUsecase) AddIncome(req *models.IncomeReq, uid string) (*models.Income, error) {
 	userDetail, _ := u.userRepo.GetByID(uid)
+	attachSite(userDetail, u.siteRepo)
 	year, month := models.GetYearMonthNow()
 	_, err := u.repo.GetIncomeUserByYearMonth(uid, year, month)
 	if err == nil {

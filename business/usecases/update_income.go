@@ -6,14 +6,16 @@ type updateIncomeUsecase struct {
 	repo          ForUpdatingUserMonthlyIncome
 	userRepo      ForGettingUserByID
 	timesheetRepo ForGettingIncomeFromTimesheet
+	siteRepo      ForGettingSiteByID
 }
 
-func NewUpdateIncomeUsecase(r ForUpdatingUserMonthlyIncome, ur ForGettingUserByID, tr ForGettingIncomeFromTimesheet) ForUsingUpdateIncome {
-	return &updateIncomeUsecase{r, ur, tr}
+func NewUpdateIncomeUsecase(r ForUpdatingUserMonthlyIncome, ur ForGettingUserByID, tr ForGettingIncomeFromTimesheet, sr ForGettingSiteByID) ForUsingUpdateIncome {
+	return &updateIncomeUsecase{r, ur, tr, sr}
 }
 
 func (u *updateIncomeUsecase) UpdateIncome(id string, req *models.IncomeReq, uid string) (*models.Income, error) {
 	userDetail, _ := u.userRepo.GetByID(uid)
+	attachSite(userDetail, u.siteRepo)
 	income, err := u.repo.GetIncomeByID(id, uid)
 	if err != nil {
 		return nil, err

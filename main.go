@@ -49,6 +49,7 @@ func main() {
 		repositories.NewIncomeFromTimesheetRepository(session),
 		repositories.NewTimesheetUserRepository(session),
 		repositories.NewTimesheetEventLogRepository(session),
+		site.NewRepository(session),
 	))
 
 	// Echo instance

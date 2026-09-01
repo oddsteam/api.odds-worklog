@@ -36,8 +36,7 @@ type Income struct {
 	IsVATRegistered        bool               `bson:"isVATRegistered"`
 	Role                   string             `bson:"role" json:"role"`
 	PeakCode               string             `bson:"peakCode" json:"peakCode,omitempty"`
-	// SiteName is filled at export time (not persisted).
-	SiteName string `bson:"-" json:"-"`
+	SiteName               string             `bson:"siteName" json:"siteName,omitempty"`
 }
 
 func (i *Income) EffectiveWHTRate() float64 {

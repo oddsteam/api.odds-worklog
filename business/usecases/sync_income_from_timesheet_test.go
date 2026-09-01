@@ -47,7 +47,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		userRepo.EXPECT().GetByEmail(gomock.Any()).Times(0)
 		incomeRepo.EXPECT().GetByUserYearMonth(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
 
-		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo)
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil)
 		err := uc.SyncFromEvent(evt)
 
 		assert.ErrorIs(t, err, assert.AnError)
@@ -78,7 +78,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 			return nil
 		})
 
-		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo)
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil)
 		err := uc.SyncFromEvent(evt)
 
 		assert.NoError(t, err)
@@ -107,7 +107,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 			return nil
 		})
 
-		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo)
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil)
 		err := uc.SyncFromEvent(evt)
 
 		assert.NoError(t, err)
@@ -124,7 +124,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		eventLogRepo.EXPECT().Save(evt).Return(nil)
 		userRepo.EXPECT().GetByEmail("test@abc.com").Return(nil, ErrTimesheetUserNotFound)
 
-		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo)
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil)
 		err := uc.SyncFromEvent(evt)
 
 		assert.ErrorIs(t, err, ErrTimesheetUserNotFound)
@@ -144,7 +144,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		incomeRepo.EXPECT().Add(gomock.Any()).Times(0)
 		incomeRepo.EXPECT().Update(gomock.Any()).Times(0)
 
-		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo)
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil)
 		err := uc.SyncFromEvent(evt)
 
 		assert.ErrorIs(t, err, assert.AnError)
@@ -166,7 +166,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		incomeRepo.EXPECT().Add(gomock.Any()).Times(0)
 		incomeRepo.EXPECT().Update(gomock.Any()).Times(0)
 
-		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo)
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil)
 		err := uc.SyncFromEvent(evt)
 
 		assert.ErrorIs(t, err, assert.AnError)
