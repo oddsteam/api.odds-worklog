@@ -13,9 +13,10 @@ import (
 
 func timesheetSyncUser() models.User {
 	return models.User{
-		ID:    bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39539"),
-		Email: "test@abc.com",
-		Role:  "individual",
+		ID:          bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39539"),
+		Email:       "test@abc.com",
+		Role:        "individual",
+		DailyIncome: "800",
 	}
 }
 
@@ -69,8 +70,8 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 			Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
 		incomeRepo.EXPECT().Add(gomock.Any()).DoAndReturn(func(record *models.IncomeFromTimesheet) error {
 			assert.Equal(t, "12.50", record.WorkDate)
-			assert.Equal(t, "2.00", record.WorkingHours)
-			assert.Equal(t, "0", record.SpecialIncome)
+			assert.Equal(t, "16.00", record.WorkingHours)
+			assert.Equal(t, "100.00", record.SpecialIncome)
 			assert.Equal(t, []models.SiteWork{
 				{ClientSite: "SITE-A", CustomerName: "Site A Customer", WorkingDays: 10, OvertimeDays: 1},
 				{ClientSite: "SITE-B", CustomerName: "Site B Customer", WorkingDays: 2.5, OvertimeDays: 1},
@@ -103,7 +104,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		incomeRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(record *models.IncomeFromTimesheet) error {
 			assert.Equal(t, "existing remark", record.Note)
 			assert.Equal(t, "12.50", record.WorkDate)
-			assert.Equal(t, "2.00", record.WorkingHours)
+			assert.Equal(t, "16.00", record.WorkingHours)
 			return nil
 		})
 

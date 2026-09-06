@@ -10,6 +10,11 @@ import (
 var ErrTimesheetUserNotFound = errors.New("timesheet event: no matching user for employee email")
 var ErrIncomeFromTimesheetNotFoundForPeriod = errors.New("income_from_timesheet: no record for this user and period")
 
+// hoursPerWorkDay converts the timesheet's day-based overtime figures into the hour-based
+// units the worklog/payroll model expects, and derives the OT hourly rate from the user's
+// daily rate the same way.
+const hoursPerWorkDay = 8
+
 type syncIncomeFromTimesheetUsecase struct {
 	incomeRepo   ForGettingIncomeFromTimesheet
 	userRepo     ForGettingTimesheetUser
@@ -45,10 +50,15 @@ func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonth
 		})
 	}
 
+	dailyRate, err := models.StringToFloat64(user.DailyIncome)
+	if err != nil {
+		dailyRate = 0
+	}
+
 	req := models.IncomeReq{
 		WorkDate:      models.FloatToString(workingDays),
-		WorkingHours:  models.FloatToString(overtimeDays),
-		SpecialIncome: "0",
+		WorkingHours:  models.FloatToString(overtimeDays * hoursPerWorkDay),
+		SpecialIncome: models.FloatToString(dailyRate / hoursPerWorkDay),
 	}
 
 	existing, err := u.incomeRepo.GetByUserYearMonth(user.ID.Hex(), evt.Year, time.Month(evt.Month))
