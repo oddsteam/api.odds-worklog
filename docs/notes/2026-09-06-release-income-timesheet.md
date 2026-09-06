@@ -1,32 +1,32 @@
 # Release note: income_from_timesheet
 
-สรุปทุก commit ตั้งแต่ tag `v5.1.1` มาถึงตอนนี้ (2026-09-06) แบ่งเป็นของที่ปล่อยไปรอบก่อน กับของรอบนี้
+Summary of all commits since tag `v5.1.1` up to now (2026-09-06), split into what shipped in the previous round and what's in this round.
 
-## ครั้งก่อน (ทยอย merge ตั้งแต่ v5.1.1)
+## Previous round (merged incrementally since v5.1.1)
 
-- **เปิด timesheet inbox** — `GET /v1/timesheet-event-logs` ดูเหตุการณ์จาก timesheet service ย้อนหลัง (ใครก็ log in ดูได้ ไม่ guard เฉพาะ admin เหมือน SAP failure log)
-- **fix inbox แสดง 0 วันทำงาน/OT + ชื่อ site/employee ว่าง** — field tag ไม่ตรงกัน (JSON ที่ web อ่านเป็น camelCase แต่ struct ที่ใช้ร่วมกับ RabbitMQ consumer เป็น snake_case ของฝั่ง publisher) แก้ด้วยการ map เป็น response type แยกในชั้น api แทนที่จะไปแก้ tag ของ struct ที่ consumer ใช้
-- **เพิ่มระบบ income_from_timesheet** — consume event `timesheet.monthly_summary.published` จาก RabbitMQ แล้ว upsert เข้า collection `income_from_timesheet` โดยใช้ payroll calculation เดียวกับ `income` ปกติ (`CreatePayroll`/`UpdatePayroll`) แยก collection กันเด็ดขาด ไม่แตะ `income`/`user` เดิม
-- **Dual-write จาก manual add/edit income** — ทุกครั้งที่ user กรอก/แก้ income เองผ่านฟอร์ม ระบบจะ mirror ข้อมูลไปที่ `income_from_timesheet` ด้วย (`mirrorIncomeToTimesheet`) เพื่อให้ collection นี้มีข้อมูลครบทุกคน ไม่ใช่แค่คนที่มาจาก timesheet
-- **Export endpoints สำหรับ income_from_timesheet** — เพิ่ม export หลายฟอร์แมต (CSV/SAP/PEAK) แล้ว refactor export usecase ให้ใช้ source adapter กลางร่วมกับของเดิม
-- **เก็บ note ได้ทั้ง income และ income_from_timesheet**
-- **ย้าย PEAK Code เข้าไปเก็บใน income เอง** — ตอน export ไม่ต้อง join กับ `user` แล้ว
-- **เก็บ site name ใน income เอง** — เหตุผลเดียวกัน ไม่ต้อง join
+- **Opened the timesheet inbox** — `GET /v1/timesheet-event-logs` shows historical events from the timesheet service (any logged-in user can view it, not admin-only like the SAP failure log)
+- **Fixed inbox showing 0 working days/OT + blank site/employee names** — field tag mismatch (the JSON the web reads is camelCase, but the struct shared with the RabbitMQ consumer is snake_case from the publisher side). Fixed by mapping to a separate response type in the api layer instead of changing the tags on the struct the consumer uses
+- **Added the income_from_timesheet system** — consumes the `timesheet.monthly_summary.published` event from RabbitMQ and upserts into the `income_from_timesheet` collection using the same payroll calculation as regular `income` (`CreatePayroll`/`UpdatePayroll`), kept in a strictly separate collection that doesn't touch existing `income`/`user`
+- **Dual-write from manual add/edit income** — every time a user manually enters/edits income via the form, the system also mirrors the data to `income_from_timesheet` (`mirrorIncomeToTimesheet`) so this collection has complete data for everyone, not just people coming from timesheet
+- **Export endpoints for income_from_timesheet** — added exports in multiple formats (CSV/SAP/PEAK) and refactored the export usecase to use a shared source adapter with the existing one
+- **Notes can now be stored on both income and income_from_timesheet**
+- **Moved PEAK Code to be stored on income itself** — no longer needs to join with `user` at export time
+- **Stored site name on income itself** — same reason, no join needed
 - **WHT rate 3% → 5%**
-- **Refactor**: รวม SAP export failure ports (driving/driven ที่หน้าตาเหมือนกัน) เป็น interface เดียว
+- **Refactor**: merged the SAP export failure ports (driving/driven, which looked identical) into a single interface
 
-## ครั้งนี้ (2026-09-06)
+## This round (2026-09-06)
 
-- **specialIncome เลิก hard code เป็น "0"** — ตอน sync จาก timesheet event คำนวณ special hourly rate จาก `user.DailyIncome / 8` แทน (`business/usecases/sync_income_from_timesheet.go`)
-- **แปลงหน่วย OT จาก timesheet ให้ตรง** — `OvertimeDays` ที่ timesheet ส่งมาเป็น**วัน** คูณ 8 ก่อนเก็บลง `WorkingHours` ของ worklog ให้หน่วยเป็น**ชั่วโมง** ตรงกับที่ payroll ใช้คำนวณจริง และตรงกับฝั่ง manual add/edit ที่ user กรอกเป็นชั่วโมงอยู่แล้ว (เลยไม่กระทบ dual-write ฝั่งนั้น)
-- อัปเดต unit test ที่เกี่ยวข้องให้ตรงกับ behavior ใหม่ — `go build ./...` และ `go test ./...` ผ่านหมด (422 tests)
+- **specialIncome no longer hardcoded to "0"** — when syncing from a timesheet event, the special hourly rate is now calculated from `user.DailyIncome / 8` (`business/usecases/sync_income_from_timesheet.go`)
+- **Fixed OT unit conversion from timesheet** — `OvertimeDays` sent by timesheet is in **days**, now multiplied by 8 before storing into worklog's `WorkingHours` so the unit is **hours**, matching what payroll actually uses for calculation, and matching the manual add/edit side where users already enter hours (so it doesn't affect that side's dual-write)
+- Updated the related unit tests to match the new behavior — `go build ./...` and `go test ./...` pass fully (422 tests)
 
-## รอดำเนินการ
+## Pending
 
-- ย้ายข้อมูลจาก `income_from_timesheet` ไป `income` เพื่อให้ขึ้นใน history — รอพี่จั๊วะทำ
-- Sync ข้อมูลไป `income` จริง — รอพี่จั๊วะทำ
-- เอา toggle ออก และเอาการ dual-write (save ลง `income` + `income_from_timesheet` พร้อมกัน) ออก — ทำได้หลัง sync ข้อมูลครบเท่านั้น
+- Migrate data from `income_from_timesheet` to `income` so it shows up in history — waiting on Pi Jua
+- Sync data to `income` for real — waiting on Pi Jua
+- Remove the toggle and remove the dual-write (saving to `income` + `income_from_timesheet` simultaneously) — can only be done after data is fully synced
 
-## ต้องแจ้ง user
+## Needs to be communicated to users
 
-- ถ้า OT rate ของใครไม่เท่ากับ rate ปกติ (`dailyRate / 8`) ให้ user ไปกรอก/แก้เวลาเพิ่มเองผ่านฟอร์ม add/edit income — ไม่ได้ทำ auto-detect/adjust ให้ในรอบนี้
+- If someone's OT rate differs from the normal rate (`dailyRate / 8`), the user needs to go fill in/adjust the hours themselves via the add/edit income form — auto-detect/adjust was not implemented in this round
