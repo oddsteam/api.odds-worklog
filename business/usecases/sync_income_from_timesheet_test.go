@@ -48,7 +48,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		userRepo.EXPECT().GetByEmail(gomock.Any()).Times(0)
 		incomeRepo.EXPECT().GetByUserYearMonth(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
 
-		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil)
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, nil)
 		err := uc.SyncFromEvent(evt)
 
 		assert.ErrorIs(t, err, assert.AnError)
@@ -60,6 +60,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		userRepo := mock_usecases.NewMockForGettingTimesheetUser(ctrl)
 		incomeRepo := mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl)
 		eventLogRepo := mock_usecases.NewMockForLoggingTimesheetEvent(ctrl)
+		failureLogRepo := mock_usecases.NewMockForLoggingSAPExportFailure(ctrl)
 
 		user := timesheetSyncUser()
 		evt := timesheetSyncEvent()
@@ -79,7 +80,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 			return nil
 		})
 
-		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil)
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, failureLogRepo)
 		err := uc.SyncFromEvent(evt)
 
 		assert.NoError(t, err)
@@ -108,7 +109,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 			return nil
 		})
 
-		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil)
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, nil)
 		err := uc.SyncFromEvent(evt)
 
 		assert.NoError(t, err)
@@ -125,7 +126,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		eventLogRepo.EXPECT().Save(evt).Return(nil)
 		userRepo.EXPECT().GetByEmail("test@abc.com").Return(nil, ErrTimesheetUserNotFound)
 
-		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil)
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, nil)
 		err := uc.SyncFromEvent(evt)
 
 		assert.ErrorIs(t, err, ErrTimesheetUserNotFound)
@@ -145,7 +146,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		incomeRepo.EXPECT().Add(gomock.Any()).Times(0)
 		incomeRepo.EXPECT().Update(gomock.Any()).Times(0)
 
-		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil)
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, nil)
 		err := uc.SyncFromEvent(evt)
 
 		assert.ErrorIs(t, err, assert.AnError)
@@ -167,9 +168,101 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		incomeRepo.EXPECT().Add(gomock.Any()).Times(0)
 		incomeRepo.EXPECT().Update(gomock.Any()).Times(0)
 
-		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil)
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, nil)
 		err := uc.SyncFromEvent(evt)
 
 		assert.ErrorIs(t, err, assert.AnError)
+	})
+
+	t.Run("logs to the error log when OT is submitted but the user has no usable daily rate", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		userRepo := mock_usecases.NewMockForGettingTimesheetUser(ctrl)
+		incomeRepo := mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl)
+		eventLogRepo := mock_usecases.NewMockForLoggingTimesheetEvent(ctrl)
+		failureLogRepo := mock_usecases.NewMockForLoggingSAPExportFailure(ctrl)
+
+		user := timesheetSyncUser()
+		user.DailyIncome = ""
+		evt := timesheetSyncEvent()
+
+		eventLogRepo.EXPECT().Save(evt).Return(nil)
+		userRepo.EXPECT().GetByEmail("test@abc.com").Return(&user, nil)
+		failureLogRepo.EXPECT().LogSAPExportFailure(gomock.Any()).
+			DoAndReturn(func(entry *models.SAPExportFailureLog) error {
+				assert.Equal(t, user.ID.Hex(), entry.UserID)
+				assert.Equal(t, timesheetSpecialIncomeLineKind, entry.LineKind)
+				assert.Equal(t, time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC), entry.StartDate)
+				assert.Equal(t, time.Date(2026, 6, 30, 0, 0, 0, 0, time.UTC), entry.EndDate)
+				assert.Contains(t, entry.ErrorMessage, "test@abc.com")
+				assert.Contains(t, entry.ErrorMessage, "16.00")
+				return nil
+			})
+		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), 2026, time.Month(6)).
+			Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
+		incomeRepo.EXPECT().Add(gomock.Any()).DoAndReturn(func(record *models.IncomeFromTimesheet) error {
+			assert.Equal(t, "12.50", record.WorkDate)
+			assert.Equal(t, "16.00", record.WorkingHours)
+			assert.Equal(t, "0.00", record.SpecialIncome)
+			return nil
+		})
+
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, failureLogRepo)
+		err := uc.SyncFromEvent(evt)
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("does not log a missing daily rate when there is no OT to pay for", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		userRepo := mock_usecases.NewMockForGettingTimesheetUser(ctrl)
+		incomeRepo := mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl)
+		eventLogRepo := mock_usecases.NewMockForLoggingTimesheetEvent(ctrl)
+		failureLogRepo := mock_usecases.NewMockForLoggingSAPExportFailure(ctrl)
+
+		user := timesheetSyncUser()
+		user.DailyIncome = ""
+		evt := timesheetSyncEvent()
+		evt.Sites = []models.TimesheetSiteSummary{
+			{ClientSite: "SITE-A", CustomerName: "Site A Customer", WorkingDays: 10, OvertimeDays: 0},
+		}
+
+		eventLogRepo.EXPECT().Save(evt).Return(nil)
+		userRepo.EXPECT().GetByEmail("test@abc.com").Return(&user, nil)
+		failureLogRepo.EXPECT().LogSAPExportFailure(gomock.Any()).Times(0)
+		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), 2026, time.Month(6)).
+			Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
+		incomeRepo.EXPECT().Add(gomock.Any()).Return(nil)
+
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, failureLogRepo)
+		err := uc.SyncFromEvent(evt)
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("still stores the record when writing the error log itself fails", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		userRepo := mock_usecases.NewMockForGettingTimesheetUser(ctrl)
+		incomeRepo := mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl)
+		eventLogRepo := mock_usecases.NewMockForLoggingTimesheetEvent(ctrl)
+		failureLogRepo := mock_usecases.NewMockForLoggingSAPExportFailure(ctrl)
+
+		user := timesheetSyncUser()
+		user.DailyIncome = "0"
+		evt := timesheetSyncEvent()
+
+		eventLogRepo.EXPECT().Save(evt).Return(nil)
+		userRepo.EXPECT().GetByEmail("test@abc.com").Return(&user, nil)
+		failureLogRepo.EXPECT().LogSAPExportFailure(gomock.Any()).Return(assert.AnError)
+		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), 2026, time.Month(6)).
+			Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
+		incomeRepo.EXPECT().Add(gomock.Any()).Return(nil)
+
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, failureLogRepo)
+		err := uc.SyncFromEvent(evt)
+
+		assert.NoError(t, err)
 	})
 }
