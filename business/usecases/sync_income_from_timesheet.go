@@ -2,6 +2,8 @@ package usecases
 
 import (
 	"errors"
+	"fmt"
+	"log"
 	"time"
 
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
@@ -10,15 +12,25 @@ import (
 var ErrTimesheetUserNotFound = errors.New("timesheet event: no matching user for employee email")
 var ErrIncomeFromTimesheetNotFoundForPeriod = errors.New("income_from_timesheet: no record for this user and period")
 
+// hoursPerWorkDay converts the timesheet's day-based overtime figures into the hour-based
+// units the worklog/payroll model expects, and derives the OT hourly rate from the user's
+// daily rate the same way.
+const hoursPerWorkDay = 8
+
+// timesheetSpecialIncomeLineKind marks the error-log entries this usecase writes, so they can be
+// told apart from the SAP export rows that share the collection.
+const timesheetSpecialIncomeLineKind = "timesheet-special-income"
+
 type syncIncomeFromTimesheetUsecase struct {
-	incomeRepo   ForGettingIncomeFromTimesheet
-	userRepo     ForGettingTimesheetUser
-	eventLogRepo ForLoggingTimesheetEvent
-	siteRepo     ForGettingSiteByID
+	incomeRepo     ForGettingIncomeFromTimesheet
+	userRepo       ForGettingTimesheetUser
+	eventLogRepo   ForLoggingTimesheetEvent
+	siteRepo       ForGettingSiteByID
+	failureLogRepo ForLoggingSAPExportFailure
 }
 
-func NewSyncIncomeFromTimesheetUsecase(incomeRepo ForGettingIncomeFromTimesheet, userRepo ForGettingTimesheetUser, eventLogRepo ForLoggingTimesheetEvent, siteRepo ForGettingSiteByID) ForSyncingIncomeFromTimesheet {
-	return &syncIncomeFromTimesheetUsecase{incomeRepo, userRepo, eventLogRepo, siteRepo}
+func NewSyncIncomeFromTimesheetUsecase(incomeRepo ForGettingIncomeFromTimesheet, userRepo ForGettingTimesheetUser, eventLogRepo ForLoggingTimesheetEvent, siteRepo ForGettingSiteByID, failureLogRepo ForLoggingSAPExportFailure) ForSyncingIncomeFromTimesheet {
+	return &syncIncomeFromTimesheetUsecase{incomeRepo, userRepo, eventLogRepo, siteRepo, failureLogRepo}
 }
 
 func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonthlySummaryEvent) error {
@@ -45,10 +57,23 @@ func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonth
 		})
 	}
 
+	overtimeHours := overtimeDays * hoursPerWorkDay
+
+	// A user with OT but no usable daily rate can't have their special income calculated. Store
+	// the rest of the record anyway (work days would otherwise be lost too) and surface the case
+	// on the error log page so someone can fill the rate in and let the next event re-sync it.
+	dailyRate, parseErr := models.StringToFloat64(user.DailyIncome)
+	if parseErr != nil {
+		dailyRate = 0
+	}
+	if overtimeHours > 0 && dailyRate <= 0 {
+		u.logMissingDailyRate(user, evt, overtimeHours, parseErr)
+	}
+
 	req := models.IncomeReq{
 		WorkDate:      models.FloatToString(workingDays),
-		WorkingHours:  models.FloatToString(overtimeDays),
-		SpecialIncome: "0",
+		WorkingHours:  models.FloatToString(overtimeHours),
+		SpecialIncome: models.FloatToString(dailyRate / hoursPerWorkDay),
 	}
 
 	existing, err := u.incomeRepo.GetByUserYearMonth(user.ID.Hex(), evt.Year, time.Month(evt.Month))
@@ -70,4 +95,35 @@ func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonth
 	}
 
 	return nil
+}
+
+func (u *syncIncomeFromTimesheetUsecase) logMissingDailyRate(user *models.User, evt models.TimesheetMonthlySummaryEvent, overtimeHours float64, cause error) {
+	if u.failureLogRepo == nil {
+		return
+	}
+
+	periodStart := time.Date(evt.Year, time.Month(evt.Month), 1, 0, 0, 0, 0, time.UTC)
+	periodEnd := periodStart.AddDate(0, 1, -1)
+	underlying := ""
+	if cause != nil {
+		underlying = cause.Error()
+	}
+
+	entry := &models.SAPExportFailureLog{
+		CreatedAt:       time.Now(),
+		Role:            user.Role,
+		StartDate:       periodStart,
+		EndDate:         periodEnd,
+		UserID:          user.ID.Hex(),
+		BankAccountName: user.BankAccountName,
+		LineKind:        timesheetSpecialIncomeLineKind,
+		ErrorMessage: fmt.Sprintf(
+			"timesheet sync %04d-%02d: %s has %s OT hours but no usable daily rate (dailyIncome=%q) — special income was stored as 0",
+			evt.Year, evt.Month, user.Email, models.FloatToString(overtimeHours), user.DailyIncome,
+		),
+		UnderlyingError: underlying,
+	}
+	if err := u.failureLogRepo.LogSAPExportFailure(entry); err != nil {
+		log.Printf("timesheet sync: missing daily rate log: %v", err)
+	}
 }

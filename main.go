@@ -50,6 +50,7 @@ func main() {
 		repositories.NewTimesheetUserRepository(session),
 		repositories.NewTimesheetEventLogRepository(session),
 		site.NewRepository(session),
+		repositories.NewSAPExportFailureRepository(session),
 	))
 
 	// Echo instance
