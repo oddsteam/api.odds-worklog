@@ -80,6 +80,7 @@ func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonth
 	switch {
 	case errors.Is(err, ErrIncomeFromTimesheetNotFoundForPeriod):
 		income := models.CreatePayroll(*user, req, "")
+		income.SiteName = "Timesheet"
 		record := &models.IncomeFromTimesheet{Income: *income, Sites: sites}
 		if err := u.incomeRepo.Add(record); err != nil {
 			return err
@@ -88,6 +89,7 @@ func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonth
 		return err
 	default:
 		models.UpdatePayroll(*user, req, existing.Note, &existing.Income)
+		existing.SiteName = "Timesheet"
 		existing.Sites = sites
 		if err := u.incomeRepo.Update(existing); err != nil {
 			return err

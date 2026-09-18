@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	mock_usecases "gitlab.odds.team/worklog/api.odds-worklog/business/usecases/mock"
+	siteMock "gitlab.odds.team/worklog/api.odds-worklog/api/site/mock"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 )
 
@@ -70,6 +71,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), 2026, time.Month(6)).
 			Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
 		incomeRepo.EXPECT().Add(gomock.Any()).DoAndReturn(func(record *models.IncomeFromTimesheet) error {
+			assert.Equal(t, "Timesheet", record.SiteName)
 			assert.Equal(t, "12.50", record.WorkDate)
 			assert.Equal(t, "16.00", record.WorkingHours)
 			assert.Equal(t, "100.00", record.SpecialIncome)
@@ -103,6 +105,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), 2026, time.Month(6)).
 			Return(existing, nil)
 		incomeRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(record *models.IncomeFromTimesheet) error {
+			assert.Equal(t, "Timesheet", record.SiteName)
 			assert.Equal(t, "existing remark", record.Note)
 			assert.Equal(t, "12.50", record.WorkDate)
 			assert.Equal(t, "16.00", record.WorkingHours)
@@ -110,6 +113,34 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		})
 
 		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, nil)
+		err := uc.SyncFromEvent(evt)
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("hardcodes SiteName to 'Timesheet' even when user has a site attached", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		userRepo := mock_usecases.NewMockForGettingTimesheetUser(ctrl)
+		incomeRepo := mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl)
+		eventLogRepo := mock_usecases.NewMockForLoggingTimesheetEvent(ctrl)
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+
+		user := timesheetSyncUser()
+		user.SiteID = "site-1"
+		evt := timesheetSyncEvent()
+
+		eventLogRepo.EXPECT().Save(evt).Return(nil)
+		userRepo.EXPECT().GetByEmail("test@abc.com").Return(&user, nil)
+		mockSiteRepo.EXPECT().GetSiteGroupByID("site-1").Return(&models.Site{Name: "ODDS"}, nil)
+		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), 2026, time.Month(6)).
+			Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
+		incomeRepo.EXPECT().Add(gomock.Any()).DoAndReturn(func(record *models.IncomeFromTimesheet) error {
+			assert.Equal(t, "Timesheet", record.SiteName)
+			return nil
+		})
+
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, mockSiteRepo, nil)
 		err := uc.SyncFromEvent(evt)
 
 		assert.NoError(t, err)
