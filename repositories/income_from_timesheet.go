@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	mongodriver "go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
@@ -30,16 +31,34 @@ func NewIncomeFromTimesheetUserIncomeReader(session *mongo.Session) usecases.For
 	return &incomeFromTimesheetRepository{session}
 }
 
-func (r *incomeFromTimesheetRepository) GetByUserYearMonth(userID string, year int, month time.Month) (*models.IncomeFromTimesheet, error) {
-	fromDate := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
-	toDate := fromDate.AddDate(0, 1, 0)
-	query := bson.M{
-		"userId": userID,
-		"submitDate": bson.M{
-			"$gt": fromDate,
-			"$lt": toDate,
+// incomeFromTimesheetPeriodIndex guards the one-row-per-user-per-period invariant at the database
+// level. The timesheet service delivers at-least-once, so the same summary can arrive more than
+// once; the find-then-insert in the sync usecase cannot enforce uniqueness by itself.
+func incomeFromTimesheetPeriodIndex() mongodriver.IndexModel {
+	return mongodriver.IndexModel{
+		Keys: bson.D{
+			{Key: "userId", Value: 1},
+			{Key: "year", Value: 1},
+			{Key: "month", Value: 1},
 		},
+		Options: options.Index().SetUnique(true).SetName("userId_year_month_unique"),
 	}
+}
+
+// incomeFromTimesheetPeriodQuery keys on the period stored on the record rather than on a
+// submitDate window like the hand-filled income collection does. A timesheet summary is synced
+// after its month has closed, so the write timestamp is not in the period being reported and
+// cannot identify the row to update — see models.IncomeFromTimesheet.
+func incomeFromTimesheetPeriodQuery(userID string, year int, month time.Month) bson.M {
+	return bson.M{
+		"userId": userID,
+		"year":   year,
+		"month":  int(month),
+	}
+}
+
+func (r *incomeFromTimesheetRepository) GetByUserYearMonth(userID string, year int, month time.Month) (*models.IncomeFromTimesheet, error) {
+	query := incomeFromTimesheetPeriodQuery(userID, year, month)
 
 	record := new(models.IncomeFromTimesheet)
 	coll := r.session.GetCollection(incomeFromTimesheetColl)
@@ -54,12 +73,17 @@ func (r *incomeFromTimesheetRepository) GetByUserYearMonth(userID string, year i
 	return record, nil
 }
 
-func (r *incomeFromTimesheetRepository) Add(income *models.IncomeFromTimesheet) error {
-	t := time.Now()
-	income.SubmitDate = t
-	income.LastUpdate = t
+// prepareIncomeFromTimesheetForInsert leaves SubmitDate alone: the sync usecase anchors it to the
+// event's period, and overwriting it here would put every row in the month it happened to be
+// synced instead of the month it reports on.
+func prepareIncomeFromTimesheetForInsert(income *models.IncomeFromTimesheet) {
+	income.LastUpdate = time.Now()
 	income.ID = primitive.NewObjectID()
 	income.ExportStatus = false
+}
+
+func (r *incomeFromTimesheetRepository) Add(income *models.IncomeFromTimesheet) error {
+	prepareIncomeFromTimesheetForInsert(income)
 	coll := r.session.GetCollection(incomeFromTimesheetColl)
 	ctx := r.session.Ctx()
 	_, err := coll.InsertOne(ctx, income)

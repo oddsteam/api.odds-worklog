@@ -81,7 +81,8 @@ func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonth
 	case errors.Is(err, ErrIncomeFromTimesheetNotFoundForPeriod):
 		income := models.CreatePayroll(*user, req, "")
 		income.SiteName = "Timesheet"
-		record := &models.IncomeFromTimesheet{Income: *income, Sites: sites}
+		income.SubmitDate = timesheetPeriodSubmitDate(evt.Year, evt.Month)
+		record := &models.IncomeFromTimesheet{Income: *income, Year: evt.Year, Month: evt.Month, Sites: sites}
 		if err := u.incomeRepo.Add(record); err != nil {
 			return err
 		}
@@ -90,6 +91,12 @@ func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonth
 	default:
 		models.UpdatePayroll(*user, req, existing.Note, &existing.Income)
 		existing.SiteName = "Timesheet"
+		// CreatePayroll/UpdatePayroll stamp SubmitDate with time.Now() for the hand-filled income
+		// flow. Re-anchor it here so re-syncing an old period does not move the row into the
+		// current month and out of the period queries that read this collection.
+		existing.SubmitDate = timesheetPeriodSubmitDate(evt.Year, evt.Month)
+		existing.Year = evt.Year
+		existing.Month = evt.Month
 		existing.Sites = sites
 		if err := u.incomeRepo.Update(existing); err != nil {
 			return err
@@ -97,6 +104,14 @@ func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonth
 	}
 
 	return nil
+}
+
+// timesheetPeriodSubmitDate places a record's SubmitDate inside the period the event reported on,
+// rather than at the moment the sync ran. Noon on the first of the month keeps it clear of the
+// exclusive $gt/$lt period bounds the queries in this codebase use, and inside the right month
+// no matter which timezone reads it back.
+func timesheetPeriodSubmitDate(year, month int) time.Time {
+	return time.Date(year, time.Month(month), 1, 12, 0, 0, 0, time.UTC)
 }
 
 func (u *syncIncomeFromTimesheetUsecase) logMissingDailyRate(user *models.User, evt models.TimesheetMonthlySummaryEvent, overtimeHours float64, cause error) {

@@ -39,6 +39,14 @@ func main() {
 	session := mongo.Setup()
 	defer session.Close()
 
+	// One row per user per period is what the timesheet sync relies on, and at-least-once delivery
+	// means the same summary can arrive twice. A pre-fix database still holds duplicate rows, which
+	// makes the unique index fail to build — keep serving in that case and let
+	// cmd/resyncincomefromtimesheet clear them up.
+	if err := repositories.EnsureIncomeFromTimesheetPeriodIndex(session); err != nil {
+		log.Printf("income_from_timesheet period index not created: %v", err)
+	}
+
 	c := config.Config()
 	go timesheetconsumer.Start(timesheetconsumer.Config{
 		URL:        c.RabbitMQURL,
