@@ -1,7 +1,7 @@
 services:
   mongodb:
     container_name: "odds-worklog-mongo"
-    image: "mongo:6.0.27"
+    image: "mongo:7.0.28"
     volumes:
       - ../../scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     environment:
