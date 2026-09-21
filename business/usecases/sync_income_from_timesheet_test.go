@@ -144,7 +144,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		eventLogRepo.EXPECT().Save(evt).Return(nil)
 		userRepo.EXPECT().GetByEmail("test@abc.com").Return(&user, nil)
 		mockSiteRepo.EXPECT().GetSiteGroupByID("site-1").Return(&models.Site{Name: "ODDS"}, nil)
-		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), 2026, time.Month(6)).
+		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), evt.Year, time.Month(evt.Month)).
 			Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
 		incomeRepo.EXPECT().Add(gomock.Any()).DoAndReturn(func(record *models.IncomeFromTimesheet) error {
 			assert.Equal(t, "Timesheet", record.SiteName)
@@ -173,7 +173,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		incomeRepo.EXPECT().Add(gomock.Any()).Times(0)
 		incomeRepo.EXPECT().Update(gomock.Any()).Times(0)
 
-		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo)
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, nil)
 		err := uc.SyncFromEvent(evt)
 
 		assert.ErrorIs(t, err, ErrTimesheetEventOutOfPeriod)
@@ -194,7 +194,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		userRepo.EXPECT().GetByEmail(gomock.Any()).Times(0)
 		incomeRepo.EXPECT().GetByUserYearMonth(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
 
-		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo)
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, nil)
 		err := uc.SyncFromEvent(evt)
 
 		assert.ErrorIs(t, err, ErrTimesheetEventOutOfPeriod)
@@ -214,7 +214,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		userRepo.EXPECT().GetByEmail(gomock.Any()).Times(0)
 		incomeRepo.EXPECT().GetByUserYearMonth(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
 
-		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo)
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, nil)
 		err := uc.SyncFromEvent(evt)
 
 		assert.ErrorIs(t, err, ErrTimesheetEventOutOfPeriod)
@@ -293,17 +293,18 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 
 		eventLogRepo.EXPECT().Save(evt).Return(nil)
 		userRepo.EXPECT().GetByEmail("test@abc.com").Return(&user, nil)
+		periodStart := time.Date(evt.Year, time.Month(evt.Month), 1, 0, 0, 0, 0, time.UTC)
 		failureLogRepo.EXPECT().LogSAPExportFailure(gomock.Any()).
 			DoAndReturn(func(entry *models.SAPExportFailureLog) error {
 				assert.Equal(t, user.ID.Hex(), entry.UserID)
 				assert.Equal(t, timesheetSpecialIncomeLineKind, entry.LineKind)
-				assert.Equal(t, time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC), entry.StartDate)
-				assert.Equal(t, time.Date(2026, 6, 30, 0, 0, 0, 0, time.UTC), entry.EndDate)
+				assert.Equal(t, periodStart, entry.StartDate)
+				assert.Equal(t, periodStart.AddDate(0, 1, -1), entry.EndDate)
 				assert.Contains(t, entry.ErrorMessage, "test@abc.com")
 				assert.Contains(t, entry.ErrorMessage, "16.00")
 				return nil
 			})
-		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), 2026, time.Month(6)).
+		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), evt.Year, time.Month(evt.Month)).
 			Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
 		incomeRepo.EXPECT().Add(gomock.Any()).DoAndReturn(func(record *models.IncomeFromTimesheet) error {
 			assert.Equal(t, "12.50", record.WorkDate)
@@ -336,7 +337,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		eventLogRepo.EXPECT().Save(evt).Return(nil)
 		userRepo.EXPECT().GetByEmail("test@abc.com").Return(&user, nil)
 		failureLogRepo.EXPECT().LogSAPExportFailure(gomock.Any()).Times(0)
-		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), 2026, time.Month(6)).
+		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), evt.Year, time.Month(evt.Month)).
 			Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
 		incomeRepo.EXPECT().Add(gomock.Any()).Return(nil)
 
@@ -361,7 +362,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		eventLogRepo.EXPECT().Save(evt).Return(nil)
 		userRepo.EXPECT().GetByEmail("test@abc.com").Return(&user, nil)
 		failureLogRepo.EXPECT().LogSAPExportFailure(gomock.Any()).Return(assert.AnError)
-		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), 2026, time.Month(6)).
+		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), evt.Year, time.Month(evt.Month)).
 			Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
 		incomeRepo.EXPECT().Add(gomock.Any()).Return(nil)
 
