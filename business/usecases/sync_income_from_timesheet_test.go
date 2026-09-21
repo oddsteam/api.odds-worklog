@@ -21,18 +21,29 @@ func timesheetSyncUser() models.User {
 	}
 }
 
+// timesheetSyncEvent builds an event for the current month — the only period the
+// usecase acts on; see timesheetSyncOldMonthEvent for the back-dated counterpart.
 func timesheetSyncEvent() models.TimesheetMonthlySummaryEvent {
+	year, month := models.GetYearMonthNow()
 	return models.TimesheetMonthlySummaryEvent{
 		EventType: "timesheet.monthly_summary",
-		Year:      2026,
-		Month:     6,
-		SummaryAt: time.Date(2026, 7, 10, 15, 31, 10, 0, time.UTC),
+		Year:      year,
+		Month:     int(month),
+		SummaryAt: time.Now(),
 		Employee:  models.TimesheetEmployee{Email: "test@abc.com", EnglishName: "Tester Super"},
 		Sites: []models.TimesheetSiteSummary{
 			{ClientSite: "SITE-A", CustomerName: "Site A Customer", WorkingDays: 10, OvertimeDays: 1},
 			{ClientSite: "SITE-B", CustomerName: "Site B Customer", WorkingDays: 2.5, OvertimeDays: 1},
 		},
 	}
+}
+
+func timesheetSyncOldMonthEvent() models.TimesheetMonthlySummaryEvent {
+	evt := timesheetSyncEvent()
+	prev := time.Date(evt.Year, time.Month(evt.Month), 1, 0, 0, 0, 0, time.UTC).AddDate(0, -1, 0)
+	evt.Year = prev.Year()
+	evt.Month = int(prev.Month())
+	return evt
 }
 
 func TestSyncIncomeFromTimesheet(t *testing.T) {
@@ -68,7 +79,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 
 		eventLogRepo.EXPECT().Save(evt).Return(nil)
 		userRepo.EXPECT().GetByEmail("test@abc.com").Return(&user, nil)
-		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), 2026, time.Month(6)).
+		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), evt.Year, time.Month(evt.Month)).
 			Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
 		incomeRepo.EXPECT().Add(gomock.Any()).DoAndReturn(func(record *models.IncomeFromTimesheet) error {
 			assert.Equal(t, "Timesheet", record.SiteName)
@@ -102,7 +113,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 
 		eventLogRepo.EXPECT().Save(evt).Return(nil)
 		userRepo.EXPECT().GetByEmail("test@abc.com").Return(&user, nil)
-		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), 2026, time.Month(6)).
+		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), evt.Year, time.Month(evt.Month)).
 			Return(existing, nil)
 		incomeRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(record *models.IncomeFromTimesheet) error {
 			assert.Equal(t, "Timesheet", record.SiteName)
@@ -144,6 +155,69 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		err := uc.SyncFromEvent(evt)
 
 		assert.NoError(t, err)
+	})
+
+	t.Run("ignores an event from an older month without touching the income repo", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		userRepo := mock_usecases.NewMockForGettingTimesheetUser(ctrl)
+		incomeRepo := mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl)
+		eventLogRepo := mock_usecases.NewMockForLoggingTimesheetEvent(ctrl)
+
+		evt := timesheetSyncOldMonthEvent()
+
+		// The raw payload is still logged — only the income side is skipped.
+		eventLogRepo.EXPECT().Save(evt).Return(nil)
+		userRepo.EXPECT().GetByEmail(gomock.Any()).Times(0)
+		incomeRepo.EXPECT().GetByUserYearMonth(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
+		incomeRepo.EXPECT().Add(gomock.Any()).Times(0)
+		incomeRepo.EXPECT().Update(gomock.Any()).Times(0)
+
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo)
+		err := uc.SyncFromEvent(evt)
+
+		assert.ErrorIs(t, err, ErrTimesheetEventOutOfPeriod)
+	})
+
+	t.Run("ignores an event from a future month", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		userRepo := mock_usecases.NewMockForGettingTimesheetUser(ctrl)
+		incomeRepo := mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl)
+		eventLogRepo := mock_usecases.NewMockForLoggingTimesheetEvent(ctrl)
+
+		evt := timesheetSyncEvent()
+		next := time.Date(evt.Year, time.Month(evt.Month), 1, 0, 0, 0, 0, time.UTC).AddDate(0, 1, 0)
+		evt.Year, evt.Month = next.Year(), int(next.Month())
+
+		eventLogRepo.EXPECT().Save(evt).Return(nil)
+		userRepo.EXPECT().GetByEmail(gomock.Any()).Times(0)
+		incomeRepo.EXPECT().GetByUserYearMonth(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
+
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo)
+		err := uc.SyncFromEvent(evt)
+
+		assert.ErrorIs(t, err, ErrTimesheetEventOutOfPeriod)
+	})
+
+	t.Run("ignores an event from the same month of an earlier year", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		userRepo := mock_usecases.NewMockForGettingTimesheetUser(ctrl)
+		incomeRepo := mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl)
+		eventLogRepo := mock_usecases.NewMockForLoggingTimesheetEvent(ctrl)
+
+		evt := timesheetSyncEvent()
+		evt.Year--
+
+		eventLogRepo.EXPECT().Save(evt).Return(nil)
+		userRepo.EXPECT().GetByEmail(gomock.Any()).Times(0)
+		incomeRepo.EXPECT().GetByUserYearMonth(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
+
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo)
+		err := uc.SyncFromEvent(evt)
+
+		assert.ErrorIs(t, err, ErrTimesheetEventOutOfPeriod)
 	})
 
 	t.Run("returns ErrTimesheetUserNotFound when GetByEmail returns it", func(t *testing.T) {
@@ -194,7 +268,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		evt := timesheetSyncEvent()
 		eventLogRepo.EXPECT().Save(evt).Return(nil)
 		userRepo.EXPECT().GetByEmail("test@abc.com").Return(&user, nil)
-		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), 2026, time.Month(6)).
+		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), evt.Year, time.Month(evt.Month)).
 			Return(nil, assert.AnError)
 		incomeRepo.EXPECT().Add(gomock.Any()).Times(0)
 		incomeRepo.EXPECT().Update(gomock.Any()).Times(0)
