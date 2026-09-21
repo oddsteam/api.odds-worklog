@@ -8,6 +8,7 @@ import (
 )
 
 var ErrTimesheetUserNotFound = errors.New("timesheet event: no matching user for employee email")
+var ErrTimesheetEventOutOfPeriod = errors.New("timesheet event: not for the current month")
 var ErrIncomeFromTimesheetNotFoundForPeriod = errors.New("income_from_timesheet: no record for this user and period")
 
 type syncIncomeFromTimesheetUsecase struct {
@@ -23,6 +24,15 @@ func NewSyncIncomeFromTimesheetUsecase(incomeRepo ForGettingIncomeFromTimesheet,
 func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonthlySummaryEvent) error {
 	if err := u.eventLogRepo.Save(evt); err != nil {
 		return err
+	}
+
+	// A record is stamped with submitDate at save time (same as the manual income flow),
+	// never with the event's year/month — so an event for an older month has nowhere of
+	// its own to land and would only overwrite the current month's record. Drop it: the
+	// raw payload above is still kept for audit.
+	year, month := models.GetYearMonthNow()
+	if evt.Year != year || time.Month(evt.Month) != month {
+		return ErrTimesheetEventOutOfPeriod
 	}
 
 	user, err := u.userRepo.GetByEmail(evt.Employee.Email)
@@ -49,7 +59,7 @@ func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonth
 		SpecialIncome: "0",
 	}
 
-	existing, err := u.incomeRepo.GetByUserYearMonth(user.ID.Hex(), evt.Year, time.Month(evt.Month))
+	existing, err := u.incomeRepo.GetByUserYearMonth(user.ID.Hex(), year, month)
 	switch {
 	case errors.Is(err, ErrIncomeFromTimesheetNotFoundForPeriod):
 		income := models.CreatePayroll(*user, req, "")

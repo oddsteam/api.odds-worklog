@@ -79,6 +79,19 @@ func TestHandleDelivery(t *testing.T) {
 		assert.False(t, acker.nacked)
 	})
 
+	t.Run("acks and drops an event that is not for the current month", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		uc := mock_usecases.NewMockForSyncingIncomeFromTimesheet(ctrl)
+		uc.EXPECT().SyncFromEvent(gomock.Any()).Return(usecases.ErrTimesheetEventOutOfPeriod)
+		acker := &fakeAcker{}
+
+		HandleDelivery(acker, validEventBody(), uc)
+
+		assert.True(t, acker.acked)
+		assert.False(t, acker.nacked)
+	})
+
 	t.Run("nacks and requeues on infra error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
