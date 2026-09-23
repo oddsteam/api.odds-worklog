@@ -1045,6 +1045,186 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPError'
 
+  /v1/income-from-timesheet/status/individual:
+    get:
+      tags:
+        - income-from-timesheet
+      summary: Get individual income status sourced from income_from_timesheet
+      description: |
+        Get income status list for individual users, in the same format as the real
+        individual status list.
+      operationId: getIndividualIncomeStatusFromTimesheet
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Income status list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IncomeStatus'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/income-from-timesheet/current-month/{id}:
+    get:
+      tags:
+        - income-from-timesheet
+      summary: Get current month income_from_timesheet
+      description: Get the income_from_timesheet record of the current month by user ID (own record only)
+      operationId: getIncomeFromTimesheetCurrentMonth
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: Current month income
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Income'
+        '400':
+          description: Bad request (missing ID, or an ID other than the caller's own)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/income-from-timesheet/all-month/{id}:
+    get:
+      tags:
+        - income-from-timesheet
+      summary: Get all month income_from_timesheet
+      description: Get the income_from_timesheet records of all months by user ID (own records only)
+      operationId: getIncomeFromTimesheetAllMonth
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: All month incomes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Income'
+        '400':
+          description: Bad request (missing ID, or an ID other than the caller's own)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/income-from-timesheet/export/site/{month}:
+    get:
+      tags:
+        - income-from-timesheet
+      summary: Export the per-site income breakdown of a month as CSV
+      description: |
+        Export one row per client site — SITE, Amount and Percent — with the month's income
+        before tax spread across the sites each person worked at, weighted by the work days
+        and overtime days the timesheet recorded per site (full admin only).
+      operationId: exportSiteAllocationIncomeFromTimesheet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "Month index: 0 = current month, else previous month"
+          example: "0"
+      responses:
+        '200':
+          description: Per-site income breakdown CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '401':
+          description: Not allowed to export (full admin only)
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Internal server error, or no income to report for the month
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /v1/income-from-timesheet/export/site:
+    post:
+      tags:
+        - income-from-timesheet
+      summary: Export the per-site income breakdown of a date range as CSV
+      description: |
+        Export one row per client site for the whole start-to-end month range, as a single
+        breakdown rather than one per month (full admin only).
+      operationId: exportSiteAllocationIncomeFromTimesheetByDateRange
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportIncomeRequest'
+      responses:
+        '200':
+          description: Per-site income breakdown CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad request (malformed body, or dates not in MM/YYYY format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '401':
+          description: Not allowed to export (full admin only)
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Internal server error, or no income to report for the period
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
   # Site endpoints
   /v1/sites:
     get:
