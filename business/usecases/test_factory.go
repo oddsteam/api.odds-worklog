@@ -182,3 +182,17 @@ func deepClone(income *models.Income) *models.Income {
 	json.Unmarshal(b, &i)
 	return &i
 }
+
+// CreateExportSiteAllocationUsecaseWithMock wires the per-site breakdown export to a mocked
+// income_from_timesheet reader, using the real writer so handler tests exercise the whole path.
+func CreateExportSiteAllocationUsecaseWithMock(t *testing.T) (ForUsingExportSiteAllocation, *gomock.Controller, *MockIncomeFromTimesheetRepository) {
+	ctrl := gomock.NewController(t)
+	mockRepo := &MockIncomeFromTimesheetRepository{
+		Reader:        mock_usecases.NewMockForGettingIncomeFromTimesheetInTheMonth(ctrl),
+		mockExportLog: mock_usecases.NewMockForControllingIncomeData(ctrl),
+	}
+	mockRepo.mockExportLog.EXPECT().AddExport(gomock.Any()).Return(nil).AnyTimes()
+
+	usecase := NewExportSiteAllocationUsecase(mockRepo.Reader, mockRepo.mockExportLog, file.NewSiteAllocationCSVWriter())
+	return usecase, ctrl, mockRepo
+}

@@ -365,3 +365,101 @@ func createHandlerWithMockListAndGetUsecases(t *testing.T, mockListIncomeStatus 
 		ExportIncomeFromTimesheetUsecase: export,
 	}, ctrl
 }
+
+func TestGetExportSiteAllocation(t *testing.T) {
+	t.Run("when export site allocation succeeds it should return status OK", func(t *testing.T) {
+		c, rec := getContext(userMock.TokenAdmin, "0")
+		handler, ctrl, mockRepo := createHandlerWithMockSiteAllocationUsecase(t)
+		defer ctrl.Finish()
+		mockRepo.ExpectGetAllInTheMonth("individual", "0", mockIncomeFromTimesheetWithSites())
+
+		handler.GetExportSiteAllocation(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+
+	t.Run("when the caller is not allowed to export it should return status Unauthorized", func(t *testing.T) {
+		c, rec := getContext(userMock.TokenUser, "0")
+		handler, ctrl, _ := createHandlerWithMockSiteAllocationUsecase(t)
+		defer ctrl.Finish()
+
+		handler.GetExportSiteAllocation(c)
+
+		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+	})
+
+	t.Run("when the month param is missing it should return status Bad Request", func(t *testing.T) {
+		e := echo.New()
+		rec := httptest.NewRecorder()
+		c := e.NewContext(httptest.NewRequest(echo.GET, "/", nil), rec)
+		c.Set("user", userMock.TokenAdmin)
+		handler, ctrl, _ := createHandlerWithMockSiteAllocationUsecase(t)
+		defer ctrl.Finish()
+
+		handler.GetExportSiteAllocation(c)
+
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	})
+
+	t.Run("when the export fails it should return status Internal Server Error", func(t *testing.T) {
+		c, rec := getContext(userMock.TokenAdmin, "1")
+		handler, ctrl, mockRepo := createHandlerWithMockSiteAllocationUsecase(t)
+		defer ctrl.Finish()
+		mockRepo.ExpectGetAllFails()
+
+		handler.GetExportSiteAllocation(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+}
+
+func TestPostExportSiteAllocation(t *testing.T) {
+	t.Run("when export site allocation for a period succeeds it should return status OK", func(t *testing.T) {
+		body := models.ExportInComeReq{Role: "individual", StartDate: "01/2026", EndDate: "03/2026"}
+		c, rec := postContext(userMock.TokenAdmin, body)
+		handler, ctrl, mockRepo := createHandlerWithMockSiteAllocationUsecase(t)
+		defer ctrl.Finish()
+		startDate, endDate := periodOf(body)
+		mockRepo.ExpectGetAllByPeriod("individual", startDate, endDate, mockIncomeFromTimesheetWithSites())
+
+		handler.PostExportSiteAllocation(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+	})
+
+	t.Run("when the caller is not allowed to export it should return status Unauthorized", func(t *testing.T) {
+		c, rec := postContext(userMock.TokenUser, models.ExportInComeReq{Role: "individual", StartDate: "01/2026", EndDate: "03/2026"})
+		handler, ctrl, _ := createHandlerWithMockSiteAllocationUsecase(t)
+		defer ctrl.Finish()
+
+		handler.PostExportSiteAllocation(c)
+
+		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+	})
+
+	t.Run("when the period is not a valid month it should return status Bad Request", func(t *testing.T) {
+		c, rec := postContext(userMock.TokenAdmin, models.ExportInComeReq{Role: "individual", StartDate: "not a month", EndDate: "03/2026"})
+		handler, ctrl, _ := createHandlerWithMockSiteAllocationUsecase(t)
+		defer ctrl.Finish()
+
+		handler.PostExportSiteAllocation(c)
+
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	})
+}
+
+func mockIncomeFromTimesheetWithSites() []*models.IncomeFromTimesheet {
+	record := &models.IncomeFromTimesheet{Income: models.MockIncome}
+	record.UserID = bsonutil.MustObjectIDFromHex("5bbcf2f90fd2df527bc39539").Hex()
+	record.DailyIncomeBeforeTax = "100000.00"
+	record.Sites = []models.SiteWork{
+		{ClientSite: "SCB", WorkingDays: 15},
+		{ClientSite: "KBANK", WorkingDays: 5},
+	}
+	return []*models.IncomeFromTimesheet{record}
+}
+
+func createHandlerWithMockSiteAllocationUsecase(t *testing.T) (*HttpHandler, *gomock.Controller, *usecases.MockIncomeFromTimesheetRepository) {
+	export, ctrl, mockRepo := usecases.CreateExportSiteAllocationUsecaseWithMock(t)
+	return &HttpHandler{ExportSiteAllocationUsecase: export}, ctrl, mockRepo
+}

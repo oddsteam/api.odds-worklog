@@ -20,9 +20,10 @@ import (
 // HttpHandler serves the same export, status and list endpoints as /incomes, but sourced
 // from income_from_timesheet instead of income.
 type HttpHandler struct {
-	ListIncomeStatusUsecase           usecases.ForUsingListIncomeStatus
+	ListIncomeStatusUsecase          usecases.ForUsingListIncomeStatus
 	GetIncomeUsecase                 usecases.ForUsingGetIncome
 	ExportIncomeFromTimesheetUsecase usecases.ForUsingExportIncome
+	ExportSiteAllocationUsecase      usecases.ForUsingExportSiteAllocation
 }
 
 // GetExportIndividual godoc
@@ -155,6 +156,56 @@ func (h *HttpHandler) PostExportSAP(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, errors.New("internal Server Error"))
 	}
 
+	return c.Attachment(filename, filename)
+}
+
+// GetExportSiteAllocation godoc
+// @Summary Export the per-site income breakdown of a month to CSV
+// @Description Exports one row per client site — SITE, Amount and Percent — with the month's
+// @Description income spread across the sites each person worked at.
+// @Tags income-from-timesheet
+// @Produce json
+// @Param month path string true "Month index (0 = current month, else previous month)"
+// @Success 200 {array} string
+// @Failure 401 {object} utils.HTTPError
+// @Failure 400 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /income-from-timesheet/export/site/{month} [get]
+func (h *HttpHandler) GetExportSiteAllocation(c echo.Context) error {
+	month, response, ok := h.authorizedMonthParam(c)
+	if !ok {
+		return response
+	}
+	filename, err := h.ExportSiteAllocationUsecase.ExportSiteAllocation("individual", month)
+	if err != nil {
+		log.Println(err.Error())
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.Attachment(filename, filename)
+}
+
+// PostExportSiteAllocation godoc
+// @Summary Export the per-site income breakdown of a period to CSV
+// @Description Exports one row per client site for the whole startDate-endDate range (both "MM/YYYY").
+// @Tags income-from-timesheet
+// @Accept json
+// @Produce json
+// @Param body body models.ExportInComeReq true "Export period"
+// @Success 200 {array} string
+// @Failure 401 {object} utils.HTTPError
+// @Failure 400 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /income-from-timesheet/export/site [post]
+func (h *HttpHandler) PostExportSiteAllocation(c echo.Context) error {
+	req, response, ok := h.authorizedExportPeriod(c)
+	if !ok {
+		return response
+	}
+	filename, err := h.ExportSiteAllocationUsecase.ExportSiteAllocationByStartDateAndEndDate(req.role, req.startDate, req.endDate)
+	if err != nil {
+		log.Println(err.Error())
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
 	return c.Attachment(filename, filename)
 }
 
@@ -293,12 +344,14 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 		file.NewPeakCSVWriter(),
 		studentLoanRepo,
 	)
+	siteAllocation := usecases.NewExportSiteAllocationUsecase(incomeReader, incomeWriter, file.NewSiteAllocationCSVWriter())
 	listStatus := usecases.NewListIncomeStatusUsecase(usecases.NewIncomeFromTimesheetUserSource(incomeUserReader), userRepo)
 	gi := usecases.NewGetIncomeUsecase(usecases.NewIncomeFromTimesheetUserSource(incomeUserReader))
 	handler := &HttpHandler{
 		ListIncomeStatusUsecase:          listStatus,
 		GetIncomeUsecase:                 gi,
 		ExportIncomeFromTimesheetUsecase: ex,
+		ExportSiteAllocationUsecase:      siteAllocation,
 	}
 
 	r = r.Group("/income-from-timesheet")
@@ -310,4 +363,6 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	r.POST("/export", handler.PostExport)
 	r.POST("/export/peak", handler.PostExportPeak)
 	r.POST("/export/format/SAP", handler.PostExportSAP)
+	r.GET("/export/site/:month", handler.GetExportSiteAllocation)
+	r.POST("/export/site", handler.PostExportSiteAllocation)
 }
