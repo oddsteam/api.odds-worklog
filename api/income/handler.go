@@ -74,6 +74,7 @@ func (h *HttpHandler) AddIncome(c echo.Context) error {
 // @Param id path string true "Income ID"
 // @Success 200 {object} models.Income
 // @Failure 400 {object} utils.HTTPError
+// @Failure 404 {object} utils.HTTPError
 // @Failure 422 {object} utils.HTTPError
 // @Failure 500 {object} utils.HTTPError
 // @Router /incomes/{id} [put]
@@ -93,6 +94,9 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 	}
 	user := getUserFromToken(c)
 	res, err := h.UpdateIncomeUsecase.UpdateIncome(id, &req, user.ID)
+	if errors.Is(err, usecases.ErrIncomeNotFound) {
+		return utils.NewError(c, http.StatusNotFound, err)
+	}
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}

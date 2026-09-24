@@ -196,3 +196,9 @@ func CreateExportSiteAllocationUsecaseWithMock(t *testing.T) (ForUsingExportSite
 	usecase := NewExportSiteAllocationUsecase(mockRepo.Reader, mockRepo.mockExportLog, file.NewSiteAllocationCSVWriter())
 	return usecase, ctrl, mockRepo
 }
+
+// ExpectGetIncomeByIDNotFound stands in for an id that belongs to another collection — an
+// income_from_timesheet mirror, say — so the lookup in income finds nothing.
+func (m *MockIncomeRepository) ExpectGetIncomeByIDNotFound(incID, uID string) {
+	m.mockUpdatingUserIncome.EXPECT().GetIncomeByID(incID, uID).Return(nil, ErrIncomeNotFound)
+}

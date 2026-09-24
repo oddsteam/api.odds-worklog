@@ -105,6 +105,25 @@ func TestUpdateIncome(t *testing.T) {
 		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 	})
 
+	t.Run("when the id does not belong to the income collection it should be return status Not Found", func(t *testing.T) {
+		e := echo.New()
+		req := httptest.NewRequest(echo.PUT, "/", strings.NewReader(models.MockIncomeReqJson))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
+		c.SetParamNames("id")
+		c.SetParamValues(models.MockIncome.ID.Hex())
+
+		handler, ctrl, mockRepo := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		mockRepo.ExpectGetUserByID(userMock.User.ID.Hex())
+		mockRepo.ExpectGetIncomeByIDNotFound(models.MockIncome.ID.Hex(), userMock.User.ID.Hex())
+		handler.UpdateIncome(c)
+
+		assert.Equal(t, http.StatusNotFound, rec.Code)
+	})
+
 }
 
 func TestGetIndividualIncomeStatus(t *testing.T) {

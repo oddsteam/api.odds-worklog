@@ -1,6 +1,16 @@
 package usecases
 
-import "gitlab.odds.team/worklog/api.odds-worklog/business/models"
+import (
+	"errors"
+
+	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+)
+
+// ErrIncomeNotFound is returned when an id has no record in the income collection for this user.
+// It is its own error so the api layer can answer 404 instead of 500 — the case shows up when a
+// caller edits with an id read from another collection, e.g. the income_from_timesheet mirror,
+// whose ids never exist in income.
+var ErrIncomeNotFound = errors.New("income: no record for this id and user")
 
 type updateIncomeUsecase struct {
 	repo          ForUpdatingUserMonthlyIncome

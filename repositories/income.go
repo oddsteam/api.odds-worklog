@@ -1,10 +1,12 @@
 package repositories
 
 import (
+	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	mongodriver "go.mongodb.org/mongo-driver/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
@@ -90,6 +92,9 @@ func (r *incomeRepository) GetIncomeByID(incID, uID string) (*models.Income, err
 		"_id":    bsonutil.MustObjectIDFromHex(incID),
 		"userId": uID,
 	}).Decode(income)
+	if errors.Is(err, mongodriver.ErrNoDocuments) {
+		return nil, usecases.ErrIncomeNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
