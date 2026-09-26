@@ -383,6 +383,146 @@ func TestUsecase_Update(t *testing.T) {
 		assert.Equal(t, "0812345678", u.Phone)
 	})
 
+	t.Run("admin can change individual to corporate", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.Role = "corporate"
+		req.CorporateName = "บจก. ตัวอย่าง"
+		u, err := uc.Update(&req, claimsFor(userMock.Admin))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "corporate", u.Role)
+		assert.Equal(t, "บจก. ตัวอย่าง", u.CorporateName)
+	})
+
+	t.Run("admin can change individual to user-admin", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.Role = "user-admin"
+		u, err := uc.Update(&req, claimsFor(userMock.Admin))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "user-admin", u.Role)
+	})
+
+	t.Run("admin cannot change individual to corporate without corporate name", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.Role = "corporate"
+		req.CorporateName = ""
+		u, err := uc.Update(&req, claimsFor(userMock.Admin))
+
+		assert.Nil(t, u)
+		assert.EqualError(t, err, models.ErrCorporateNameRequired.Error())
+	})
+
+	t.Run("admin cannot promote individual to admin", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.Role = "admin"
+		u, err := uc.Update(&req, claimsFor(userMock.Admin))
+
+		assert.Nil(t, u)
+		assert.EqualError(t, err, models.ErrInvalidUserRole.Error())
+	})
+
+	t.Run("admin cannot change corporate to individual", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.CorporateSolo
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.Role = "individual"
+		u, err := uc.Update(&req, claimsFor(userMock.Admin))
+
+		assert.Nil(t, u)
+		assert.EqualError(t, err, models.ErrInvalidUserRole.Error())
+	})
+
+	t.Run("individual cannot change own role", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.Role = "corporate"
+		req.CorporateName = "บจก. ตัวอย่าง"
+		u, err := uc.Update(&req, claimsFor(current))
+
+		assert.Nil(t, u)
+		assert.EqualError(t, err, models.ErrInvalidUserRole.Error())
+	})
+
+	t.Run("user-admin cannot change another user's role", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.Role = "corporate"
+		req.CorporateName = "บจก. ตัวอย่าง"
+		u, err := uc.Update(&req, claimsFor(userMock.UserManager))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "individual", u.Role)
+	})
+
 	t.Run("individual cannot update another user", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()

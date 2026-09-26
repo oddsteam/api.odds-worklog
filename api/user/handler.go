@@ -193,7 +193,7 @@ func (h *HttpHandler) Update(c echo.Context) error {
 		if err == models.ErrConflict || err == models.ErrPeakCodeConflict {
 			return utils.NewError(c, http.StatusConflict, err)
 		}
-		if err == models.ErrInvalidFormat {
+		if err == models.ErrInvalidFormat || err == models.ErrInvalidUserRole || err == models.ErrCorporateNameRequired {
 			return utils.NewError(c, http.StatusBadRequest, err)
 		}
 		return utils.NewError(c, http.StatusInternalServerError, err)

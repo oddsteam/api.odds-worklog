@@ -99,8 +99,22 @@ func (u *manageUsersUsecase) Update(userFromRequest *models.User, actor *models.
 	if err := userFromRequest.ValidateVat(); err != nil {
 		return nil, err
 	}
-	if userFromRequest.Role == "admin" && !isAdmin && currentUser.Role != "admin" {
-		return nil, models.ErrInvalidUserRole
+	if userFromRequest.Role != currentUser.Role {
+		allowed := isAdmin && !isSelf &&
+			currentUser.Role == "individual" &&
+			(userFromRequest.Role == "corporate" || userFromRequest.Role == "user-admin")
+		if !allowed {
+			return nil, models.ErrInvalidUserRole
+		}
+		if userFromRequest.Role == "corporate" {
+			corporateName := userFromRequest.CorporateName
+			if corporateName == "" {
+				corporateName = currentUser.CorporateName
+			}
+			if corporateName == "" {
+				return nil, models.ErrCorporateNameRequired
+			}
+		}
 	}
 
 	updated := *currentUser
