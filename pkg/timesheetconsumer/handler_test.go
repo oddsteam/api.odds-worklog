@@ -92,6 +92,20 @@ func TestHandleDelivery(t *testing.T) {
 		assert.False(t, acker.nacked)
 	})
 
+	t.Run("acks and drops when the user has no usable daily income", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		uc := mock_usecases.NewMockForSyncingIncomeFromTimesheet(ctrl)
+		uc.EXPECT().SyncFromEvent(gomock.Any()).Return(usecases.ErrTimesheetUserDailyIncomeMissing)
+		acker := &fakeAcker{}
+
+		HandleDelivery(acker, validEventBody(), uc)
+
+		// Requeueing would spin forever: the rate cannot change while the message is in flight.
+		assert.True(t, acker.acked)
+		assert.False(t, acker.nacked)
+	})
+
 	t.Run("nacks and requeues on infra error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()

@@ -13,6 +13,11 @@ var ErrTimesheetUserNotFound = errors.New("timesheet event: no matching user for
 var ErrTimesheetEventOutOfPeriod = errors.New("timesheet event: not for the current month")
 var ErrIncomeFromTimesheetNotFoundForPeriod = errors.New("income_from_timesheet: no record for this user and period")
 
+// ErrTimesheetUserDailyIncomeMissing means the matched user has no usable daily rate, so the
+// event is dropped without writing anything to income_from_timesheet — a record calculated from
+// a zero rate is all zeroes and would be indistinguishable from a real one in the exports.
+var ErrTimesheetUserDailyIncomeMissing = errors.New("timesheet event: user has no usable daily income")
+
 // hoursPerWorkDay converts the timesheet's day-based overtime figures into the hour-based
 // units the worklog/payroll model expects, and derives the OT hourly rate from the user's
 // daily rate the same way.
@@ -69,15 +74,15 @@ func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonth
 
 	overtimeHours := overtimeDays * hoursPerWorkDay
 
-	// A user with OT but no usable daily rate can't have their special income calculated. Store
-	// the rest of the record anyway (work days would otherwise be lost too) and surface the case
-	// on the error log page so someone can fill the rate in and let the next event re-sync it.
+	// Every figure on the record is derived from the daily rate, so without a usable one the whole
+	// record is zeroes — indistinguishable in the exports from someone who genuinely earned nothing.
+	// Drop the event instead and surface it on the error log page; once the rate is filled in the
+	// next event for the period syncs it. Returning before any repo call also leaves a record
+	// already stored for the period — a mirrored manual entry, say — exactly as it was.
 	dailyRate, parseErr := models.StringToFloat64(user.DailyIncome)
-	if parseErr != nil {
-		dailyRate = 0
-	}
-	if overtimeHours > 0 && dailyRate <= 0 {
-		u.logMissingDailyRate(user, evt, overtimeHours, parseErr)
+	if parseErr != nil || dailyRate <= 0 {
+		u.logMissingDailyRate(user, evt, workingDays, overtimeHours, parseErr)
+		return ErrTimesheetUserDailyIncomeMissing
 	}
 
 	req := models.IncomeReq{
@@ -109,7 +114,7 @@ func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonth
 	return nil
 }
 
-func (u *syncIncomeFromTimesheetUsecase) logMissingDailyRate(user *models.User, evt models.TimesheetMonthlySummaryEvent, overtimeHours float64, cause error) {
+func (u *syncIncomeFromTimesheetUsecase) logMissingDailyRate(user *models.User, evt models.TimesheetMonthlySummaryEvent, workingDays, overtimeHours float64, cause error) {
 	if u.failureLogRepo == nil {
 		return
 	}
@@ -130,8 +135,9 @@ func (u *syncIncomeFromTimesheetUsecase) logMissingDailyRate(user *models.User, 
 		BankAccountName: user.BankAccountName,
 		LineKind:        timesheetSpecialIncomeLineKind,
 		ErrorMessage: fmt.Sprintf(
-			"timesheet sync %04d-%02d: %s has %s OT hours but no usable daily rate (dailyIncome=%q) — special income was stored as 0",
-			evt.Year, evt.Month, user.Email, models.FloatToString(overtimeHours), user.DailyIncome,
+			"timesheet sync %04d-%02d: %s has no usable daily rate (dailyIncome=%q) — event skipped, no income record written (workDays=%s, otHours=%s)",
+			evt.Year, evt.Month, user.Email, user.DailyIncome,
+			models.FloatToString(workingDays), models.FloatToString(overtimeHours),
 		),
 		UnderlyingError: underlying,
 	}

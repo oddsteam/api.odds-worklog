@@ -34,7 +34,9 @@ func HandleDelivery(d Acker, body []byte, uc usecases.ForSyncingIncomeFromTimesh
 	switch {
 	case err == nil:
 		d.Ack(false)
-	case errors.Is(err, usecases.ErrTimesheetUserNotFound), errors.Is(err, usecases.ErrTimesheetEventOutOfPeriod):
+	case errors.Is(err, usecases.ErrTimesheetUserNotFound),
+		errors.Is(err, usecases.ErrTimesheetEventOutOfPeriod),
+		errors.Is(err, usecases.ErrTimesheetUserDailyIncomeMissing):
 		log.Printf("timesheetconsumer: %v (email=%s, year=%d, month=%d), dropping", err, evt.Employee.Email, evt.Year, evt.Month)
 		d.Ack(false)
 	default:
