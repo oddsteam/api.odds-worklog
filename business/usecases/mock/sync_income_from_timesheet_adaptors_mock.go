@@ -115,6 +115,20 @@ func (mr *MockForGettingTimesheetUserMockRecorder) GetByEmail(email interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByEmail", reflect.TypeOf((*MockForGettingTimesheetUser)(nil).GetByEmail), email)
 }
 
+// DisableIncomeEntry mocks base method
+func (m *MockForGettingTimesheetUser) DisableIncomeEntry(userID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DisableIncomeEntry", userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DisableIncomeEntry indicates an expected call of DisableIncomeEntry
+func (mr *MockForGettingTimesheetUserMockRecorder) DisableIncomeEntry(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DisableIncomeEntry", reflect.TypeOf((*MockForGettingTimesheetUser)(nil).DisableIncomeEntry), userID)
+}
+
 // MockForLoggingTimesheetEvent is a mock of ForLoggingTimesheetEvent interface
 type MockForLoggingTimesheetEvent struct {
 	ctrl     *gomock.Controller

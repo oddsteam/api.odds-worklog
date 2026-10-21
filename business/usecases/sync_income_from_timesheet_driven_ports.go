@@ -17,8 +17,12 @@ type ForGettingIncomeFromTimesheet interface {
 
 // GetByEmail must return ErrTimesheetUserNotFound (not a raw driver error) when no user
 // matches the email — any other non-nil error is a real failure and must be propagated.
+//
+// DisableIncomeEntry sets only the user's disableIncomeEntry flag, leaving the rest of the
+// document as it is, so it never overwrites a profile edit made in between.
 type ForGettingTimesheetUser interface {
 	GetByEmail(email string) (*models.User, error)
+	DisableIncomeEntry(userID string) error
 }
 
 // Save persists the raw event payload unconditionally, before any other processing.

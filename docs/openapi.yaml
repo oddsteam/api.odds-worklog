@@ -1999,7 +1999,7 @@ components:
           description: Tavi status
         disableIncomeEntry:
           type: boolean
-          description: Turns off manual income entry in Worklog; hides the Add/Edit Income buttons
+          description: Turns off manual income entry in Worklog; hides the Add/Edit Income buttons. Set to true automatically once a timesheet sync writes the user's income; an admin can switch it back off.
         phone:
           type: string
           description: Phone number

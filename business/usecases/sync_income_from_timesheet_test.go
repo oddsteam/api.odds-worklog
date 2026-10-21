@@ -92,6 +92,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 			}, record.Sites)
 			return nil
 		})
+		userRepo.EXPECT().DisableIncomeEntry(user.ID.Hex()).Return(nil)
 
 		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, failureLogRepo)
 		err := uc.SyncFromEvent(evt)
@@ -122,6 +123,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 			assert.Equal(t, "16.00", record.WorkingHours)
 			return nil
 		})
+		userRepo.EXPECT().DisableIncomeEntry(user.ID.Hex()).Return(nil)
 
 		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, nil)
 		err := uc.SyncFromEvent(evt)
@@ -150,6 +152,7 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 			assert.Equal(t, "Timesheet", record.SiteName)
 			return nil
 		})
+		userRepo.EXPECT().DisableIncomeEntry(user.ID.Hex()).Return(nil)
 
 		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, mockSiteRepo, nil)
 		err := uc.SyncFromEvent(evt)
@@ -471,5 +474,78 @@ func TestSyncIncomeFromTimesheet(t *testing.T) {
 		err := uc.SyncFromEvent(evt)
 
 		assert.ErrorIs(t, err, ErrTimesheetUserDailyIncomeMissing)
+	})
+
+	t.Run("does not write the flag again when manual income entry is already disabled", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		userRepo := mock_usecases.NewMockForGettingTimesheetUser(ctrl)
+		incomeRepo := mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl)
+		eventLogRepo := mock_usecases.NewMockForLoggingTimesheetEvent(ctrl)
+
+		user := timesheetSyncUser()
+		user.DisableIncomeEntry = true
+		evt := timesheetSyncEvent()
+
+		eventLogRepo.EXPECT().Save(evt).Return(nil)
+		userRepo.EXPECT().GetByEmail("test@abc.com").Return(&user, nil)
+		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), evt.Year, time.Month(evt.Month)).
+			Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
+		incomeRepo.EXPECT().Add(gomock.Any()).Return(nil)
+		userRepo.EXPECT().DisableIncomeEntry(gomock.Any()).Times(0)
+
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, nil)
+		err := uc.SyncFromEvent(evt)
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("returns the error when disabling manual income entry fails so the event is retried", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		userRepo := mock_usecases.NewMockForGettingTimesheetUser(ctrl)
+		incomeRepo := mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl)
+		eventLogRepo := mock_usecases.NewMockForLoggingTimesheetEvent(ctrl)
+
+		user := timesheetSyncUser()
+		evt := timesheetSyncEvent()
+
+		eventLogRepo.EXPECT().Save(evt).Return(nil)
+		userRepo.EXPECT().GetByEmail("test@abc.com").Return(&user, nil)
+		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), evt.Year, time.Month(evt.Month)).
+			Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
+		incomeRepo.EXPECT().Add(gomock.Any()).Return(nil)
+		userRepo.EXPECT().DisableIncomeEntry(user.ID.Hex()).Return(assert.AnError)
+
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, nil)
+		err := uc.SyncFromEvent(evt)
+
+		assert.ErrorIs(t, err, assert.AnError)
+	})
+
+	t.Run("does not disable manual income entry when the income write fails", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		userRepo := mock_usecases.NewMockForGettingTimesheetUser(ctrl)
+		incomeRepo := mock_usecases.NewMockForGettingIncomeFromTimesheet(ctrl)
+		eventLogRepo := mock_usecases.NewMockForLoggingTimesheetEvent(ctrl)
+
+		user := timesheetSyncUser()
+		evt := timesheetSyncEvent()
+
+		eventLogRepo.EXPECT().Save(evt).Return(nil)
+		userRepo.EXPECT().GetByEmail("test@abc.com").Return(&user, nil)
+		incomeRepo.EXPECT().GetByUserYearMonth(user.ID.Hex(), evt.Year, time.Month(evt.Month)).
+			Return(nil, ErrIncomeFromTimesheetNotFoundForPeriod)
+		incomeRepo.EXPECT().Add(gomock.Any()).Return(assert.AnError)
+		userRepo.EXPECT().DisableIncomeEntry(gomock.Any()).Times(0)
+
+		uc := NewSyncIncomeFromTimesheetUsecase(incomeRepo, userRepo, eventLogRepo, nil, nil)
+		err := uc.SyncFromEvent(evt)
+
+		assert.ErrorIs(t, err, assert.AnError)
 	})
 }

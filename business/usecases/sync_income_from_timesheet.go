@@ -111,6 +111,15 @@ func (u *syncIncomeFromTimesheetUsecase) SyncFromEvent(evt models.TimesheetMonth
 		}
 	}
 
+	// Once timesheet owns the user's income, a manual entry would only be overwritten by the
+	// next event, so turn manual entry off. A failure here returns an error so the message is
+	// requeued — the retry finds the record just written and updates it with the same figures.
+	if !user.DisableIncomeEntry {
+		if err := u.userRepo.DisableIncomeEntry(user.ID.Hex()); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

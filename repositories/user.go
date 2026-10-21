@@ -43,6 +43,16 @@ func (r *timesheetUserRepository) GetByEmail(email string) (*models.User, error)
 	return user, err
 }
 
+func (r *timesheetUserRepository) DisableIncomeEntry(userID string) error {
+	coll := r.session.GetCollection(userColl)
+	ctx := r.session.Ctx()
+	_, err := coll.UpdateOne(ctx,
+		bson.M{"_id": bsonutil.MustObjectIDFromHex(userID)},
+		bson.M{"$set": bson.M{"disableIncomeEntry": true, "lastUpdate": time.Now()}},
+	)
+	return err
+}
+
 func (r *userRepository) Create(u *models.User) (*models.User, error) {
 	t := time.Now()
 	u.ID = primitive.NewObjectID()
