@@ -108,4 +108,13 @@ func TestUser_ApplyProfileUpdate(t *testing.T) {
 		current.ApplyProfileUpdate(User{BankAccountNumber: "้1234-123-999‬"})
 		assert.Equal(t, "1234123999", current.BankAccountNumber)
 	})
+
+	t.Run("disableIncomeEntry is always replaced so it can be switched back off", func(t *testing.T) {
+		current := User{}
+		current.ApplyProfileUpdate(User{DisableIncomeEntry: true})
+		assert.True(t, current.DisableIncomeEntry)
+
+		current.ApplyProfileUpdate(User{DisableIncomeEntry: false})
+		assert.False(t, current.DisableIncomeEntry)
+	})
 }

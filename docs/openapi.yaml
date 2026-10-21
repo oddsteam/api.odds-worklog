@@ -1997,6 +1997,9 @@ components:
         statusTavi:
           type: boolean
           description: Tavi status
+        disableIncomeEntry:
+          type: boolean
+          description: Turns off manual income entry in Worklog; hides the Add/Edit Income buttons
         phone:
           type: string
           description: Phone number
