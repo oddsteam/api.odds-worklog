@@ -604,6 +604,56 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPError'
 
+    delete:
+      tags:
+        - incomes
+      summary: Delete an individual user's income for the current month
+      description: >
+        Full admin only. Removes this month's income for an individual user from both
+        the income collection and the income_from_timesheet copy, so either list shows
+        the user as not submitted. A later timesheet event can write the timesheet copy again.
+      operationId: deleteCurrentMonthIncome
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: Income deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '400':
+          description: Invalid user id, or the user is not an individual
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '404':
+          description: User not found, or no income for the current month
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
   /v1/incomes/all-month/{id}:
     get:
       tags:
