@@ -15,6 +15,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
+	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/file"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/utils"
@@ -27,6 +28,7 @@ type HttpHandler struct {
 	GetIncomeUsecase        usecases.ForUsingGetIncome
 	UpdateIncomeUsecase     usecases.ForUsingUpdateIncome
 	ExportIncomeUsecase     usecases.ForUsingExportIncome
+	DeleteIncomeUsecase     usecases.ForUsingDeleteIncome
 }
 
 func isRequestValid(m *models.IncomeReq) (bool, error) {
@@ -101,6 +103,45 @@ func (h *HttpHandler) UpdateIncome(c echo.Context) error {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, res)
+}
+
+// DeleteCurrentMonthIncome godoc
+// @Summary Delete an individual user's income for the current month
+// @Description Admin only. Removes the current month from income and income_from_timesheet.
+// @Tags incomes
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} utils.HTTPError
+// @Failure 403 {object} utils.HTTPError
+// @Failure 404 {object} utils.HTTPError
+// @Failure 500 {object} utils.HTTPError
+// @Router /incomes/current-month/{id} [delete]
+func (h *HttpHandler) DeleteCurrentMonthIncome(c echo.Context) error {
+	caller := getUserFromToken(c)
+	if !caller.IsAdmin() {
+		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+	if _, err := bsonutil.ObjectIDFromHex(id); err != nil {
+		return utils.NewError(c, http.StatusBadRequest, errors.New("invalid path"))
+	}
+
+	err := h.DeleteIncomeUsecase.DeleteCurrentMonthIncome(id)
+	if errors.Is(err, usecases.ErrUserNotFound) || errors.Is(err, usecases.ErrIncomeNotFound) {
+		return utils.NewError(c, http.StatusNotFound, err)
+	}
+	if errors.Is(err, usecases.ErrIncomeUserNotIndividual) {
+		return utils.NewError(c, http.StatusBadRequest, err)
+	}
+	if err != nil {
+		return utils.NewError(c, http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, models.Response{Message: "Delete income success."})
 }
 
 // GetIndividualIncomeStatus godoc
@@ -365,13 +406,18 @@ func NewHttpHandler(r *echo.Group, session *mongo.Session) {
 	studentLoanRepo := repositories.NewStudentLoanRepository(session)
 	sapExportFailureRepo := repositories.NewSAPExportFailureRepository(session)
 	ex := usecases.NewExportIncomeUsecase(incomeReader, incomeWriter, sapExportFailureRepo, file.NewCSVWriter(), file.NewSAPWriter(), file.NewPeakCSVWriter(), studentLoanRepo)
-	handler := &HttpHandler{listStatus, ad, gi, up, ex}
+	individualUsers := repositories.NewIndividualUserReader(session)
+	incomeDeleter := repositories.NewUserIncomeDeleter(session)
+	timesheetDeleter := repositories.NewIncomeFromTimesheetDeleter(session)
+	del := usecases.NewDeleteIncomeUsecase(individualUsers, incomeDeleter, timesheetDeleter)
+	handler := &HttpHandler{listStatus, ad, gi, up, ex, del}
 
 	r = r.Group("/incomes")
 	r.POST("", handler.AddIncome)
 	r.PUT("/:id", handler.UpdateIncome)
 	r.GET("/status/individual", handler.GetIndividualIncomeStatus)
 	r.GET("/current-month/:id", handler.GetIncomeCurrentMonthByUserId)
+	r.DELETE("/current-month/:id", handler.DeleteCurrentMonthIncome)
 	r.GET("/all-month/:id", handler.GetIncomeAllMonthByUserId)
 	r.GET("/export/individual/:month", handler.GetExportIndividual)
 	r.GET("/export/peak/individual/:month", handler.GetExportPeakIndividual)

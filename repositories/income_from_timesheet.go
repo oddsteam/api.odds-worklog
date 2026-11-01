@@ -4,12 +4,12 @@ import (
 	"errors"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	mongodriver "go.mongodb.org/mongo-driver/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	mongodriver "go.mongodb.org/mongo-driver/mongo"
 )
 
 const incomeFromTimesheetColl = "income_from_timesheet"
@@ -27,6 +27,10 @@ func NewIncomeFromTimesheetReader(session *mongo.Session) usecases.ForGettingInc
 }
 
 func NewIncomeFromTimesheetUserIncomeReader(session *mongo.Session) usecases.ForReadingIncomeFromTimesheetByUser {
+	return &incomeFromTimesheetRepository{session}
+}
+
+func NewIncomeFromTimesheetDeleter(session *mongo.Session) usecases.ForDeletingIncomeFromTimesheet {
 	return &incomeFromTimesheetRepository{session}
 }
 
@@ -64,6 +68,28 @@ func (r *incomeFromTimesheetRepository) Add(income *models.IncomeFromTimesheet) 
 	ctx := r.session.Ctx()
 	_, err := coll.InsertOne(ctx, income)
 	return err
+}
+
+func (r *incomeFromTimesheetRepository) DeleteByUserYearMonth(userID string, year int, month time.Month) error {
+	fromDate := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
+	toDate := fromDate.AddDate(0, 1, 0)
+	query := bson.M{
+		"userId": userID,
+		"submitDate": bson.M{
+			"$gt": fromDate,
+			"$lt": toDate,
+		},
+	}
+	coll := r.session.GetCollection(incomeFromTimesheetColl)
+	ctx := r.session.Ctx()
+	res, err := coll.DeleteMany(ctx, query)
+	if err != nil {
+		return err
+	}
+	if res.DeletedCount == 0 {
+		return usecases.ErrIncomeFromTimesheetNotFoundForPeriod
+	}
+	return nil
 }
 
 func (r *incomeFromTimesheetRepository) Update(income *models.IncomeFromTimesheet) error {

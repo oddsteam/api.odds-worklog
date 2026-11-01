@@ -3,6 +3,7 @@ package income
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -466,11 +467,131 @@ func TestPostExportPeak(t *testing.T) {
 	})
 }
 
+type stubDeleteIncome struct {
+	err error
+	id  string
+}
+
+func (s *stubDeleteIncome) DeleteCurrentMonthIncome(userID string) error {
+	s.id = userID
+	return s.err
+}
+
+func TestDeleteCurrentMonthIncome(t *testing.T) {
+	userID := userMock.IndividualUser1.ID.Hex()
+
+	newDeleteContext := func(methodToken interface{}, id string) (echo.Context, *httptest.ResponseRecorder) {
+		e := echo.New()
+		req := httptest.NewRequest(echo.DELETE, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		if methodToken != nil {
+			c.Set("user", methodToken)
+		}
+		if id != "" {
+			c.SetParamNames("id")
+			c.SetParamValues(id)
+		}
+		return c, rec
+	}
+
+	t.Run("admin deletes the individual user's current month income", func(t *testing.T) {
+		c, rec := newDeleteContext(userMock.TokenAdmin, userID)
+		stub := &stubDeleteIncome{}
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		handler.DeleteIncomeUsecase = stub
+
+		handler.DeleteCurrentMonthIncome(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, userID, stub.id)
+		assert.Equal(t, `{"message":"Delete income success."}`, rec.Body.String())
+	})
+
+	t.Run("user-admin is forbidden", func(t *testing.T) {
+		c, rec := newDeleteContext(userMock.TokenUserManager, userID)
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		handler.DeleteIncomeUsecase = &stubDeleteIncome{}
+
+		handler.DeleteCurrentMonthIncome(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
+	})
+
+	t.Run("a non-admin is forbidden", func(t *testing.T) {
+		c, rec := newDeleteContext(userMock.TokenUser, userID)
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		handler.DeleteIncomeUsecase = &stubDeleteIncome{}
+
+		handler.DeleteCurrentMonthIncome(c)
+
+		assert.Equal(t, http.StatusForbidden, rec.Code)
+	})
+
+	t.Run("missing id is a bad request", func(t *testing.T) {
+		c, rec := newDeleteContext(userMock.TokenAdmin, "")
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		handler.DeleteIncomeUsecase = &stubDeleteIncome{}
+
+		handler.DeleteCurrentMonthIncome(c)
+
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	})
+
+	t.Run("an id that is not an object id is a bad request", func(t *testing.T) {
+		c, rec := newDeleteContext(userMock.TokenAdmin, "not-an-id")
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		handler.DeleteIncomeUsecase = &stubDeleteIncome{}
+
+		handler.DeleteCurrentMonthIncome(c)
+
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	})
+
+	t.Run("missing income is not found", func(t *testing.T) {
+		c, rec := newDeleteContext(userMock.TokenAdmin, userID)
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		handler.DeleteIncomeUsecase = &stubDeleteIncome{err: usecases.ErrIncomeNotFound}
+
+		handler.DeleteCurrentMonthIncome(c)
+
+		assert.Equal(t, http.StatusNotFound, rec.Code)
+	})
+
+	t.Run("a user who is not individual is a bad request", func(t *testing.T) {
+		c, rec := newDeleteContext(userMock.TokenAdmin, userID)
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		handler.DeleteIncomeUsecase = &stubDeleteIncome{err: usecases.ErrIncomeUserNotIndividual}
+
+		handler.DeleteCurrentMonthIncome(c)
+
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	})
+
+	t.Run("a repository failure is an internal error", func(t *testing.T) {
+		c, rec := newDeleteContext(userMock.TokenAdmin, userID)
+		handler, ctrl, _ := createHandlerWithMockUsecasesAndRepo(t)
+		defer ctrl.Finish()
+		handler.DeleteIncomeUsecase = &stubDeleteIncome{err: errors.New("db down")}
+
+		handler.DeleteCurrentMonthIncome(c)
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
+}
+
 func createHandlerWithMockUsecases(t *testing.T, mockListIncomeStatus usecases.ForUsingListIncomeStatus, mockGetIncome usecases.ForUsingGetIncome) (*HttpHandler, *gomock.Controller) {
 	export, ctrl, mockRepo := usecases.CreateExportIncomeUsecaseWithMock(t)
 	add := usecases.CreateAddIncomeUsecaseWithMock(mockRepo)
 	update := usecases.CreateUpdateIncomeUsecaseWithMock(mockRepo)
-	return &HttpHandler{mockListIncomeStatus, add, mockGetIncome, update, export}, ctrl
+	return &HttpHandler{mockListIncomeStatus, add, mockGetIncome, update, export, nil}, ctrl
 }
 
 func createHandlerWithMockUsecasesAndRepo(t *testing.T) (*HttpHandler, *gomock.Controller, *usecases.MockIncomeRepository) {
@@ -479,5 +600,5 @@ func createHandlerWithMockUsecasesAndRepo(t *testing.T) (*HttpHandler, *gomock.C
 	add := usecases.CreateAddIncomeUsecaseWithMock(mockRepo)
 	gi := usecases.CreateGetIncomeUsecaseWithMock(mockRepo)
 	update := usecases.CreateUpdateIncomeUsecaseWithMock(mockRepo)
-	return &HttpHandler{listStatus, add, gi, update, export}, ctrl, mockRepo
+	return &HttpHandler{listStatus, add, gi, update, export, nil}, ctrl, mockRepo
 }

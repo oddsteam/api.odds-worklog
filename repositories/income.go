@@ -4,13 +4,13 @@ import (
 	"errors"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	mongodriver "go.mongodb.org/mongo-driver/mongo"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/models"
 	"gitlab.odds.team/worklog/api.odds-worklog/business/usecases"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/bsonutil"
 	"gitlab.odds.team/worklog/api.odds-worklog/pkg/mongo"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	mongodriver "go.mongodb.org/mongo-driver/mongo"
 )
 
 const (
@@ -39,6 +39,10 @@ func NewIncomeReader(session *mongo.Session) usecases.ForGettingIncomeDataInTheM
 }
 
 func NewIncomeWriter(session *mongo.Session) usecases.ForLoggingExport {
+	return &incomeRepository{session}
+}
+
+func NewUserIncomeDeleter(session *mongo.Session) usecases.ForDeletingUserMonthlyIncome {
 	return &incomeRepository{session}
 }
 
@@ -152,6 +156,20 @@ func getIncomeByUserIDWithQuery(r *incomeRepository, uID string, fromYear int, f
 		return nil, err
 	}
 	return income, nil
+}
+
+func (r *incomeRepository) DeleteIncomeByUserYearMonth(userID string, year int, month time.Month) error {
+	query := createQueryByIdAndPeriod(year, month, userID)
+	coll := r.session.GetCollection(incomeColl)
+	ctx := r.session.Ctx()
+	res, err := coll.DeleteMany(ctx, query)
+	if err != nil {
+		return err
+	}
+	if res.DeletedCount == 0 {
+		return usecases.ErrIncomeNotFound
+	}
+	return nil
 }
 
 func (r *incomeRepository) UpdateIncome(income *models.Income) error {

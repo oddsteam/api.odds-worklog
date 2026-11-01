@@ -28,6 +28,24 @@ func NewTimesheetUserRepository(session *mongo.Session) usecases.ForGettingTimes
 	return &timesheetUserRepository{&userRepository{session}}
 }
 
+// individualUserReader translates a missing user into usecases.ErrUserNotFound so income
+// deletion can answer 404 without the usecase seeing a driver error.
+type individualUserReader struct {
+	*userRepository
+}
+
+func NewIndividualUserReader(session *mongo.Session) usecases.ForGettingUserByID {
+	return &individualUserReader{&userRepository{session}}
+}
+
+func (r *individualUserReader) GetByID(id string) (*models.User, error) {
+	user, err := r.userRepository.GetByID(id)
+	if errors.Is(err, mongodriver.ErrNoDocuments) {
+		return nil, usecases.ErrUserNotFound
+	}
+	return user, err
+}
+
 // timesheetUserRepository adapts repository's GetByEmail to usecases.ForGettingTimesheetUser's
 // contract: callers expect usecases.ErrTimesheetUserNotFound for "no matching user," not the
 // raw mongodriver.ErrNoDocuments the shared method returns.
