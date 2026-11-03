@@ -269,7 +269,7 @@ func (h *HttpHandler) UploadImageProfile(c echo.Context) error {
 func (h *HttpHandler) DownloadTranscript(c echo.Context) error {
 	id := c.Param("id")
 	user := getUserFromToken(c)
-	if user.ID != id && !user.IsAdmin() {
+	if user.ID != id && !user.IsUserManager() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
@@ -293,7 +293,7 @@ func (h *HttpHandler) DownloadTranscript(c echo.Context) error {
 func (h *HttpHandler) DownloadDegreeCertificate(c echo.Context) error {
 	id := c.Param("id")
 	user := getUserFromToken(c)
-	if user.ID != id && !user.IsAdmin() {
+	if user.ID != id && !user.IsUserManager() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
@@ -317,7 +317,7 @@ func (h *HttpHandler) DownloadDegreeCertificate(c echo.Context) error {
 func (h *HttpHandler) DownloadIDCard(c echo.Context) error {
 	id := c.Param("id")
 	user := getUserFromToken(c)
-	if user.ID != id && !user.IsAdmin() {
+	if user.ID != id && !user.IsUserManager() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 
@@ -341,7 +341,7 @@ func (h *HttpHandler) DownloadIDCard(c echo.Context) error {
 func (h *HttpHandler) DownloadImageProfile(c echo.Context) error {
 	id := c.Param("id")
 	user := getUserFromToken(c)
-	if user.ID != id && !user.IsAdmin() {
+	if user.ID != id && !user.IsUserManager() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
 

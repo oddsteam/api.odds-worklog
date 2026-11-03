@@ -77,14 +77,7 @@ func (u *manageUsersUsecase) Update(userFromRequest *models.User, actor *models.
 	if !isSelf && !isAdmin && !isUserAdmin {
 		return nil, models.ErrPermissionDenied
 	}
-
-	if isUserAdmin && !isSelf {
-		updated := *currentUser
-		if userFromRequest.SiteID != "" {
-			updated.SiteID = userFromRequest.SiteID
-		}
-		return u.users.Update(&updated)
-	}
+	canManageOther := (isAdmin || isUserAdmin) && !isSelf
 
 	if userFromRequest.Role == "" {
 		userFromRequest.Role = currentUser.Role
@@ -100,7 +93,7 @@ func (u *manageUsersUsecase) Update(userFromRequest *models.User, actor *models.
 		return nil, err
 	}
 	if userFromRequest.Role != currentUser.Role {
-		allowed := isAdmin && !isSelf &&
+		allowed := canManageOther &&
 			currentUser.Role == "individual" &&
 			(userFromRequest.Role == "corporate" || userFromRequest.Role == "user-admin")
 		if !allowed {
@@ -118,7 +111,7 @@ func (u *manageUsersUsecase) Update(userFromRequest *models.User, actor *models.
 	}
 
 	updated := *currentUser
-	if isAdmin && !isSelf && userFromRequest.Email != "" && userFromRequest.Email != currentUser.Email {
+	if canManageOther && userFromRequest.Email != "" && userFromRequest.Email != currentUser.Email {
 		if err := userFromRequest.ValidateEmail(); err != nil {
 			return nil, err
 		}
@@ -127,7 +120,7 @@ func (u *manageUsersUsecase) Update(userFromRequest *models.User, actor *models.
 		}
 		updated.Email = userFromRequest.Email
 	}
-	if isAdmin && userFromRequest.PeakCode != currentUser.PeakCode {
+	if (isAdmin || canManageOther) && userFromRequest.PeakCode != currentUser.PeakCode {
 		if userFromRequest.PeakCode != "" {
 			if existing, err := u.users.GetByPeakCode(userFromRequest.PeakCode); err == nil && existing.ID != currentUser.ID {
 				return nil, models.ErrPeakCodeConflict
