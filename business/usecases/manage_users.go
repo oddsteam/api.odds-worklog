@@ -133,6 +133,10 @@ func (u *manageUsersUsecase) Update(userFromRequest *models.User, actor *models.
 	if !(isAdmin && !isSelf) {
 		userFromRequest.DisableIncomeEntry = currentUser.DisableIncomeEntry
 	}
+	// Only the owner or a full admin may change dailyIncome.
+	if !isSelf && !isAdmin {
+		userFromRequest.DailyIncome = currentUser.DailyIncome
+	}
 	updated.ApplyProfileUpdate(*userFromRequest)
 	return u.users.Update(&updated)
 }

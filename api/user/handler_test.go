@@ -95,12 +95,16 @@ func TestCreate(t *testing.T) {
 		assert.Equal(t, http.StatusForbidden, rec.Code)
 	})
 
-	t.Run("when request is user-admin, create user succeeds", func(t *testing.T) {
+	t.Run("when request is user-admin, create user succeeds without dailyIncome", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		mockUsecase := userMock.NewMockUsecase(ctrl)
-		mockUsecase.EXPECT().Create(&userMock.User).Return(&userMock.User, nil)
+		mockUsecase.EXPECT().Create(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			assert.Equal(t, "", u.DailyIncome)
+			created := *u
+			return &created, nil
+		})
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", strings.NewReader(userMock.UserJson))
@@ -113,6 +117,9 @@ func TestCreate(t *testing.T) {
 		handler.Create(c)
 
 		assert.Equal(t, http.StatusCreated, rec.Code)
+		var body models.User
+		assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &body))
+		assert.Equal(t, "", body.DailyIncome)
 	})
 
 	t.Run("when user-admin tries to create admin role, return 403", func(t *testing.T) {
@@ -180,13 +187,14 @@ func TestGet(t *testing.T) {
 		assert.Equal(t, http.StatusForbidden, rec.Code)
 	})
 
-	t.Run("when current user is user-admin it should return StatusOK", func(t *testing.T) {
+	t.Run("when current user is user-admin it should return StatusOK without dailyIncome", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		mockUsecase := userMock.NewMockUsecase(ctrl)
-		mockListUser := make([]*models.User, 0)
-		mockListUser = append(mockListUser, &userMock.User)
+		listed := userMock.User
+		listed.DailyIncome = "5000"
+		mockListUser := []*models.User{&listed}
 		mockUsecase.EXPECT().Get().Return(mockListUser, nil)
 
 		e := echo.New()
@@ -200,6 +208,37 @@ func TestGet(t *testing.T) {
 		handler.Get(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
+		var body []*models.User
+		assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &body))
+		assert.Len(t, body, 1)
+		assert.Equal(t, "", body[0].DailyIncome)
+	})
+
+	t.Run("when current user is admin it should include dailyIncome", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		listed := userMock.User
+		listed.DailyIncome = "5000"
+		mockListUser := []*models.User{&listed}
+		mockUsecase.EXPECT().Get().Return(mockListUser, nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
+
+		handler := &HttpHandler{mockUsecase}
+		handler.Get(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+		var body []*models.User
+		assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &body))
+		assert.Len(t, body, 1)
+		assert.Equal(t, "5000", body[0].DailyIncome)
 	})
 
 	t.Run("when getUser in usecase is have error  it should return StatusInternalServerError", func(t *testing.T) {
@@ -238,12 +277,68 @@ func TestGetByID(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUser)
 		c.SetParamNames("id")
 		c.SetParamValues("5bbcf2f90fd2df527bc39539")
 		handler := &HttpHandler{mockUsecase}
 		handler.GetByID(c)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
+		var body models.User
+		assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &body))
+		assert.Equal(t, "5000", body.DailyIncome)
+	})
+
+	t.Run("when user-admin gets another user, dailyIncome is omitted", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		target := userMock.User
+		target.DailyIncome = "5000"
+		mockUsecase.EXPECT().GetByID(target.ID.Hex()).Return(&target, nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenUserManager)
+		c.SetParamNames("id")
+		c.SetParamValues(target.ID.Hex())
+		handler := &HttpHandler{mockUsecase}
+		handler.GetByID(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+		var body models.User
+		assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &body))
+		assert.Equal(t, "", body.DailyIncome)
+	})
+
+	t.Run("when admin gets another user, dailyIncome is included", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUsecase := userMock.NewMockUsecase(ctrl)
+		target := userMock.User
+		target.DailyIncome = "5000"
+		mockUsecase.EXPECT().GetByID(target.ID.Hex()).Return(&target, nil)
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("user", userMock.TokenAdmin)
+		c.SetParamNames("id")
+		c.SetParamValues(target.ID.Hex())
+		handler := &HttpHandler{mockUsecase}
+		handler.GetByID(c)
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+		var body models.User
+		assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &body))
+		assert.Equal(t, "5000", body.DailyIncome)
 	})
 
 	t.Run("when getUser in usecase is have error  it should return StatusNoContent", func(t *testing.T) {
@@ -341,8 +436,9 @@ func TestGetBySiteIdAsUserAdmin(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockUsecase := userMock.NewMockUsecase(ctrl)
-	mockListUser := make([]*models.User, 0)
-	mockListUser = append(mockListUser, &userMock.User)
+	listed := userMock.User
+	listed.DailyIncome = "5000"
+	mockListUser := []*models.User{&listed}
 	mockUsecase.EXPECT().GetBySiteID("12345").Return(mockListUser, nil)
 
 	e := echo.New()
@@ -358,6 +454,10 @@ func TestGetBySiteIdAsUserAdmin(t *testing.T) {
 	handler.GetBySiteID(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
+	var body []*models.User
+	assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &body))
+	assert.Len(t, body, 1)
+	assert.Equal(t, "", body[0].DailyIncome)
 }
 
 func TestUpdate(t *testing.T) {

@@ -42,6 +42,49 @@ func getUserFromToken(c echo.Context) *models.UserClaims {
 	return claims.User
 }
 
+func getUserFromTokenOptional(c echo.Context) *models.UserClaims {
+	raw := c.Get("user")
+	if raw == nil {
+		return nil
+	}
+	t, ok := raw.(*jwt.Token)
+	if !ok || t == nil {
+		return nil
+	}
+	claims, ok := t.Claims.(*models.JwtCustomClaims)
+	if !ok || claims == nil {
+		return nil
+	}
+	return claims.User
+}
+
+func canSeeDailyIncome(actor *models.UserClaims, user *models.User) bool {
+	if actor == nil || user == nil {
+		return false
+	}
+	return actor.IsAdmin() || actor.ID == user.ID.Hex()
+}
+
+func redactDailyIncome(actor *models.UserClaims, user *models.User) *models.User {
+	if user == nil {
+		return nil
+	}
+	if canSeeDailyIncome(actor, user) {
+		return user
+	}
+	cloned := *user
+	cloned.DailyIncome = ""
+	return &cloned
+}
+
+func redactDailyIncomeList(actor *models.UserClaims, users []*models.User) []*models.User {
+	out := make([]*models.User, len(users))
+	for i, u := range users {
+		out[i] = redactDailyIncome(actor, u)
+	}
+	return out
+}
+
 // Create godoc
 // @Summary Create User
 // @Description Create User
@@ -70,12 +113,15 @@ func (h *HttpHandler) Create(c echo.Context) error {
 	if u.Role == "admin" && !user.IsAdmin() {
 		return utils.NewError(c, http.StatusForbidden, utils.ErrPermissionDenied)
 	}
+	if !user.IsAdmin() {
+		u.DailyIncome = ""
+	}
 
 	nu, err := h.Usecase.Create(&u)
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusCreated, nu)
+	return c.JSON(http.StatusCreated, redactDailyIncome(user, nu))
 }
 
 // Get godoc
@@ -97,7 +143,7 @@ func (h *HttpHandler) Get(c echo.Context) error {
 	if err != nil {
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, users)
+	return c.JSON(http.StatusOK, redactDailyIncomeList(user, users))
 }
 
 // GetById godoc
@@ -117,7 +163,7 @@ func (h *HttpHandler) GetByID(c echo.Context) error {
 	if err != nil {
 		return utils.NewError(c, http.StatusNoContent, err)
 	}
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, redactDailyIncome(getUserFromTokenOptional(c), user))
 }
 
 // GetByEmail godoc
@@ -137,7 +183,7 @@ func (h *HttpHandler) GetByEmail(c echo.Context) error {
 	if err != nil {
 		return utils.NewError(c, http.StatusNoContent, err)
 	}
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, redactDailyIncome(getUserFromTokenOptional(c), user))
 }
 
 // GetBySiteId godoc
@@ -158,11 +204,11 @@ func (h *HttpHandler) GetBySiteID(c echo.Context) error {
 	}
 
 	id := c.Param("id")
-	user, err := h.Usecase.GetBySiteID(id)
+	users, err := h.Usecase.GetBySiteID(id)
 	if err != nil {
 		return utils.NewError(c, http.StatusNoContent, err)
 	}
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, redactDailyIncomeList(u, users))
 }
 
 // Update godoc
@@ -198,7 +244,7 @@ func (h *HttpHandler) Update(c echo.Context) error {
 		}
 		return utils.NewError(c, http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, redactDailyIncome(ut, user))
 }
 
 // UpdateStatusTavi godoc

@@ -355,7 +355,28 @@ func TestUsecase_Update(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "new-site", u.SiteID)
 		assert.Equal(t, "Updated", u.FirstName)
-		assert.Equal(t, "9000", u.DailyIncome)
+		assert.Equal(t, "2000", u.DailyIncome)
+	})
+
+	t.Run("user-admin cannot change another user's dailyIncome", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.DailyIncome = "9000"
+		u, err := uc.Update(&req, claimsFor(userMock.UserManager))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "2000", u.DailyIncome)
 	})
 
 	t.Run("individual can update themselves", func(t *testing.T) {
@@ -373,10 +394,12 @@ func TestUsecase_Update(t *testing.T) {
 		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
 		req := current
 		req.Phone = "0812345678"
+		req.DailyIncome = "3500"
 		u, err := uc.Update(&req, claimsFor(current))
 
 		assert.NoError(t, err)
 		assert.Equal(t, "0812345678", u.Phone)
+		assert.Equal(t, "3500", u.DailyIncome)
 	})
 
 	t.Run("admin can change individual to corporate", func(t *testing.T) {
