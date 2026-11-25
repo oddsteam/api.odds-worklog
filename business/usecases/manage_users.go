@@ -128,6 +128,11 @@ func (u *manageUsersUsecase) Update(userFromRequest *models.User, actor *models.
 		}
 		updated.PeakCode = userFromRequest.PeakCode
 	}
+	// Only a full admin editing another user may change disableIncomeEntry.
+	// Otherwise keep the stored value so a missing/false JSON bool cannot clear it.
+	if !(isAdmin && !isSelf) {
+		userFromRequest.DisableIncomeEntry = currentUser.DisableIncomeEntry
+	}
 	updated.ApplyProfileUpdate(*userFromRequest)
 	return u.users.Update(&updated)
 }

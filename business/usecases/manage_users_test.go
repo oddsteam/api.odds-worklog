@@ -876,6 +876,116 @@ func TestUsecase_Update(t *testing.T) {
 		assert.Nil(t, u)
 		assert.EqualError(t, err, models.ErrInvalidUserRole.Error())
 	})
+
+	t.Run("admin can enable disableIncomeEntry for another user", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		current.DisableIncomeEntry = false
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.DisableIncomeEntry = true
+		u, err := uc.Update(&req, claimsFor(userMock.Admin))
+
+		assert.NoError(t, err)
+		assert.True(t, u.DisableIncomeEntry)
+	})
+
+	t.Run("admin can disable disableIncomeEntry for another user", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		current.DisableIncomeEntry = true
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.DisableIncomeEntry = false
+		u, err := uc.Update(&req, claimsFor(userMock.Admin))
+
+		assert.NoError(t, err)
+		assert.False(t, u.DisableIncomeEntry)
+	})
+
+	t.Run("individual cannot change own disableIncomeEntry to true", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		current.DisableIncomeEntry = false
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.DisableIncomeEntry = true
+		u, err := uc.Update(&req, claimsFor(current))
+
+		assert.NoError(t, err)
+		assert.False(t, u.DisableIncomeEntry)
+	})
+
+	t.Run("individual cannot clear own disableIncomeEntry when omitted as false", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		current.DisableIncomeEntry = true
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.DisableIncomeEntry = false
+		u, err := uc.Update(&req, claimsFor(current))
+
+		assert.NoError(t, err)
+		assert.True(t, u.DisableIncomeEntry)
+	})
+
+	t.Run("user-admin cannot change another user's disableIncomeEntry", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockSiteRepo := siteMock.NewMockRepository(ctrl)
+		mockRepo := userMock.NewMockRepository(ctrl)
+		current := userMock.IndividualUser1
+		current.DisableIncomeEntry = true
+		mockRepo.EXPECT().GetByID(current.ID.Hex()).Return(&current, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).DoAndReturn(func(u *models.User) (*models.User, error) {
+			return u, nil
+		})
+
+		uc := NewManageUsersUsecase(mockRepo, mockSiteRepo)
+		req := current
+		req.DisableIncomeEntry = false
+		u, err := uc.Update(&req, claimsFor(userMock.UserManager))
+
+		assert.NoError(t, err)
+		assert.True(t, u.DisableIncomeEntry)
+	})
 }
 
 func TestUsecase_UpdateStatusTavi(t *testing.T) {
